@@ -12,6 +12,10 @@
 
 extern void (*socket_session_start)(void) __attribute__((visibility("hidden")));
 
+/* socket_run() calls it as the connection it served ends, before its sockets close: what a controller set for the length
+ * of its connection ends with it. host_dispatch_register_monitor_output_off() sets it. */
+extern void (*socket_session_end)(void) __attribute__((visibility("hidden")));
+
 /* socket_send_feedback() asks it for the words a feedback line starts with: "#<n> " in a session granted seq, the line's
  * number, or nothing. It writes them, NUL-terminated, in buf and answers their length. protocol_add_hello() sets it. */
 extern size_t (*socket_feedback_prefix)(char *buf, size_t size) __attribute__((visibility("hidden")));

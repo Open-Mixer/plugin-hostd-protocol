@@ -60,6 +60,9 @@ curve_points 3 0 300
 curve_bind 3 0 eq_response eq band_freq.x=gain:hz band_q.0=:bypass@bell
 curve_bind 3 1 clear extra
 curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
+monitor_output_off 3 gain
+monitor_output_off 3
+monitor_output_off 3x gain
 SEEDS
 
 # a verb whose reply carries a value, with a salt that makes the backend succeed

@@ -66,4 +66,17 @@ sabotage "a value that is not finite answered -902" src/host-curve.c 'case OMX_C
 sabotage "y written to 0.1 dB" src/host-curve.c ' %s,%.2f' ' %s,%.1f' curve_test
 sabotage "a host without the hook answers not found" src/host-dispatch.c ' OMX_VERB_CURVE_BIND_FMT, OMX_VERB_CURVE_POINTS_FMT,' '' curve_test
 
+# monitor_output_off (tests/monitor_test.c)
+sabotage "a monitor outlives its connection" src/socket.c 'if (socket_session_end) socket_session_end();' '' monitor_test
+sabotage "an output this connection did not monitor is ended" src/host-dispatch.c 'int resp = OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP;' 'int resp = SUCCESS;' monitor_test
+sabotage "remove keeps the instance's monitors" src/host-dispatch.c 'monitors_forget(atoi(proto->list\[1\]));' 'if (0) monitors_forget(0);' monitor_test
+sabotage "remove -1 keeps the monitors of the other instances" src/host-dispatch.c 'if (instance == -1 || (\*m)->instance == instance)' 'if ((*m)->instance == instance)' monitor_test
+sabotage "an ended monitor stays" src/host-dispatch.c '        if (resp == SUCCESS)' '        if (0)' monitor_test
+sabotage "a refused monitor is kept" src/host-dispatch.c 'if (monitored == 0 \&\& g_monitor_output_off' 'if (g_monitor_output_off' monitor_test
+sabotage "a monitor asked for twice is kept twice" src/host-dispatch.c '\&\& !monitor_find(instance, proto->list\[2\]))' ')' monitor_test
+sabotage "the backend's refusal of the end is not answered" src/host-dispatch.c 'resp = g_monitor_output_off(instance, proto->list\[2\]);' 'g_monitor_output_off(instance, proto->list[2]); resp = SUCCESS;' monitor_test
+sabotage "an instance that is no number is read as its prefix" src/host-dispatch.c 'if (host_whole_number(proto->list\[1\], \&instance) < 0)' 'if (((instance = atoi(proto->list[1])), 0))' monitor_test
+sabotage "the verb is left out of the dispatch table" src/host-dispatch.c 'protocol_add_command(OMX_VERB_MONITOR_OUTPUT_OFF_FMT, monitor_output_off_cb);' 'if (0) protocol_add_command(OMX_VERB_MONITOR_OUTPUT_OFF_FMT, monitor_output_off_cb);' monitor_test
+sabotage "a host without the hook answers not found" src/host-dispatch.c ' OMX_VERB_MONITOR_OUTPUT_OFF_FMT,' '' monitor_test
+
 [ "$failed" = 0 ] && echo "hello sabotage ok" || { echo "hello sabotage FAILED"; exit 1; }

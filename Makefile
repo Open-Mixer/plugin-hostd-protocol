@@ -104,11 +104,11 @@ TEST_CFLAGS = $(filter-out -O3,$(CFLAGS)) -O1 -g -Werror
 # write() calls, which mod-host leaves unchecked too
 SAN = -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -Wno-error=unused-result
 TEST_PROGS = tests/protocol_test tests/protocol_commands_test tests/host_scenarios tests/golden-run tests/fixes_test tests/forms_test \
-             tests/hello_test tests/curve_test tests/runner_test \
+             tests/hello_test tests/curve_test tests/monitor_test tests/runner_test \
              tests/socket-test tests/bind-test tests/adopt-test tests/utils-test
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
-      test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-runner test-hello-sabotage test-install test-abi version-check \
+      test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-hello-sabotage test-install test-abi version-check \
       check-generated check-protocol-doc test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
@@ -222,6 +222,15 @@ test-curve: tests/curve_test
 	CURVE_PORT=$(CURVE_PORT) ./tests/curve_test
 
 tests/curve_test: tests/curve_test.c tests/test-client.h $(SRC) $(HEADERS) $(PROTOCOL_HEADERS) src/host-curve.h
+	$(CC) $(INCS) $(TEST_CFLAGS) $(SAN) -o $@ $< $(SRC) -lpthread -lm
+
+# monitor_output_off (tests/monitor_test.c): a monitor ended once, one the connection did not set refused (-543), every
+# monitor ended with the connection that set it, and an instance's gone with its remove
+MONITOR_PORT ?= 15598
+test-monitor: tests/monitor_test
+	MONITOR_PORT=$(MONITOR_PORT) ./tests/monitor_test
+
+tests/monitor_test: tests/monitor_test.c tests/test-client.h $(SRC) $(HEADERS) $(PROTOCOL_HEADERS) src/session.h
 	$(CC) $(INCS) $(TEST_CFLAGS) $(SAN) -o $@ $< $(SRC) -lpthread -lm
 
 # each fix taken out again in a scratch copy of the sources: fixes_test must fail on each

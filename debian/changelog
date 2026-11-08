@@ -14,6 +14,13 @@ plugin-hostd-protocol (0.5.0) unstable; urgency=medium
   * socket_adopt(): a host serves sockets its caller already bound, so a
     supervisor or a harness hands it the port and never closes and binds it
     again; a second bind on the port is refused.
+  * monitor_output_off <instance> <symbol> ends the monitor monitor_output
+    set: a monitor ends with the connection that set it, an output this
+    connection did not monitor is refused with -543 (output-not-monitored),
+    and remove takes an instance's monitors with it.
+  * host_dispatch_register_monitor_output_off(): the library keeps what each
+    connection monitored and calls the host's end for an output that is
+    ended, or left when the connection ends.
   * Builds with libomxdsp-dev >= 0.32.0 and < 0.33.
 
  -- Pau Aliagas <linuxnow@gmail.com>  Fri, 06 Nov 2026 18:00:00 +0100

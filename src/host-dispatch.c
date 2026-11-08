@@ -40,6 +40,7 @@
 #include "host-dispatch.h"
 #include "host-errors.h"
 #include "mod-host.h"
+#include "session.h"
 #include "socket.h"
 // the bulk verbs, declared with the protocol's own (data/verbs.json)
 #include "plugin-hostd/plugin_hostd_protocol_host_verbs.h"
@@ -54,6 +55,15 @@
 
 static const host_backend_t *g_backend;
 static int (*g_monitor_output)(int instance, const char *symbol);
+static int (*g_monitor_output_off)(int instance, const char *symbol);
+
+/* the outputs the connection monitors: monitor_output_off ends one, and the connection's end ends what is left */
+typedef struct MONITOR_T {
+    int instance;
+    char *symbol;
+    struct MONITOR_T *next;
+} monitor_t;
+static monitor_t *g_monitors;
 static const host_plugin_info_t *g_plugin_info;
 
 
@@ -62,6 +72,47 @@ static const host_plugin_info_t *g_plugin_info;
 *           LOCAL FUNCTIONS
 ************************************************************************************************************************
 */
+
+static monitor_t **monitor_find(int instance, const char *symbol)
+{
+    monitor_t **m;
+    for (m = &g_monitors; *m; m = &(*m)->next)
+        if ((*m)->instance == instance && strcmp((*m)->symbol, symbol) == 0)
+            return m;
+    return NULL;
+}
+
+static void monitor_drop(monitor_t **m)
+{
+    monitor_t *gone = *m;
+    *m = gone->next;
+    free(gone->symbol);
+    free(gone);
+}
+
+/* an instance that is removed (-1: every instance) took its monitors with it; the backend has nothing to end */
+static void monitors_forget(int instance)
+{
+    monitor_t **m = &g_monitors;
+    while (*m)
+    {
+        if (instance == -1 || (*m)->instance == instance)
+            monitor_drop(m);
+        else
+            m = &(*m)->next;
+    }
+}
+
+/* a monitor ends with the connection that set it: socket_run() calls this as the connection ends */
+static void monitors_end(void)
+{
+    while (g_monitors)
+    {
+        if (g_monitor_output_off)
+            g_monitor_output_off(g_monitors->instance, g_monitors->symbol);
+        monitor_drop(&g_monitors);
+    }
+}
 
 static void add_cb(proto_t *proto)
 {
@@ -88,7 +139,10 @@ static void remove_cb(proto_t *proto)
         resp = ERR_INVALID_OPERATION;
     /* an instance's curve bindings go with it */
     if (resp >= 0)
+    {
         host_curve_forget(atoi(proto->list[1]));
+        monitors_forget(atoi(proto->list[1]));
+    }
     protocol_response_int(resp, proto);
 }
 
@@ -297,9 +351,54 @@ static void monitor_output_cb(proto_t *proto)
 {
     int resp;
     if (g_monitor_output)
-        resp = !g_monitor_output(atoi(proto->list[1]), proto->list[2]);
+    {
+        int instance = atoi(proto->list[1]);
+        int monitored = g_monitor_output(instance, proto->list[2]);
+        resp = !monitored;
+        /* kept while the connection lasts, so monitor_output_off can end it and the connection's end does */
+        if (monitored == 0 && g_monitor_output_off && !monitor_find(instance, proto->list[2]))
+        {
+            monitor_t *m = calloc(1, sizeof(*m));
+            if (m)
+                m->symbol = strdup(proto->list[2]);
+            if (!m || !m->symbol)
+            {
+                free(m);
+                g_monitor_output_off(instance, proto->list[2]);
+                resp = ERR_MEMORY_ALLOCATION;
+            }
+            else
+            {
+                m->instance = instance;
+                m->next = g_monitors;
+                g_monitors = m;
+            }
+        }
+    }
     else
         resp = ERR_INVALID_OPERATION;
+    protocol_response_int(resp, proto);
+}
+
+/* only an output this connection monitored is ended; the backend's answer is the verb's */
+static void monitor_output_off_cb(proto_t *proto)
+{
+    int resp = OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP;
+    int instance = 0;
+    monitor_t **m = NULL;
+
+    /* an instance that is no whole number is a line of no shape of the verb */
+    if (host_whole_number(proto->list[1], &instance) < 0)
+        resp = ERR_INVALID_OPERATION;
+    else
+        m = monitor_find(instance, proto->list[2]);
+
+    if (m && g_monitor_output_off)
+    {
+        resp = g_monitor_output_off(instance, proto->list[2]);
+        if (resp == SUCCESS)
+            monitor_drop(m);
+    }
     protocol_response_int(resp, proto);
 }
 
@@ -553,6 +652,14 @@ void host_dispatch_register_monitor_output(int (*monitor_output)(int instance, c
     protocol_add_command(MONITOR_OUTPUT, monitor_output_cb);
 }
 
+void host_dispatch_register_monitor_output_off(int (*monitor_output_off)(int instance, const char *symbol))
+{
+    g_monitor_output_off = monitor_output_off;
+    socket_session_end = monitors_end;
+
+    protocol_add_command(OMX_VERB_MONITOR_OUTPUT_OFF_FMT, monitor_output_off_cb);
+}
+
 void host_dispatch_register_plugin_info(const host_plugin_info_t *info)
 {
     g_plugin_info = info;
@@ -569,7 +676,7 @@ void host_dispatch_register_unsupported(void)
 {
     static const char *const commands[] = {
         EFFECT_PRESET_SAVE, EFFECT_PRESET_SHOW, EFFECT_PARAM_MON, EFFECT_PATCH_GET, EFFECT_PATCH_SET,
-        EFFECT_LICENSEE, EFFECT_SET_BPM, EFFECT_SET_BPB, MONITOR_ADDR_SET, MONITOR_OUTPUT,
+        EFFECT_LICENSEE, EFFECT_SET_BPM, EFFECT_SET_BPB, MONITOR_ADDR_SET, MONITOR_OUTPUT, OMX_VERB_MONITOR_OUTPUT_OFF_FMT,
         MONITOR_MIDI_PROGRAM, MIDI_LEARN, MIDI_MAP, MIDI_UNMAP, CC_MAP, CC_VALUE_SET, CC_UNMAP, CV_MAP,
         CV_UNMAP, HMI_MAP, HMI_UNMAP, LOAD_COMMANDS, SAVE_COMMANDS, BUNDLE_ADD, BUNDLE_REMOVE,
         STATE_TMPDIR, FEATURE_ENABLE, TRANSPORT, TRANSPORT_SYNC, SHOW_EXTERNAL_UI, OUTPUT_DATA_READY,

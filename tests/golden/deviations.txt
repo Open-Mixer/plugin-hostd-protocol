@@ -106,3 +106,10 @@ dispatch:fuzz/corpus/dispatch/scenario-17 omx-panel#136
 dispatch:fuzz/corpus/dispatch/scenario-7 omx-panel#136
 dispatch:fuzz/corpus/dispatch/scenario-8 omx-panel#136
 dispatch:fuzz/corpus/dispatch/scenario-9 omx-panel#136
+# monitor_output_off, which mod-host does not know: ours answers it over the monitors the connection set
+fuzz/corpus/protocol/extra-32 openmixer#2408
+dispatch:fuzz/corpus/dispatch/extra-32 openmixer#2408
+fuzz/corpus/protocol/extra-33 openmixer#2408
+dispatch:fuzz/corpus/dispatch/extra-33 openmixer#2408
+fuzz/corpus/protocol/extra-34 openmixer#2408
+dispatch:fuzz/corpus/dispatch/extra-34 openmixer#2408
