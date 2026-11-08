@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.4.5
+Version: 0.5.0
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -19,6 +19,8 @@ BuildRequires: python3
 # the declared protocol: tools/protocol-gen holds protocol.h's parameter scales to omx-contract's C headers, and
 # install-contract writes the contract directory's package with omx-contract's script
 BuildRequires: (omx-contract-devel >= 3.11.0 with omx-contract-devel < 4)
+# omx_curve.h, the curve function the curve verbs draw with (header only)
+BuildRequires: (omx-dsp-devel >= 0.32.0 with omx-dsp-devel < 0.33)
 
 %description
 libplugin-hostd-protocol is the socket server, line protocol and command
@@ -102,6 +104,27 @@ make test
 %{_datadir}/omx-contract/contract.d/3/plugin-hostd-protocol/
 
 %changelog
+* Sun Nov 08 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.0-1
+- curve_bind and curve_points: a display of an instance's panel description
+  bound to the instance's parameters, and drawn from the values the instance
+  holds at its rate by omx-dsp's omx_curve_points; codes -536 to -539
+- host_dispatch_register_curve(): a host answers both over its backend and the
+  rate it gives; one that does not answers -902
+- codes -540 (durable-write-failed) and -541 (writer-queue-full) for the
+  daemon's writer thread; history_clear, pin_clear and pin_accept declare them
+- curve_points answers -542 (curve-value-not-finite) for a value that is not
+  finite; a head filter's slope comes from its enumeration (@12|24)
+- socket_adopt(): a host serves sockets its caller already bound; a second
+  bind on the port is refused
+- monitor_output_off <instance> <symbol> ends the monitor monitor_output set: a
+  monitor ends with the connection that set it, an output this connection did
+  not monitor is refused with -543 (output-not-monitored), and remove takes an
+  instance's monitors with it
+- host_dispatch_register_monitor_output_off(): the library keeps what each
+  connection monitored and calls the host's end for an output that is ended, or
+  left when the connection ends
+- builds with omx-dsp-devel >= 0.32.0 and < 0.33
+
 * Sat Nov 07 2026 Pau Aliagas <linuxnow@gmail.com> - 0.4.5-1
 - show_external_ui and hide_external_ui are optional of every profile: the
   daemon sends each to the worker that holds the instance and passes its
@@ -133,6 +156,7 @@ make test
 - phd_headless_qt(): with no display, a host gives Qt the offscreen platform
   unless the user set one, so a Qt-linked plugin (synthv1) does not abort
   as it is instantiated
+
 * Fri Nov 06 2026 Pau Aliagas <linuxnow@gmail.com> - 0.4.0-1
 - lv2_worker auto is no longer a word of the protocol: a plugin the chosen LV2
   worker refuses is answered with its code and never handed to another host.

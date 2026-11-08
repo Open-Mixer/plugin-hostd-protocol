@@ -127,6 +127,38 @@
 #define OMX_REPLY_PLUGIN_HOSTD_UNKNOWN_PLUGIN_RESP (-535)
 #define OMX_REPLY_PLUGIN_HOSTD_UNKNOWN_PLUGIN_TEXT_EN "No plugin with that address is installed here; install it, or choose another."
 #define OMX_REPLY_PLUGIN_HOSTD_UNKNOWN_PLUGIN_TEXT_CA "Aqu\303\255 no hi ha instal\302\267lat cap plugin amb aquesta adre\303\247a; instal\302\267la'l o tria'n un altre."
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_KIND_UNKNOWN "reply.plugin-hostd.curve-kind-unknown" ///< curve_bind of a family with no closed form for the display's kind, or curve_points of a binding whose values pick a band shape or a head filter slope with no closed form
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_KIND_UNKNOWN_RESP (-536)
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_KIND_UNKNOWN_TEXT_EN "This curve cannot be drawn for that kind of plugin or for the shape or slope it is set to; choose another shape or slope."
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_KIND_UNKNOWN_TEXT_CA "Aquesta corba no es pot dibuixar per a aquest tipus de plugin ni per a la forma o el pendent que t\303\251 triats; tria'n una altra forma o un altre pendent."
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_TERM_MISSING "reply.plugin-hostd.curve-term-missing" ///< curve_points of a display with no binding, or of a binding that lacks a term the model needs
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_TERM_MISSING_RESP (-537)
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_TERM_MISSING_TEXT_EN "The curve has nothing bound to draw from yet; bind the display to the plugin's controls first."
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_TERM_MISSING_TEXT_CA "La corba encara no t\303\251 res vinculat per dibuixar; primer vincula la pantalla als controls del plugin."
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_UNIT_REFUSED "reply.plugin-hostd.curve-unit-refused" ///< curve_bind of a term in a unit its role does not take
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_UNIT_REFUSED_RESP (-538)
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_UNIT_REFUSED_TEXT_EN "A control was bound in a unit that part of the curve does not take; bind it in the unit that part expects."
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_UNIT_REFUSED_TEXT_CA "S'ha vinculat un control en una unitat que aquesta part de la corba no accepta; vincula'l en la unitat que espera."
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_POINTS_RANGE "reply.plugin-hostd.curve-points-range" ///< curve_points of fewer than 2 points or more than the most a curve carries, an EQ's three anchors a drawn band counted, or of a band index past what fits
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_POINTS_RANGE_RESP (-539)
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_POINTS_RANGE_TEXT_EN "The curve was asked for too few or too many points, or for a band that is not there; ask for fewer points or another band."
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_POINTS_RANGE_TEXT_CA "S'han demanat massa pocs o massa punts per a la corba, o una banda que no hi \303\251s; demana'n menys o tria una altra banda."
+#define OMX_REPLY_PLUGIN_HOSTD_DURABLE_WRITE_FAILED "reply.plugin-hostd.durable-write-failed" ///< the daemon's write of a file the verb changes (the history, a pin file) failed on its writer thread: the change is not on disk
+#define OMX_REPLY_PLUGIN_HOSTD_DURABLE_WRITE_FAILED_RESP (-540)
+#define OMX_REPLY_PLUGIN_HOSTD_DURABLE_WRITE_FAILED_TEXT_EN "The change could not be saved to disk, so it will not be there after a restart; check the free space and try again."
+#define OMX_REPLY_PLUGIN_HOSTD_DURABLE_WRITE_FAILED_TEXT_CA "El canvi no s'ha pogut desar al disc i no hi ser\303\240 despr\303\251s de reiniciar; comprova l'espai lliure i torna-ho a provar."
+#define OMX_REPLY_PLUGIN_HOSTD_WRITER_QUEUE_FULL "reply.plugin-hostd.writer-queue-full" ///< the daemon's writer queue holds its most writes (64) or bytes (64 MiB): the write the verb needs was refused, and nothing of it changed
+#define OMX_REPLY_PLUGIN_HOSTD_WRITER_QUEUE_FULL_RESP (-541)
+#define OMX_REPLY_PLUGIN_HOSTD_WRITER_QUEUE_FULL_TEXT_EN "Too many changes are waiting to be saved, so this one was not made; wait a moment and try again."
+#define OMX_REPLY_PLUGIN_HOSTD_WRITER_QUEUE_FULL_TEXT_CA "Hi ha massa canvis esperant per desar-se i aquest no s'ha fet; espera un moment i torna-ho a provar."
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE "reply.plugin-hostd.curve-value-not-finite" ///< curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_RESP (-542)
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_TEXT_EN "The curve cannot be drawn because a value of the plugin is not a number, or the plugin is not running; start it or set the value again."
+#define OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_TEXT_CA "La corba no es pot dibuixar perqu\303\250 un valor del plugin no \303\251s un nombre, o el plugin no s'est\303\240 executant; posa'l en marxa o torna a donar el valor."
+#define OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED "reply.plugin-hostd.output-not-monitored" ///< monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier
+#define OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP (-543)
+#define OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_TEXT_EN "That output is not being watched on this connection, so there is nothing to stop."
+#define OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_TEXT_CA "Aquesta sortida no s'est\303\240 observant en aquesta connexi\303\263; no hi ha res per aturar."
 
 /* PLUGIN_HOSTD_PROTOCOL_EXTENSIONS (data/verbs.json) */
 #define OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_TAGS "tags" ///< request tags: a line may start with @<tag>, and its answer then starts with the same @<tag>
