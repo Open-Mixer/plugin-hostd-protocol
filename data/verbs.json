@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/omx-contract.schema.json",
   "requires": {
-    "omx-contract-schema": ">= 3.3.0",
+    "omx-contract-schema": ">= 3.11.0",
     "omx-clap-core": ">= 0.30.5"
   },
   "PLUGIN_HOSTD_REPLY_CODES": {
@@ -12,187 +12,372 @@
       "placementInvalid": {
         "code": "reply.plugin-hostd.placement-invalid",
         "resp": -501,
-        "doc": "not a placement, or not valid here"
+        "doc": "not a placement, or not valid here",
+        "text": {
+          "en": "The plugin cannot be placed there; choose another place for it.",
+          "ca": "El plugin no es pot col·locar allà; tria-hi un altre lloc."
+        },
+        "args": []
       },
       "noBackend": {
         "code": "reply.plugin-hostd.no-backend",
         "resp": -502,
-        "doc": "no worker program for the scheme"
+        "doc": "no worker program for the scheme",
+        "text": {
+          "en": "No installed program can run this kind of plugin; install one, or choose a plugin of another kind.",
+          "ca": "Cap programa instal·lat pot executar aquest tipus de plugin; instal·la'n un o tria un plugin d'un altre tipus."
+        },
+        "args": []
       },
       "workerSpawn": {
         "code": "reply.plugin-hostd.worker-spawn",
         "resp": -503,
-        "doc": "the worker is not up"
+        "doc": "the worker is not up",
+        "text": {
+          "en": "The program that runs the plugin is not running; wait a moment and try again.",
+          "ca": "El programa que executa el plugin no està en marxa; espera un moment i torna-ho a provar."
+        },
+        "args": []
       },
       "replay": {
         "code": "reply.plugin-hostd.replay",
         "resp": -504,
-        "doc": "the name of a refused replay on stderr, never a reply"
+        "doc": "the name of a refused replay on stderr, never a reply",
+        "text": {
+          "en": "A plugin could not be put back after a restart and was left out; add it again.",
+          "ca": "Un plugin no s'ha pogut tornar a posar després d'un reinici i s'ha deixat fora; afegeix-lo de nou."
+        },
+        "args": []
       },
       "gaveUp": {
         "code": "reply.plugin-hostd.gave-up",
         "resp": -505,
-        "doc": "the storm bound is spent for that placement"
+        "doc": "the storm bound is spent for that placement",
+        "text": {
+          "en": "The plugin kept failing and was given up on; check it, then add it again.",
+          "ca": "El plugin ha fallat repetidament i s'ha deixat de provar; revisa'l i afegeix-lo de nou."
+        },
+        "args": []
       },
       "noSuchWorker": {
         "code": "reply.plugin-hostd.no-such-worker",
         "resp": -506,
-        "doc": "no such worker"
+        "doc": "no such worker",
+        "text": {
+          "en": "No plugin host with that name is running; refresh the list and choose another.",
+          "ca": "No hi ha cap amfitrió de plugins amb aquest nom en marxa; actualitza la llista i tria'n un altre."
+        },
+        "args": []
       },
       "verbDropped": {
         "code": "reply.plugin-hostd.verb-dropped",
         "resp": -507,
-        "doc": "the worker died on this very command and the daemon dropped it"
+        "doc": "the worker died on this very command and the daemon dropped it",
+        "text": {
+          "en": "The plugin stopped just as it was asked to do this, so the request was lost; try again.",
+          "ca": "El plugin s'ha aturat just quan se li demanava això i la petició s'ha perdut; torna-ho a provar."
+        },
+        "args": []
       },
       "pinBinaryMismatch": {
         "code": "reply.plugin-hostd.pin-binary-mismatch",
         "resp": -509,
-        "doc": "a pinned file is missing or its SHA-256 differs"
+        "doc": "a pinned file is missing or its SHA-256 differs",
+        "text": {
+          "en": "The plugin's files are not the ones that were approved; install the approved version, or approve this one.",
+          "ca": "Els fitxers del plugin no són els que es van aprovar; instal·la la versió aprovada o aprova aquesta."
+        },
+        "args": []
       },
       "lv2AdapterRefused": {
         "code": "reply.plugin-hostd.lv2-adapter-refused",
         "resp": -512,
-        "doc": "the lv2-clap worker's LV2 adapter cannot run this plugin"
+        "doc": "the lv2-clap worker's LV2 adapter cannot run this plugin",
+        "text": {
+          "en": "This LV2 plugin cannot run here because the adapter does not support something it needs; choose another plugin.",
+          "ca": "Aquest plugin LV2 no es pot executar aquí perquè l'adaptador no admet alguna cosa que necessita; tria un altre plugin."
+        },
+        "args": []
       },
       "noPresetList": {
         "code": "reply.plugin-hostd.no-preset-list",
         "resp": -515,
-        "doc": "the instance's worker cannot list the plugin's presets"
+        "doc": "the instance's worker cannot list the plugin's presets",
+        "text": {
+          "en": "This plugin cannot list its presets; load one by name, or choose one of your own.",
+          "ca": "Aquest plugin no pot llistar els seus presets; carrega'n un pel nom o tria'n un de propi."
+        },
+        "args": []
       },
       "pinRefused": {
         "code": "reply.plugin-hostd.pin-refused",
         "resp": -516,
-        "doc": "the plugin's pin carries verdict=refused"
+        "doc": "the plugin's pin carries verdict=refused",
+        "text": {
+          "en": "This plugin failed its checks and is blocked; only you can allow it, by approving the plugin.",
+          "ca": "Aquest plugin no ha superat les comprovacions i està bloquejat; només tu el pots permetre, aprovant-lo."
+        },
+        "args": []
       },
       "chainUnknownInstance": {
         "code": "reply.plugin-hostd.chain-unknown-instance",
         "resp": -518,
-        "doc": "a member is an instance no add made"
+        "doc": "a member is an instance no add made",
+        "text": {
+          "en": "The chain includes a plugin that was never added; add it first, or take it out of the chain.",
+          "ca": "La cadena inclou un plugin que no s'ha afegit mai; afegeix-lo primer o treu-lo de la cadena."
+        },
+        "args": []
       },
       "chainDuplicate": {
         "code": "reply.plugin-hostd.chain-duplicate",
         "resp": -519,
-        "doc": "an instance is named twice in one chain"
+        "doc": "an instance is named twice in one chain",
+        "text": {
+          "en": "The chain includes the same plugin twice; keep it only once.",
+          "ca": "La cadena inclou el mateix plugin dues vegades; deixa'l només una vegada."
+        },
+        "args": []
       },
       "chainInstanceBusy": {
         "code": "reply.plugin-hostd.chain-instance-busy",
         "resp": -520,
-        "doc": "a member is already in another chain"
+        "doc": "a member is already in another chain",
+        "text": {
+          "en": "A plugin in this chain is already in another chain; clear that chain first, or use another plugin.",
+          "ca": "Un plugin d'aquesta cadena ja és en una altra cadena; buida l'altra cadena primer o fes servir un altre plugin."
+        },
+        "args": []
       },
       "chainMixedFormat": {
         "code": "reply.plugin-hostd.chain-mixed-format",
         "resp": -521,
-        "doc": "no one worker program runs every member"
+        "doc": "no one worker program runs every member",
+        "text": {
+          "en": "These plugins cannot run together as one chain because no single program can host them all; split the chain.",
+          "ca": "Aquests plugins no poden funcionar junts en una sola cadena perquè cap programa no els pot allotjar tots; divideix la cadena."
+        },
+        "args": []
       },
       "noSuchChain": {
         "code": "reply.plugin-hostd.no-such-chain",
         "resp": -522,
-        "doc": "a chain no chain line declared"
+        "doc": "a chain no chain line declared",
+        "text": {
+          "en": "There is no such chain; declare it first, or choose one that exists.",
+          "ca": "No existeix aquesta cadena; declara-la primer o tria'n una que existeixi."
+        },
+        "args": []
       },
       "presetNotOffered": {
         "code": "reply.plugin-hostd.preset-not-offered",
         "resp": -523,
-        "doc": "a stable name the plugin does not offer"
+        "doc": "a stable name the plugin does not offer",
+        "text": {
+          "en": "This plugin has no preset with that name; choose one from its list.",
+          "ca": "Aquest plugin no té cap preset amb aquest nom; tria'n un de la llista."
+        },
+        "args": []
       },
       "presetInvalid": {
         "code": "reply.plugin-hostd.preset-invalid",
         "resp": -524,
-        "doc": "a preset file or path that is not the preset format"
+        "doc": "a preset file or path that is not the preset format",
+        "text": {
+          "en": "The preset file cannot be used because it is unreadable or not in the preset format; choose another file, or save the preset again.",
+          "ca": "El fitxer del preset no es pot fer servir perquè no es pot llegir o no té el format de preset; tria un altre fitxer o desa el preset de nou."
+        },
+        "args": []
       },
       "presetNeedsState": {
         "code": "reply.plugin-hostd.preset-needs-state",
         "resp": -525,
-        "doc": "a preset file that carries state for a worker that cannot take state"
+        "doc": "a preset file that carries state for a worker that cannot take state",
+        "text": {
+          "en": "This preset holds the plugin's saved state, which this plugin host cannot load yet; use a preset made by the plugin itself.",
+          "ca": "Aquest preset conté l'estat desat del plugin, que aquest amfitrió encara no pot carregar; fes servir un preset fet pel mateix plugin."
+        },
+        "args": []
       },
       "presetPluginChanged": {
         "code": "reply.plugin-hostd.preset-plugin-changed",
         "resp": -526,
-        "doc": "the preset file's plugin id, version or fingerprint is not the instance's"
+        "doc": "the preset file's plugin id, version or fingerprint is not the instance's",
+        "text": {
+          "en": "The preset was made for another plugin, or another version of it, so nothing was applied; choose a preset made for this one.",
+          "ca": "El preset es va fer per a un altre plugin, o per a una altra versió, i no s'ha aplicat res; tria un preset fet per a aquest."
+        },
+        "args": []
       },
       "loadRefused": {
         "code": "reply.plugin-hostd.load-refused",
         "resp": -527,
-        "doc": "the plugin refused the preset or the state its file carries"
+        "doc": "the plugin refused the preset or the state its file carries",
+        "text": {
+          "en": "The plugin did not accept the contents of the preset; try another preset.",
+          "ca": "El plugin no ha acceptat el contingut del preset; prova'n un altre."
+        },
+        "args": []
       },
       "dirNotWritable": {
         "code": "reply.plugin-hostd.dir-not-writable",
         "resp": -528,
-        "doc": "descriptor_dir or qualification_dir cannot be made or written"
+        "doc": "descriptor_dir or qualification_dir cannot be made or written",
+        "text": {
+          "en": "A folder the plugins need cannot be created or written to; check its location and permissions.",
+          "ca": "No es pot crear ni escriure una carpeta que els plugins necessiten; revisa'n la ubicació i els permisos."
+        },
+        "args": []
       },
       "descriptorAbsent": {
         "code": "reply.plugin-hostd.descriptor-absent",
         "resp": -529,
-        "doc": "no descriptor (panel) for the plugin's binary as it is now"
+        "doc": "no descriptor (panel) for the plugin's binary as it is now",
+        "text": {
+          "en": "There is no description of this plugin, so its panel cannot be shown; add the plugin again so it is scanned.",
+          "ca": "No hi ha cap descripció d'aquest plugin, de manera que no se'n pot mostrar el tauler; torna a afegir el plugin perquè s'examini."
+        },
+        "args": []
       },
       "descriptorPending": {
         "code": "reply.plugin-hostd.descriptor-pending",
         "resp": -530,
-        "doc": "the scan its add started has not written the descriptor (panel) yet"
+        "doc": "the scan its add started has not written the descriptor (panel) yet",
+        "text": {
+          "en": "The plugin is still being scanned; try again in a moment.",
+          "ca": "El plugin encara s'està examinant; torna-ho a provar d'aquí a un moment."
+        },
+        "args": []
       },
       "descriptorScanFailed": {
         "code": "reply.plugin-hostd.descriptor-scan-failed",
         "resp": -531,
-        "doc": "the plugin's last scan wrote no descriptor (panel)"
+        "doc": "the plugin's last scan wrote no descriptor (panel)",
+        "text": {
+          "en": "The plugin could not be scanned, so its panel is not available; check that it works, then add it again.",
+          "ca": "No s'ha pogut examinar el plugin, de manera que el seu tauler no està disponible; comprova que funciona i afegeix-lo de nou."
+        },
+        "args": []
       },
       "noSuchPlan": {
         "code": "reply.plugin-hostd.no-such-plan",
         "resp": -532,
-        "doc": "a chain no plan verb planned"
+        "doc": "a chain no plan verb planned",
+        "text": {
+          "en": "There is no plan for this chain; make one first.",
+          "ca": "No hi ha cap pla per a aquesta cadena; fes-ne un primer."
+        },
+        "args": []
       },
       "noRecord": {
         "code": "reply.plugin-hostd.no-record",
         "resp": -533,
-        "doc": "no qualification record names the plugin"
+        "doc": "no qualification record names the plugin",
+        "text": {
+          "en": "This plugin has not been measured yet, so its cost is not known; run its qualification first.",
+          "ca": "Aquest plugin encara no s'ha mesurat, de manera que no se'n coneix el cost; fes-ne primer la qualificació."
+        },
+        "args": []
       },
       "noCell": {
         "code": "reply.plugin-hostd.no-cell",
         "resp": -534,
-        "doc": "the plugin's qualification records hold no cost and latency at that rate and quantum"
+        "doc": "the plugin's qualification records hold no cost and latency at that rate and quantum",
+        "text": {
+          "en": "This plugin has no measurement at this sample rate and block size; measure it with these settings, or change them.",
+          "ca": "Aquest plugin no té cap mesura amb aquesta freqüència de mostreig i mida de bloc; mesura'l amb aquests ajustos o canvia'ls."
+        },
+        "args": []
       },
       "unknownPlugin": {
         "code": "reply.plugin-hostd.unknown-plugin",
         "resp": -535,
-        "doc": "the uri names no plugin installed here"
+        "doc": "the uri names no plugin installed here",
+        "text": {
+          "en": "No plugin with that address is installed here; install it, or choose another.",
+          "ca": "Aquí no hi ha instal·lat cap plugin amb aquesta adreça; instal·la'l o tria'n un altre."
+        },
+        "args": []
       },
       "curveKindUnknown": {
         "code": "reply.plugin-hostd.curve-kind-unknown",
         "resp": -536,
-        "doc": "curve_bind of a family with no closed form for the display's kind, or curve_points of a binding whose values pick a band shape or a head filter slope with no closed form"
+        "doc": "curve_bind of a family with no closed form for the display's kind, or curve_points of a binding whose values pick a band shape or a head filter slope with no closed form",
+        "text": {
+          "en": "This curve cannot be drawn for that kind of plugin or for the shape or slope it is set to; choose another shape or slope.",
+          "ca": "Aquesta corba no es pot dibuixar per a aquest tipus de plugin ni per a la forma o el pendent que té triats; tria'n una altra forma o un altre pendent."
+        },
+        "args": []
       },
       "curveTermMissing": {
         "code": "reply.plugin-hostd.curve-term-missing",
         "resp": -537,
-        "doc": "curve_points of a display with no binding, or of a binding that lacks a term the model needs"
+        "doc": "curve_points of a display with no binding, or of a binding that lacks a term the model needs",
+        "text": {
+          "en": "The curve has nothing bound to draw from yet; bind the display to the plugin's controls first.",
+          "ca": "La corba encara no té res vinculat per dibuixar; primer vincula la pantalla als controls del plugin."
+        },
+        "args": []
       },
       "curveUnitRefused": {
         "code": "reply.plugin-hostd.curve-unit-refused",
         "resp": -538,
-        "doc": "curve_bind of a term in a unit its role does not take"
+        "doc": "curve_bind of a term in a unit its role does not take",
+        "text": {
+          "en": "A control was bound in a unit that part of the curve does not take; bind it in the unit that part expects.",
+          "ca": "S'ha vinculat un control en una unitat que aquesta part de la corba no accepta; vincula'l en la unitat que espera."
+        },
+        "args": []
       },
       "curvePointsRange": {
         "code": "reply.plugin-hostd.curve-points-range",
         "resp": -539,
-        "doc": "curve_points of fewer than 2 points or more than the most a curve carries, an EQ's three anchors a drawn band counted, or of a band index past what fits"
+        "doc": "curve_points of fewer than 2 points or more than the most a curve carries, an EQ's three anchors a drawn band counted, or of a band index past what fits",
+        "text": {
+          "en": "The curve was asked for too few or too many points, or for a band that is not there; ask for fewer points or another band.",
+          "ca": "S'han demanat massa pocs o massa punts per a la corba, o una banda que no hi és; demana'n menys o tria una altra banda."
+        },
+        "args": []
       },
       "durableWriteFailed": {
         "code": "reply.plugin-hostd.durable-write-failed",
         "resp": -540,
-        "doc": "the daemon's write of a file the verb changes (the history, a pin file) failed on its writer thread: the change is not on disk"
+        "doc": "the daemon's write of a file the verb changes (the history, a pin file) failed on its writer thread: the change is not on disk",
+        "text": {
+          "en": "The change could not be saved to disk, so it will not be there after a restart; check the free space and try again.",
+          "ca": "El canvi no s'ha pogut desar al disc i no hi serà després de reiniciar; comprova l'espai lliure i torna-ho a provar."
+        },
+        "args": []
       },
       "writerQueueFull": {
         "code": "reply.plugin-hostd.writer-queue-full",
         "resp": -541,
-        "doc": "the daemon's writer queue holds its most writes (64) or bytes (64 MiB): the write the verb needs was refused, and nothing of it changed"
+        "doc": "the daemon's writer queue holds its most writes (64) or bytes (64 MiB): the write the verb needs was refused, and nothing of it changed",
+        "text": {
+          "en": "Too many changes are waiting to be saved, so this one was not made; wait a moment and try again.",
+          "ca": "Hi ha massa canvis esperant per desar-se i aquest no s'ha fet; espera un moment i torna-ho a provar."
+        },
+        "args": []
       },
       "curveValueNotFinite": {
         "code": "reply.plugin-hostd.curve-value-not-finite",
         "resp": -542,
-        "doc": "curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn"
+        "doc": "curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn",
+        "text": {
+          "en": "The curve cannot be drawn because a value of the plugin is not a number, or the plugin is not running; start it or set the value again.",
+          "ca": "La corba no es pot dibuixar perquè un valor del plugin no és un nombre, o el plugin no s'està executant; posa'l en marxa o torna a donar el valor."
+        },
+        "args": []
       },
       "outputNotMonitored": {
         "code": "reply.plugin-hostd.output-not-monitored",
         "resp": -543,
-        "doc": "monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier"
+        "doc": "monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier",
+        "text": {
+          "en": "That output is not being watched on this connection, so there is nothing to stop.",
+          "ca": "Aquesta sortida no s'està observant en aquesta connexió; no hi ha res per aturar."
+        },
+        "args": []
       }
     }
   },

@@ -109,7 +109,7 @@ TEST_PROGS = tests/protocol_test tests/protocol_commands_test tests/host_scenari
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker
+      check-generated check-protocol-doc test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
 test-protocol: tests/protocol_test
@@ -339,6 +339,14 @@ test-default-lv2-worker:
 test-mod-host-json:
 	python3 tests/mod_host_json.py include
 
+# every code this repository owns has its sentence in English and in Catalan (tests/code_text.py); the installed
+# omx-contract must be the schema that has `text`, and test-code-text-sabotage takes each rule out in a scratch copy
+test-code-text:
+	python3 tests/code_text.py data/verbs.json protocol/plugin-hostd-protocol.json $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/omx-contract.schema.json)
+
+test-code-text-sabotage:
+	sh tests/code-text-sabotage.sh
+
 # each generated file and each declaration it is written from, changed in a scratch copy of the tree: the checks above
 # must fail on each (tests/generated-sabotage.sh)
 test-generated-sabotage:
@@ -356,7 +364,7 @@ CONTRACT_SCHEMA_MAJOR = 3
 CONTRACTDIR = $(or $(shell $(PKG_CONFIG) --variable=contractdir omx-contract 2>/dev/null),$(DATADIR)/omx-contract/contract.d)
 INSTALL_CONTRACT_DIR = $(firstword $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/install-contract-dir.sh) $(wildcard $(OMX_CONTRACT_DIR)/tools/install-contract-dir.sh))
 
-check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-grammar check-contract-dir test-abnf-corpus
+check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-grammar check-contract-dir test-abnf-corpus test-code-text-sabotage
 
 # data/verbs.json as the package plugin-hostd-protocol of omx-contract's contract directory,
 # <contractdir>/<schema major>/plugin-hostd-protocol/, with the MANIFEST.json omx-contract's script writes
@@ -480,7 +488,7 @@ clean:
 
 .PHONY: gen check-generated protocol-doc check-protocol-doc test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker \
         check-protocol-tools install-contract check-contract-dir render-verbs check-rendered test-rendered-sabotage \
-        check-schema test-grammar
+        check-schema test-grammar test-code-text test-code-text-sabotage
 .PHONY: all install test test-protocol test-protocol-commands test-utils test-socket test-bind test-golden \
         test-golden-modhost golden-update golden-modhost test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-runner test-hello-sabotage test-bind-sabotage test-install test-abi \
         abi-symbols abi-stage abi-baseline abi-check version-check fuzz fuzz-run fuzz-corpus fuzz-abnf-corpus test-abnf-corpus fuzz-sabotage fuzz-records fuzz-coverage clean

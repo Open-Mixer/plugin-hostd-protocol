@@ -31,6 +31,11 @@ plugin-hostd-protocol (0.4.5) unstable; urgency=medium
     daemon sends each to the worker that holds the instance and passes its
     resp back; a daemon with no display session refuses both with -902
     hosting.window.no-display; the ledger keeps the latest of the two.
+  * Every code the protocol owns (-501 to -535) carries the sentence a
+    person reads, in English and in Catalan, with its placeholders: the
+    owner's words in data/verbs.json. The declaration needs omx-contract
+    3.11.0 (schema 3.11.0), which validates them; tests/code_text.py holds
+    every reply.plugin-hostd code of the table to a sentence.
 
  -- Pau Aliagas <linuxnow@gmail.com>  Sat, 07 Nov 2026 18:00:00 +0100
 
