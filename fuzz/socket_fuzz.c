@@ -9,8 +9,9 @@
 #include "../src/session.h"
 #include "fuzz.h"
 
-/* no connection here: a harness that needs a new session calls it itself */
+/* no connection here: a harness that needs a new session, or to end one, calls it itself */
 void (*socket_session_start)(void);
+void (*socket_session_end)(void);
 size_t (*socket_feedback_prefix)(char *buf, size_t size);
 
 /* the last feedback line, as src/socket.c writes it: the prefix the session gives, then the line */
