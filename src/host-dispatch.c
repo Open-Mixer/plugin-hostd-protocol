@@ -42,6 +42,7 @@
 #include "mod-host.h"
 #include "socket.h"
 // the bulk verbs, declared with the protocol's own (data/verbs.json)
+#include "plugin-hostd/omx_clap_core_host_verbs.h"
 #include "plugin-hostd/plugin_hostd_protocol_host_verbs.h"
 #include "plugin-hostd/protocol.h"
 
@@ -574,6 +575,7 @@ void host_dispatch_register_unsupported(void)
         CV_UNMAP, HMI_MAP, HMI_UNMAP, LOAD_COMMANDS, SAVE_COMMANDS, BUNDLE_ADD, BUNDLE_REMOVE,
         STATE_TMPDIR, FEATURE_ENABLE, TRANSPORT, TRANSPORT_SYNC, SHOW_EXTERNAL_UI, OUTPUT_DATA_READY,
         TRACK_INFO, REMOTE_PAGES, REMOTE_PAGE_GET, PARAM_INFO, OMX_VERB_CURVE_BIND_FMT, OMX_VERB_CURVE_POINTS_FMT,
+        OMX_VERB_HIDE_EXTERNAL_UI_FMT,
         NULL
     };
     const char *const *command;
