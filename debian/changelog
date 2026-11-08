@@ -1,3 +1,12 @@
+plugin-hostd-protocol (0.5.1) unstable; urgency=medium
+
+  * The golden deviations name only public references: monitor_output_off's
+    exchanges cite omx-dsp#301. The CI runs the public-sources checks
+    (commit messages, private references, the public layout) on every pull
+    request.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Sun, 08 Nov 2026 23:55:36 +0100
+
 plugin-hostd-protocol (0.5.0) unstable; urgency=medium
 
   * curve_bind and curve_points: a display of an instance's panel
