@@ -89,6 +89,15 @@ void host_dispatch_register(const host_backend_t *backend);
 /* Registers monitor_output, answered as mod-host does; NULL answers ERR_INVALID_OPERATION.
    Call it before host_dispatch_register_unsupported(). */
 void host_dispatch_register_monitor_output(int (*monitor_output)(int instance, const char *symbol));
+/* Registers monitor_output_off (doc/protocol.md, Monitors): the library keeps the outputs this connection monitored with
+   monitor_output, and monitor_output_off of one of them calls monitor_output_off, which answers SUCCESS once the
+   output's monitor has ended (or the negative code that refuses), while one of an output this connection did not
+   monitor is answered -543 without calling it. A monitor ends with the connection that set it: it is called for each
+   output left when the connection ends, its answer unread; an instance that remove ends takes its monitors with it and
+   it is not called for them. Call it after host_dispatch_register_monitor_output() and before
+   host_dispatch_register_unsupported(); a host that does not answers monitor_output_off ERR_INVALID_OPERATION. */
+#define HOST_DISPATCH_HAS_MONITOR_OFF 1
+void host_dispatch_register_monitor_output_off(int (*monitor_output_off)(int instance, const char *symbol));
 /* Registers track_info, remote_pages, remote_page_get and param_info.
    Call it before host_dispatch_register_unsupported(). */
 void host_dispatch_register_plugin_info(const host_plugin_info_t *info);

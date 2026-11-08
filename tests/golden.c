@@ -120,6 +120,11 @@ static int b_monitor_output(int instance, const char *symbol)
     record("monitor_output(%d,%s)", instance, symbol);
     return answer(instance);
 }
+static int b_monitor_output_off(int instance, const char *symbol)
+{
+    record("monitor_output_off(%d,%s)", instance, symbol);
+    return answer(instance);
+}
 static int b_track_info(int instance, const char *name, const char *color, const char *kind)
 {
     record("track_info(%d,%s,%s,%s)", instance, name, color, kind ? kind : "NULL");
@@ -338,6 +343,10 @@ int main(int argc, char **argv)
     socket_set_receive_cb(protocol_parse);
     host_dispatch_register(&g_backend);
     host_dispatch_register_monitor_output(b_monitor_output);
+#ifdef HOST_DISPATCH_HAS_MONITOR_OFF
+    /* this library's monitor_output_off: mod-host answers it not found (deviations.txt) */
+    host_dispatch_register_monitor_output_off(b_monitor_output_off);
+#endif
     host_dispatch_register_plugin_info(&g_info);
 #ifdef HOST_DISPATCH_HAS_CURVE
     /* this library's curve verbs: mod-host answers them not found (deviations.txt) */

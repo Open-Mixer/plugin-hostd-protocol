@@ -91,6 +91,7 @@ static int g_idle_interval_ms;
 
 // called as each controller connects, and asked for what a feedback line starts with (session.h)
 void (*socket_session_start)(void);
+void (*socket_session_end)(void);
 size_t (*socket_feedback_prefix)(char *buf, size_t size);
 
 /*
@@ -553,6 +554,9 @@ void socket_run(int exit_on_failure)
             break;
         }
     }
+
+    /* what the controller set for the length of its connection ends with it */
+    if (socket_session_end) socket_session_end();
 
     if (fbclientfd != INVALID_SOCKET)
     {

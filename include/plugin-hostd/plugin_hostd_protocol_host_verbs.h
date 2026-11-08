@@ -264,7 +264,14 @@ struct omx_host_verb {
 #define OMX_VERB_CURVE_POINTS_CODES_COUNT 8u
 #define OMX_VERB_CURVE_POINTS_CODES_INIT { -3, -103, -536, -537, -539, -542, -901, -902 } /* reply.host.instance-non-exists, reply.host.param-symbol-invalid, reply.plugin-hostd.curve-kind-unknown, reply.plugin-hostd.curve-term-missing, reply.plugin-hostd.curve-points-range, reply.plugin-hostd.curve-value-not-finite, reply.host.memory-allocation, reply.host.invalid-operation */
 
-#define PLUGIN_HOSTD_PROTOCOL_HOST_VERB_COUNT 33u
+/* PLUGIN_HOSTD_PROTOCOL_VERBS.monitorOutputOff (data/verbs.json): Ends the monitor monitor_output set on an output: <instance> <symbol>, answered resp 0, and the output's feedback lines stop. A monitor ends with the connection that set it, so a controller that disconnects leaves none behind, and only the connection that set a monitor ends it earlier: an output this connection did not monitor (never monitored, monitored by an earlier connection, already ended, or its instance removed) is refused (-543), and a line that is not an instance and a symbol, or a host that does not serve the verb, is refused (-902). The output's ledger line goes with the monitor, so a respawn of the instance does not replay it. */
+#define OMX_VERB_MONITOR_OUTPUT_OFF "monitor_output_off"
+#define OMX_VERB_MONITOR_OUTPUT_OFF_FMT "monitor_output_off %i %s"
+#define OMX_VERB_MONITOR_OUTPUT_OFF_REPLY "resp 0"
+#define OMX_VERB_MONITOR_OUTPUT_OFF_CODES_COUNT 2u
+#define OMX_VERB_MONITOR_OUTPUT_OFF_CODES_INIT { -543, -902 } /* reply.plugin-hostd.output-not-monitored, reply.host.invalid-operation */
+
+#define PLUGIN_HOSTD_PROTOCOL_HOST_VERB_COUNT 34u
 
 /* Every verb, in the order of its items, with what each host owes it. */
 static inline const struct omx_host_verb *plugin_hostd_protocol_host_verbs(void) {
@@ -302,6 +309,7 @@ static inline const struct omx_host_verb *plugin_hostd_protocol_host_verbs(void)
     { OMX_VERB_PARAM_SET_MANY, OMX_VERB_PARAM_SET_MANY_FMT, OMX_VERB_PARAM_SET_MANY_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_CURVE_BIND, OMX_VERB_CURVE_BIND_FMT, OMX_VERB_CURVE_BIND_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_CURVE_POINTS, OMX_VERB_CURVE_POINTS_FMT, OMX_VERB_CURVE_POINTS_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },
+    { OMX_VERB_MONITOR_OUTPUT_OFF, OMX_VERB_MONITOR_OUTPUT_OFF_FMT, OMX_VERB_MONITOR_OUTPUT_OFF_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },
   };
   return table;
 }

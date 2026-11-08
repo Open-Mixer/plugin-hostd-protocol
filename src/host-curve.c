@@ -202,7 +202,7 @@ static int parse_term(const char *w, curve_term_t *t)
 }
 
 /* a whole number, the whole word */
-static int whole(const char *w, int *out)
+int host_whole_number(const char *w, int *out)
 {
     char *end;
     long v = strtol(w, &end, 10);
@@ -231,7 +231,7 @@ static void curve_bind_cb(proto_t *proto)
     int code, kind, family;
     curve_binding_t **slot, *b;
 
-    if (whole(proto->list[1], &instance) != 0 || whole(proto->list[2], &display) != 0)
+    if (host_whole_number(proto->list[1], &instance) != 0 || host_whole_number(proto->list[2], &display) != 0)
     {
         protocol_response_int(ERR_INVALID_OPERATION, proto);
         return;
@@ -373,8 +373,8 @@ static void curve_points_cb(proto_t *proto)
     uint32_t i, n;
     int code;
 
-    if (whole(proto->list[1], &instance) != 0 || whole(proto->list[2], &display) != 0 ||
-        whole(proto->list[3], &points) != 0)
+    if (host_whole_number(proto->list[1], &instance) != 0 || host_whole_number(proto->list[2], &display) != 0 ||
+        host_whole_number(proto->list[3], &points) != 0)
     {
         protocol_response_int(ERR_INVALID_OPERATION, proto);
         return;

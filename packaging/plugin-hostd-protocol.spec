@@ -116,6 +116,13 @@ make test
   finite; a head filter's slope comes from its enumeration (@12|24)
 - socket_adopt(): a host serves sockets its caller already bound; a second
   bind on the port is refused
+- monitor_output_off <instance> <symbol> ends the monitor monitor_output set: a
+  monitor ends with the connection that set it, an output this connection did
+  not monitor is refused with -543 (output-not-monitored), and remove takes an
+  instance's monitors with it
+- host_dispatch_register_monitor_output_off(): the library keeps what each
+  connection monitored and calls the host's end for an output that is ended, or
+  left when the connection ends
 - builds with omx-dsp-devel >= 0.32.0 and < 0.33
 
 * Sat Nov 07 2026 Pau Aliagas <linuxnow@gmail.com> - 0.4.5-1

@@ -8,6 +8,7 @@
     <elf-symbol name='host_dispatch_register' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
     <elf-symbol name='host_dispatch_register_curve' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
     <elf-symbol name='host_dispatch_register_monitor_output' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
+    <elf-symbol name='host_dispatch_register_monitor_output_off' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
     <elf-symbol name='host_dispatch_register_plugin_info' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
     <elf-symbol name='host_dispatch_register_unsupported' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>
     <elf-symbol name='host_dispatch_remote_pages_changed' type='func-type' binding='global-binding' visibility='default-visibility' is-defined='yes'/>

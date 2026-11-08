@@ -17,4 +17,7 @@ void host_curve_set_backend(const host_backend_t *backend) __attribute__((visibi
 /* the reply code of an omx_curve_points code */
 int host_curve_code(int omx_code) __attribute__((visibility("hidden")));
 
+/* a whole number, the whole word: 0 and the number in *out, or -1 */
+int host_whole_number(const char *w, int *out) __attribute__((visibility("hidden")));
+
 #endif

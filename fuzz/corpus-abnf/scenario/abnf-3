@@ -1,10 +1,10 @@
-estimate -524 8 "" "" "\" " => @- resp 398 !ME "\""
-set_bpb +.7 => @_ resp -630 2!
-@_- pin_expect 6 ȟɢK => @8. resp 1 ""
 @. pin_reload => resp -65 "" n!*
 @6- instance_info -7 => @. resp -25 "ƶ"
 all_notes_off 0 => @hk few arguments
 help => @1-A resp 0 ""
 remote_page_get 023 -956 => invalid argument
-param_set_many -52 ǡ .657E572 ! => @.-- resp 330
-chain_get 0 => few arguments
+param_get_many -52 ǡ "\" "!" => @-A few arguments
+param_info 330 "ŏ\"" => @-_ resp 908 !
+@_ monitor !!! -2 -125 => @.u. not found
+lv2_worker_set ! "\"V" => @.UU resp -294
+bundle_add G'! => resp 3 "" ""

@@ -378,6 +378,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -3
 = sample_rate(3)
+# fuzz/corpus/protocol/extra-32 answer 0
+> monitor_output_off 3 gain
+< resp -543
+= 
+# fuzz/corpus/protocol/extra-33 answer 0
+> monitor_output_off 3
+< few arguments
+= 
+# fuzz/corpus/protocol/extra-34 answer 0
+> monitor_output_off 3x gain
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-4 answer 0
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -3
@@ -682,6 +694,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -3
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/extra-32 answer 0
+> monitor_output_off 3 gain
+< resp -543
+= 
+# dispatch:fuzz/corpus/dispatch/extra-33 answer 0
+> monitor_output_off 3
+< few arguments
+= 
+# dispatch:fuzz/corpus/dispatch/extra-34 answer 0
+> monitor_output_off 3x gain
+< resp -902
+= 
 # dispatch:fuzz/corpus/dispatch/extra-4 answer 0
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -3
@@ -1310,6 +1334,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -4
 = sample_rate(3)
+# fuzz/corpus/protocol/extra-32 answer 1
+> monitor_output_off 3 gain
+< resp -543
+= 
+# fuzz/corpus/protocol/extra-33 answer 1
+> monitor_output_off 3
+< few arguments
+= 
+# fuzz/corpus/protocol/extra-34 answer 1
+> monitor_output_off 3x gain
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-4 answer 1
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -4
@@ -1614,6 +1650,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -4
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/extra-32 answer 1
+> monitor_output_off 3 gain
+< resp -543
+= 
+# dispatch:fuzz/corpus/dispatch/extra-33 answer 1
+> monitor_output_off 3
+< few arguments
+= 
+# dispatch:fuzz/corpus/dispatch/extra-34 answer 1
+> monitor_output_off 3x gain
+< resp -902
+= 
 # dispatch:fuzz/corpus/dispatch/extra-4 answer 1
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -4
@@ -2242,6 +2290,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -101
 = sample_rate(3)
+# fuzz/corpus/protocol/extra-32 answer 2
+> monitor_output_off 3 gain
+< resp -543
+= 
+# fuzz/corpus/protocol/extra-33 answer 2
+> monitor_output_off 3
+< few arguments
+= 
+# fuzz/corpus/protocol/extra-34 answer 2
+> monitor_output_off 3x gain
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-4 answer 2
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -101
@@ -2546,6 +2606,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -101
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/extra-32 answer 2
+> monitor_output_off 3 gain
+< resp -543
+= 
+# dispatch:fuzz/corpus/dispatch/extra-33 answer 2
+> monitor_output_off 3
+< few arguments
+= 
+# dispatch:fuzz/corpus/dispatch/extra-34 answer 2
+> monitor_output_off 3x gain
+< resp -902
+= 
 # dispatch:fuzz/corpus/dispatch/extra-4 answer 2
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -101
@@ -3174,6 +3246,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -902
 = sample_rate(3)
+# fuzz/corpus/protocol/extra-32 answer 3
+> monitor_output_off 3 gain
+< resp -543
+= 
+# fuzz/corpus/protocol/extra-33 answer 3
+> monitor_output_off 3
+< few arguments
+= 
+# fuzz/corpus/protocol/extra-34 answer 3
+> monitor_output_off 3x gain
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-4 answer 3
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -902
@@ -3478,6 +3562,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -902
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/extra-32 answer 3
+> monitor_output_off 3 gain
+< resp -543
+= 
+# dispatch:fuzz/corpus/dispatch/extra-33 answer 3
+> monitor_output_off 3
+< few arguments
+= 
+# dispatch:fuzz/corpus/dispatch/extra-34 answer 3
+> monitor_output_off 3x gain
+< resp -902
+= 
 # dispatch:fuzz/corpus/dispatch/extra-4 answer 3
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -902
@@ -4106,6 +4202,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -205
 = sample_rate(3)
+# fuzz/corpus/protocol/extra-32 answer 4
+> monitor_output_off 3 gain
+< resp -543
+= 
+# fuzz/corpus/protocol/extra-33 answer 4
+> monitor_output_off 3
+< few arguments
+= 
+# fuzz/corpus/protocol/extra-34 answer 4
+> monitor_output_off 3x gain
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-4 answer 4
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -205
@@ -4410,6 +4518,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -205
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/extra-32 answer 4
+> monitor_output_off 3 gain
+< resp -543
+= 
+# dispatch:fuzz/corpus/dispatch/extra-33 answer 4
+> monitor_output_off 3
+< few arguments
+= 
+# dispatch:fuzz/corpus/dispatch/extra-34 answer 4
+> monitor_output_off 3x gain
+< resp -902
+= 
 # dispatch:fuzz/corpus/dispatch/extra-4 answer 4
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -205
@@ -5038,6 +5158,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -105
 = sample_rate(3)
+# fuzz/corpus/protocol/extra-32 answer 5
+> monitor_output_off 3 gain
+< resp -543
+= 
+# fuzz/corpus/protocol/extra-33 answer 5
+> monitor_output_off 3
+< few arguments
+= 
+# fuzz/corpus/protocol/extra-34 answer 5
+> monitor_output_off 3x gain
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-4 answer 5
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -105
@@ -5342,6 +5474,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -105
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/extra-32 answer 5
+> monitor_output_off 3 gain
+< resp -543
+= 
+# dispatch:fuzz/corpus/dispatch/extra-33 answer 5
+> monitor_output_off 3
+< few arguments
+= 
+# dispatch:fuzz/corpus/dispatch/extra-34 answer 5
+> monitor_output_off 3x gain
+< resp -902
+= 
 # dispatch:fuzz/corpus/dispatch/extra-4 answer 5
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -105
@@ -5970,6 +6114,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -538
 = sample_rate(3)
+# fuzz/corpus/protocol/extra-32 answer 6
+> monitor_output_off 3 gain
+< resp 0
+= monitor_output_off(3,gain)
+# fuzz/corpus/protocol/extra-33 answer 6
+> monitor_output_off 3
+< few arguments
+= 
+# fuzz/corpus/protocol/extra-34 answer 6
+> monitor_output_off 3x gain
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-4 answer 6
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp 0
@@ -6274,6 +6430,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -538
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/extra-32 answer 6
+> monitor_output_off 3 gain
+< resp 0
+= monitor_output_off(3,gain)
+# dispatch:fuzz/corpus/dispatch/extra-33 answer 6
+> monitor_output_off 3
+< few arguments
+= 
+# dispatch:fuzz/corpus/dispatch/extra-34 answer 6
+> monitor_output_off 3x gain
+< resp -902
+= 
 # dispatch:fuzz/corpus/dispatch/extra-4 answer 6
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp 0
@@ -6902,6 +7070,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -1
 = sample_rate(3)
+# fuzz/corpus/protocol/extra-32 answer 7
+> monitor_output_off 3 gain
+< resp -543
+= 
+# fuzz/corpus/protocol/extra-33 answer 7
+> monitor_output_off 3
+< few arguments
+= 
+# fuzz/corpus/protocol/extra-34 answer 7
+> monitor_output_off 3x gain
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-4 answer 7
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -1
@@ -7206,6 +7386,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -1
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/extra-32 answer 7
+> monitor_output_off 3 gain
+< resp -543
+= 
+# dispatch:fuzz/corpus/dispatch/extra-33 answer 7
+> monitor_output_off 3
+< few arguments
+= 
+# dispatch:fuzz/corpus/dispatch/extra-34 answer 7
+> monitor_output_off 3x gain
+< resp -902
+= 
 # dispatch:fuzz/corpus/dispatch/extra-4 answer 7
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -1
@@ -7834,6 +8026,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -2
 = sample_rate(3)
+# fuzz/corpus/protocol/extra-32 answer 8
+> monitor_output_off 3 gain
+< resp -543
+= 
+# fuzz/corpus/protocol/extra-33 answer 8
+> monitor_output_off 3
+< few arguments
+= 
+# fuzz/corpus/protocol/extra-34 answer 8
+> monitor_output_off 3x gain
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-4 answer 8
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -2
@@ -8138,6 +8342,18 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db= ratio=gain:ratio@
 < resp -2
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/extra-32 answer 8
+> monitor_output_off 3 gain
+< resp -543
+= 
+# dispatch:fuzz/corpus/dispatch/extra-33 answer 8
+> monitor_output_off 3
+< few arguments
+= 
+# dispatch:fuzz/corpus/dispatch/extra-34 answer 8
+> monitor_output_off 3x gain
+< resp -902
+= 
 # dispatch:fuzz/corpus/dispatch/extra-4 answer 8
 > track_info 3 "Lead Vocal" #FF8800 bus
 < resp -2

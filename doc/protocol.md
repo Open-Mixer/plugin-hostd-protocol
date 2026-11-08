@@ -41,7 +41,7 @@ Discovery: the daemon declares itself in files, not on the socket. The verb tabl
 The verb table and the grammar
 ------------------------------
 
-`protocol/plugin-hostd-protocol.json` is the one table of the protocol: every command, each once, with its origin, its argument types, its reply and its refusals, and every feedback line. It is merged from `protocol/mod-host.json`, `protocol/plugin-hostd.json`, `data/verbs.json`, `include/plugin-hostd/omx_clap_core_host_verbs.h` by `tools/protocol-table.py`; 48 commands of origin mod-host, 27 commands of origin plugin-hostd, 11 commands of origin omx-clap-core, 5 commands of origin plugin-hostd-protocol, 21 feedback lines.
+`protocol/plugin-hostd-protocol.json` is the one table of the protocol: every command, each once, with its origin, its argument types, its reply and its refusals, and every feedback line. It is merged from `protocol/mod-host.json`, `protocol/plugin-hostd.json`, `data/verbs.json`, `include/plugin-hostd/omx_clap_core_host_verbs.h` by `tools/protocol-table.py`; 48 commands of origin mod-host, 27 commands of origin plugin-hostd, 11 commands of origin omx-clap-core, 6 commands of origin plugin-hostd-protocol, 21 feedback lines.
 
 `grammar/plugin-hostd-protocol.abnf` is the grammar of a line, in ABNF (RFC 5234, with RFC 7405's case-sensitive strings): the lexical core, written once by hand (`grammar/core.abnf`), and a rule per command, per feedback line and per parse refusal generated from the table by `tools/abnf-gen.py`. Every line of the scenario corpus and every reply the library writes in the golden transcript is held to it (`make test-grammar`).
 
@@ -111,7 +111,7 @@ In a session granted `errors`, a refusal `resp <n>` is followed by one more word
 < resp -3 reply.host.instance-non-exists
 ```
 
-- The words are those of the [reply codes](#reply-codes), 47 numbers in all; a number the protocol declares no code for goes out bare.
+- The words are those of the [reply codes](#reply-codes), 48 numbers in all; a number the protocol declares no code for goes out bare.
 - Only a refusal alone gets its word: a reply that carries values after its number, a success and a parse refusal (`not found`, `few arguments`, which are words already) go out as they are.
 - With `tags` as well, the tag comes first: `@a9 resp -3 reply.host.instance-non-exists`.
 
@@ -184,6 +184,24 @@ A term is `<role>[.<index>]=<symbol>[:<unit>][@<shape>|<shape>...]`: the role wo
 < resp -537     (display 1 has no binding)
 ```
 
+Monitors
+--------
+
+`monitor_output` starts the feedback lines of an output (`output_set`, on the feedback port). A monitor ends with the connection that set it: a controller that disconnects, or whose connection drops, leaves none behind, and the next connection starts with none, so it asks again for the outputs it wants. `monitor_output_off` ends one earlier, and only the connection that set a monitor can end it: an output this connection did not monitor is refused (-543). A host built on this library keeps what each connection monitored and calls the callback given to `host_dispatch_register_monitor_output_off()` for the output a `monitor_output_off` ends, and for every output still monitored when the connection ends or its instance is removed; a host that does not register it answers -902, and mod-host answers `not found`.
+
+| verb | form | reply | codes | meaning |
+|---|---|---|---|---|
+| `monitor_output_off` | `monitor_output_off int word` | `resp 0` | -543 OUTPUT_NOT_MONITORED; -902 reply.host.invalid-operation | Ends the monitor monitor_output set on an output: <instance> <symbol>, answered resp 0, and the output's feedback lines stop. A monitor ends with the connection that set it, so a controller that disconnects leaves none behind, and only the connection that set a monitor ends it earlier: an output this connection did not monitor (never monitored, monitored by an earlier connection, already ended, or its instance removed) is refused (-543), and a line that is not an instance and a symbol, or a host that does not serve the verb, is refused (-902). The output's ledger line goes with the monitor, so a respawn of the instance does not replay it. |
+
+```
+> monitor_output 3 level
+< resp 0
+> monitor_output_off 3 level
+< resp 0
+> monitor_output_off 3 level
+< resp -543     (already ended)
+```
+
 2. mod-host's verbs on plugin-hostd
 -----------------------------------
 
@@ -224,12 +242,12 @@ mod-host's templates name no reply codes per verb: a relayed verb answers what i
 | verb | mod-host arguments | levels | answer | what the data says |
 |---|---|---|---|---|
 | `param_get` | int word | optional (every profile) | same | - |
-| `param_monitor` | int word word float | optional (every profile) | same | relay rule SUBSCRIPTION: monitor_output is in the ledger, one line per output, and param_monitor as it was sent; a respawn replays them after the add, so a respawned instance reports the same outputs, each once, starting again from its first value |
+| `param_monitor` | int word word float | optional (every profile) | same | relay rule SUBSCRIPTION: monitor_output is in the ledger, one line per output, until monitor_output_off or the end of the connection that set it takes the line out, and param_monitor as it was sent; a respawn replays them after the add, so a respawned instance reports the same outputs, each once, starting again from its first value |
 | `patch_get` | int word | optional (every profile) | same | Path A: none for the probe plugin; a plugin with patch parameters is untested; no |
 | `patch_set` | int word word | optional (every profile) | same | Path A: as patch_get |
 | `licensee` | int | optional (every profile) | same | - |
 | `monitor` | word int int | optional (every profile) | same | - |
-| `monitor_output` | int word | optional (every profile) | same | Path A: CLAP: no meters, and no refusal<br>relay rule SUBSCRIPTION: monitor_output is in the ledger, one line per output, and param_monitor as it was sent; a respawn replays them after the add, so a respawned instance reports the same outputs, each once, starting again from its first value |
+| `monitor_output` | int word | optional (every profile) | same | Path A: CLAP: no meters, and no refusal<br>relay rule SUBSCRIPTION: monitor_output is in the ledger, one line per output, until monitor_output_off or the end of the connection that set it takes the line out, and param_monitor as it was sent; a respawn replays them after the add, so a respawned instance reports the same outputs, each once, starting again from its first value |
 | `monitor_midi_program` | int int | optional (every profile) | same | Path A: CLAP-only rig: pedalboard change by MIDI program lost |
 | `midi_learn` | int word float float | optional (every profile) | same | Path A: CLAP: MIDI learn through mod-ui lost |
 | `midi_map` | int word int int float float | optional (every profile) | same | Path A: CLAP: saved MIDI maps not restored |
@@ -649,7 +667,7 @@ The relay rules:
 - VERBATIM: every line a worker writes on its feedback port goes out on the daemon's feedback port as the worker wrote it: output_set, param_set, data_finish and the rest of mod-host's feedback, and a line the daemon does not know
 - INSTANCE: the instance number in a relayed line is already the controller's: add hands it to the worker unchanged, so nothing in a line is rewritten
 - ORDER: a worker's lines go out in the order it wrote them, and what a worker wrote before it died goes out before its worker_died event; an instance lives in one worker at a time, so its lines keep their order across a respawn; the lines of different workers interleave
-- SUBSCRIPTION: monitor_output is in the ledger, one line per output, and param_monitor as it was sent; a respawn replays them after the add, so a respawned instance reports the same outputs, each once, starting again from its first value
+- SUBSCRIPTION: monitor_output is in the ledger, one line per output, until monitor_output_off or the end of the connection that set it takes the line out, and param_monitor as it was sent; a respawn replays them after the add, so a respawned instance reports the same outputs, each once, starting again from its first value
 - HANDSHAKE: output_data_ready names no instance and goes to every worker; each worker's data_finish is relayed
 - WINDOW: show_external_ui and hide_external_ui go to the worker that holds the instance and its resp comes back unchanged; the window is the worker's, on the display session of the daemon's environment (WAYLAND_DISPLAY, else DISPLAY), which every worker inherits; a daemon with neither refuses both with -902 hosting.window.no-display and sends the worker nothing; the ledger keeps the latest of the two per instance, so a respawn shows again a window that was shown
 - NO_CONTROLLER: with no feedback port, or no controller on it, a line is dropped, as mod-host drops it; the daemon reads every worker's feedback all the time, so no worker waits on it
@@ -729,6 +747,7 @@ The codes the daemon adds:
 | -540 | `DURABLE_WRITE_FAILED` | the daemon's writer thread could not write the file the verb changes (history_clear, pin_clear, pin_accept): the change is not on disk, and stderr names the path and the error |
 | -541 | `WRITER_QUEUE_FULL` | the daemon's writer queue holds its most writes or bytes: the write the verb needs is refused and nothing of the verb changed; the controller may send it again |
 | -542 | `CURVE_VALUE_NOT_FINITE` | curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn |
+| -543 | `OUTPUT_NOT_MONITORED` | monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier |
 
 5. JSON documents
 -----------------
