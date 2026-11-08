@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-pin_clear "\""
-idle_hold }Êĸ
-note_input -178
-cc_value_set 45 "!\"" .087e43
-@1 licensee -4
-@._. hide_external_ui -6
-@__ note_drops -1
-worker_env & fm +!
-@.k feature_enable bwţ -893
-@6 preset_load 316 ")\""
-connect "â\"" ņ=Н
-policy_set "\"" MF
+lv2_worker_set H+! "Į"
+show_external_ui -775
+hmi_map -893 ! -3 6 -70 902 037 "\"" infinity .177 54
+@_ quit
+midi_unmap 6 !!̻
+lv2_worker_set "" ʍ
+preset_show ʬ
+param_get 25 "\""
+state_load ć5
+chain_get -013
+param_get_many -7 ""
+@O_t lv2_worker_set "\"\"" ɓ

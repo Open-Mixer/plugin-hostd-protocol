@@ -55,4 +55,28 @@ sabotage "any not found is a verb not served" src/host-scenario.c \
     'level = strcmp(reply, "not found") == 0 ? verb_level(verb) : VERB_UNDECLARED;' \
     'level = strcmp(reply, "not found") == 0 ? ((void)verb_level(verb), VERB_NOT_REQUIRED) : VERB_UNDECLARED;' runner_test
 
+# the curve verbs (tests/curve_test.c)
+sabotage "remove keeps the instance's curve bindings" src/host-dispatch.c 'host_curve_forget(atoi(proto->list\[1\]));' '(void)proto;' curve_test
+sabotage "a line of another family keeps the old terms" src/host-curve.c '        b->nterms = 0;' '        (void)b;' curve_test
+sabotage "a refused term keeps the line's other terms" src/host-curve.c '        if (code < 0)' '        if (code < 0 \&\& i == 0)' curve_test
+sabotage "a band_type's value is not read" src/host-curve.c 't->shapes\[(uint32_t)c\]' 't->shapes[0]' curve_test
+sabotage "the instance's rate is not read" src/host-curve.c 'rq.sample_rate = rate;' 'rq.sample_rate = 48000.0;' curve_test
+sabotage "a slope's enumeration is not read" src/host-curve.c 'rqt\[i\].value = t->slopes\[(uint32_t)c\], rqt\[i\].unit = OMX_CURVE_UNITS_DB;' 'rqt[i].unit = OMX_CURVE_UNITS_DB;' curve_test
+sabotage "a value that is not finite answered -902" src/host-curve.c 'case OMX_CURVE_VALUE_NOT_FINITE: return OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_RESP;' '' curve_test
+sabotage "y written to 0.1 dB" src/host-curve.c ' %s,%.2f' ' %s,%.1f' curve_test
+sabotage "a host without the hook answers not found" src/host-dispatch.c ' OMX_VERB_CURVE_BIND_FMT, OMX_VERB_CURVE_POINTS_FMT,' '' curve_test
+
+# monitor_output_off (tests/monitor_test.c)
+sabotage "a monitor outlives its connection" src/socket.c 'if (socket_session_end) socket_session_end();' '' monitor_test
+sabotage "an output this connection did not monitor is ended" src/host-dispatch.c 'int resp = OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP;' 'int resp = SUCCESS;' monitor_test
+sabotage "remove keeps the instance's monitors" src/host-dispatch.c 'monitors_forget(atoi(proto->list\[1\]));' 'if (0) monitors_forget(0);' monitor_test
+sabotage "remove -1 keeps the monitors of the other instances" src/host-dispatch.c 'if (instance == -1 || (\*m)->instance == instance)' 'if ((*m)->instance == instance)' monitor_test
+sabotage "an ended monitor stays" src/host-dispatch.c '        if (resp == SUCCESS)' '        if (0)' monitor_test
+sabotage "a refused monitor is kept" src/host-dispatch.c 'if (monitored == 0 \&\& g_monitor_output_off' 'if (g_monitor_output_off' monitor_test
+sabotage "a monitor asked for twice is kept twice" src/host-dispatch.c '\&\& !monitor_find(instance, proto->list\[2\]))' ')' monitor_test
+sabotage "the backend's refusal of the end is not answered" src/host-dispatch.c 'resp = g_monitor_output_off(instance, proto->list\[2\]);' 'g_monitor_output_off(instance, proto->list[2]); resp = SUCCESS;' monitor_test
+sabotage "an instance that is no number is read as its prefix" src/host-dispatch.c 'if (host_whole_number(proto->list\[1\], \&instance) < 0)' 'if (((instance = atoi(proto->list[1])), 0))' monitor_test
+sabotage "the verb is left out of the dispatch table" src/host-dispatch.c 'protocol_add_command(OMX_VERB_MONITOR_OUTPUT_OFF_FMT, monitor_output_off_cb);' 'if (0) protocol_add_command(OMX_VERB_MONITOR_OUTPUT_OFF_FMT, monitor_output_off_cb);' monitor_test
+sabotage "a host without the hook answers not found" src/host-dispatch.c ' OMX_VERB_MONITOR_OUTPUT_OFF_FMT,' '' monitor_test
+
 [ "$failed" = 0 ] && echo "hello sabotage ok" || { echo "hello sabotage FAILED"; exit 1; }

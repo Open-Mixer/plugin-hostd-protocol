@@ -390,7 +390,29 @@ static inline int phd_pool_name_valid(const char *name)
                "member in the reply's list") \
     X(UNKNOWN_PLUGIN, OMX_REPLY_PLUGIN_HOSTD_UNKNOWN_PLUGIN_RESP, "a member of " OMX_VERB_ESTIMATE " whose uri names no " \
                       "plugin installed here (its format cannot tell the plugin's binary, or the binary is not there): " \
-                      "never a reply, the code of the member in the reply's list")
+                      "never a reply, the code of the member in the reply's list") \
+    X(CURVE_KIND_UNKNOWN, OMX_REPLY_PLUGIN_HOSTD_CURVE_KIND_UNKNOWN_RESP, OMX_VERB_CURVE_BIND " of a family with no closed " \
+                          "form for the display's kind, or " OMX_VERB_CURVE_POINTS " of a binding whose values pick a band " \
+                          "shape or a head filter slope with no closed form: no curve is drawn") \
+    X(CURVE_TERM_MISSING, OMX_REPLY_PLUGIN_HOSTD_CURVE_TERM_MISSING_RESP, OMX_VERB_CURVE_POINTS " of a display with no " \
+                          "binding, or of a binding that lacks a term the model needs (a band's frequency, shape or Q, " \
+                          "a threshold, a ratio, a gate's range): no curve is drawn from a guess") \
+    X(CURVE_UNIT_REFUSED, OMX_REPLY_PLUGIN_HOSTD_CURVE_UNIT_REFUSED_RESP, OMX_VERB_CURVE_BIND " of a term in a unit its role " \
+                          "does not take: nothing of the line is kept") \
+    X(CURVE_POINTS_RANGE, OMX_REPLY_PLUGIN_HOSTD_CURVE_POINTS_RANGE_RESP, OMX_VERB_CURVE_POINTS " of fewer than 2 points or " \
+                          "more than a curve carries, three anchors a drawn band counted, or of a band index past what fits") \
+    X(DURABLE_WRITE_FAILED, OMX_REPLY_PLUGIN_HOSTD_DURABLE_WRITE_FAILED_RESP, "the daemon's writer thread could not " \
+                            "write the file the verb changes (" OMX_VERB_HISTORY_CLEAR ", " OMX_VERB_PIN_CLEAR ", " \
+                            OMX_VERB_PIN_ACCEPT "): the change is not on disk, and stderr names the path and the error") \
+    X(WRITER_QUEUE_FULL, OMX_REPLY_PLUGIN_HOSTD_WRITER_QUEUE_FULL_RESP, "the daemon's writer queue holds its most writes " \
+                         "or bytes: the write the verb needs is refused and nothing of the verb changed; the controller " \
+                         "may send it again") \
+    X(CURVE_VALUE_NOT_FINITE, OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_RESP, OMX_VERB_CURVE_POINTS " of a binding " \
+                              "whose value, as the instance holds it, is not finite, or of an instance that runs at no " \
+                              "rate: no curve is drawn") \
+    X(OUTPUT_NOT_MONITORED, OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP, "monitor_output_off of an output this " \
+                           "connection did not monitor: a monitor ends with the connection that set it, and only " \
+                           "that connection ends it earlier")
 
 /* ---------------------------------------------------------------- verbs */
 
@@ -1211,7 +1233,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(ORDER, "a worker's lines go out in the order it wrote them, and what a worker wrote before it died goes out " \
              "before its " PHD_EVENT_WORKER_DIED " event; an instance lives in one worker at a time, so its lines keep " \
              "their order across a respawn; the lines of different workers interleave") \
-    X(SUBSCRIPTION, "monitor_output is in the ledger, one line per output, and param_monitor as it was sent; a " \
+    X(SUBSCRIPTION, "monitor_output is in the ledger, one line per output, until monitor_output_off or the end of " \
+                    "the connection that set it takes the line out, and param_monitor as it was sent; a " \
                     "respawn replays them after the " PHD_VERB_ADD ", so a respawned instance reports the same outputs, " \
                     "each once, starting again from its first value") \
     X(HANDSHAKE, "output_data_ready names no instance and goes to every worker; each worker's data_finish is relayed") \

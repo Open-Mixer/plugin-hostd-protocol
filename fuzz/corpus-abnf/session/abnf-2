@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-@._b state_load "\""
-@. descriptor_get ""
-plan 129 -86
-plan_get 01
-all_notes_off -443
-chain 03 -712 "ʹ"
-@_S estimate -67 16 "" "\"Ϋ" R
-state_load Ͼ>
+@-L midi_map 2 O 77 -11 nan infinity
+@y1 param_get_many 249 !R Ͼ>
 @--. worker_list
 help
 @- quit
 descriptor_get Nͯ;
+panel_get g!
+quarantine_clear [!
+track_info -791 "18" "²" @͖
+@k- curve_bind 55 -8 !( !͹˔
+param_get_many 129 "!D" "" "\""
+@0 load !͝!
