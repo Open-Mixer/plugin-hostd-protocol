@@ -590,6 +590,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < resp -3
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 0
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -105
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301,8,\xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 0
 > cpu_load
 < not found
@@ -1542,6 +1546,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < resp -4
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 1
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp 8
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301,8,\xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 1
 > cpu_load
 < not found
@@ -2494,6 +2502,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < resp -101
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 2
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -1
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301,8,\xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 2
 > cpu_load
 < not found
@@ -3446,6 +3458,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < resp -902
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 3
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -2
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301,8,\xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 3
 > cpu_load
 < not found
@@ -4398,6 +4414,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < resp -205
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 4
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -3
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301,8,\xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 4
 > cpu_load
 < not found
@@ -5350,6 +5370,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < resp -105
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 5
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -4
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301,8,\xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 5
 > cpu_load
 < not found
@@ -6302,6 +6326,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < resp -902
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 6
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -101
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301,8,\xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 6
 > cpu_load
 < not found
@@ -7254,6 +7282,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < resp -1
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 7
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -902
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301,8,\xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 7
 > cpu_load
 < not found
@@ -8206,6 +8238,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < resp -2
 = sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 8
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -205
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301,8,\xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 8
 > cpu_load
 < not found

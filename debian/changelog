@@ -23,7 +23,32 @@ plugin-hostd-protocol (0.5.0) unstable; urgency=medium
     ended, or left when the connection ends.
   * Builds with libomxdsp-dev >= 0.32.0 and < 0.33.
 
- -- Pau Aliagas <linuxnow@gmail.com>  Fri, 06 Nov 2026 18:00:00 +0100
+ -- Pau Aliagas <linuxnow@gmail.com>  Sun, 08 Nov 2026 17:22:59 +0100
+
+plugin-hostd-protocol (0.4.5) unstable; urgency=medium
+
+  * show_external_ui and hide_external_ui are optional of every profile: the
+    daemon sends each to the worker that holds the instance and passes its
+    resp back; a daemon with no display session refuses both with -902
+    hosting.window.no-display; the ledger keeps the latest of the two.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Sat, 07 Nov 2026 18:00:00 +0100
+
+plugin-hostd-protocol (0.4.4) unstable; urgency=medium
+
+  * A second daemon on a busy port is refused instead of silently sharing it:
+    the ports are opened with SO_REUSEADDR, never SO_REUSEPORT, so a port the
+    daemon before left in TIME_WAIT is still taken again at once.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Sat, 07 Nov 2026 01:00:00 +0100
+
+plugin-hostd-protocol (0.4.3) unstable; urgency=medium
+
+  * The descriptor name rule says bytes: each byte of an id's UTF-8 text
+    outside [A-Za-z0-9._-] is one PHD_DESCRIPTOR_SAFE_CHAR, as plugin-hostd
+    reads it and plugin-qualify now writes it.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Fri, 06 Nov 2026 23:00:00 +0100
 
 plugin-hostd-protocol (0.4.2) unstable; urgency=medium
 

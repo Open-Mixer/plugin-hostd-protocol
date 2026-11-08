@@ -104,7 +104,7 @@ make test
 %{_datadir}/omx-contract/contract.d/3/plugin-hostd-protocol/
 
 %changelog
-* Fri Nov 06 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.0-1
+* Sun Nov 08 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.0-1
 - curve_bind and curve_points: a display of an instance's panel description
   bound to the instance's parameters, and drawn from the values the instance
   holds at its rate by omx-dsp's omx_curve_points; codes -536 to -539
@@ -125,6 +125,19 @@ make test
   left when the connection ends
 - builds with omx-dsp-devel >= 0.32.0 and < 0.33
 
+* Sat Nov 07 2026 Pau Aliagas <linuxnow@gmail.com> - 0.4.5-1
+- show_external_ui and hide_external_ui are optional of every profile: the
+  daemon sends each to the worker that holds the instance and passes its
+  resp back; a daemon with no display session refuses both with -902
+  hosting.window.no-display; the ledger keeps the latest of the two
+* Sat Nov 07 2026 Pau Aliagas <linuxnow@gmail.com> - 0.4.4-1
+- A second daemon on a busy port is refused instead of silently sharing it: the ports are
+  opened with SO_REUSEADDR, never SO_REUSEPORT, so a port the daemon before left in
+  TIME_WAIT is still taken again at once
+* Fri Nov 06 2026 Pau Aliagas <linuxnow@gmail.com> - 0.4.3-1
+- The descriptor name rule says bytes: each byte of an id's UTF-8 text
+  outside [A-Za-z0-9._-] is one PHD_DESCRIPTOR_SAFE_CHAR, as plugin-hostd
+  reads it and plugin-qualify now writes it
 * Fri Nov 06 2026 Pau Aliagas <linuxnow@gmail.com> - 0.4.2-1
 - The protocol page and protocol.h say how a pin is keyed: by its clap: uri's
   path decoded, so the uri written with the space as it is and written encoded
