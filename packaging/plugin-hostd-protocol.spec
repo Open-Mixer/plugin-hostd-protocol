@@ -123,6 +123,9 @@ make test
 - host_dispatch_register_monitor_output_off(): the library keeps what each
   connection monitored and calls the host's end for an output that is ended, or
   left when the connection ends
+- every code the protocol owns (-501 to -543) carries the sentence a person
+  reads, in English and in Catalan, with its placeholders; the declaration needs
+  omx-contract 3.11.0, which validates them
 - builds with omx-dsp-devel >= 0.32.0 and < 0.33
 
 * Sat Nov 07 2026 Pau Aliagas <linuxnow@gmail.com> - 0.4.5-1
@@ -130,10 +133,6 @@ make test
   daemon sends each to the worker that holds the instance and passes its
   resp back; a daemon with no display session refuses both with -902
   hosting.window.no-display; the ledger keeps the latest of the two
-- Every code the protocol owns (-501 to -535) carries the sentence a person reads, in
-  English and in Catalan, with its placeholders: the owner's words in data/verbs.json.
-  The declaration needs omx-contract 3.11.0 (schema 3.11.0), which validates them;
-  tests/code_text.py holds every reply.plugin-hostd code of the table to a sentence
 * Sat Nov 07 2026 Pau Aliagas <linuxnow@gmail.com> - 0.4.4-1
 - A second daemon on a busy port is refused instead of silently sharing it: the ports are
   opened with SO_REUSEADDR, never SO_REUSEPORT, so a port the daemon before left in

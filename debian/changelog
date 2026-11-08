@@ -21,9 +21,14 @@ plugin-hostd-protocol (0.5.0) unstable; urgency=medium
   * host_dispatch_register_monitor_output_off(): the library keeps what each
     connection monitored and calls the host's end for an output that is
     ended, or left when the connection ends.
+  * Every code the protocol owns (-501 to -543) carries the sentence a
+    person reads, in English and in Catalan, with its placeholders: the
+    owner's words in data/verbs.json. The declaration needs omx-contract
+    3.11.0 (schema 3.11.0), which validates them; tests/code_text.py holds
+    every reply.plugin-hostd code of the table to a sentence.
   * Builds with libomxdsp-dev >= 0.32.0 and < 0.33.
 
- -- Pau Aliagas <linuxnow@gmail.com>  Sun, 08 Nov 2026 17:22:59 +0100
+ -- Pau Aliagas <linuxnow@gmail.com>  Sun, 08 Nov 2026 17:41:27 +0100
 
 plugin-hostd-protocol (0.4.5) unstable; urgency=medium
 
@@ -31,11 +36,6 @@ plugin-hostd-protocol (0.4.5) unstable; urgency=medium
     daemon sends each to the worker that holds the instance and passes its
     resp back; a daemon with no display session refuses both with -902
     hosting.window.no-display; the ledger keeps the latest of the two.
-  * Every code the protocol owns (-501 to -535) carries the sentence a
-    person reads, in English and in Catalan, with its placeholders: the
-    owner's words in data/verbs.json. The declaration needs omx-contract
-    3.11.0 (schema 3.11.0), which validates them; tests/code_text.py holds
-    every reply.plugin-hostd code of the table to a sentence.
 
  -- Pau Aliagas <linuxnow@gmail.com>  Sat, 07 Nov 2026 18:00:00 +0100
 
