@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-@. pin_changed
+@.._ cv_unmap -621 !ąİ
+@31 hmi_map -39 ) -67 -26 -1 8 -4 "η" -083 inf -50
+show_external_ui -956
+@10 panel_get "\"\""
+midi_learn -2 CȖѪ +nan -inf
+@-. preset_list -2
+pin_changed
 @- lv2_worker_set "\"" ŀ
 @.. history_get ""
-param_set_many -7 ! .9E-8 "p\""
-@8NC note_off 98 -73 6 -5
-@R policy_set 0z Λ!(
-pin_reload
-cv_unmap 6 " \""
-@79 param_monitor 37 ! Ъǹ̄ inf
-@wt remove 8
-@.5- state_save ƭ*
-cc_map 054 Κ 55 -74 "" +infinity +73.E-842 -nan 9 -8 ʓ 5 "\""
+param_get_many -7 ! " \"" ƿ
+@_8- chain_clear 82
+hmi_map 11 "m" 860 -38 6 -5 -0 "F\"" inf +.6 -3

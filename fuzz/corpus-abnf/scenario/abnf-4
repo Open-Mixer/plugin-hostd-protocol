@@ -1,10 +1,10 @@
-@... connect (!7 v => @D resp -125
-plan_get 88 => @. resp 00
-feature_enable GĈ 920 => @_ many arguments
-set_bpb -inf => @X. resp 3 "" ""
-@_5- param_set_many 84 "" -7.9 => @35 resp 766 !! "!\""
-note_on 83 -730 43 014 => @. resp -5
-@9 pin_accept !ρ! => @LC_ many arguments
+@_5- param_get_many 84 "" => @B many arguments
+plan 1 -3 => many arguments
+worker_env zΜ ! "!\"" => many arguments
+@0._ patch_get 64 "\"" => @_A resp 515
+@. pin_accept !ρ! => @LC_ many arguments
 @--1 track_info -33 Δ /> => resp 929
 @_ plan -253 2 => resp 3 "!" "\""
 history_clear !˗! => resp -115
+@8 chain_expect -8 -59 => resp 89 "ɦ"
+instance_info -02 => @.vf resp -838 ɂ:

@@ -188,6 +188,11 @@
         "code": "reply.plugin-hostd.curve-value-not-finite",
         "resp": -542,
         "doc": "curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn"
+      },
+      "outputNotMonitored": {
+        "code": "reply.plugin-hostd.output-not-monitored",
+        "resp": -543,
+        "doc": "monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier"
       }
     }
   },
@@ -950,6 +955,26 @@
         },
         "since": "0.5.0",
         "doc": "The points of a bound display: <instance> <display> <points>, the grid points asked for. Each bound symbol's value is read from the instance as it is now and the instance's rate with it, and omx-dsp's omx_curve_points draws them: an eq_response x in Hz and y in dB, the bands' anchors added (three a drawn band), a transfer_curve input dB to output dB. The reply is the count and each point x,y, x to four significant digits and y to 0.01 dB, ascending in x; at most curve_points_max (omx-dsp's CURVE_POINTS_MAX, 256) points. A display with no binding, or a binding without a term the model needs (-537); a band shape or slope with no closed form (-536); points outside 2 to curve_points_max, the anchors counted (-539); a value that is not finite or an instance not running at a rate (-542)."
+      },
+      "monitorOutputOff": {
+        "verb": "monitor_output_off",
+        "format": "monitor_output_off %i %s",
+        "reply": "resp 0",
+        "codes": [
+          {
+            "ref": "PLUGIN_HOSTD_REPLY_CODES.outputNotMonitored"
+          },
+          {
+            "ref": "HOST_REPLY_CODES.invalidOperation"
+          }
+        ],
+        "implementedBy": {
+          "plugin-hostd": "optional",
+          "omx-clap-host": "optional",
+          "mod-host": "unsupported"
+        },
+        "since": "0.5.0",
+        "doc": "Ends the monitor monitor_output set on an output: <instance> <symbol>, answered resp 0, and the output's feedback lines stop. A monitor ends with the connection that set it, so a controller that disconnects leaves none behind, and only the connection that set a monitor ends it earlier: an output this connection did not monitor (never monitored, monitored by an earlier connection, already ended, or its instance removed) is refused (-543), and a line that is not an instance and a symbol, or a host that does not serve the verb, is refused (-902). The output's ledger line goes with the monitor, so a respawn of the instance does not replay it."
       }
     }
   },

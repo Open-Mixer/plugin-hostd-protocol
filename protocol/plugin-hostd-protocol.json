@@ -93,6 +93,7 @@
     {"verb": "curve_bind", "origin": "plugin-hostd-protocol", "declared": "data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.curveBind", "forms": [{"args": ["int", "int", "word"], "tail": true, "origin": "plugin-hostd-protocol"}], "reply": "resp 0", "codes": [-3, -103, -536, -538, -901, -902], "sent_by": "controller", "extended_by": [], "levels": null},
     {"verb": "curve_points", "origin": "plugin-hostd-protocol", "declared": "data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.curvePoints", "forms": [{"args": ["int", "int", "int"], "tail": false, "origin": "plugin-hostd-protocol"}], "reply": "resp 0 <count> <x>,<y> ...", "codes": [-3, -103, -536, -537, -539, -542, -901, -902], "sent_by": "controller", "extended_by": [], "levels": null},
     {"verb": "hello", "origin": "plugin-hostd-protocol", "declared": "data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.hello", "forms": [{"args": ["int"], "tail": true, "origin": "plugin-hostd-protocol"}], "reply": "resp 0 <version> <extension> ...", "codes": [-902], "sent_by": "controller", "extended_by": [], "levels": null},
+    {"verb": "monitor_output_off", "origin": "plugin-hostd-protocol", "declared": "data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.monitorOutputOff", "forms": [{"args": ["int", "word"], "tail": false, "origin": "plugin-hostd-protocol"}], "reply": "resp 0", "codes": [-543, -902], "sent_by": "controller", "extended_by": [], "levels": null},
     {"verb": "param_get_many", "origin": "plugin-hostd-protocol", "declared": "data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.paramGetMany", "forms": [{"args": ["int", "word"], "tail": true, "origin": "plugin-hostd-protocol"}], "reply": "resp 0 <value> ...", "codes": [-3, -103, -901, -902], "sent_by": "controller", "extended_by": [], "levels": null},
     {"verb": "param_set_many", "origin": "plugin-hostd-protocol", "declared": "data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.paramSetMany", "forms": [{"args": ["int", "word", "float"], "tail": true, "origin": "plugin-hostd-protocol"}], "reply": "resp 0", "codes": [-3, -103, -901, -902], "sent_by": "controller", "extended_by": [], "levels": null}
   ],
@@ -172,6 +173,7 @@
     {"resp": -540, "code": "reply.plugin-hostd.durable-write-failed"},
     {"resp": -541, "code": "reply.plugin-hostd.writer-queue-full"},
     {"resp": -542, "code": "reply.plugin-hostd.curve-value-not-finite"},
+    {"resp": -543, "code": "reply.plugin-hostd.output-not-monitored"},
     {"resp": -901, "code": "reply.host.memory-allocation"},
     {"resp": -902, "code": "reply.host.invalid-operation"}
   ],

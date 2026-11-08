@@ -394,7 +394,10 @@ static inline int phd_pool_name_valid(const char *name)
                          "may send it again") \
     X(CURVE_VALUE_NOT_FINITE, OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_RESP, OMX_VERB_CURVE_POINTS " of a binding " \
                               "whose value, as the instance holds it, is not finite, or of an instance that runs at no " \
-                              "rate: no curve is drawn")
+                              "rate: no curve is drawn") \
+    X(OUTPUT_NOT_MONITORED, OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP, "monitor_output_off of an output this " \
+                           "connection did not monitor: a monitor ends with the connection that set it, and only " \
+                           "that connection ends it earlier")
 
 /* ---------------------------------------------------------------- verbs */
 
@@ -1202,7 +1205,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(ORDER, "a worker's lines go out in the order it wrote them, and what a worker wrote before it died goes out " \
              "before its " PHD_EVENT_WORKER_DIED " event; an instance lives in one worker at a time, so its lines keep " \
              "their order across a respawn; the lines of different workers interleave") \
-    X(SUBSCRIPTION, "monitor_output is in the ledger, one line per output, and param_monitor as it was sent; a " \
+    X(SUBSCRIPTION, "monitor_output is in the ledger, one line per output, until monitor_output_off or the end of " \
+                    "the connection that set it takes the line out, and param_monitor as it was sent; a " \
                     "respawn replays them after the " PHD_VERB_ADD ", so a respawned instance reports the same outputs, " \
                     "each once, starting again from its first value") \
     X(HANDSHAKE, "output_data_ready names no instance and goes to every worker; each worker's data_finish is relayed") \

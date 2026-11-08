@@ -83,6 +83,8 @@
 #define OMX_REPLY_PLUGIN_HOSTD_WRITER_QUEUE_FULL_RESP (-541)
 #define OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE "reply.plugin-hostd.curve-value-not-finite" ///< curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn
 #define OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_RESP (-542)
+#define OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED "reply.plugin-hostd.output-not-monitored" ///< monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier
+#define OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP (-543)
 
 /* PLUGIN_HOSTD_PROTOCOL_EXTENSIONS (data/verbs.json) */
 #define OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_TAGS "tags" ///< request tags: a line may start with @<tag>, and its answer then starts with the same @<tag>

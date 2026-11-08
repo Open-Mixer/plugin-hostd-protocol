@@ -516,7 +516,7 @@ def bulk(w):
     """the protocol's own verbs other than hello, from the table and their declaration"""
     own = VERBS["PLUGIN_HOSTD_PROTOCOL_VERBS"]["verbs"]
     rows = [c for c in TABLE["commands"] if c["origin"] == "plugin-hostd-protocol" and c["verb"] != "hello"
-            and c["verb"] not in CURVE_VERBS]
+            and c["verb"] not in CURVE_VERBS and c["verb"] not in MONITOR_VERBS]
     if not rows:
         return
     docs = {v["verb"]: v["doc"] for v in own.values()}
@@ -601,6 +601,43 @@ def curves(w):
     w("< resp -539")
     w("> curve_points 4 1 64")
     w("< resp -537     (display 1 has no binding)")
+    w("```")
+    w("")
+
+
+MONITOR_VERBS = ("monitor_output_off",)
+
+
+def monitors(w):
+    """monitor_output_off, from the table and its declaration, and what ends a monitor"""
+    own = VERBS["PLUGIN_HOSTD_PROTOCOL_VERBS"]["verbs"]
+    rows = [c for c in TABLE["commands"] if c["verb"] in MONITOR_VERBS]
+    if len(rows) != len(MONITOR_VERBS):
+        fail("monitor_output_off is not in the table")
+    docs = {v["verb"]: v["doc"] for v in own.values()}
+    w("Monitors")
+    w("--------")
+    w("")
+    w("`monitor_output` starts the feedback lines of an output (`output_set`, on the feedback port). A monitor ends "
+      "with the connection that set it: a controller that disconnects, or whose connection drops, leaves none behind, "
+      "and the next connection starts with none, so it asks again for the outputs it wants. `monitor_output_off` ends "
+      "one earlier, and only the connection that set a monitor can end it: an output this connection did not monitor "
+      "is refused (-543). A host built on this library keeps what each connection monitored and calls the callback "
+      "given to `host_dispatch_register_monitor_output_off()` for the output a `monitor_output_off` ends, and for "
+      "every output still monitored when the connection ends or its instance is removed; a host that does not "
+      "register it answers -902, and mod-host answers `not found`.")
+    w("")
+    w("\n".join(table(["verb", "form", "reply", "codes", "meaning"],
+                      [[code(c["verb"]), code(" ".join([c["verb"]] + c["forms"][0]["args"] + (["..."] if c["forms"][0]["tail"] else []))),
+                        code(c["reply"]), cell(codes_cell(c["codes"])), cell(docs.get(c["verb"], "-"))] for c in rows])))
+    w("")
+    w("```")
+    w("> monitor_output 3 level")
+    w("< resp 0")
+    w("> monitor_output_off 3 level")
+    w("< resp 0")
+    w("> monitor_output_off 3 level")
+    w("< resp -543     (already ended)")
     w("```")
     w("")
 
@@ -697,6 +734,7 @@ def page():
     sessions(w)
     bulk(w)
     curves(w)
+    monitors(w)
 
     # 2. mod-host's verbs
     w("2. mod-host's verbs on plugin-hostd")

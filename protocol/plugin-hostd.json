@@ -67,7 +67,8 @@
     {"name": "CURVE_POINTS_RANGE", "macro": "OMX_REPLY_PLUGIN_HOSTD_CURVE_POINTS_RANGE_RESP", "code": -539, "meaning": "curve_points of fewer than 2 points or more than a curve carries, three anchors a drawn band counted, or of a band index past what fits"},
     {"name": "DURABLE_WRITE_FAILED", "macro": "OMX_REPLY_PLUGIN_HOSTD_DURABLE_WRITE_FAILED_RESP", "code": -540, "meaning": "the daemon's writer thread could not write the file the verb changes (history_clear, pin_clear, pin_accept): the change is not on disk, and stderr names the path and the error"},
     {"name": "WRITER_QUEUE_FULL", "macro": "OMX_REPLY_PLUGIN_HOSTD_WRITER_QUEUE_FULL_RESP", "code": -541, "meaning": "the daemon's writer queue holds its most writes or bytes: the write the verb needs is refused and nothing of the verb changed; the controller may send it again"},
-    {"name": "CURVE_VALUE_NOT_FINITE", "macro": "OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_RESP", "code": -542, "meaning": "curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn"}
+    {"name": "CURVE_VALUE_NOT_FINITE", "macro": "OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_RESP", "code": -542, "meaning": "curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn"},
+    {"name": "OUTPUT_NOT_MONITORED", "macro": "OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP", "code": -543, "meaning": "monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier"}
   ],
   "verbs": [
     {"name": "add", "arguments": "<uri> <instance> [own | pool:<name> | chain:<chain> | default] [client_name]", "reply": "resp <instance>", "meaning": "mod-host's add with a placement; a token after the instance that is not a placement is the jack client name"},
@@ -240,7 +241,7 @@
       {"name": "VERBATIM", "meaning": "every line a worker writes on its feedback port goes out on the daemon's feedback port as the worker wrote it: output_set, param_set, data_finish and the rest of mod-host's feedback, and a line the daemon does not know"},
       {"name": "INSTANCE", "meaning": "the instance number in a relayed line is already the controller's: add hands it to the worker unchanged, so nothing in a line is rewritten"},
       {"name": "ORDER", "meaning": "a worker's lines go out in the order it wrote them, and what a worker wrote before it died goes out before its worker_died event; an instance lives in one worker at a time, so its lines keep their order across a respawn; the lines of different workers interleave"},
-      {"name": "SUBSCRIPTION", "meaning": "monitor_output is in the ledger, one line per output, and param_monitor as it was sent; a respawn replays them after the add, so a respawned instance reports the same outputs, each once, starting again from its first value"},
+      {"name": "SUBSCRIPTION", "meaning": "monitor_output is in the ledger, one line per output, until monitor_output_off or the end of the connection that set it takes the line out, and param_monitor as it was sent; a respawn replays them after the add, so a respawned instance reports the same outputs, each once, starting again from its first value"},
       {"name": "HANDSHAKE", "meaning": "output_data_ready names no instance and goes to every worker; each worker's data_finish is relayed"},
       {"name": "NO_CONTROLLER", "meaning": "with no feedback port, or no controller on it, a line is dropped, as mod-host drops it; the daemon reads every worker's feedback all the time, so no worker waits on it"}
     ]
