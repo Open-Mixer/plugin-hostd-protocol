@@ -1,20 +1,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Every code this repository owns carries the sentence a person reads for it, in English and in Catalan (omx-contract
-# schema 3.11.0, spec 7.11): `text` with `en` and `ca`, and `args`, the ordered placeholder names the sentence uses as
-# {name}. The owner writes them here, and omx-contract's validator refuses what this test refuses (a missing language,
-# differing placeholder sets, a placeholder outside args); this test says it before the validator runs, names the code,
-# and also holds what the validator cannot know:
+# Every code this repository owns carries the sentence a person reads for it (omx-contract schema 3.12.0, spec 7.11):
+# `text` with the English source sentence alone, and `args`, the ordered placeholder names it uses as {name}; and its
+# Catalan in catalogs/ca.json, keyed by the code. The owner writes both here, and omx-contract's validator refuses what
+# this test refuses (a placeholder outside args, a catalog key that is no code of ours); this test says it before the
+# validator runs, names the code, and also holds what the validator cannot know:
 #   - the code is every reply.plugin-hostd.* word the protocol's table names (nothing declared in protocol.h goes without);
+#   - every code has its Catalan, which uses the same placeholders, and the catalog holds nothing else;
 #   - the sentence is one sentence, plain, with no code name inside it, and ca is no copy of en;
-#   - the declaration says it needs the schema that has `text` (omx-contract-schema >= 3.11.0), and so does the installed
-#     omx-contract, when a schema is given.
+#   - the declaration says it needs the schema that has catalogs (omx-contract-schema >= 3.12.0), and so does the
+#     installed omx-contract, when a schema is given.
 #
-#   code_text.py <data/verbs.json> <protocol/plugin-hostd-protocol.json> [<installed omx-contract.schema.json>]
+#   code_text.py <data/verbs.json> <protocol/plugin-hostd-protocol.json> <catalogs/ca.json> [<installed omx-contract.schema.json>]
 import json
 import re
 import sys
 
-FLOOR = (3, 11, 0)
+FLOOR = (3, 12, 0)
 PLACEHOLDER = re.compile(r"\{([^{}]*)\}")
 LOWER_CAMEL = re.compile(r"^[a-z][A-Za-z0-9]*$")
 failures = []
@@ -31,14 +32,18 @@ def version(text):
 
 declaration = json.load(open(sys.argv[1]))
 table = json.load(open(sys.argv[2]))
+catalog = json.load(open(sys.argv[3]))
+if (catalog.get("kind"), catalog.get("lang"), catalog.get("owner")) != ("catalog", "ca", "plugin-hostd-protocol"):
+    fail("catalogs/ca.json is not the Catalan catalog of plugin-hostd-protocol: %r" % ([catalog.get(k) for k in ("kind", "lang", "owner")],))
+messages = catalog.get("messages", {})
 
 floor = declaration.get("requires", {}).get("omx-contract-schema", "")
 if version(floor) < FLOOR:
     fail("data/verbs.json requires omx-contract-schema %r: `text` came with %s" % (floor, ".".join(map(str, FLOOR))))
-if len(sys.argv) > 3:
-    have = json.load(open(sys.argv[3])).get("x-omx-schema-version", "")
+if len(sys.argv) > 4:
+    have = json.load(open(sys.argv[4])).get("x-omx-schema-version", "")
     if version(have) < FLOOR:
-        fail("the installed omx-contract is schema %r: a code's `text` needs %s" % (have, ".".join(map(str, FLOOR))))
+        fail("the installed omx-contract is schema %r: catalogs need %s" % (have, ".".join(map(str, FLOOR))))
 
 owned = {}
 for group, items in declaration.items():
@@ -59,10 +64,13 @@ for word, (where, code) in sorted(owned.items(), key=lambda kv: kv[1][1].get("re
     if not isinstance(text, dict):
         fail("%s (%s): no text" % (where, word))
         continue
-    if sorted(text) != ["ca", "en"]:
-        fail("%s: text has %s, want en and ca" % (where, sorted(text)))
+    if sorted(text) != ["en"]:
+        fail("%s: text has %s, want the source sentence en alone (a translation is catalogs/<lang>.json)" % (where, sorted(text)))
         continue
-    en, ca = text["en"], text["ca"]
+    if word not in messages:
+        fail("%s (%s): no Catalan in catalogs/ca.json" % (where, word))
+        continue
+    en, ca = text["en"], messages[word]
     if not en.strip() or not ca.strip():
         fail("%s: a sentence is empty" % where)
         continue
@@ -94,7 +102,10 @@ for word, (where, code) in sorted(owned.items(), key=lambda kv: kv[1][1].get("re
         if not 20 <= len(sentence) <= 220:
             fail("%s: the %s sentence is %d characters" % (where, lang, len(sentence)))
 
+for key in sorted(set(messages) - set(owned)):
+    fail("catalogs/ca.json: %s is no code of ours" % key)
+
 if failures:
     print("code text: %d failure(s)" % len(failures))
     sys.exit(1)
-print("ok   %d codes, each with a sentence in en and ca, the same placeholders, all in args" % len(owned))
+print("ok   %d codes, each with its source sentence and its Catalan in catalogs/ca.json, the same placeholders, all in args" % len(owned))
