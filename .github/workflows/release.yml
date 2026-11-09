@@ -4,12 +4,27 @@ name: release
 # Packages through the shared release workflows of Open-Mixer/.github. A tag v<version> builds signed
 # RPMs (Fedora 44, x86_64 and aarch64) and DEBs (Debian bookworm and trixie, amd64 and arm64),
 # publishes them to the OpenMixer channel and attaches them to the GitHub release. A dispatched run
-# (workflow_dispatch) is a dry run: it builds and lints everything and publishes nothing.
+# (workflow_dispatch) is a dry run: it builds and lints everything and publishes nothing, unless it names a
+# tag in source-ref and sets publish: then it releases that tag's sources with this workflow (a tag whose own
+# release workflow can no longer run).
 
 on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      source-ref:
+        description: 'Tag v<version> to release from this workflow; empty is a dry run of the branch'
+        type: string
+        default: ''
+      publish:
+        description: 'With source-ref: sign and publish that tag'
+        type: boolean
+        default: false
+      republish:
+        description: 'Let the release go out over a version the channel already serves (finish a partial publish)'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -22,7 +37,9 @@ jobs:
     with:
       package-name: plugin-hostd-protocol
       binary-names: plugin-hostd-protocol plugin-hostd-protocol-devel plugin-hostd-protocol-contract
-      publish: ${{ github.ref_type == 'tag' }}
+      publish: ${{ github.ref_type == 'tag' || (inputs.publish == true && inputs.source-ref != '') }}
+      source-ref: ${{ inputs.source-ref }}
+      republish: ${{ inputs.republish == true }}
       needs-mod-host: false
       # omx-contract-devel (the declared protocol's generator and the contract directory's install script) is the
       # channel's
@@ -37,7 +54,9 @@ jobs:
     with:
       package-name: libplugin-hostd-protocol
       binary-names: libplugin-hostd-protocol0 libplugin-hostd-protocol-dev plugin-hostd-protocol-contract
-      publish: ${{ github.ref_type == 'tag' }}
+      publish: ${{ github.ref_type == 'tag' || (inputs.publish == true && inputs.source-ref != '') }}
+      source-ref: ${{ inputs.source-ref }}
+      republish: ${{ inputs.republish == true }}
       dependencies: ''
       requires: ''
       # libomx-contract-dev is the channel's
