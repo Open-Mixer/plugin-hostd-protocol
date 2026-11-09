@@ -339,10 +339,10 @@ test-default-lv2-worker:
 test-mod-host-json:
 	python3 tests/mod_host_json.py include
 
-# every code this repository owns has its sentence in English and in Catalan (tests/code_text.py); the installed
+# every code this repository owns has its source sentence, and its Catalan in catalogs/ca.json (tests/code_text.py); the installed
 # omx-contract must be the schema that has `text`, and test-code-text-sabotage takes each rule out in a scratch copy
 test-code-text:
-	python3 tests/code_text.py data/verbs.json protocol/plugin-hostd-protocol.json $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/omx-contract.schema.json)
+	python3 tests/code_text.py data/verbs.json protocol/plugin-hostd-protocol.json catalogs/ca.json $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/omx-contract.schema.json)
 
 test-code-text-sabotage:
 	sh tests/code-text-sabotage.sh
@@ -371,13 +371,15 @@ check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-gr
 install-contract:
 	@test -n "$(INSTALL_CONTRACT_DIR)" || { echo "install-contract: no install-contract-dir.sh: install omx-contract-devel, or set OMX_CONTRACT_DIR to a checkout" >&2; exit 1; }
 	sh $(INSTALL_CONTRACT_DIR) $(NAME) $(VERSION) $(CONTRACT_SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
+	install -d $(DESTDIR)$(DATADIR)/$(NAME)/catalogs
+	install -m 644 catalogs/*.json $(DESTDIR)$(DATADIR)/$(NAME)/catalogs/
 
 # the staged package validates together with the installed contract directory; an absent omx-contract is red
 check-contract-dir:
 	@command -v $(OMX_CONTRACT) >/dev/null || { echo "$@: no $(OMX_CONTRACT) command: install omx-contract" >&2; exit 1; }
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
 	$(MAKE) --no-print-directory install-contract DESTDIR=$$tmp >/dev/null; \
-	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) validate --installed
+	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) validate --installed --catalogs catalogs
 
 # check-rendered must fail on a rendered header changed by hand and on verbs.json not rendered again
 test-rendered-sabotage:
