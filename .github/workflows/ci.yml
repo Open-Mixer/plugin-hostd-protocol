@@ -16,8 +16,16 @@ jobs:
       fail-fast: false
       matrix:
         image: ['fedora:44', 'debian:bookworm', 'debian:trixie']
-    container: ${{ matrix.image }}
+    # privileged only to lower the runner kernel's mmap_rnd_bits: with the hosted image's 32 bits, bookworm's gcc 12
+    # AddressSanitizer dies in DEADLYSIGNAL loops or hangs until the timeout (newer libasan copes)
+    container:
+      image: ${{ matrix.image }}
+      options: --privileged
     steps:
+      - name: Address space randomisation AddressSanitizer can run under
+        run: |
+          if [ "$(cat /proc/sys/vm/mmap_rnd_bits)" -gt 28 ]; then echo 28 > /proc/sys/vm/mmap_rnd_bits; fi
+          echo "vm.mmap_rnd_bits=$(cat /proc/sys/vm/mmap_rnd_bits)"
       - name: Toolchain
         run: |
           if command -v dnf >/dev/null; then
