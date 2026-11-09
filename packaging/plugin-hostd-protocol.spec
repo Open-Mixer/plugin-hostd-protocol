@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.0
+Version: 0.5.1
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -104,6 +104,11 @@ make test
 %{_datadir}/omx-contract/contract.d/3/plugin-hostd-protocol/
 
 %changelog
+* Sun Nov 08 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.1-1
+- the golden deviations name only public references (monitor_output_off's
+  exchanges cite omx-dsp#301); the CI runs the public-sources checks on every
+  pull request
+
 * Sun Nov 08 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.0-1
 - curve_bind and curve_points: a display of an instance's panel description
   bound to the instance's parameters, and drawn from the values the instance
