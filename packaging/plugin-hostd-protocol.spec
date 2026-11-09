@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.1
+Version: 0.5.2
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -18,7 +18,7 @@ BuildRequires: libubsan
 BuildRequires: python3
 # the declared protocol: tools/protocol-gen holds protocol.h's parameter scales to omx-contract's C headers, and
 # install-contract writes the contract directory's package with omx-contract's script
-BuildRequires: (omx-contract-devel >= 3.11.0 with omx-contract-devel < 4)
+BuildRequires: (omx-contract-devel >= 3.12.0 with omx-contract-devel < 4)
 # omx_curve.h, the curve function the curve verbs draw with (header only)
 BuildRequires: (omx-dsp-devel >= 0.32.0 with omx-dsp-devel < 0.33)
 
@@ -48,7 +48,7 @@ protocol as JSON, each named by a pkg-config variable.
 %package contract
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
-Requires: (omx-contract >= 3.11.0 with omx-contract < 4)
+Requires: (omx-contract >= 3.12.0 with omx-contract < 4)
 # plugin-hostd before 0.16.0 declared the same items in its own package of the contract directory
 Conflicts: plugin-hostd-contract < 0.16.0
 
@@ -102,8 +102,13 @@ make test
 %license COPYING
 %doc README.md
 %{_datadir}/omx-contract/contract.d/3/plugin-hostd-protocol/
+%{_datadir}/plugin-hostd-protocol/catalogs/
 
 %changelog
+* Mon Nov 09 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.2-1
+- the codes' source sentences beside the codes, the Catalan in catalogs/ca.json
+  (omx-contract 3.12.0); the rendered vocabularies and the protocol page follow
+
 * Sun Nov 08 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.1-1
 - the golden deviations name only public references (monitor_output_off's
   exchanges cite omx-dsp#301); the CI runs the public-sources checks on every
