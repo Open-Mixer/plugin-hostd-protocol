@@ -33,7 +33,7 @@ permissions:
 
 jobs:
   rpm:
-    uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@main
+    uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@openmixer-v1
     with:
       package-name: plugin-hostd-protocol
       binary-names: plugin-hostd-protocol plugin-hostd-protocol-devel plugin-hostd-protocol-contract
@@ -50,7 +50,7 @@ jobs:
   # or skipped RPM job skips this one, so no DEB is published after a failed RPM.
   deb:
     needs: rpm
-    uses: Open-Mixer/.github/.github/workflows/build-deb.yml@main
+    uses: Open-Mixer/.github/.github/workflows/build-deb.yml@openmixer-v1
     with:
       package-name: libplugin-hostd-protocol
       binary-names: libplugin-hostd-protocol0 libplugin-hostd-protocol-dev plugin-hostd-protocol-contract

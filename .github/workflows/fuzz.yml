@@ -23,7 +23,7 @@ jobs:
       - name: Trust the checkout
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Add the OpenMixer channel
-        uses: Open-Mixer/.github/.github/actions/add-openmixer@main
+        uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
       - name: omx-dsp's curve function, which the dispatcher draws with
         run: dnf -y install 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
       - name: Build the harnesses
