@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 name: release
 
-# Packages through the shared release workflows of FreeMixer/.github. A tag v<version> builds signed
+# Packages through the shared release workflows of Open-Mixer/.github. A tag v<version> builds signed
 # RPMs (Fedora 44, x86_64 and aarch64) and DEBs (Debian bookworm and trixie, amd64 and arm64),
 # publishes them to the OpenMixer channel and attaches them to the GitHub release. A dispatched run
 # (workflow_dispatch) is a dry run: it builds and lints everything and publishes nothing.
@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   rpm:
-    uses: FreeMixer/.github/.github/workflows/build-rpm.yml@v1
+    uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@main
     with:
       package-name: plugin-hostd-protocol
       binary-names: plugin-hostd-protocol plugin-hostd-protocol-devel plugin-hostd-protocol-contract
@@ -33,7 +33,7 @@ jobs:
   # or skipped RPM job skips this one, so no DEB is published after a failed RPM.
   deb:
     needs: rpm
-    uses: FreeMixer/.github/.github/workflows/build-deb.yml@v1
+    uses: Open-Mixer/.github/.github/workflows/build-deb.yml@main
     with:
       package-name: libplugin-hostd-protocol
       binary-names: libplugin-hostd-protocol0 libplugin-hostd-protocol-dev plugin-hostd-protocol-contract

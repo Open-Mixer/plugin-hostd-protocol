@@ -30,7 +30,7 @@ jobs:
           fetch-depth: 0
       # omx-contract's C headers, which the declared protocol's generator is built against, are the OpenMixer channel's
       - name: Add the OpenMixer channel
-        uses: FreeMixer/.github/.github/actions/add-openmixer@v1
+        uses: Open-Mixer/.github/.github/actions/add-openmixer@main
       - name: omx-contract's headers, and omx-dsp's curve function
         run: |
           if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.12.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'; else
@@ -69,7 +69,7 @@ jobs:
       - name: Trust the checkout
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Add the OpenMixer channel
-        uses: FreeMixer/.github/.github/actions/add-openmixer@v1
+        uses: Open-Mixer/.github/.github/actions/add-openmixer@main
       - name: omx-contract and omx-clap-core's and plugin-db's packages of the contract directory
         run: |
           set -euo pipefail
@@ -94,7 +94,7 @@ jobs:
       - name: Trust the checkout
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Add the OpenMixer channel
-        uses: FreeMixer/.github/.github/actions/add-openmixer@v1
+        uses: Open-Mixer/.github/.github/actions/add-openmixer@main
       - name: omx-dsp's curve function
         run: dnf -y install 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
       - name: Exported symbols
@@ -103,6 +103,6 @@ jobs:
         run: make abi-check
 
   # the checks every FreeMixer repository runs on what it publishes: commit messages, private references, and no
-  # local copy of either (FreeMixer/.github's public-sources-check)
+  # local copy of either (Open-Mixer/.github's public-sources-check)
   public-sources:
-    uses: FreeMixer/.github/.github/workflows/public-sources-check.yml@v1
+    uses: Open-Mixer/.github/.github/workflows/public-sources-check.yml@main
