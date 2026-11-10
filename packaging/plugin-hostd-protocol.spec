@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.2
+Version: 0.5.3
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -105,6 +105,10 @@ make test
 %{_datadir}/plugin-hostd-protocol/catalogs/
 
 %changelog
+* Tue Nov 10 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.3-1
+- the scenario list exercises preset_save, refused on an instance that does not
+  exist; a test holds it to the verbs a console's host backend declares
+
 * Mon Nov 09 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.2-1
 - the codes' source sentences beside the codes, the Catalan in catalogs/ca.json
   (omx-contract 3.12.0); the rendered vocabularies and the protocol page follow
