@@ -326,10 +326,12 @@ check-protocol-doc:
 	python3 tools/protocol-doc.py --check
 
 # the host verb table of protocol.h has a row for every verb a controller sends, no more and no fewer; and each of its
-# rules broken in a scratch copy of the header turns it red
+# rules broken in a scratch copy of the header turns it red; the scenario list exercises every verb a console's host
+# backend declares (tests/scenario_verbs.py)
 test-verb-table:
 	python3 tests/verb_table.py
 	python3 tests/verb_table_sabotage.py
+	python3 tests/scenario_verbs.py
 
 # the default lv2_worker is omx-clap-host: mod-host runs an LV2 plugin only when lv2_worker or lv2_worker_set names it
 test-default-lv2-worker:

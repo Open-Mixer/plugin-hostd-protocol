@@ -278,6 +278,10 @@
 > hello 0 tags
 < resp -902
 = 
+# scenario-71 answer 0
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 0
 > cpu_load
 < not found
@@ -1232,6 +1236,10 @@
 = 
 # scenario-70 answer 1
 > hello 0 tags
+< resp -902
+= 
+# scenario-71 answer 1
+> preset_save 9 probe /tmp/golden probe.ttl
 < resp -902
 = 
 # fuzz/corpus/protocol/extra-1 answer 1
@@ -2190,6 +2198,10 @@
 > hello 0 tags
 < resp -902
 = 
+# scenario-71 answer 2
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 2
 > cpu_load
 < not found
@@ -3144,6 +3156,10 @@
 = 
 # scenario-70 answer 3
 > hello 0 tags
+< resp -902
+= 
+# scenario-71 answer 3
+> preset_save 9 probe /tmp/golden probe.ttl
 < resp -902
 = 
 # fuzz/corpus/protocol/extra-1 answer 3
@@ -4102,6 +4118,10 @@
 > hello 0 tags
 < resp -902
 = 
+# scenario-71 answer 4
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 4
 > cpu_load
 < not found
@@ -5056,6 +5076,10 @@
 = 
 # scenario-70 answer 5
 > hello 0 tags
+< resp -902
+= 
+# scenario-71 answer 5
+> preset_save 9 probe /tmp/golden probe.ttl
 < resp -902
 = 
 # fuzz/corpus/protocol/extra-1 answer 5
@@ -6014,6 +6038,10 @@
 > hello 0 tags
 < resp -902
 = 
+# scenario-71 answer 6
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 6
 > cpu_load
 < not found
@@ -6970,6 +6998,10 @@
 > hello 0 tags
 < resp -902
 = 
+# scenario-71 answer 7
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 7
 > cpu_load
 < not found
@@ -7924,6 +7956,10 @@
 = 
 # scenario-70 answer 8
 > hello 0 tags
+< resp -902
+= 
+# scenario-71 answer 8
+> preset_save 9 probe /tmp/golden probe.ttl
 < resp -902
 = 
 # fuzz/corpus/protocol/extra-1 answer 8
