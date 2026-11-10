@@ -1,3 +1,11 @@
+plugin-hostd-protocol (0.5.3) unstable; urgency=medium
+
+  * The scenario list exercises preset_save: on an instance that does not
+    exist it is refused before anything is written. A test holds the list
+    to the verbs a console's host backend declares.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Tue, 10 Nov 2026 01:09:38 +0000
+
 plugin-hostd-protocol (0.5.2) unstable; urgency=medium
 
   * The codes' sentences follow omx-contract 3.12.0: the source sentence
