@@ -284,6 +284,11 @@ def table():
         "placement": phd["placement"],
         "words": phd["words"],
         "worker_states": phd["worker_states"],
+        # the wire's constants (protocol_version, the version hello answers, among them), the words of a pin and the
+        # LV2 workers lv2_worker_set names, as protocol.h declares them: a client reads them here and keeps no copy
+        "constants": phd["constants"],
+        "pin": phd["pin"],
+        "lv2_workers": phd["lv2_workers"],
     }
 
 

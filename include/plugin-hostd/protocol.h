@@ -80,6 +80,8 @@ static inline int phd_has_display(void)
 #define PHD_CHAIN_MEMBERS_MIN    1
 
 #define PHD_CONSTANTS(X) \
+    X(protocol_version, PLUGIN_HOSTD_PROTOCOL_VERSION, "version", \
+      "the protocol version hello sends and answers on the socket; the table's version key is the same number") \
     X(default_command_port, PHD_DEFAULT_COMMAND_PORT, "port", \
       "the command port without -p; the feedback port is the next one, unless -n is given") \
     X(connect_retry_ms, PHD_CONNECT_RETRY_MS, "ms", \

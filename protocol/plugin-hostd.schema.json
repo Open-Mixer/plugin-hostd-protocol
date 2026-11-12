@@ -624,6 +624,41 @@
         ],
         "additionalProperties": false
       }
+    },
+    "pin": {
+      "type": "object",
+      "properties": {
+        "file_separator": {
+          "type": "string"
+        },
+        "digest_separator": {
+          "type": "string"
+        },
+        "scheme_separator": {
+          "type": "string"
+        },
+        "path_excluded": {
+          "type": "string"
+        },
+        "path_escape": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_separator",
+        "digest_separator",
+        "scheme_separator",
+        "path_excluded",
+        "path_escape"
+      ],
+      "additionalProperties": false
+    },
+    "lv2_workers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
     }
   },
   "required": [
@@ -651,7 +686,9 @@
     "host_settings",
     "config",
     "arg_types",
-    "command_forms"
+    "command_forms",
+    "pin",
+    "lv2_workers"
   ],
   "additionalProperties": false
 }

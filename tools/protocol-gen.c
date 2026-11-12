@@ -75,6 +75,11 @@ static void jstr(const char *s)
     putchar('"');
     for (; *s; s++)
     {
+        if ((unsigned char)*s < 0x20)
+        {
+            printf("\\u%04x", (unsigned char)*s);
+            continue;
+        }
         if (*s == '"' || *s == '\\')
             putchar('\\');
         putchar(*s);
@@ -120,7 +125,21 @@ static void json(void)
     sep = ",\n";
     PHD_CONSTANTS(X)
 #undef X
-    printf("\n  ],\n  \"placement\": {\n    \"own\": ");
+    printf("\n  ],\n  \"pin\": {\n    \"file_separator\": ");
+    jstr(PHD_PIN_FILE_SEPARATOR);
+    printf(",\n    \"digest_separator\": ");
+    jstr(PHD_PIN_DIGEST_SEPARATOR);
+    printf(",\n    \"scheme_separator\": ");
+    jstr(PHD_PIN_SCHEME_SEPARATOR);
+    printf(",\n    \"path_excluded\": ");
+    jstr(PHD_PIN_PATH_EXCLUDED);
+    printf(",\n    \"path_escape\": ");
+    jstr(PHD_PIN_PATH_ESCAPE);
+    printf("\n  },\n  \"lv2_workers\": [");
+    jstr(PHD_LV2_WORKER_MOD_HOST);
+    printf(", ");
+    jstr(PHD_LV2_WORKER_CLAP_HOST);
+    printf("],\n  \"placement\": {\n    \"own\": ");
     jstr(PHD_PLACE_OWN);
     printf(",\n    \"default\": ");
     jstr(PHD_PLACE_DEFAULT);
