@@ -413,7 +413,9 @@ static inline int phd_pool_name_valid(const char *name)
                               "rate: no curve is drawn") \
     X(OUTPUT_NOT_MONITORED, OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP, "monitor_output_off of an output this " \
                            "connection did not monitor: a monitor ends with the connection that set it, and only " \
-                           "that connection ends it earlier")
+                           "that connection ends it earlier") \
+    X(LABEL_INVALID, OMX_REPLY_PLUGIN_HOSTD_LABEL_INVALID_RESP, OMX_VERB_NODE_LABEL " of a label longer than " \
+                     "PHD_NODE_LABEL_MAX bytes or not UTF-8: the node keeps the label it had")
 
 /* ---------------------------------------------------------------- verbs */
 
@@ -796,11 +798,18 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_NODE_METADATA_PRETTY_NAME_FORMAT "%s (%d)"
 #define PHD_NODE_METADATA_INSTANCE_KEY       "http://openmixer.org/ns/plugin-hostd#instance"
 #define PHD_NODE_METADATA_INSTANCE_FORMAT    "%d"
+#define PHD_NODE_METADATA_LABELLED_NAME_KEY    PHD_NODE_METADATA_PRETTY_NAME_KEY
+#define PHD_NODE_METADATA_LABELLED_NAME_FORMAT "%s: %s (%d)"
+/* the most bytes of a node_label label, its words joined by one space (plugin-hostd#35) */
+#define PHD_NODE_LABEL_MAX 64
 /* X(id, name, args, meaning): args what fills the format, in order, separated by commas */
 #define PHD_NODE_METADATA(X) \
     X(PRETTY_NAME, "pretty_name", "plugin name,instance", \
       "the name a graph client shows for the node: the plugin's name from its descriptor and the instance") \
-    X(INSTANCE, "instance", "instance", "the instance the node hosts, which a client matches a hosted node on")
+    X(INSTANCE, "instance", "instance", "the instance the node hosts, which a client matches a hosted node on") \
+    X(LABELLED_NAME, "labelled_name", "label,plugin name,instance", \
+      "the pretty-name of a node a client has labelled (node_label): the label, the plugin's name and the instance, " \
+      "in place of pretty_name until the label is cleared")
 
 /* how a parameter's plain value maps to a control's travel: X(id, name, meaning) */
 #define PHD_PARAM_SCALES(X) \
@@ -823,6 +832,11 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "that is not UTF-8 as RFC 3629 spells it (an overlong form, a surrogate, a code point past U+10FFFF, a lead " \
       "byte without its tails) or one that holds a control character of Unicode's class Cc: U+0000 to U+001F, U+007F " \
       "or U+0080 to U+009F") \
+    X(NODE_LABEL, OMX_VERB_NODE_LABEL, "<instance> [<label word> ...]", "resp 0", REPLACE, \
+      "label the node for graph clients: the worker that holds the instance sets its pretty-name to the labelled " \
+      "form of PHD_NODE_METADATA, the label the words joined by one space; no words clears it, back to the plain " \
+      "form. -545 for a label over PHD_NODE_LABEL_MAX bytes or not UTF-8; the ledger keeps the latest, so a " \
+      "respawned worker is labelled again (plugin-hostd#35)") \
     X(REMOTE_PAGES, OMX_VERB_REMOTE_PAGES, "<instance>", "resp <count>", NONE, \
       "the plugin's remote-control pages, from clap.remote-controls; 0 for an instance of a format whose worker has none") \
     X(REMOTE_PAGE_GET, OMX_VERB_REMOTE_PAGE_GET, "<instance> <page>", \
@@ -1096,7 +1110,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_PANEL_GET, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
     X(OMX_VERB_HISTORY_GET, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
     X(OMX_VERB_HISTORY_CLEAR, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
-    X(OMX_VERB_ESTIMATE, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED)
+    X(OMX_VERB_ESTIMATE, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
+    X(OMX_VERB_NODE_LABEL, DAEMON, ABSENT, OPTIONAL, OPTIONAL, OPTIONAL)
 
 /* ---------------------------------------------------------------- host settings */
 

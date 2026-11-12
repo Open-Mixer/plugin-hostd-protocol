@@ -207,6 +207,15 @@
         },
         "args": []
       },
+      "labelInvalid": {
+        "code": "reply.plugin-hostd.label-invalid",
+        "resp": -545,
+        "doc": "node_label's label is longer than PHD_NODE_LABEL_MAX bytes or is not UTF-8: the node keeps the label it had",
+        "text": {
+          "en": "That label is too long or not valid text, so the node keeps its previous name; use at most 64 bytes of UTF-8 text."
+        },
+        "args": []
+      },
       "dirNotWritable": {
         "code": "reply.plugin-hostd.dir-not-writable",
         "resp": -528,
@@ -966,6 +975,29 @@
           "plugin-hostd": "required"
         },
         "doc": "What a chain of these plugins would cost at a rate and a quantum, read from the qualification records with no plugin loaded: <rate> <quantum> <uri> [<uri> ...], the uris as add takes them, in signal order. The reply is the latency in frames (each member's measured latency, else its declared one, added up), the CPU as percent of one core's cycle (each member's median nanoseconds per sample times the rate, added up), the RAM in bytes (the Pss each member's worker had running alone on this host class, added up; - unless every member has one), the workers plan would place the members in, and how many members have no figure at that rate and quantum; then each of those as its position in the line, from 0, and its code (noRecord, noCell or unknownPlugin), joined by commas, - for none. The latency and the CPU add up only the members that have a figure. Then the memory: what the workers hold now in bytes (- when one cannot be read), what the members would add in bytes from the qualification records, what instances of one plugin share counted once in a segment (- when no member has a figure), the host's ram_budget_mb in bytes (- when none is set), and how many members have no such figure."
+      },
+      "nodeLabel": {
+        "verb": "node_label",
+        "format": "node_label %i ...",
+        "reply": "resp 0",
+        "codes": [
+          {
+            "ref": "PLUGIN_HOSTD_REPLY_CODES.labelInvalid"
+          },
+          {
+            "ref": "HOST_REPLY_CODES.instanceNonExists"
+          },
+          {
+            "ref": "HOST_REPLY_CODES.invalidOperation"
+          }
+        ],
+        "implementedBy": {
+          "plugin-hostd": "optional",
+          "omx-clap-host": "optional",
+          "mod-host": "unsupported"
+        },
+        "since": "0.5.6",
+        "doc": "Labels a hosted node for graph clients: <instance> [<label word> ...], answered resp 0. The label is the rest of the line, its words joined by one space, and the node's pretty-name becomes the labelled form of node_metadata (<label>: <plugin name> (<instance>)); no words clears the label, and the pretty-name is the plain form again. The node's client name stays effect_<instance>. The label lasts as long as the instance: plugin-hostd keeps it and sets it again on a respawned worker, and remove ends it. A label over PHD_NODE_LABEL_MAX bytes or not UTF-8 is refused (-545) and the node keeps its label; an instance with no node is refused (-3); a host that does not serve the verb answers invalid operation (plugin-hostd#35)."
       }
     }
   },
