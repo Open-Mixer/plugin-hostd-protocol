@@ -288,6 +288,8 @@ def table():
         # LV2 workers lv2_worker_set names, as protocol.h declares them: a client reads them here and keeps no copy
         "constants": phd["constants"],
         "pin": phd["pin"],
+        # the formats a worker holds: the <format> of worker_list, and of policy_set and lv2_worker_set
+        "formats": phd["formats"],
         "lv2_workers": phd["lv2_workers"],
     }
 

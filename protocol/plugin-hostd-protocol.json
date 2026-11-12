@@ -208,5 +208,6 @@
     {"name": "chain_members_min", "value": 1, "unit": "instances", "meaning": "the fewest members of a chain: a chain of one is valid, so one isolated plugin is a chain like any other"}
   ],
   "pin": {"file_separator": ",", "digest_separator": "=", "scheme_separator": ":", "path_excluded": ",= \t\r\n", "path_escape": "%"},
+  "formats": ["lv2", "clap", "lv2-clap"],
   "lv2_workers": ["mod-host", "omx-clap-host"]
 }
