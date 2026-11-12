@@ -109,7 +109,7 @@ TEST_PROGS = tests/feedback_lines tests/protocol_test tests/protocol_commands_te
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text
+      check-generated check-protocol-doc test-feedback-args test-table-constants test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
 test-protocol: tests/protocol_test
@@ -336,6 +336,10 @@ tests/feedback_lines: tests/feedback_lines.c $(PROTOCOL_HEADERS)
 test-feedback-args: tests/feedback_lines
 	./tests/feedback_lines > tests/feedback_lines.out
 	python3 tests/feedback_args.py protocol/plugin-hostd-protocol.json tests/feedback_lines.out
+
+# the wire's constants, the pin's words and the LV2 workers, in the installed table as protocol.h declares them
+test-table-constants:
+	python3 tests/table_constants.py protocol/plugin-hostd-protocol.json protocol/plugin-hostd.json
 
 test-verb-table:
 	python3 tests/verb_table.py
