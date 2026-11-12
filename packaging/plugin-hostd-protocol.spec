@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.4
+Version: 0.5.5
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -105,6 +105,9 @@ make test
 %{_datadir}/plugin-hostd-protocol/catalogs/
 
 %changelog
+* Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.5-1
+- node_metadata: the JACK metadata a worker sets on each instance's client, its
+  pretty name and the instance key a client matches a hosted node on
 * Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.4-1
 - PRESET_NOT_APPLIED (-544): the plugin took the preset and had not run once
   since when the host's wait for that ran out; its sentence and the Catalan

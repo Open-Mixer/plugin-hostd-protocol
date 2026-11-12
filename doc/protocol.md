@@ -678,6 +678,15 @@ The relay rules:
 - REPLAY: a worker is handed them before anything else: a respawned one before its first add, and a worker started later, of a new placement, as well; a worker's refusal of one is written to stderr and is no failure
 - GRAMMAR: a line whose words are not that command's grammar is passed on and not kept
 
+### Node metadata
+
+The JACK metadata a worker sets on the uuid of each client it opens for an instance, on jackd and on PipeWire. The client's name stays `effect_<instance>`; a client shows the pretty name and matches a hosted node on the instance key, never on the name's prefix. The value is a printf format, filled by the arguments in order.
+
+| name | key | value | arguments | meaning |
+|---|---|---|---|---|
+| `pretty_name` | `http://jackaudio.org/metadata/pretty-name` | `%s (%d)` | plugin name, instance | the name a graph client shows for the node: the plugin's name from its descriptor and the instance |
+| `instance` | `http://openmixer.org/ns/plugin-hostd#instance` | `%d` | instance | the instance the node hosts, which a client matches a hosted node on |
+
 Reply codes
 -----------
 

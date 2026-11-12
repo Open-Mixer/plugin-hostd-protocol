@@ -240,6 +240,8 @@ def table():
         # what hello can grant, in the order its reply names them
         "extensions": [{"word": w["word"], "doc": w.get("doc", "")}
                        for w in verbs["PLUGIN_HOSTD_PROTOCOL_EXTENSIONS"]["words"].values()],
+        # the JACK metadata on a hosted node's client, as protocol.h declares it: a client names and matches it here
+        "node_metadata": phd["node_metadata"],
     }
 
 

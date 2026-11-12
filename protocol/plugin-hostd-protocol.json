@@ -182,5 +182,9 @@
     {"word": "tags", "doc": "request tags: a line may start with @<tag>, and its answer then starts with the same @<tag>"},
     {"word": "errors", "doc": "error words: a refusal resp <n> is followed by the stable word of its code, reply.<group>.<reason>, when the protocol declares one"},
     {"word": "seq", "doc": "event sequence numbers: every feedback line starts with #<n>, 1 for the first after this hello and one more for each, so a gap is a missed line"}
+  ],
+  "node_metadata": [
+    {"name": "pretty_name", "key": "http://jackaudio.org/metadata/pretty-name", "value": "%s (%d)", "args": ["plugin name", "instance"], "meaning": "the name a graph client shows for the node: the plugin's name from its descriptor and the instance"},
+    {"name": "instance", "key": "http://openmixer.org/ns/plugin-hostd#instance", "value": "%d", "args": ["instance"], "meaning": "the instance the node hosts, which a client matches a hosted node on"}
   ]
 }

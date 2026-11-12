@@ -82,6 +82,26 @@ static void jstr(const char *s)
     putchar('"');
 }
 
+/* a list written as one string, its items separated by commas, as JSON strings */
+static void jlist(const char *s)
+{
+    char item[256];
+
+    while (*s)
+    {
+        size_t n = strcspn(s, ",");
+
+        snprintf(item, sizeof(item), "%.*s", (int)n, s);
+        jstr(item);
+        s += n;
+        if (*s == ',')
+        {
+            s++;
+            printf(", ");
+        }
+    }
+}
+
 static void json(void)
 {
     const char *sep;
@@ -233,6 +253,23 @@ static void json(void)
     printf("}"); \
     sep = ",\n";
     PHD_PIN_LIMITS(X)
+#undef X
+    printf("\n  ],\n  \"node_metadata\": [");
+    sep = "\n";
+#define X(id, name, args, meaning) \
+    printf("%s    {\"name\": ", sep); \
+    jstr(name); \
+    printf(", \"key\": "); \
+    jstr(PHD_NODE_METADATA_##id##_KEY); \
+    printf(", \"value\": "); \
+    jstr(PHD_NODE_METADATA_##id##_FORMAT); \
+    printf(", \"args\": ["); \
+    jlist(args); \
+    printf("], \"meaning\": "); \
+    jstr(meaning); \
+    printf("}"); \
+    sep = ",\n";
+    PHD_NODE_METADATA(X)
 #undef X
     printf("\n  ],\n  \"relay\": {\n    \"worker_arguments\": ");
     jstr(PHD_WORKER_ARGUMENTS);
