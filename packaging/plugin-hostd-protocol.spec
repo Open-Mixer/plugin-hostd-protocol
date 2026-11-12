@@ -201,8 +201,8 @@ shows the English source sentence.
   words a consumer recognises: placements, all, -, * and the worker states
   (#17).
 - The table carries the wire's constants, protocol_version (the version hello
-  answers) among them, the pin's separators, excluded bytes and escape, and the
-  LV2 workers.
+  answers) among them, the pin's separators, excluded bytes and escape, the
+  formats a worker holds, and the LV2 workers.
 
 * Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.5-1
 - node_metadata: the JACK metadata a worker sets on each instance's client, its
