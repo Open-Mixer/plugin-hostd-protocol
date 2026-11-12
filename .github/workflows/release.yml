@@ -7,6 +7,9 @@ name: release
 # (workflow_dispatch) is a dry run: it builds and lints everything and publishes nothing, unless it names a
 # tag in source-ref and sets publish: then it releases that tag's sources with this workflow (a tag whose own
 # release workflow can no longer run).
+# A dispatched run with staged on (never a tag) builds fc44 x86_64 and trixie amd64 only and publishes them to the
+# staging channel for the next layer of the release chain to build against; nothing reaches the real channel, and the
+# release still publishes once from the v<version> tag (Open-Mixer/.github build-rpm.yml, build-deb.yml).
 
 on:
   push:
@@ -25,6 +28,10 @@ on:
         description: 'Let the release go out over a version the channel already serves (finish a partial publish)'
         type: boolean
         default: false
+      staged:
+        description: 'Build fc44 x86_64 and trixie amd64 only and publish them to the staging channel, never to the real one'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -35,6 +42,7 @@ jobs:
   rpm:
     uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@openmixer-v1
     with:
+      staged: ${{ inputs.staged == true }}
       package-name: plugin-hostd-protocol
       binary-names: plugin-hostd-protocol plugin-hostd-protocol-devel plugin-hostd-protocol-contract
       publish: ${{ github.ref_type == 'tag' || (inputs.publish == true && inputs.source-ref != '') }}
@@ -51,6 +59,7 @@ jobs:
   deb:
     uses: Open-Mixer/.github/.github/workflows/build-deb.yml@openmixer-v1
     with:
+      staged: ${{ inputs.staged == true }}
       package-name: libplugin-hostd-protocol
       binary-names: libplugin-hostd-protocol0 libplugin-hostd-protocol-dev plugin-hostd-protocol-contract
       publish: ${{ github.ref_type == 'tag' || (inputs.publish == true && inputs.source-ref != '') }}
