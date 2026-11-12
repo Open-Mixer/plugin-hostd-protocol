@@ -415,11 +415,10 @@ test-grammar:
 	PYTHON=$(PYTHON) sh tests/grammar-sabotage.sh
 
 # VERSION, the spec's Version and the newest debian/changelog entry say the same (the shared DEB workflow
-# stamps an untagged build 0.1.0~git<sha>; that suffix is not compared)
+# stamps an untagged build 0.1.0~git<sha> and a staged one <version>+git<sha>: only the leading version is compared)
 version-check:
 	@spec=$$(sed -n 's/^Version: *//p' packaging/$(NAME).spec); \
-	deb=$$(sed -n '1s/^[^(]*(\([^-)]*\).*/\1/p' debian/changelog); \
-	deb=$${deb%%~git*}; \
+	deb=$$(sed -n '1s/^[^(]*(\([0-9][0-9.]*\).*/\1/p' debian/changelog); \
 	test "$$spec" = "$(VERSION)" && test "$$deb" = "$(VERSION)" \
 	    || { echo "VERSION $(VERSION), spec $$spec, debian/changelog $$deb"; exit 1; }; \
 	echo "version $(VERSION) in VERSION, the spec and debian/changelog"
