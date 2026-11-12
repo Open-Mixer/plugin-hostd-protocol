@@ -3,12 +3,21 @@
   "version": 1,
   "readiness": {"daemon_line": "plugin-hostd ready!", "worker_marker": "ready!"},
   "constants": [
+    {"name": "protocol_version", "value": 1, "unit": "version", "meaning": "the protocol version hello sends and answers on the socket; the table's version key is the same number"},
     {"name": "default_command_port", "value": 5555, "unit": "port", "meaning": "the command port without -p; the feedback port is the next one, unless -n is given"},
     {"name": "connect_retry_ms", "value": 5000, "unit": "ms", "meaning": "how long the idle tick asks again for a connect a respawned worker could not make yet"},
     {"name": "line_max", "value": 4096, "unit": "bytes", "meaning": "the protocol socket's buffer: the longest pin_set line the daemon takes"},
     {"name": "line_words_max", "value": 64, "unit": "words", "meaning": "the words of one command line the daemon reads, the verb included; a word past them is not read"},
     {"name": "chain_members_min", "value": 1, "unit": "instances", "meaning": "the fewest members of a chain: a chain of one is valid, so one isolated plugin is a chain like any other"}
   ],
+  "pin": {
+    "file_separator": ",",
+    "digest_separator": "=",
+    "scheme_separator": ":",
+    "path_excluded": ",= \u0009\u000d\u000a",
+    "path_escape": "%"
+  },
+  "lv2_workers": ["mod-host", "omx-clap-host"],
   "placement": {
     "own": "own",
     "default": "default",
