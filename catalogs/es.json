@@ -41,6 +41,7 @@
     "reply.plugin-hostd.unknown-plugin": { "text": "No hay ningún plugin con esa dirección instalado aquí; instálalo o elige otro.", "by": "machine", "model": "draft-prose", "source": "07932af40725e7592b639dba9c301edc8589d6a1d8ee0736ac97d98d94704b78" },
     "reply.plugin-hostd.verb-dropped": { "text": "El plugin se detuvo justo cuando se le pidió que hiciera esto, por lo que la solicitud se perdió; inténtalo de nuevo.", "by": "machine", "model": "draft-prose", "source": "32577a66e856d53a084a19ae42750c4912c962004b06f7c571889dcaea73d636" },
     "reply.plugin-hostd.worker-spawn": { "text": "El programa que ejecuta el plugin no se está ejecutando; espera un momento e inténtalo de nuevo.", "by": "machine", "model": "draft-prose", "source": "cad5738b04f7fea4ac7bea88d2ee275edf24c8ac398fb5a541a8ba8fd76cb64a" },
-    "reply.plugin-hostd.writer-queue-full": { "text": "Hay demasiados cambios esperando a ser guardados, así que este no se realizó; espera un momento e inténtalo de nuevo.", "by": "machine", "model": "draft-prose", "source": "2d08ff0cc00f606a5cf096cb7147f93aaa1b77f611549cbe54ec0582690727c3" }
+    "reply.plugin-hostd.writer-queue-full": { "text": "Hay demasiados cambios esperando a ser guardados, así que este no se realizó; espera un momento e inténtalo de nuevo.", "by": "machine", "model": "draft-prose", "source": "2d08ff0cc00f606a5cf096cb7147f93aaa1b77f611549cbe54ec0582690727c3" },
+    "reply.plugin-hostd.label-invalid": { "text": "Esa etiqueta es demasiado larga o no es un texto válido, así que el nodo mantiene su nombre anterior; use como máximo 64 bytes de texto UTF-8.", "by": "machine", "model": "draft-prose", "source": "35fe3f47bc17079f6f5c5e4429adf954d426370add1681781612101329b044a1" }
   }
 }
