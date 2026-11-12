@@ -72,6 +72,7 @@
     {"verb": "history_get", "origin": "plugin-hostd", "declared": "data/verbs.json PLUGIN_HOSTD_VERBS.historyGet", "forms": [{"args": ["word"], "tail": false, "origin": "plugin-hostd"}], "reply": "resp 0 <history>", "codes": [-901, -902], "sent_by": "controller", "extended_by": [], "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
     {"verb": "instance_info", "origin": "plugin-hostd", "declared": "data/verbs.json PLUGIN_HOSTD_VERBS.instanceInfo", "forms": [{"args": ["int"], "tail": false, "origin": "plugin-hostd"}], "reply": "resp 0 <worker> <pid> <state> <crashes> <quarantined>", "codes": [-3, -901, -902], "sent_by": "controller", "extended_by": [], "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
     {"verb": "lv2_worker_set", "origin": "plugin-hostd", "declared": "data/verbs.json PLUGIN_HOSTD_VERBS.lv2WorkerSet", "forms": [{"args": ["word", "word"], "tail": false, "origin": "plugin-hostd"}], "reply": "resp 0", "codes": [-901, -902], "sent_by": "controller", "extended_by": [], "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
+    {"verb": "node_label", "origin": "plugin-hostd", "declared": "data/verbs.json PLUGIN_HOSTD_VERBS.nodeLabel", "forms": [{"args": ["int"], "tail": true, "origin": "plugin-hostd"}], "reply": "resp 0", "codes": [-545, -3, -902], "sent_by": "controller", "extended_by": [], "levels": {"lv2-worker": "absent", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}},
     {"verb": "panel_get", "origin": "plugin-hostd", "declared": "data/verbs.json PLUGIN_HOSTD_VERBS.panelGet", "forms": [{"args": ["word"], "tail": false, "origin": "plugin-hostd"}], "reply": "resp 0 \"<path>\"", "codes": [-528, -529, -530, -531, -901, -902], "sent_by": "controller", "extended_by": [], "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
     {"verb": "pin_accept", "origin": "plugin-hostd", "declared": "data/verbs.json PLUGIN_HOSTD_VERBS.pinAccept", "forms": [{"args": ["word"], "tail": false, "origin": "plugin-hostd"}], "reply": "resp 0", "codes": [-508, -509, -516, -901, -902, -540, -541], "sent_by": "controller", "extended_by": [], "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
     {"verb": "pin_changed", "origin": "plugin-hostd", "declared": "data/verbs.json PLUGIN_HOSTD_VERBS.pinChanged", "forms": [{"args": [], "tail": true, "origin": "plugin-hostd"}], "reply": "resp 0", "codes": [-902], "sent_by": "controller", "extended_by": [], "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
@@ -175,6 +176,7 @@
     {"resp": -542, "code": "reply.plugin-hostd.curve-value-not-finite"},
     {"resp": -543, "code": "reply.plugin-hostd.output-not-monitored"},
     {"resp": -544, "code": "reply.plugin-hostd.preset-not-applied"},
+    {"resp": -545, "code": "reply.plugin-hostd.label-invalid"},
     {"resp": -901, "code": "reply.host.memory-allocation"},
     {"resp": -902, "code": "reply.host.invalid-operation"}
   ],
@@ -185,6 +187,7 @@
   ],
   "node_metadata": [
     {"name": "pretty_name", "key": "http://jackaudio.org/metadata/pretty-name", "value": "%s (%d)", "args": ["plugin name", "instance"], "meaning": "the name a graph client shows for the node: the plugin's name from its descriptor and the instance"},
-    {"name": "instance", "key": "http://openmixer.org/ns/plugin-hostd#instance", "value": "%d", "args": ["instance"], "meaning": "the instance the node hosts, which a client matches a hosted node on"}
+    {"name": "instance", "key": "http://openmixer.org/ns/plugin-hostd#instance", "value": "%d", "args": ["instance"], "meaning": "the instance the node hosts, which a client matches a hosted node on"},
+    {"name": "labelled_name", "key": "http://jackaudio.org/metadata/pretty-name", "value": "%s: %s (%d)", "args": ["label", "plugin name", "instance"], "meaning": "the pretty-name of a node a client has labelled (node_label): the label, the plugin's name and the instance, in place of pretty_name until the label is cleared"}
   ]
 }

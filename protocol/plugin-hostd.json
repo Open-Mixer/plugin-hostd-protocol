@@ -69,7 +69,8 @@
     {"name": "DURABLE_WRITE_FAILED", "macro": "OMX_REPLY_PLUGIN_HOSTD_DURABLE_WRITE_FAILED_RESP", "code": -540, "meaning": "the daemon's writer thread could not write the file the verb changes (history_clear, pin_clear, pin_accept): the change is not on disk, and stderr names the path and the error"},
     {"name": "WRITER_QUEUE_FULL", "macro": "OMX_REPLY_PLUGIN_HOSTD_WRITER_QUEUE_FULL_RESP", "code": -541, "meaning": "the daemon's writer queue holds its most writes or bytes: the write the verb needs is refused and nothing of the verb changed; the controller may send it again"},
     {"name": "CURVE_VALUE_NOT_FINITE", "macro": "OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_RESP", "code": -542, "meaning": "curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn"},
-    {"name": "OUTPUT_NOT_MONITORED", "macro": "OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP", "code": -543, "meaning": "monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier"}
+    {"name": "OUTPUT_NOT_MONITORED", "macro": "OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP", "code": -543, "meaning": "monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier"},
+    {"name": "LABEL_INVALID", "macro": "OMX_REPLY_PLUGIN_HOSTD_LABEL_INVALID_RESP", "code": -545, "meaning": "node_label of a label longer than PHD_NODE_LABEL_MAX bytes or not UTF-8: the node keeps the label it had"}
   ],
   "verbs": [
     {"name": "add", "arguments": "<uri> <instance> [own | pool:<name> | chain:<chain> | default] [client_name]", "reply": "resp <instance>", "meaning": "mod-host's add with a placement; a token after the instance that is not a placement is the jack client name"},
@@ -102,6 +103,7 @@
   ],
   "instance_verbs": [
     {"name": "track_info", "arguments": "<instance> <name> <#RRGGBB | -> [bus | return | master]", "reply": "resp 0", "ledger": "replace", "meaning": "the strip's name (\"\" for none), colour and kind, absent for an input channel; a worker whose plugin format has a track-info extension passes them on; any other word is -902, and so is a name of 256 bytes or more, one that is not UTF-8 as RFC 3629 spells it (an overlong form, a surrogate, a code point past U+10FFFF, a lead byte without its tails) or one that holds a control character of Unicode's class Cc: U+0000 to U+001F, U+007F or U+0080 to U+009F"},
+    {"name": "node_label", "arguments": "<instance> [<label word> ...]", "reply": "resp 0", "ledger": "replace", "meaning": "label the node for graph clients: the worker that holds the instance sets its pretty-name to the labelled form of PHD_NODE_METADATA, the label the words joined by one space; no words clears it, back to the plain form. -545 for a label over PHD_NODE_LABEL_MAX bytes or not UTF-8; the ledger keeps the latest, so a respawned worker is labelled again (plugin-hostd#35)"},
     {"name": "remote_pages", "arguments": "<instance>", "reply": "resp <count>", "ledger": "none", "meaning": "the plugin's remote-control pages, from clap.remote-controls; 0 for an instance of a format whose worker has none"},
     {"name": "remote_page_get", "arguments": "<instance> <page>", "reply": "resp 0 <page_id> <section> <page_name> <s1> <s2> <s3> <s4> <s5> <s6> <s7> <s8>", "ledger": "none", "meaning": "one page, 0 to count - 1: each slot the symbol param_set takes, - for an empty one; -902 for a page that is not one"},
     {"name": "param_info", "arguments": "<instance> <symbol>", "reply": "resp 0 <unit> <scale> <min> <max> <default> <step> <stable_symbol>", "ledger": "none", "meaning": "what a parameter's value means: its unit, its scale, and the symbol it keeps across hosts and versions; -103 for a symbol that is not a parameter, the plugin's own bypass and :bypass included; -511 for a parameter whose unit and scale the worker holds no checked contract for"},
@@ -201,7 +203,8 @@
     {"name": "panel_get", "source": "daemon", "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
     {"name": "history_get", "source": "daemon", "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
     {"name": "history_clear", "source": "daemon", "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
-    {"name": "estimate", "source": "daemon", "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}}
+    {"name": "estimate", "source": "daemon", "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
+    {"name": "node_label", "source": "daemon", "levels": {"lv2-worker": "absent", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}}
   ],
   "track_kinds": ["bus", "return", "master"],
   "param_scales": [
@@ -241,7 +244,8 @@
   ],
   "node_metadata": [
     {"name": "pretty_name", "key": "http://jackaudio.org/metadata/pretty-name", "value": "%s (%d)", "args": ["plugin name", "instance"], "meaning": "the name a graph client shows for the node: the plugin's name from its descriptor and the instance"},
-    {"name": "instance", "key": "http://openmixer.org/ns/plugin-hostd#instance", "value": "%d", "args": ["instance"], "meaning": "the instance the node hosts, which a client matches a hosted node on"}
+    {"name": "instance", "key": "http://openmixer.org/ns/plugin-hostd#instance", "value": "%d", "args": ["instance"], "meaning": "the instance the node hosts, which a client matches a hosted node on"},
+    {"name": "labelled_name", "key": "http://jackaudio.org/metadata/pretty-name", "value": "%s: %s (%d)", "args": ["label", "plugin name", "instance"], "meaning": "the pretty-name of a node a client has labelled (node_label): the label, the plugin's name and the instance, in place of pretty_name until the label is cleared"}
   ],
   "relay": {
     "worker_arguments": "-n -p <command port> -f <feedback port>",

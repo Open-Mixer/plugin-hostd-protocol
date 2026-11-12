@@ -150,6 +150,7 @@ command          = cmd-add
                  / cmd-history-get
                  / cmd-instance-info
                  / cmd-lv2-worker-set
+                 / cmd-node-label
                  / cmd-panel-get
                  / cmd-pin-accept
                  / cmd-pin-changed
@@ -312,6 +313,8 @@ cmd-history-get          = %s"history_get" SP word
 cmd-instance-info        = %s"instance_info" SP int
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.lv2WorkerSet
 cmd-lv2-worker-set       = %s"lv2_worker_set" SP word SP word
+; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.nodeLabel
+cmd-node-label           = %s"node_label" SP int tail
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.panelGet
 cmd-panel-get            = %s"panel_get" SP word
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinAccept
@@ -484,6 +487,7 @@ error-reply      = %s"resp -1 reply.host.instance-invalid"
                  / %s"resp -542 reply.plugin-hostd.curve-value-not-finite"
                  / %s"resp -543 reply.plugin-hostd.output-not-monitored"
                  / %s"resp -544 reply.plugin-hostd.preset-not-applied"
+                 / %s"resp -545 reply.plugin-hostd.label-invalid"
                  / %s"resp -901 reply.host.memory-allocation"
                  / %s"resp -902 reply.host.invalid-operation"
 

@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-@-L midi_map 2 O 77 -11 nan infinity
-@y1 param_get_many 249 !R Ͼ>
-@--. worker_list
-help
-@- quit
-descriptor_get Nͯ;
-panel_get g!
-quarantine_clear [!
-track_info -791 "18" "²" @͖
-@k- curve_bind 55 -8 !( !͹˔
-param_get_many 129 "!D" "" "\""
-@0 load !͝!
+chain -35 -06 üQ̯
+@. track_info 6 "š" 6ƴņ "\"!" z!
+monitor_output_off 4 "\""
+@_ panel_get " \""
+chain_clear -37
+history_get ~
+@_ curve_bind -198 8 !
+@-9 set_bpm -infinity
+@-_ midi_unmap 01 ""
+node_label -4
+@_9 curve_points -110 973 -50
+show_external_ui -956

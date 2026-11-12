@@ -1,13 +1,13 @@
-hello 1 errors seq tags
-lv2_worker_set H+! "Į"
-show_external_ui -775
-hmi_map -893 ! -3 6 -70 902 037 "\"" infinity .177 54
-@_ quit
-midi_unmap 6 !!̻
+hello 1 errors tags
+@-. midi_unmap 6 !!̻
 lv2_worker_set "" ʍ
 preset_show ʬ
 param_get 25 "\""
 state_load ć5
 chain_get -013
-param_get_many -7 ""
-@O_t lv2_worker_set "\"\"" ɓ
+monitor_output_off -7 ""
+@O_ cv_map -290 "\"" "" +inf inf !zʊ
+@. preset_load 7 Ф
+monitor_output 1 !ʮ
+@_._ bundle_add BI
+@- bundle_remove ! "л\""

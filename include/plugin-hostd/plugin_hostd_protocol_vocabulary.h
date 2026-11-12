@@ -77,6 +77,9 @@
 #define OMX_REPLY_PLUGIN_HOSTD_PRESET_NOT_APPLIED "reply.plugin-hostd.preset-not-applied" ///< the plugin took the preset, and had not run once since, so had not applied it, when the host's wait for that ran out: its values may still be the previous ones
 #define OMX_REPLY_PLUGIN_HOSTD_PRESET_NOT_APPLIED_RESP (-544)
 #define OMX_REPLY_PLUGIN_HOSTD_PRESET_NOT_APPLIED_TEXT_EN "The plugin took the preset but had not applied it yet when the wait ran out; read its values again, or load the preset again."
+#define OMX_REPLY_PLUGIN_HOSTD_LABEL_INVALID "reply.plugin-hostd.label-invalid" ///< node_label's label is longer than PHD_NODE_LABEL_MAX bytes or is not UTF-8: the node keeps the label it had
+#define OMX_REPLY_PLUGIN_HOSTD_LABEL_INVALID_RESP (-545)
+#define OMX_REPLY_PLUGIN_HOSTD_LABEL_INVALID_TEXT_EN "That label is too long or not valid text, so the node keeps its previous name; use at most 64 bytes of UTF-8 text."
 #define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE "reply.plugin-hostd.dir-not-writable" ///< descriptor_dir or qualification_dir cannot be made or written
 #define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_RESP (-528)
 #define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_TEXT_EN "A folder the plugins need cannot be created or written to; check its location and permissions."

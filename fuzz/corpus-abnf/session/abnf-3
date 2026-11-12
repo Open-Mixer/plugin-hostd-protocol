@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-@.._ cv_unmap -621 !ąİ
-@31 hmi_map -39 ) -67 -26 -1 8 -4 "η" -083 inf -50
-show_external_ui -956
-@10 panel_get "\"\""
-midi_learn -2 CȖѪ +nan -inf
-@-. preset_list -2
-pin_changed
-@- lv2_worker_set "\"" ŀ
-@.. history_get ""
-param_get_many -7 ! " \"" ƿ
-@_8- chain_clear 82
+supervisor_reset "" ""
+@7_- curve_bind 759 532 "" ""
+@C9. patch_get -5 "\""
+midi_learn 79 "" inf inf
+hmi_unmap -4 "\"\""
+@1._ midi_unmap 479 "\""
 hmi_map 11 "m" 860 -38 6 -5 -0 "F\"" inf +.6 -3
+hide_external_ui -11
+param_monitor -7 "\"!" ! +.87
+@- monitor_output_off -494 "l\""
+@__ node_label -9
+plan -40 455

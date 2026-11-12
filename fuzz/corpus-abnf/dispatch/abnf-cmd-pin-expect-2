@@ -1,1 +1,1 @@
-pin_expect 434 "!"
+pin_expect -1 !!
