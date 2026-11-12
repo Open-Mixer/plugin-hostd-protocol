@@ -330,6 +330,47 @@
       },
       "minItems": 1
     },
+    "node_metadata": {
+      "description": "The JACK metadata a worker sets on the uuid of each client it opens for an instance, read by every graph client: the client's name stays effect_<instance>. key is the metadata key, value the printf format of the value, args what fills it in order.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "key",
+          "value",
+          "args",
+          "meaning"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z_]*$"
+          },
+          "key": {
+            "type": "string",
+            "pattern": "^https?://\\S+$"
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "meaning": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
     "relay": {
       "type": "object",
       "properties": {
@@ -554,6 +595,7 @@
     "string_max",
     "events",
     "pin_limits",
+    "node_metadata",
     "relay",
     "host_settings",
     "config"
