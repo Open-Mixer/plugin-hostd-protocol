@@ -383,6 +383,14 @@ check-contract-dir:
 	$(MAKE) --no-print-directory install-contract DESTDIR=$$tmp >/dev/null; \
 	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) validate --installed --catalogs catalogs
 
+# the catalogs through omx-contract's release gate (translate --check, 3.16.0): every listed language has its catalog,
+# no key is missing and no entry is stale. This tree's items name omx-clap-core's reply codes, so they are read from
+# its contract staged as check-contract-dir stages it (#15).
+check-catalogs:
+	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
+	$(MAKE) --no-print-directory install-contract DESTDIR=$$tmp >/dev/null; \
+	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) translate --check --installed --catalogs catalogs --package plugin-hostd-protocol
+
 # check-rendered must fail on a rendered header changed by hand and on verbs.json not rendered again
 test-rendered-sabotage:
 	sh tests/rendered-sabotage.sh

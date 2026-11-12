@@ -112,6 +112,7 @@ jobs:
           owner: plugin-hostd-protocol
           spec: packaging/plugin-hostd-protocol.spec
           moved: ca:0.5.6
+          gate: make check-catalogs
 
   abi:
     name: ABI check (abidiff against abi/)
