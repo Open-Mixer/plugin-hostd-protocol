@@ -1155,6 +1155,46 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_GESTURE_END   "end"
 
 #define PHD_EVENT_SUSPECT_PREFIX "suspect:"
+/* how a worker ended, the third word of worker_died: exit:<status> or signal:<number> */
+#define PHD_EVENT_EXIT_PREFIX   "exit:"
+#define PHD_EVENT_SIGNAL_PREFIX "signal:"
+
+/* The types of a feedback line's arguments (PHD_EVENTS), each a pattern its word matches whole; rest: 1 for the type
+ * of the rest of the line, its words as they were sent. An argument whose type is not one of these is one of the
+ * literal words its type spells, written a|b. X(id, name, pattern, rest, spelling) */
+#define PHD_ARG_TYPES(X) \
+    X(INT, "int", "-?[0-9]+", 0, "a whole number") \
+    X(UINT, "uint", "[0-9]+", 0, "a whole number, not negative") \
+    X(HEX, "hex", "0|0x[0-9a-f]+", 0, "a number in hexadecimal, 0x and its digits, or 0") \
+    X(WORD, "word", "[^ ]+", 0, "one word") \
+    X(WORKER, "worker", "w[0-9]+", 0, "a worker, w<k>, as worker_list names it") \
+    X(INSTANCES, "instances", PHD_WORD_NONE "|[0-9]+(,[0-9]+)*", 0, \
+      "instance numbers joined by ',', in order, or " PHD_WORD_NONE " for none") \
+    X(INSTANCE_OR_NONE, "instance-or-none", PHD_WORD_NONE "|[0-9]+", 0, "an instance number, or " PHD_WORD_NONE " for none") \
+    X(STATUS, "status", "(" PHD_EVENT_EXIT_PREFIX "|" PHD_EVENT_SIGNAL_PREFIX ")-?[0-9]+", 0, \
+      PHD_EVENT_EXIT_PREFIX "<status> for a process that exited, " PHD_EVENT_SIGNAL_PREFIX "<number> for one a signal ended") \
+    X(SUSPECT, "suspect", PHD_EVENT_SUSPECT_PREFIX "[0-9]+", 0, PHD_EVENT_SUSPECT_PREFIX "<ms>, the age of the reply") \
+    X(CHAIN, "chain", "[0-9]+(\\" PHD_PLACE_PLAN_SEPARATOR "[0-9]+)?", 0, \
+      "a chain's number, or <plan>" PHD_PLACE_PLAN_SEPARATOR "<k> for segment k of a plan") \
+    X(REASONS, "reasons", PHD_WORD_NONE "|[0-9]+:[^ ,]+(,[0-9]+:[^ ,]+)*", 0, \
+      "<instance>:<reason> joined by ',', or " PHD_WORD_NONE " for none") \
+    X(PLACEMENT, "placement", PHD_PLACE_OWN "|" PHD_PLACE_DEFAULT "|" PHD_PLACE_POOL_PREFIX "[" PHD_POOL_NAME_CLASS "]{" \
+      PHD_STR(PHD_POOL_NAME_MIN) "," PHD_STR(PHD_POOL_NAME_MAX) "}|" PHD_PLACE_CHAIN_PREFIX "[0-9]+", 0, \
+      "a placement, " PHD_PLACEMENT_SYNTAX) \
+    X(LINE, "line", ".*", 1, "the rest of the line, its words as they were sent")
+
+/* The forms of a command whose words the verb table's one format does not name: each form its arguments name:type, as
+ * PHD_EVENTS' args, a form per number of them. add is mod-host's <uri> <instance>, which the daemon extends with a
+ * placement and a client name, each optional (a placement told from a name by its type); supervisor_reset re-arms one
+ * worker or every one (plugin-hostd-protocol#17). X(verb, args) */
+#define PHD_COMMAND_FORMS(X) \
+    X(PHD_VERB_ADD, "uri:word instance:int") \
+    X(PHD_VERB_ADD, "uri:word instance:int placement:placement") \
+    X(PHD_VERB_ADD, "uri:word instance:int client:word") \
+    X(PHD_VERB_ADD, "uri:word instance:int placement:placement client:word") \
+    X(OMX_VERB_SUPERVISOR_RESET, "") \
+    X(OMX_VERB_SUPERVISOR_RESET, "worker:worker") \
+    X(OMX_VERB_SUPERVISOR_RESET, "target:" PHD_WORD_ALL)
 
 /* the same line, as the daemon formats it: name and format in one literal */
 #define PHD_EVENT_WORKER_DIED_FMT           PHD_EVENT_WORKER_DIED " w%d %d %s %s"
@@ -1178,67 +1218,68 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_EVENT_CHAIN_STALLED_FMT         PHD_EVENT_CHAIN_STALLED " %s %s %s %d"
 #define PHD_EVENT_PLAN_REASON_FMT           PHD_EVENT_PLAN_REASON " %d %s"
 
-/* the table of the docs: X(name, fields, meaning), one row per shape of a line */
+/* the table of the docs: X(name, fields, args, meaning), one row per shape of a line; args names each argument
+ * name:type, its type one of PHD_ARG_TYPES or the literal words it is, a|b */
 #define PHD_EVENTS(X) \
-    X(PHD_EVENT_WORKER_DIED, "<worker> <pid> <exit:N | signal:N> <instance>,...", \
+    X(PHD_EVENT_WORKER_DIED, "<worker> <pid> <exit:N | signal:N> <instance>,...", "worker:worker pid:int status:status instances:instances", \
       "a worker died; the instances it held, or - for none") \
-    X(PHD_EVENT_INSTANCE_VERB_DROPPED, "<instance> <the command as sent>", \
+    X(PHD_EVENT_INSTANCE_VERB_DROPPED, "<instance> <the command as sent>", "instance:int command:line", \
       "the command a worker died on, dropped from the ledger; or the add it died on, the add as the worker was given it, " \
       "which names the plugin, or the " OMX_VERB_PIN_EXPECT " of that add") \
-    X(PHD_EVENT_INSTANCE_VERB_DROPPED, "<instance> " PHD_EVENT_SUSPECT_PREFIX "<ms> <the command as sent>", \
+    X(PHD_EVENT_INSTANCE_VERB_DROPPED, "<instance> " PHD_EVENT_SUSPECT_PREFIX "<ms> <the command as sent>", "instance:int suspect:suspect command:line", \
       "the last verb a worker answered when it died inside suspect_window_ms, <ms> the age of the reply") \
-    X(PHD_EVENT_WORKER_BACKOFF, "<worker> <ms>", "the respawn waits this long") \
-    X(PHD_EVENT_WORKER_RESPAWNED, "<worker> <pid> <replayed_count> <ms>", "a worker is back and its ledger replayed") \
-    X(PHD_EVENT_INSTANCE_RESTORED, "<instance> <worker>", "an instance is back in a worker") \
-    X(PHD_EVENT_INSTANCE_REPLAY_REFUSED, "<instance> <code>", \
+    X(PHD_EVENT_WORKER_BACKOFF, "<worker> <ms>", "worker:worker ms:int", "the respawn waits this long") \
+    X(PHD_EVENT_WORKER_RESPAWNED, "<worker> <pid> <replayed_count> <ms>", "worker:worker pid:int replayed:int ms:int", "a worker is back and its ledger replayed") \
+    X(PHD_EVENT_INSTANCE_RESTORED, "<instance> <worker>", "instance:int worker:worker", "an instance is back in a worker") \
+    X(PHD_EVENT_INSTANCE_REPLAY_REFUSED, "<instance> <code>", "instance:int code:int", \
       "a replayed add was refused, by its pin or by the worker, <code> the refusal's own: no worker holds the " \
       "instance until the next replay") \
-    X(PHD_EVENT_INSTANCE_QUARANTINED, "<instance> <worker>", \
+    X(PHD_EVENT_INSTANCE_QUARANTINED, "<instance> <worker>", "instance:int worker:worker", \
       "the culprit of a pool or a chain death, placed own until cleared; a chain goes on without it") \
-    X(PHD_EVENT_CHAIN_FORMED, "<chain> <worker> <instance>,...", \
+    X(PHD_EVENT_CHAIN_FORMED, "<chain> <worker> <instance>,...", "chain:chain worker:worker instances:instances", \
       "a chain's worker is up with these members, in this order, after its declaration, a respawn or a member's " \
       "quarantine; " PHD_WORD_NONE " for none. <chain> is the number chain declared, or <plan>" PHD_PLACE_PLAN_SEPARATOR \
       "<k> for segment k of a plan") \
-    X(PHD_EVENT_CHAIN_REFUSED, "<chain> <code>", \
+    X(PHD_EVENT_CHAIN_REFUSED, "<chain> <code>", "chain:chain code:int", \
       "a chain's worker would not run the members as one chain, <code> its own answer, and its stderr says why: " \
       "the chain is forgotten and each member runs in a worker of its own. <chain> as " PHD_EVENT_CHAIN_FORMED " names it") \
-    X(PHD_EVENT_CHAIN_STALLED, "<chain> <instance | -> <step> <code>", \
+    X(PHD_EVENT_CHAIN_STALLED, "<chain> <instance | -> <step> <code>", "chain:chain instance:instance-or-none step:word code:int", \
       "a chain, or a plan's segment, has not formed within chain_form_timeout_ms of its declaration: the member and the " \
       "step that held it (spawn, add, pin, state, memory) and the code it answered, 0 for none, - for no one member; " \
       "said once each time it is declared or gathered again, and the daemon goes on trying") \
-    X(PHD_EVENT_PLAN_REASON, "<chain> <instance>:<reason>,...", \
+    X(PHD_EVENT_PLAN_REASON, "<chain> <instance>:<reason>,...", "chain:int reasons:reasons", \
       "a plan of the chain changed: the reasons " OMX_VERB_PLAN_GET " answers now, after the segments, " PHD_WORD_NONE " for none") \
-    X(PHD_EVENT_SUPERVISOR_GAVE_UP, "<worker> <deaths> <window_ms>", "the storm bound is spent; respawning ends") \
-    X(PHD_EVENT_PIN_CHANGED, "<uri> " PHD_PIN_CHANGED_FILES " | " PHD_PIN_CHANGED_LAYOUT, \
+    X(PHD_EVENT_SUPERVISOR_GAVE_UP, "<worker> <deaths> <window_ms>", "worker:worker deaths:int window_ms:int", "the storm bound is spent; respawning ends") \
+    X(PHD_EVENT_PIN_CHANGED, "<uri> " PHD_PIN_CHANGED_FILES " | " PHD_PIN_CHANGED_LAYOUT, "uri:word changed:" PHD_PIN_CHANGED_FILES "|" PHD_PIN_CHANGED_LAYOUT, \
       "an add or a replay of a plugin was refused because its files, or the layout the worker found, differ from its " \
       "pin; the pin is as it was until pin_accept or pin_set") \
-    X(PHD_EVENT_LV2_ADAPTER_REFUSED, "<uri> <reason> " PHD_LV2_WORKER_CLAP_HOST, \
+    X(PHD_EVENT_LV2_ADAPTER_REFUSED, "<uri> <reason> " PHD_LV2_WORKER_CLAP_HOST, "uri:word reason:word lv2_worker:" PHD_LV2_WORKER_CLAP_HOST, \
       "the LV2 adapter of the " PHD_FORMAT_LV2_CLAP " worker refused a plugin: <reason> is the hosting.* code after -102 on the " \
       "worker's reply to that add (" PHD_WORD_NONE " when it named none); the last word is the lv2_worker in force, " \
       PHD_LV2_WORKER_CLAP_HOST ", and the add is answered " PHD_STR(OMX_REPLY_PLUGIN_HOSTD_LV2_ADAPTER_REFUSED_RESP)) \
-    X(PHD_EVENT_REMOTE_PAGES_CHANGED, "<instance>", \
+    X(PHD_EVENT_REMOTE_PAGES_CHANGED, "<instance>", "instance:int", \
       "relayed from a worker: the plugin changed its remote pages; read them again") \
-    X(PHD_EVENT_REMOTE_PAGE_SUGGEST, "<instance> <page_id>", \
+    X(PHD_EVENT_REMOTE_PAGE_SUGGEST, "<instance> <page_id>", "instance:int page_id:uint", \
       "relayed from a worker: the plugin suggests the remote page of that id (a page_id of " OMX_VERB_REMOTE_PAGE_GET \
       "); a surface may follow it") \
-    X(PHD_EVENT_PARAM_GESTURE, "<instance> <symbol> " PHD_GESTURE_BEGIN " | " PHD_GESTURE_END, \
+    X(PHD_EVENT_PARAM_GESTURE, "<instance> <symbol> " PHD_GESTURE_BEGIN " | " PHD_GESTURE_END, "instance:int symbol:word gesture:" PHD_GESTURE_BEGIN "|" PHD_GESTURE_END, \
       "relayed from a worker: the user took hold of a control of the plugin's own, or let it go; a controller writes no " \
       "automation of that parameter in between. The values the plugin moves meanwhile, or at any time by itself, are " \
       "mod-host's param_set feedback lines, relayed as written. A gesture whose worker died, or whose instance was " \
       "removed, before its " PHD_GESTURE_END " is ended by the daemon, before the worker_died event") \
-    X(PHD_EVENT_XRUNS, "<count>", \
+    X(PHD_EVENT_XRUNS, "<count>", "count:uint", \
       "relayed from a worker, and read by the daemon: the JACK xruns the worker has counted since it started, written " \
       "when the count changes and at most once a second; a worker that never writes it counted none. The daemon takes " \
       "the first count of a worker as its baseline and, at the close of each history window, adds the window to " \
       "xrun_windows_solo or xrun_windows_grouped of every member of the worker when the count rose in it; a line that " \
       "is not the word and one whole number is not a count") \
-    X(PHD_EVENT_ABI_CLOBBER, "<instance> <mask> <registers> <call> <block>", \
+    X(PHD_EVENT_ABI_CLOBBER, "<instance> <mask> <registers> <call> <block>", "instance:int mask:hex registers:word call:word block:uint", \
       "relayed from a worker (omx-clap-host 0.26.2 or later), and read by the daemon: the plugin returned from a call " \
       "with a callee-saved register changed, said once per instance. The worker put the registers back, so its own " \
       "frame is whole; the other members' state in the same process is not covered, so the daemon quarantines the " \
       "instance (instance_quarantined, and the history keeps it alone from then on) and, when it shares its worker or " \
       "is in a chain, moves it to a worker of its own with its state saved; one already alone is only marked") \
-    X(PHD_EVENT_PARAM_SET, "<instance> <symbol> <value>", \
+    X(PHD_EVENT_PARAM_SET, "<instance> <symbol> <value>", "instance:int symbol:word value:word", \
       "relayed from a worker: parameter feedback, a value the plugin moved by itself (its automation, an LFO, a " \
       "preset load, a MIDI map, the user's knob of the plugin's own), as mod-host writes it; a controller updates its " \
       "control to it. A worker never writes it for a value a controller's param_set gave it, and a worker that writes " \

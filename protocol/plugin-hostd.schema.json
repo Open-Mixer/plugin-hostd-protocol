@@ -299,11 +299,15 @@
           },
           "meaning": {
             "type": "string"
+          },
+          "args": {
+            "type": "string"
           }
         },
         "required": [
           "name",
           "fields",
+          "args",
           "meaning"
         ],
         "additionalProperties": false
@@ -573,6 +577,53 @@
         "additionalProperties": false
       },
       "minItems": 1
+    },
+    "arg_types": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "pattern": {
+            "type": "string"
+          },
+          "rest": {
+            "type": "boolean"
+          },
+          "spelling": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "pattern",
+          "rest",
+          "spelling"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "command_forms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "verb": {
+            "type": "string"
+          },
+          "args": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "verb",
+          "args"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
@@ -598,7 +649,9 @@
     "node_metadata",
     "relay",
     "host_settings",
-    "config"
+    "config",
+    "arg_types",
+    "command_forms"
   ],
   "additionalProperties": false
 }

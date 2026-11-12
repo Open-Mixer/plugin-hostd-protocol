@@ -27,13 +27,14 @@ int main(void)
     printf(PHD_EVENT_CHAIN_FORMED_FMT "\n", "2", 5, "7,8,9");
     printf(PHD_EVENT_CHAIN_FORMED_FMT "\n", "4" PHD_PLACE_PLAN_SEPARATOR "1", 6, PHD_WORD_NONE);
     printf(PHD_EVENT_CHAIN_REFUSED_FMT "\n", "2", -501);
-    printf(PHD_EVENT_CHAIN_STALLED_FMT "\n", "2", "8", "run", -903);
-    printf(PHD_EVENT_CHAIN_STALLED_FMT "\n", "2", PHD_WORD_NONE, "run", -903);
+    printf(PHD_EVENT_CHAIN_STALLED_FMT "\n", "2", "8", "add", -903);
+    printf(PHD_EVENT_CHAIN_STALLED_FMT "\n", "2", PHD_WORD_NONE, "spawn", -903);
     printf(PHD_EVENT_PLAN_REASON_FMT "\n", 4, "7:budget,8:sidechain");
     printf(PHD_EVENT_REMOTE_PAGES_CHANGED_FMT "\n", 7);
     printf(PHD_EVENT_REMOTE_PAGE_SUGGEST_FMT "\n", 7, 2u);
     printf(PHD_EVENT_PARAM_GESTURE_FMT "\n", 7, "gain", PHD_GESTURE_BEGIN);
     printf(PHD_EVENT_PARAM_GESTURE_FMT "\n", 7, "gain", PHD_GESTURE_END);
+    printf(PHD_EVENT_PARAM_SET_FMT "\n", 7, "gain", "0.5");
     printf(PHD_EVENT_XRUNS_FMT "\n", 12ULL);
     printf(PHD_EVENT_ABI_CLOBBER " %d %#x %s %s %llu\n", 7, 0x28u, "rbx,r12", "process", 1024ULL);
     return 0;
