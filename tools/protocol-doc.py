@@ -287,10 +287,17 @@ OURS_GROUPS = [
     ("Descriptors, panels and the running history", r"^(descriptor_|panel_|history_)"),
     ("Presets and notes, by instance", r"^(preset_|note_|all_notes_off$)"),
     ("The plugin's own window", r"^(show|hide)_external_ui$"),
+    ("The node's name in the graph", r"^node_label$"),
 ]
 
 # the prose a group opens with, before its table
 GROUP_NOTES = {
+    "The node's name in the graph": (
+        "A hosted node's client stays `effect_<instance>`; its pretty-name, JACK metadata on the client's uuid, is "
+        "`<plugin name> (<instance>)` (`node_metadata`). `node_label <instance> <label words>` makes it "
+        "`<label>: <plugin name> (<instance>)`, and `node_label <instance>` with no words clears the label. The daemon "
+        "sends the verb to the worker that holds the instance, which sets the metadata; the ledger keeps the latest, "
+        "so a respawned worker is labelled again, and `remove` ends it (plugin-hostd#35)."),
     "The plugin's own window": (
         "`show_external_ui <instance>` puts the plugin's own window on the display and `hide_external_ui <instance>` "
         "takes it off, as jalv and mod-host show one; both are optional of every profile. The daemon sends each to the "

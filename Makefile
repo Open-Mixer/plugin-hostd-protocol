@@ -103,13 +103,13 @@ TEST_CFLAGS = $(filter-out -O3,$(CFLAGS)) -O1 -g -Werror
 # the sources are compiled into the sanitized tests as they are; a distribution's _FORTIFY_SOURCE flags their unchecked
 # write() calls, which mod-host leaves unchecked too
 SAN = -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -Wno-error=unused-result
-TEST_PROGS = tests/protocol_test tests/protocol_commands_test tests/host_scenarios tests/golden-run tests/fixes_test tests/forms_test \
+TEST_PROGS = tests/feedback_lines tests/macro_compat tests/protocol_test tests/protocol_commands_test tests/host_scenarios tests/golden-run tests/fixes_test tests/forms_test \
              tests/hello_test tests/curve_test tests/monitor_test tests/runner_test \
              tests/socket-test tests/bind-test tests/adopt-test tests/utils-test
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text
+      check-generated check-protocol-doc test-feedback-args test-table-constants test-macro-compat test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
 test-protocol: tests/protocol_test
@@ -328,6 +328,27 @@ check-protocol-doc:
 # the host verb table of protocol.h has a row for every verb a controller sends, no more and no fewer; and each of its
 # rules broken in a scratch copy of the header turns it red; the scenario list exercises every verb a console's host
 # backend declares (tests/scenario_verbs.py)
+# every feedback line of plugin-hostd's own declares its arguments by name and type in the table, and one line of each
+# shape, printed through the daemon's own formats, decodes against them (plugin-hostd-protocol#17)
+tests/feedback_lines: tests/feedback_lines.c $(PROTOCOL_HEADERS)
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -Iinclude -o $@ tests/feedback_lines.c
+
+test-feedback-args: tests/feedback_lines
+	./tests/feedback_lines > tests/feedback_lines.out
+	python3 tests/feedback_args.py protocol/plugin-hostd-protocol.json tests/feedback_lines.out
+
+# protocol.h's X-macro tables keep the arguments their consumers expand them with (tests/macro_compat.c): a row may be
+# added, an argument may not, within a major
+tests/macro_compat: tests/macro_compat.c $(PROTOCOL_HEADERS)
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -Iinclude -o $@ tests/macro_compat.c
+
+test-macro-compat: tests/macro_compat
+	./tests/macro_compat >/dev/null
+
+# the wire's constants, the pin's words and the LV2 workers, in the installed table as protocol.h declares them
+test-table-constants:
+	python3 tests/table_constants.py protocol/plugin-hostd-protocol.json protocol/plugin-hostd.json
+
 test-verb-table:
 	python3 tests/verb_table.py
 	python3 tests/verb_table_sabotage.py

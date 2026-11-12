@@ -229,6 +229,13 @@ struct omx_host_verb {
 #define OMX_VERB_ESTIMATE_CODES_COUNT 5u
 #define OMX_VERB_ESTIMATE_CODES_INIT { -533, -534, -535, -901, -902 } /* reply.plugin-hostd.no-record, reply.plugin-hostd.no-cell, reply.plugin-hostd.unknown-plugin, reply.host.memory-allocation, reply.host.invalid-operation */
 
+/* PLUGIN_HOSTD_VERBS.nodeLabel (data/verbs.json): Labels a hosted node for graph clients: <instance> [<label word> ...], answered resp 0. The label is the rest of the line, its words joined by one space, and the node's pretty-name becomes the labelled form of node_metadata (<label>: <plugin name> (<instance>)); no words clears the label, and the pretty-name is the plain form again. The node's client name stays effect_<instance>. The label lasts as long as the instance: plugin-hostd keeps it and sets it again on a respawned worker, and remove ends it. A label over PHD_NODE_LABEL_MAX bytes or not UTF-8 is refused (-545) and the node keeps its label; an instance with no node is refused (-3); a host that does not serve the verb answers invalid operation (plugin-hostd#35). */
+#define OMX_VERB_NODE_LABEL "node_label"
+#define OMX_VERB_NODE_LABEL_FMT "node_label %i ..."
+#define OMX_VERB_NODE_LABEL_REPLY "resp 0"
+#define OMX_VERB_NODE_LABEL_CODES_COUNT 3u
+#define OMX_VERB_NODE_LABEL_CODES_INIT { -545, -3, -902 } /* reply.plugin-hostd.label-invalid, reply.host.instance-non-exists, reply.host.invalid-operation */
+
 /* PLUGIN_HOSTD_PROTOCOL_VERBS.hello (data/verbs.json): Open a session: <version> [<extension> ...], the protocol version the client speaks and the extensions it asks for. The reply is the daemon's protocol version and, of the extensions asked for, the ones it grants, in the order of PLUGIN_HOSTD_PROTOCOL_EXTENSIONS; an extension the daemon does not know is not granted and is no error. Each hello replaces what the one before it granted, and a new connection starts with none. -902 for a version that is not a whole number of 1 or more, and nothing changes. */
 #define OMX_VERB_HELLO "hello"
 #define OMX_VERB_HELLO_FMT "hello %i ..."
@@ -271,7 +278,7 @@ struct omx_host_verb {
 #define OMX_VERB_MONITOR_OUTPUT_OFF_CODES_COUNT 2u
 #define OMX_VERB_MONITOR_OUTPUT_OFF_CODES_INIT { -543, -902 } /* reply.plugin-hostd.output-not-monitored, reply.host.invalid-operation */
 
-#define PLUGIN_HOSTD_PROTOCOL_HOST_VERB_COUNT 34u
+#define PLUGIN_HOSTD_PROTOCOL_HOST_VERB_COUNT 35u
 
 /* Every verb, in the order of its items, with what each host owes it. */
 static inline const struct omx_host_verb *plugin_hostd_protocol_host_verbs(void) {
@@ -304,6 +311,7 @@ static inline const struct omx_host_verb *plugin_hostd_protocol_host_verbs(void)
     { OMX_VERB_PLAN_GET, OMX_VERB_PLAN_GET_FMT, OMX_VERB_PLAN_GET_REPLY, { OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_PLAN_CLEAR, OMX_VERB_PLAN_CLEAR_FMT, OMX_VERB_PLAN_CLEAR_REPLY, { OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_ESTIMATE, OMX_VERB_ESTIMATE_FMT, OMX_VERB_ESTIMATE_REPLY, { OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED, OMX_HOST_VERB_UNSUPPORTED } },
+    { OMX_VERB_NODE_LABEL, OMX_VERB_NODE_LABEL_FMT, OMX_VERB_NODE_LABEL_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_HELLO, OMX_VERB_HELLO_FMT, OMX_VERB_HELLO_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_PARAM_GET_MANY, OMX_VERB_PARAM_GET_MANY_FMT, OMX_VERB_PARAM_GET_MANY_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_PARAM_SET_MANY, OMX_VERB_PARAM_SET_MANY_FMT, OMX_VERB_PARAM_SET_MANY_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },

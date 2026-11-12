@@ -136,6 +136,7 @@ What each host profile owes each verb a controller sends:
 | `history_get` | daemon | required | required | required | required |
 | `history_clear` | daemon | required | required | required | required |
 | `estimate` | daemon | required | required | required | required |
+| `node_label` | daemon | absent | optional | optional | optional |
 
 The profiles: `lv2-worker`, an LV2 plugin's worker: mod-host, or omx-clap-host's LV2 adapter; `clap-worker`, a CLAP plugin's worker, omx-clap-host; `console`, the openmixer console as a controller of the daemon; `zynthian`, Zynthian's mod-ui and its plugind engine as a controller of the daemon. `required` is answered as its grammar says; `optional` is answered, or refused with -902, and never misread; `absent` is refused on purpose, and no client of the profile may need it.
 <!-- END GENERATED protocol:host-verbs -->

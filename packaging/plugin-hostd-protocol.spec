@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.5
+Version: 0.5.6
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -191,6 +191,19 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.6-1
+- node_label: a client's label joins a hosted node's pretty-name, <label>:
+  <plugin name> (<instance>); no words clears it; -545
+  reply.plugin-hostd.label-invalid refuses a label over 64 bytes or not UTF-8
+  (plugin-hostd#35).
+- The table names and types the arguments of every plugin-hostd feedback line
+  (arg_types, each line's forms), the forms of add and supervisor_reset, and the
+  words a consumer recognises: placements, all, -, * and the worker states
+  (#17).
+- The table carries the wire's constants, protocol_version (the version hello
+  answers) among them, the pin's separators, excluded bytes and escape, the
+  formats a worker holds, and the LV2 workers.
+
 * Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.5-1
 - node_metadata: the JACK metadata a worker sets on each instance's client, its
   pretty name and the instance key a client matches a hosted node on

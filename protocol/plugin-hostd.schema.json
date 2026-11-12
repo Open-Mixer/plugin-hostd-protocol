@@ -573,6 +573,108 @@
         "additionalProperties": false
       },
       "minItems": 1
+    },
+    "arg_types": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "pattern": {
+            "type": "string"
+          },
+          "rest": {
+            "type": "boolean"
+          },
+          "spelling": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "pattern",
+          "rest",
+          "spelling"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "command_forms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "verb": {
+            "type": "string"
+          },
+          "args": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "verb",
+          "args"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "pin": {
+      "type": "object",
+      "properties": {
+        "file_separator": {
+          "type": "string"
+        },
+        "digest_separator": {
+          "type": "string"
+        },
+        "scheme_separator": {
+          "type": "string"
+        },
+        "path_excluded": {
+          "type": "string"
+        },
+        "path_escape": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "file_separator",
+        "digest_separator",
+        "scheme_separator",
+        "path_excluded",
+        "path_escape"
+      ],
+      "additionalProperties": false
+    },
+    "lv2_workers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1
+    },
+    "event_args": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "args": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "args"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
@@ -598,7 +700,12 @@
     "node_metadata",
     "relay",
     "host_settings",
-    "config"
+    "config",
+    "arg_types",
+    "command_forms",
+    "pin",
+    "lv2_workers",
+    "event_args"
   ],
   "additionalProperties": false
 }

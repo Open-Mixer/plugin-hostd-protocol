@@ -41,7 +41,7 @@ Discovery: the daemon declares itself in files, not on the socket. The verb tabl
 The verb table and the grammar
 ------------------------------
 
-`protocol/plugin-hostd-protocol.json` is the one table of the protocol: every command, each once, with its origin, its argument types, its reply and its refusals, and every feedback line. It is merged from `protocol/mod-host.json`, `protocol/plugin-hostd.json`, `data/verbs.json`, `include/plugin-hostd/omx_clap_core_host_verbs.h` by `tools/protocol-table.py`; 48 commands of origin mod-host, 27 commands of origin plugin-hostd, 11 commands of origin omx-clap-core, 6 commands of origin plugin-hostd-protocol, 21 feedback lines.
+`protocol/plugin-hostd-protocol.json` is the one table of the protocol: every command, each once, with its origin, its argument types, its reply and its refusals, and every feedback line. It is merged from `protocol/mod-host.json`, `protocol/plugin-hostd.json`, `data/verbs.json`, `include/plugin-hostd/omx_clap_core_host_verbs.h` by `tools/protocol-table.py`; 48 commands of origin mod-host, 28 commands of origin plugin-hostd, 11 commands of origin omx-clap-core, 6 commands of origin plugin-hostd-protocol, 21 feedback lines.
 
 `grammar/plugin-hostd-protocol.abnf` is the grammar of a line, in ABNF (RFC 5234, with RFC 7405's case-sensitive strings): the lexical core, written once by hand (`grammar/core.abnf`), and a rule per command, per feedback line and per parse refusal generated from the table by `tools/abnf-gen.py`. Every line of the scenario corpus and every reply the library writes in the golden transcript is held to it (`make test-grammar`).
 
@@ -49,8 +49,16 @@ A word of another origin that mod-host also has either extends mod-host's comman
 
 | verb | form | origin | reply | codes |
 |---|---|---|---|---|
+| `add` | `add word int ...` | mod-host | as mod-host answers it | - |
+| `add` | `add word int` | plugin-hostd | as mod-host answers it | - |
+| `add` | `add word int placement` | plugin-hostd | as mod-host answers it | - |
+| `add` | `add word int word` | plugin-hostd | as mod-host answers it | - |
+| `add` | `add word int placement word` | plugin-hostd | as mod-host answers it | - |
 | `preset_show` | `preset_show word` | mod-host | as mod-host answers it | - |
 | `preset_show` | `preset_show int word` | plugin-hostd | resp 0 <json> | -523 PRESET_NOT_OFFERED; -524 PRESET_INVALID; -3 reply.host.instance-non-exists; -901 reply.host.memory-allocation; -902 reply.host.invalid-operation |
+| `supervisor_reset` | `supervisor_reset` | plugin-hostd | as mod-host answers it | - |
+| `supervisor_reset` | `supervisor_reset worker` | plugin-hostd | as mod-host answers it | - |
+| `supervisor_reset` | `supervisor_reset all` | plugin-hostd | as mod-host answers it | - |
 
 Sessions: hello and request tags
 --------------------------------
@@ -111,7 +119,7 @@ In a session granted `errors`, a refusal `resp <n>` is followed by one more word
 < resp -3 reply.host.instance-non-exists
 ```
 
-- The words are those of the [reply codes](#reply-codes), 49 numbers in all; a number the protocol declares no code for goes out bare.
+- The words are those of the [reply codes](#reply-codes), 50 numbers in all; a number the protocol declares no code for goes out bare.
 - Only a refusal alone gets its word: a reply that carries values after its number, a success and a parse refusal (`not found`, `few arguments`, which are words already) go out as they are.
 - With `tags` as well, the tag comes first: `@a9 resp -3 reply.host.instance-non-exists`.
 
@@ -215,7 +223,7 @@ mod-host's templates name no reply codes per verb: a relayed verb answers what i
 
 | verb | mod-host arguments | levels | answer | what the data says |
 |---|---|---|---|---|
-| `add` | word int ... | required (every profile) | differs | plugin-hostd declares it: `<uri> <instance> [own \| pool:<name> \| chain:<chain> \| default] [client_name]` → `resp <instance>`; mod-host's add with a placement; a token after the instance that is not a placement is the jack client name<br>Path A: none; no |
+| `add` | word int ... | required (every profile) | differs | plugin-hostd declares it: `<uri> <instance> [own \| pool:<name> \| chain:<chain> \| default] [client_name]` → `resp <instance>`; mod-host's add with a placement; a token after the instance that is not a placement is the jack client name<br>Path A: none; no<br>a second form, `add word int` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int placement` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int word` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int placement word` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar) |
 | `remove` | int | required (every profile) | same | Path A: none; no |
 | `preset_load` | int word | required (every profile) | differs | Path A: LV2: user presets fail after a pedalboard reload; CLAP: yes, presets |
 | `preset_save` | int word word word | required (every profile) | same | Path A: CLAP: user presets cannot be saved |
@@ -626,6 +634,21 @@ A path of a pin, and the path of a `clap:` uri, is written percent-encoded (`PHD
 < resp 0
 ```
 
+### The node's name in the graph
+
+A hosted node's client stays `effect_<instance>`; its pretty-name, JACK metadata on the client's uuid, is `<plugin name> (<instance>)` (`node_metadata`). `node_label <instance> <label words>` makes it `<label>: <plugin name> (<instance>)`, and `node_label <instance>` with no words clears the label. The daemon sends the verb to the worker that holds the instance, which sets the metadata; the ledger keeps the latest, so a respawned worker is labelled again, and `remove` ends it (plugin-hostd#35).
+
+| verb | arguments | types | reply | codes | since (the group's) | hosts | meaning |
+|---|---|---|---|---|---|---|---|
+| `node_label` | `<instance> [<label word> ...]` | int ... | `resp 0` | -545 LABEL_INVALID; -3 reply.host.instance-non-exists; -902 reply.host.invalid-operation | 0.12.0 | plugin-hostd optional, omx-clap-host optional, mod-host unsupported | label the node for graph clients: the worker that holds the instance sets its pretty-name to the labelled form of PHD_NODE_METADATA, the label the words joined by one space; no words clears it, back to the plain form. -545 for a label over PHD_NODE_LABEL_MAX bytes or not UTF-8; the ledger keeps the latest, so a respawned worker is labelled again (plugin-hostd#35) |
+
+`node_label`:
+
+```
+> node_label 0
+< resp 0
+```
+
 4. Events and feedback
 ----------------------
 
@@ -686,6 +709,7 @@ The JACK metadata a worker sets on the uuid of each client it opens for an insta
 |---|---|---|---|---|
 | `pretty_name` | `http://jackaudio.org/metadata/pretty-name` | `%s (%d)` | plugin name, instance | the name a graph client shows for the node: the plugin's name from its descriptor and the instance |
 | `instance` | `http://openmixer.org/ns/plugin-hostd#instance` | `%d` | instance | the instance the node hosts, which a client matches a hosted node on |
+| `labelled_name` | `http://jackaudio.org/metadata/pretty-name` | `%s: %s (%d)` | label, plugin name, instance | the pretty-name of a node a client has labelled (node_label): the label, the plugin's name and the instance, in place of pretty_name until the label is cleared |
 
 Reply codes
 -----------
@@ -758,6 +782,7 @@ The codes the daemon adds:
 | -541 | `WRITER_QUEUE_FULL` | the daemon's writer queue holds its most writes or bytes: the write the verb needs is refused and nothing of the verb changed; the controller may send it again |
 | -542 | `CURVE_VALUE_NOT_FINITE` | curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn |
 | -543 | `OUTPUT_NOT_MONITORED` | monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier |
+| -545 | `LABEL_INVALID` | node_label of a label longer than PHD_NODE_LABEL_MAX bytes or not UTF-8: the node keeps the label it had |
 
 5. JSON documents
 -----------------
@@ -766,7 +791,7 @@ The codes the daemon adds:
 |---|---|---|---|---|---|
 | `protocol/plugin-hostd.schema.json` | `/usr/share/plugin-hostd-protocol/plugin-hostd.schema.json` | `https://github.com/FreeMixer/plugin-hostd-protocol/protocol/plugin-hostd.schema.json` | The protocol surface plugin-hostd owns | - | Generated from include/plugin-hostd/protocol.h, which is the declaration; this file says the shape of the JSON. |
 
-Counts: 48 mod-host commands, 34 same, 9 differs, 5 refused; 33 verbs mod-host does not have.
+Counts: 48 mod-host commands, 34 same, 9 differs, 5 refused; 34 verbs mod-host does not have.
 
 Appendix: mod-host's command reference
 --------------------------------------

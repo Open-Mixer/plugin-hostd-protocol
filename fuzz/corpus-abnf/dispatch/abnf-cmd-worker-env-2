@@ -1,1 +1,1 @@
-worker_env "" žе ""
+worker_env "\"" ! ""

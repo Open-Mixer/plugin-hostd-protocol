@@ -209,16 +209,58 @@ def table():
     if "add" in meaning and "add" in commands and "plugin-hostd" not in commands["add"]["extended_by"]:
         commands["add"]["extended_by"].append("plugin-hostd")
 
+    arg_types = {t["name"]: {"pattern": t["pattern"], "rest": t["rest"], "spelling": t["spelling"]}
+                 for t in phd["arg_types"]}
+
+    def named(where, spec):
+        """a form written name:type ..., as {args, names, tail}; a type is one of arg_types or literal words a|b"""
+        pairs = [w.split(":", 1) for w in spec.split()] if spec else []
+        for p in pairs:
+            if len(p) != 2 or not p[0] or not p[1]:
+                fail(f"{where}: {spec!r}: each argument is name:type")
+            if p[1] not in arg_types and not re.fullmatch(r"[a-z0-9-]+(\|[a-z0-9-]+)*", p[1]):
+                fail(f"{where}: {p[1]} is no type of arg_types and no literal word")
+        rest = [i for i, p in enumerate(pairs) if p[1] in arg_types and arg_types[p[1]]["rest"]]
+        if rest and rest != [len(pairs) - 1]:
+            fail(f"{where}: {spec!r}: only the last argument takes the rest of the line")
+        return {"args": [p[1] for p in pairs], "names": [p[0] for p in pairs], "tail": bool(rest)}
+
+    # the named forms of a command the verb table's one format does not name (protocol.h PHD_COMMAND_FORMS)
+    declared_forms = {}
+    for cf in phd["command_forms"]:
+        declared_forms.setdefault(cf["verb"], []).append(dict(named(f"command_forms {cf['verb']}", cf["args"]),
+                                                              origin="plugin-hostd"))
+    for word, forms in declared_forms.items():
+        if word not in commands:
+            fail(f"command_forms: {word} is no command of the table")
+        c = commands[word]
+        if c["origin"] == "mod-host":
+            c["forms"] = c["forms"][:1] + forms
+        else:
+            c["forms"] = [dict(f, origin=c["origin"]) for f in forms]
+
     feedback = {}
     for f in mod["feedback"]:
         feedback[f["verb"]] = {"line": f["verb"], "origin": "mod-host", "args": [TYPES[a] for a in f["args"]],
                                "tail": f["optional_tail"], "fields": None}
+    # PHD_EVENT_ARGS holds the arguments of PHD_EVENTS' rows, row for row: the same count and each row's name
+    if len(phd["event_args"]) != len(phd["events"]):
+        fail(f"protocol.h: PHD_EVENT_ARGS has {len(phd['event_args'])} rows, PHD_EVENTS {len(phd['events'])}")
+    for n, (ev, ea) in enumerate(zip(phd["events"], phd["event_args"])):
+        if ev["name"] != ea["name"]:
+            fail(f"protocol.h: row {n + 1} of PHD_EVENT_ARGS is {ea['name']}, of PHD_EVENTS {ev['name']}")
+        ev["args"] = ea["args"]
     for ev in phd["events"]:
-        if ev["name"] in feedback:
+        if ev["name"] in feedback and feedback[ev["name"]]["origin"] == "mod-host":
             feedback[ev["name"]]["fields"] = ev["fields"]
             continue
-        feedback[ev["name"]] = {"line": ev["name"], "origin": "plugin-hostd", "args": None, "tail": True,
-                                "fields": ev["fields"]}
+        form = named(f"events {ev['name']}", ev["args"])
+        if ev["name"] in feedback:
+            feedback[ev["name"]]["forms"].append(form)
+            feedback[ev["name"]]["fields"] += " | " + ev["fields"]
+            continue
+        feedback[ev["name"]] = {"line": ev["name"], "origin": "plugin-hostd", "args": form["args"],
+                                "names": form["names"], "tail": form["tail"], "fields": ev["fields"], "forms": [form]}
 
     for word, e in commands.items():
         row = host_rows.get(word)
@@ -242,6 +284,20 @@ def table():
                        for w in verbs["PLUGIN_HOSTD_PROTOCOL_EXTENSIONS"]["words"].values()],
         # the JACK metadata on a hosted node's client, as protocol.h declares it: a client names and matches it here
         "node_metadata": phd["node_metadata"],
+        # the types of the named arguments of plugin-hostd's feedback lines and command forms: a word of a type matches
+        # its pattern whole; rest, the type of the rest of the line (plugin-hostd-protocol#17)
+        "arg_types": arg_types,
+        # the words a consumer recognises in commands and lines: placements, all, none, every format, worker states
+        "placement": phd["placement"],
+        "words": phd["words"],
+        "worker_states": phd["worker_states"],
+        # the wire's constants (protocol_version, the version hello answers, among them), the words of a pin and the
+        # LV2 workers lv2_worker_set names, as protocol.h declares them: a client reads them here and keeps no copy
+        "constants": phd["constants"],
+        "pin": phd["pin"],
+        # the formats a worker holds: the <format> of worker_list, and of policy_set and lv2_worker_set
+        "formats": phd["formats"],
+        "lv2_workers": phd["lv2_workers"],
     }
 
 

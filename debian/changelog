@@ -1,3 +1,19 @@
+plugin-hostd-protocol (0.5.6) unstable; urgency=medium
+
+  * node_label: a client's label joins a hosted node's pretty-name, <label>:
+    <plugin name> (<instance>); no words clears it; -545
+    reply.plugin-hostd.label-invalid refuses a label over 64 bytes or not
+    UTF-8 (plugin-hostd#35).
+  * The table names and types the arguments of every plugin-hostd feedback
+    line (arg_types, each line's forms), the forms of add and
+    supervisor_reset, and the words a consumer recognises: placements, all, -,
+    * and the worker states (#17).
+  * The table carries the wire's constants, protocol_version (the version
+    hello answers) among them, the pin's separators, excluded bytes and
+    escape, the formats a worker holds, and the LV2 workers.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 12 Nov 2026 21:00:00 +0000
+
 plugin-hostd-protocol (0.5.5) unstable; urgency=medium
 
   * node_metadata: the JACK metadata a worker sets on each instance's client,

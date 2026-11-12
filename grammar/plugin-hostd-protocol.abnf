@@ -150,6 +150,7 @@ command          = cmd-add
                  / cmd-history-get
                  / cmd-instance-info
                  / cmd-lv2-worker-set
+                 / cmd-node-label
                  / cmd-panel-get
                  / cmd-pin-accept
                  / cmd-pin-changed
@@ -176,7 +177,8 @@ command          = cmd-add
                  / cmd-param-set-many
 
 ; mod-host: include/mod-host.h EFFECT_ADD; extended by plugin-hostd
-cmd-add                  = %s"add" SP word SP int tail
+; form 1: mod-host; form 2: plugin-hostd; form 3: plugin-hostd; form 4: plugin-hostd; form 5: plugin-hostd
+cmd-add                  = (%s"add" SP word SP int tail) / (%s"add" SP word SP int) / (%s"add" SP word SP int SP word) / (%s"add" SP word SP int SP word) / (%s"add" SP word SP int SP word SP word)
 ; mod-host: include/mod-host.h BUNDLE_ADD
 cmd-bundle-add           = %s"bundle_add" SP word
 ; mod-host: include/mod-host.h BUNDLE_REMOVE
@@ -312,6 +314,8 @@ cmd-history-get          = %s"history_get" SP word
 cmd-instance-info        = %s"instance_info" SP int
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.lv2WorkerSet
 cmd-lv2-worker-set       = %s"lv2_worker_set" SP word SP word
+; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.nodeLabel
+cmd-node-label           = %s"node_label" SP int tail
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.panelGet
 cmd-panel-get            = %s"panel_get" SP word
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinAccept
@@ -343,7 +347,8 @@ cmd-preset-list          = %s"preset_list" SP int
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.quarantineClear
 cmd-quarantine-clear     = %s"quarantine_clear" SP word
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.supervisorReset
-cmd-supervisor-reset     = %s"supervisor_reset" tail
+; form 1: plugin-hostd; form 2: plugin-hostd; form 3: plugin-hostd
+cmd-supervisor-reset     = (%s"supervisor_reset") / (%s"supervisor_reset" SP word) / (%s"supervisor_reset" SP %s"all")
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.workerEnv
 cmd-worker-env           = %s"worker_env" SP word SP word SP word
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.workerList
@@ -390,43 +395,43 @@ fb-output-set              = %s"output_set" SP int SP word SP float
 ; mod-host: <instance>
 fb-remote-pages-changed    = %s"remote_pages_changed" SP int
 ; plugin-hostd: <instance> <mask> <registers> <call> <block>
-fb-abi-clobber             = %s"abi_clobber" tail
+fb-abi-clobber             = %s"abi_clobber" SP int SP word SP word SP word SP word
 ; plugin-hostd: <chain> <worker> <instance>,...
-fb-chain-formed            = %s"chain_formed" tail
+fb-chain-formed            = %s"chain_formed" SP word SP word SP word
 ; plugin-hostd: <chain> <code>
-fb-chain-refused           = %s"chain_refused" tail
+fb-chain-refused           = %s"chain_refused" SP word SP int
 ; plugin-hostd: <chain> <instance | -> <step> <code>
-fb-chain-stalled           = %s"chain_stalled" tail
+fb-chain-stalled           = %s"chain_stalled" SP word SP word SP word SP int
 ; plugin-hostd: <instance> <worker>
-fb-instance-quarantined    = %s"instance_quarantined" tail
+fb-instance-quarantined    = %s"instance_quarantined" SP int SP word
 ; plugin-hostd: <instance> <code>
-fb-instance-replay-refused = %s"instance_replay_refused" tail
+fb-instance-replay-refused = %s"instance_replay_refused" SP int SP int
 ; plugin-hostd: <instance> <worker>
-fb-instance-restored       = %s"instance_restored" tail
-; plugin-hostd: <instance> suspect:<ms> <the command as sent>
-fb-instance-verb-dropped   = %s"instance_verb_dropped" tail
+fb-instance-restored       = %s"instance_restored" SP int SP word
+; plugin-hostd: <instance> <the command as sent> | <instance> suspect:<ms> <the command as sent>
+fb-instance-verb-dropped   = (%s"instance_verb_dropped" SP int tail) / (%s"instance_verb_dropped" SP int SP word tail)
 ; plugin-hostd: <uri> <reason> omx-clap-host
-fb-lv2-adapter-refused     = %s"lv2_adapter_refused" tail
+fb-lv2-adapter-refused     = %s"lv2_adapter_refused" SP word SP word SP %s"omx-clap-host"
 ; plugin-hostd: <instance> <symbol> begin | end
-fb-param-gesture           = %s"param_gesture" tail
+fb-param-gesture           = %s"param_gesture" SP int SP word SP (%s"begin" / %s"end")
 ; plugin-hostd: <instance> <symbol> <value>
-fb-param-set               = %s"param_set" tail
+fb-param-set               = %s"param_set" SP int SP word SP word
 ; plugin-hostd: <uri> files | layout
-fb-pin-changed             = %s"pin_changed" tail
+fb-pin-changed             = %s"pin_changed" SP word SP (%s"files" / %s"layout")
 ; plugin-hostd: <chain> <instance>:<reason>,...
-fb-plan-reason             = %s"plan_reason" tail
+fb-plan-reason             = %s"plan_reason" SP int SP word
 ; plugin-hostd: <instance> <page_id>
-fb-remote-page-suggest     = %s"remote_page_suggest" tail
+fb-remote-page-suggest     = %s"remote_page_suggest" SP int SP word
 ; plugin-hostd: <worker> <deaths> <window_ms>
-fb-supervisor-gave-up      = %s"supervisor_gave_up" tail
+fb-supervisor-gave-up      = %s"supervisor_gave_up" SP word SP int SP int
 ; plugin-hostd: <worker> <ms>
-fb-worker-backoff          = %s"worker_backoff" tail
+fb-worker-backoff          = %s"worker_backoff" SP word SP int
 ; plugin-hostd: <worker> <pid> <exit:N | signal:N> <instance>,...
-fb-worker-died             = %s"worker_died" tail
+fb-worker-died             = %s"worker_died" SP word SP int SP word SP word
 ; plugin-hostd: <worker> <pid> <replayed_count> <ms>
-fb-worker-respawned        = %s"worker_respawned" tail
+fb-worker-respawned        = %s"worker_respawned" SP word SP int SP int SP int
 ; plugin-hostd: <count>
-fb-xruns                   = %s"xruns" tail
+fb-xruns                   = %s"xruns" SP word
 
 ; the extensions hello grants, and hello's reply: the daemon's version, then each extension it grants, once and in
 ; this order
@@ -484,6 +489,7 @@ error-reply      = %s"resp -1 reply.host.instance-invalid"
                  / %s"resp -542 reply.plugin-hostd.curve-value-not-finite"
                  / %s"resp -543 reply.plugin-hostd.output-not-monitored"
                  / %s"resp -544 reply.plugin-hostd.preset-not-applied"
+                 / %s"resp -545 reply.plugin-hostd.label-invalid"
                  / %s"resp -901 reply.host.memory-allocation"
                  / %s"resp -902 reply.host.invalid-operation"
 

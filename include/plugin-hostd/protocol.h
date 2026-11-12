@@ -80,6 +80,8 @@ static inline int phd_has_display(void)
 #define PHD_CHAIN_MEMBERS_MIN    1
 
 #define PHD_CONSTANTS(X) \
+    X(protocol_version, PLUGIN_HOSTD_PROTOCOL_VERSION, "version", \
+      "the protocol version hello sends and answers on the socket; the table's version key is the same number") \
     X(default_command_port, PHD_DEFAULT_COMMAND_PORT, "port", \
       "the command port without -p; the feedback port is the next one, unless -n is given") \
     X(connect_retry_ms, PHD_CONNECT_RETRY_MS, "ms", \
@@ -413,7 +415,9 @@ static inline int phd_pool_name_valid(const char *name)
                               "rate: no curve is drawn") \
     X(OUTPUT_NOT_MONITORED, OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP, "monitor_output_off of an output this " \
                            "connection did not monitor: a monitor ends with the connection that set it, and only " \
-                           "that connection ends it earlier")
+                           "that connection ends it earlier") \
+    X(LABEL_INVALID, OMX_REPLY_PLUGIN_HOSTD_LABEL_INVALID_RESP, OMX_VERB_NODE_LABEL " of a label longer than " \
+                     "PHD_NODE_LABEL_MAX bytes or not UTF-8: the node keeps the label it had")
 
 /* ---------------------------------------------------------------- verbs */
 
@@ -796,11 +800,18 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_NODE_METADATA_PRETTY_NAME_FORMAT "%s (%d)"
 #define PHD_NODE_METADATA_INSTANCE_KEY       "http://openmixer.org/ns/plugin-hostd#instance"
 #define PHD_NODE_METADATA_INSTANCE_FORMAT    "%d"
+#define PHD_NODE_METADATA_LABELLED_NAME_KEY    PHD_NODE_METADATA_PRETTY_NAME_KEY
+#define PHD_NODE_METADATA_LABELLED_NAME_FORMAT "%s: %s (%d)"
+/* the most bytes of a node_label label, its words joined by one space (plugin-hostd#35) */
+#define PHD_NODE_LABEL_MAX 64
 /* X(id, name, args, meaning): args what fills the format, in order, separated by commas */
 #define PHD_NODE_METADATA(X) \
     X(PRETTY_NAME, "pretty_name", "plugin name,instance", \
       "the name a graph client shows for the node: the plugin's name from its descriptor and the instance") \
-    X(INSTANCE, "instance", "instance", "the instance the node hosts, which a client matches a hosted node on")
+    X(INSTANCE, "instance", "instance", "the instance the node hosts, which a client matches a hosted node on") \
+    X(LABELLED_NAME, "labelled_name", "label,plugin name,instance", \
+      "the pretty-name of a node a client has labelled (node_label): the label, the plugin's name and the instance, " \
+      "in place of pretty_name until the label is cleared")
 
 /* how a parameter's plain value maps to a control's travel: X(id, name, meaning) */
 #define PHD_PARAM_SCALES(X) \
@@ -823,6 +834,11 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "that is not UTF-8 as RFC 3629 spells it (an overlong form, a surrogate, a code point past U+10FFFF, a lead " \
       "byte without its tails) or one that holds a control character of Unicode's class Cc: U+0000 to U+001F, U+007F " \
       "or U+0080 to U+009F") \
+    X(NODE_LABEL, OMX_VERB_NODE_LABEL, "<instance> [<label word> ...]", "resp 0", REPLACE, \
+      "label the node for graph clients: the worker that holds the instance sets its pretty-name to the labelled " \
+      "form of PHD_NODE_METADATA, the label the words joined by one space; no words clears it, back to the plain " \
+      "form. -545 for a label over PHD_NODE_LABEL_MAX bytes or not UTF-8; the ledger keeps the latest, so a " \
+      "respawned worker is labelled again (plugin-hostd#35)") \
     X(REMOTE_PAGES, OMX_VERB_REMOTE_PAGES, "<instance>", "resp <count>", NONE, \
       "the plugin's remote-control pages, from clap.remote-controls; 0 for an instance of a format whose worker has none") \
     X(REMOTE_PAGE_GET, OMX_VERB_REMOTE_PAGE_GET, "<instance> <page>", \
@@ -1096,7 +1112,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_PANEL_GET, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
     X(OMX_VERB_HISTORY_GET, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
     X(OMX_VERB_HISTORY_CLEAR, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
-    X(OMX_VERB_ESTIMATE, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED)
+    X(OMX_VERB_ESTIMATE, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
+    X(OMX_VERB_NODE_LABEL, DAEMON, ABSENT, OPTIONAL, OPTIONAL, OPTIONAL)
 
 /* ---------------------------------------------------------------- host settings */
 
@@ -1140,6 +1157,46 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_GESTURE_END   "end"
 
 #define PHD_EVENT_SUSPECT_PREFIX "suspect:"
+/* how a worker ended, the third word of worker_died: exit:<status> or signal:<number> */
+#define PHD_EVENT_EXIT_PREFIX   "exit:"
+#define PHD_EVENT_SIGNAL_PREFIX "signal:"
+
+/* The types of a feedback line's arguments (PHD_EVENTS), each a pattern its word matches whole; rest: 1 for the type
+ * of the rest of the line, its words as they were sent. An argument whose type is not one of these is one of the
+ * literal words its type spells, written a|b. X(id, name, pattern, rest, spelling) */
+#define PHD_ARG_TYPES(X) \
+    X(INT, "int", "-?[0-9]+", 0, "a whole number") \
+    X(UINT, "uint", "[0-9]+", 0, "a whole number, not negative") \
+    X(HEX, "hex", "0|0x[0-9a-f]+", 0, "a number in hexadecimal, 0x and its digits, or 0") \
+    X(WORD, "word", "[^ ]+", 0, "one word") \
+    X(WORKER, "worker", "w[0-9]+", 0, "a worker, w<k>, as worker_list names it") \
+    X(INSTANCES, "instances", PHD_WORD_NONE "|[0-9]+(,[0-9]+)*", 0, \
+      "instance numbers joined by ',', in order, or " PHD_WORD_NONE " for none") \
+    X(INSTANCE_OR_NONE, "instance-or-none", PHD_WORD_NONE "|[0-9]+", 0, "an instance number, or " PHD_WORD_NONE " for none") \
+    X(STATUS, "status", "(" PHD_EVENT_EXIT_PREFIX "|" PHD_EVENT_SIGNAL_PREFIX ")-?[0-9]+", 0, \
+      PHD_EVENT_EXIT_PREFIX "<status> for a process that exited, " PHD_EVENT_SIGNAL_PREFIX "<number> for one a signal ended") \
+    X(SUSPECT, "suspect", PHD_EVENT_SUSPECT_PREFIX "[0-9]+", 0, PHD_EVENT_SUSPECT_PREFIX "<ms>, the age of the reply") \
+    X(CHAIN, "chain", "[0-9]+(\\" PHD_PLACE_PLAN_SEPARATOR "[0-9]+)?", 0, \
+      "a chain's number, or <plan>" PHD_PLACE_PLAN_SEPARATOR "<k> for segment k of a plan") \
+    X(REASONS, "reasons", PHD_WORD_NONE "|[0-9]+:[^ ,]+(,[0-9]+:[^ ,]+)*", 0, \
+      "<instance>:<reason> joined by ',', or " PHD_WORD_NONE " for none") \
+    X(PLACEMENT, "placement", PHD_PLACE_OWN "|" PHD_PLACE_DEFAULT "|" PHD_PLACE_POOL_PREFIX "[" PHD_POOL_NAME_CLASS "]{" \
+      PHD_STR(PHD_POOL_NAME_MIN) "," PHD_STR(PHD_POOL_NAME_MAX) "}|" PHD_PLACE_CHAIN_PREFIX "[0-9]+", 0, \
+      "a placement, " PHD_PLACEMENT_SYNTAX) \
+    X(LINE, "line", ".*", 1, "the rest of the line, its words as they were sent")
+
+/* The forms of a command whose words the verb table's one format does not name: each form its arguments name:type, as
+ * PHD_EVENTS' args, a form per number of them. add is mod-host's <uri> <instance>, which the daemon extends with a
+ * placement and a client name, each optional (a placement told from a name by its type); supervisor_reset re-arms one
+ * worker or every one (plugin-hostd-protocol#17). X(verb, args) */
+#define PHD_COMMAND_FORMS(X) \
+    X(PHD_VERB_ADD, "uri:word instance:int") \
+    X(PHD_VERB_ADD, "uri:word instance:int placement:placement") \
+    X(PHD_VERB_ADD, "uri:word instance:int client:word") \
+    X(PHD_VERB_ADD, "uri:word instance:int placement:placement client:word") \
+    X(OMX_VERB_SUPERVISOR_RESET, "") \
+    X(OMX_VERB_SUPERVISOR_RESET, "worker:worker") \
+    X(OMX_VERB_SUPERVISOR_RESET, "target:" PHD_WORD_ALL)
 
 /* the same line, as the daemon formats it: name and format in one literal */
 #define PHD_EVENT_WORKER_DIED_FMT           PHD_EVENT_WORKER_DIED " w%d %d %s %s"
@@ -1228,6 +1285,32 @@ static inline int phd_is_note_verb(const char *verb)
       "preset load, a MIDI map, the user's knob of the plugin's own), as mod-host writes it; a controller updates its " \
       "control to it. A worker never writes it for a value a controller's param_set gave it, and a worker that writes " \
       "none changes nothing: the daemon adds no line of its own")
+
+/* the arguments of each row of PHD_EVENTS, in its order (plugin-hostd-protocol#17): X(name, args), args each
+ * argument name:type, its type one of PHD_ARG_TYPES or the literal words it is, a|b. A table of its own, so
+ * PHD_EVENTS keeps the arguments its consumers expand it with; the generator holds the two to the same rows. */
+#define PHD_EVENT_ARGS(X) \
+    X(PHD_EVENT_WORKER_DIED, "worker:worker pid:int status:status instances:instances") \
+    X(PHD_EVENT_INSTANCE_VERB_DROPPED, "instance:int command:line") \
+    X(PHD_EVENT_INSTANCE_VERB_DROPPED, "instance:int suspect:suspect command:line") \
+    X(PHD_EVENT_WORKER_BACKOFF, "worker:worker ms:int") \
+    X(PHD_EVENT_WORKER_RESPAWNED, "worker:worker pid:int replayed:int ms:int") \
+    X(PHD_EVENT_INSTANCE_RESTORED, "instance:int worker:worker") \
+    X(PHD_EVENT_INSTANCE_REPLAY_REFUSED, "instance:int code:int") \
+    X(PHD_EVENT_INSTANCE_QUARANTINED, "instance:int worker:worker") \
+    X(PHD_EVENT_CHAIN_FORMED, "chain:chain worker:worker instances:instances") \
+    X(PHD_EVENT_CHAIN_REFUSED, "chain:chain code:int") \
+    X(PHD_EVENT_CHAIN_STALLED, "chain:chain instance:instance-or-none step:word code:int") \
+    X(PHD_EVENT_PLAN_REASON, "chain:int reasons:reasons") \
+    X(PHD_EVENT_SUPERVISOR_GAVE_UP, "worker:worker deaths:int window_ms:int") \
+    X(PHD_EVENT_PIN_CHANGED, "uri:word changed:" PHD_PIN_CHANGED_FILES "|" PHD_PIN_CHANGED_LAYOUT) \
+    X(PHD_EVENT_LV2_ADAPTER_REFUSED, "uri:word reason:word lv2_worker:" PHD_LV2_WORKER_CLAP_HOST) \
+    X(PHD_EVENT_REMOTE_PAGES_CHANGED, "instance:int") \
+    X(PHD_EVENT_REMOTE_PAGE_SUGGEST, "instance:int page_id:uint") \
+    X(PHD_EVENT_PARAM_GESTURE, "instance:int symbol:word gesture:" PHD_GESTURE_BEGIN "|" PHD_GESTURE_END) \
+    X(PHD_EVENT_XRUNS, "count:uint") \
+    X(PHD_EVENT_ABI_CLOBBER, "instance:int mask:hex registers:word call:word block:uint") \
+    X(PHD_EVENT_PARAM_SET, "instance:int symbol:word value:word")
 
 /* ---------------------------------------------------------------- worker feedback, relayed */
 

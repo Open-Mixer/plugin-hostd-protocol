@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-hide_external_ui 159
-preset_save -8 "" "!" ĭ
-@_i plan 96 -64 " " "\""
-hmi_map -8 f!ê -85 -5 -30 -294 1 "\"" infinity inf -30
-@.._ param_monitor -2 "!U" ">\"" -84
-@. curve_points -32 -02 -168
-@- licensee 0
-@6-_ midi_learn 2 "!" nan +.2
-@7 help
-@. hmi_map -712 "Ѩ¯" 389 8 -7 858 4 "\"" -infinity -6 -40
-add !Ƒ 24
-@-25 quarantine_clear !u!
+state_tmpdir >!|
+load !!!
+pin_clear "\""
+curve_points -494 -306 -897
+@3 worker_list
+pin_layout 9
+plan_get 63
+preset_show ""
+@6 instance_info -81
+history_clear s!
+patch_get 2 "\"ĉ"
+@30 monitor_output -6 !7

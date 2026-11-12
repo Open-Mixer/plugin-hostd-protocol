@@ -72,6 +72,10 @@
       "text": "El plugin ha acceptat el preset però encara no l'havia aplicat quan s'ha acabat l'espera; torneu a llegir-ne els valors o torneu a carregar el preset.",
       "by": "human"
     },
+    "reply.plugin-hostd.label-invalid": {
+      "text": "Aquesta etiqueta és massa llarga o no és text vàlid, així que el node conserva el nom que tenia; feu servir 64 bytes de text UTF-8 com a màxim.",
+      "by": "human"
+    },
     "reply.plugin-hostd.lv2-adapter-refused": {
       "text": "Aquest plugin LV2 no es pot executar aquí perquè l'adaptador no admet alguna cosa que necessita; trieu un altre plugin.",
       "by": "human"

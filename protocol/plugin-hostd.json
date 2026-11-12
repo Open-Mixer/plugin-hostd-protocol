@@ -3,12 +3,21 @@
   "version": 1,
   "readiness": {"daemon_line": "plugin-hostd ready!", "worker_marker": "ready!"},
   "constants": [
+    {"name": "protocol_version", "value": 1, "unit": "version", "meaning": "the protocol version hello sends and answers on the socket; the table's version key is the same number"},
     {"name": "default_command_port", "value": 5555, "unit": "port", "meaning": "the command port without -p; the feedback port is the next one, unless -n is given"},
     {"name": "connect_retry_ms", "value": 5000, "unit": "ms", "meaning": "how long the idle tick asks again for a connect a respawned worker could not make yet"},
     {"name": "line_max", "value": 4096, "unit": "bytes", "meaning": "the protocol socket's buffer: the longest pin_set line the daemon takes"},
     {"name": "line_words_max", "value": 64, "unit": "words", "meaning": "the words of one command line the daemon reads, the verb included; a word past them is not read"},
     {"name": "chain_members_min", "value": 1, "unit": "instances", "meaning": "the fewest members of a chain: a chain of one is valid, so one isolated plugin is a chain like any other"}
   ],
+  "pin": {
+    "file_separator": ",",
+    "digest_separator": "=",
+    "scheme_separator": ":",
+    "path_excluded": ",= \u0009\u000d\u000a",
+    "path_escape": "%"
+  },
+  "lv2_workers": ["mod-host", "omx-clap-host"],
   "placement": {
     "own": "own",
     "default": "default",
@@ -69,7 +78,8 @@
     {"name": "DURABLE_WRITE_FAILED", "macro": "OMX_REPLY_PLUGIN_HOSTD_DURABLE_WRITE_FAILED_RESP", "code": -540, "meaning": "the daemon's writer thread could not write the file the verb changes (history_clear, pin_clear, pin_accept): the change is not on disk, and stderr names the path and the error"},
     {"name": "WRITER_QUEUE_FULL", "macro": "OMX_REPLY_PLUGIN_HOSTD_WRITER_QUEUE_FULL_RESP", "code": -541, "meaning": "the daemon's writer queue holds its most writes or bytes: the write the verb needs is refused and nothing of the verb changed; the controller may send it again"},
     {"name": "CURVE_VALUE_NOT_FINITE", "macro": "OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_RESP", "code": -542, "meaning": "curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn"},
-    {"name": "OUTPUT_NOT_MONITORED", "macro": "OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP", "code": -543, "meaning": "monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier"}
+    {"name": "OUTPUT_NOT_MONITORED", "macro": "OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_RESP", "code": -543, "meaning": "monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier"},
+    {"name": "LABEL_INVALID", "macro": "OMX_REPLY_PLUGIN_HOSTD_LABEL_INVALID_RESP", "code": -545, "meaning": "node_label of a label longer than PHD_NODE_LABEL_MAX bytes or not UTF-8: the node keeps the label it had"}
   ],
   "verbs": [
     {"name": "add", "arguments": "<uri> <instance> [own | pool:<name> | chain:<chain> | default] [client_name]", "reply": "resp <instance>", "meaning": "mod-host's add with a placement; a token after the instance that is not a placement is the jack client name"},
@@ -102,6 +112,7 @@
   ],
   "instance_verbs": [
     {"name": "track_info", "arguments": "<instance> <name> <#RRGGBB | -> [bus | return | master]", "reply": "resp 0", "ledger": "replace", "meaning": "the strip's name (\"\" for none), colour and kind, absent for an input channel; a worker whose plugin format has a track-info extension passes them on; any other word is -902, and so is a name of 256 bytes or more, one that is not UTF-8 as RFC 3629 spells it (an overlong form, a surrogate, a code point past U+10FFFF, a lead byte without its tails) or one that holds a control character of Unicode's class Cc: U+0000 to U+001F, U+007F or U+0080 to U+009F"},
+    {"name": "node_label", "arguments": "<instance> [<label word> ...]", "reply": "resp 0", "ledger": "replace", "meaning": "label the node for graph clients: the worker that holds the instance sets its pretty-name to the labelled form of PHD_NODE_METADATA, the label the words joined by one space; no words clears it, back to the plain form. -545 for a label over PHD_NODE_LABEL_MAX bytes or not UTF-8; the ledger keeps the latest, so a respawned worker is labelled again (plugin-hostd#35)"},
     {"name": "remote_pages", "arguments": "<instance>", "reply": "resp <count>", "ledger": "none", "meaning": "the plugin's remote-control pages, from clap.remote-controls; 0 for an instance of a format whose worker has none"},
     {"name": "remote_page_get", "arguments": "<instance> <page>", "reply": "resp 0 <page_id> <section> <page_name> <s1> <s2> <s3> <s4> <s5> <s6> <s7> <s8>", "ledger": "none", "meaning": "one page, 0 to count - 1: each slot the symbol param_set takes, - for an empty one; -902 for a page that is not one"},
     {"name": "param_info", "arguments": "<instance> <symbol>", "reply": "resp 0 <unit> <scale> <min> <max> <default> <step> <stable_symbol>", "ledger": "none", "meaning": "what a parameter's value means: its unit, its scale, and the symbol it keeps across hosts and versions; -103 for a symbol that is not a parameter, the plugin's own bypass and :bypass included; -511 for a parameter whose unit and scale the worker holds no checked contract for"},
@@ -201,7 +212,8 @@
     {"name": "panel_get", "source": "daemon", "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
     {"name": "history_get", "source": "daemon", "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
     {"name": "history_clear", "source": "daemon", "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
-    {"name": "estimate", "source": "daemon", "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}}
+    {"name": "estimate", "source": "daemon", "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
+    {"name": "node_label", "source": "daemon", "levels": {"lv2-worker": "absent", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}}
   ],
   "track_kinds": ["bus", "return", "master"],
   "param_scales": [
@@ -234,6 +246,53 @@
     {"name": "abi_clobber", "fields": "<instance> <mask> <registers> <call> <block>", "meaning": "relayed from a worker (omx-clap-host 0.26.2 or later), and read by the daemon: the plugin returned from a call with a callee-saved register changed, said once per instance. The worker put the registers back, so its own frame is whole; the other members' state in the same process is not covered, so the daemon quarantines the instance (instance_quarantined, and the history keeps it alone from then on) and, when it shares its worker or is in a chain, moves it to a worker of its own with its state saved; one already alone is only marked"},
     {"name": "param_set", "fields": "<instance> <symbol> <value>", "meaning": "relayed from a worker: parameter feedback, a value the plugin moved by itself (its automation, an LFO, a preset load, a MIDI map, the user's knob of the plugin's own), as mod-host writes it; a controller updates its control to it. A worker never writes it for a value a controller's param_set gave it, and a worker that writes none changes nothing: the daemon adds no line of its own"}
   ],
+  "event_args": [
+    {"name": "worker_died", "args": "worker:worker pid:int status:status instances:instances"},
+    {"name": "instance_verb_dropped", "args": "instance:int command:line"},
+    {"name": "instance_verb_dropped", "args": "instance:int suspect:suspect command:line"},
+    {"name": "worker_backoff", "args": "worker:worker ms:int"},
+    {"name": "worker_respawned", "args": "worker:worker pid:int replayed:int ms:int"},
+    {"name": "instance_restored", "args": "instance:int worker:worker"},
+    {"name": "instance_replay_refused", "args": "instance:int code:int"},
+    {"name": "instance_quarantined", "args": "instance:int worker:worker"},
+    {"name": "chain_formed", "args": "chain:chain worker:worker instances:instances"},
+    {"name": "chain_refused", "args": "chain:chain code:int"},
+    {"name": "chain_stalled", "args": "chain:chain instance:instance-or-none step:word code:int"},
+    {"name": "plan_reason", "args": "chain:int reasons:reasons"},
+    {"name": "supervisor_gave_up", "args": "worker:worker deaths:int window_ms:int"},
+    {"name": "pin_changed", "args": "uri:word changed:files|layout"},
+    {"name": "lv2_adapter_refused", "args": "uri:word reason:word lv2_worker:omx-clap-host"},
+    {"name": "remote_pages_changed", "args": "instance:int"},
+    {"name": "remote_page_suggest", "args": "instance:int page_id:uint"},
+    {"name": "param_gesture", "args": "instance:int symbol:word gesture:begin|end"},
+    {"name": "xruns", "args": "count:uint"},
+    {"name": "abi_clobber", "args": "instance:int mask:hex registers:word call:word block:uint"},
+    {"name": "param_set", "args": "instance:int symbol:word value:word"}
+  ],
+  "arg_types": [
+    {"name": "int", "pattern": "-?[0-9]+", "rest": false, "spelling": "a whole number"},
+    {"name": "uint", "pattern": "[0-9]+", "rest": false, "spelling": "a whole number, not negative"},
+    {"name": "hex", "pattern": "0|0x[0-9a-f]+", "rest": false, "spelling": "a number in hexadecimal, 0x and its digits, or 0"},
+    {"name": "word", "pattern": "[^ ]+", "rest": false, "spelling": "one word"},
+    {"name": "worker", "pattern": "w[0-9]+", "rest": false, "spelling": "a worker, w<k>, as worker_list names it"},
+    {"name": "instances", "pattern": "-|[0-9]+(,[0-9]+)*", "rest": false, "spelling": "instance numbers joined by ',', in order, or - for none"},
+    {"name": "instance-or-none", "pattern": "-|[0-9]+", "rest": false, "spelling": "an instance number, or - for none"},
+    {"name": "status", "pattern": "(exit:|signal:)-?[0-9]+", "rest": false, "spelling": "exit:<status> for a process that exited, signal:<number> for one a signal ended"},
+    {"name": "suspect", "pattern": "suspect:[0-9]+", "rest": false, "spelling": "suspect:<ms>, the age of the reply"},
+    {"name": "chain", "pattern": "[0-9]+(\\.[0-9]+)?", "rest": false, "spelling": "a chain's number, or <plan>.<k> for segment k of a plan"},
+    {"name": "reasons", "pattern": "-|[0-9]+:[^ ,]+(,[0-9]+:[^ ,]+)*", "rest": false, "spelling": "<instance>:<reason> joined by ',', or - for none"},
+    {"name": "placement", "pattern": "own|default|pool:[A-Za-z0-9_-]{1,32}|chain:[0-9]+", "rest": false, "spelling": "a placement, own | pool:<name> | chain:<chain> | default"},
+    {"name": "line", "pattern": ".*", "rest": true, "spelling": "the rest of the line, its words as they were sent"}
+  ],
+  "command_forms": [
+    {"verb": "add", "args": "uri:word instance:int"},
+    {"verb": "add", "args": "uri:word instance:int placement:placement"},
+    {"verb": "add", "args": "uri:word instance:int client:word"},
+    {"verb": "add", "args": "uri:word instance:int placement:placement client:word"},
+    {"verb": "supervisor_reset", "args": ""},
+    {"verb": "supervisor_reset", "args": "worker:worker"},
+    {"verb": "supervisor_reset", "args": "target:all"}
+  ],
   "pin_limits": [
     {"name": "PATH", "meaning": "a path is pinned percent-encoded (%XX): ',', '=', whitespace, '%', a quote, a backslash and a control byte are escaped, so any file name is one word; a path holding one of them as it is, or a stray %, is refused by pin_set as a token outside its grammar"},
     {"name": "LINE", "meaning": "a pin_set line is at most line_max, 4096 bytes, the protocol socket's buffer; a longer one is refused as outside the grammar"},
@@ -241,7 +300,8 @@
   ],
   "node_metadata": [
     {"name": "pretty_name", "key": "http://jackaudio.org/metadata/pretty-name", "value": "%s (%d)", "args": ["plugin name", "instance"], "meaning": "the name a graph client shows for the node: the plugin's name from its descriptor and the instance"},
-    {"name": "instance", "key": "http://openmixer.org/ns/plugin-hostd#instance", "value": "%d", "args": ["instance"], "meaning": "the instance the node hosts, which a client matches a hosted node on"}
+    {"name": "instance", "key": "http://openmixer.org/ns/plugin-hostd#instance", "value": "%d", "args": ["instance"], "meaning": "the instance the node hosts, which a client matches a hosted node on"},
+    {"name": "labelled_name", "key": "http://jackaudio.org/metadata/pretty-name", "value": "%s: %s (%d)", "args": ["label", "plugin name", "instance"], "meaning": "the pretty-name of a node a client has labelled (node_label): the label, the plugin's name and the instance, in place of pretty_name until the label is cleared"}
   ],
   "relay": {
     "worker_arguments": "-n -p <command port> -f <feedback port>",

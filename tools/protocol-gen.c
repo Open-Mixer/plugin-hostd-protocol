@@ -75,6 +75,11 @@ static void jstr(const char *s)
     putchar('"');
     for (; *s; s++)
     {
+        if ((unsigned char)*s < 0x20)
+        {
+            printf("\\u%04x", (unsigned char)*s);
+            continue;
+        }
         if (*s == '"' || *s == '\\')
             putchar('\\');
         putchar(*s);
@@ -120,7 +125,21 @@ static void json(void)
     sep = ",\n";
     PHD_CONSTANTS(X)
 #undef X
-    printf("\n  ],\n  \"placement\": {\n    \"own\": ");
+    printf("\n  ],\n  \"pin\": {\n    \"file_separator\": ");
+    jstr(PHD_PIN_FILE_SEPARATOR);
+    printf(",\n    \"digest_separator\": ");
+    jstr(PHD_PIN_DIGEST_SEPARATOR);
+    printf(",\n    \"scheme_separator\": ");
+    jstr(PHD_PIN_SCHEME_SEPARATOR);
+    printf(",\n    \"path_excluded\": ");
+    jstr(PHD_PIN_PATH_EXCLUDED);
+    printf(",\n    \"path_escape\": ");
+    jstr(PHD_PIN_PATH_ESCAPE);
+    printf("\n  },\n  \"lv2_workers\": [");
+    jstr(PHD_LV2_WORKER_MOD_HOST);
+    printf(", ");
+    jstr(PHD_LV2_WORKER_CLAP_HOST);
+    printf("],\n  \"placement\": {\n    \"own\": ");
     jstr(PHD_PLACE_OWN);
     printf(",\n    \"default\": ");
     jstr(PHD_PLACE_DEFAULT);
@@ -244,6 +263,41 @@ static void json(void)
     printf("}"); \
     sep = ",\n";
     PHD_EVENTS(X)
+#undef X
+    printf("\n  ],\n  \"event_args\": [");
+    sep = "\n";
+#define X(name, args) \
+    printf("%s    {\"name\": ", sep); \
+    jstr(name); \
+    printf(", \"args\": "); \
+    jstr(args); \
+    printf("}"); \
+    sep = ",\n";
+    PHD_EVENT_ARGS(X)
+#undef X
+    printf("\n  ],\n  \"arg_types\": [");
+    sep = "\n";
+#define X(id, name, pattern, rest, spelling) \
+    printf("%s    {\"name\": ", sep); \
+    jstr(name); \
+    printf(", \"pattern\": "); \
+    jstr(pattern); \
+    printf(", \"rest\": %s, \"spelling\": ", (rest) ? "true" : "false"); \
+    jstr(spelling); \
+    printf("}"); \
+    sep = ",\n";
+    PHD_ARG_TYPES(X)
+#undef X
+    printf("\n  ],\n  \"command_forms\": [");
+    sep = "\n";
+#define X(verb, args) \
+    printf("%s    {\"verb\": ", sep); \
+    jstr(verb); \
+    printf(", \"args\": "); \
+    jstr(args); \
+    printf("}"); \
+    sep = ",\n";
+    PHD_COMMAND_FORMS(X)
 #undef X
     printf("\n  ],\n  \"pin_limits\": [");
     sep = "\n";

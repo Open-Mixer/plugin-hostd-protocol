@@ -34,6 +34,18 @@ SCENARIO_VALUES = {"$URI": "urn:golden:amp", "$BAD_URI": "urn:golden:missing", "
                    "$PORT_A": "system:capture_1", "$PORT_B": "effect_3:in"}
 SAMPLE = {"int": "3", "float": "0.25", "word": '"a word"'}
 
+
+
+class Samples(dict):
+    """a sample word of an argument's type: the core types' own; a named type of the table's arg_types is one word
+    to the grammar (its pattern is the table's, tests/feedback_args.py checks it); literal words a|b, the first"""
+
+    def __missing__(self, kind):
+        return kind.split("|")[0] if "|" in kind or kind not in ARG_TYPES else SAMPLE["word"]
+
+
+ARG_TYPES = {}
+
 failed = 0
 checked = 0
 
@@ -119,6 +131,8 @@ for a in sorted(answers):
 # ---- every verb of the table ----
 with open(TABLE, encoding="utf-8") as f:
     table = json.load(f)
+ARG_TYPES.update(table.get("arg_types", {}))
+SAMPLE = Samples(SAMPLE)
 forms = 0
 for c in table["commands"]:
     rule = "cmd-" + c["verb"].replace("_", "-")
