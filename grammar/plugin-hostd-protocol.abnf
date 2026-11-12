@@ -483,6 +483,7 @@ error-reply      = %s"resp -1 reply.host.instance-invalid"
                  / %s"resp -541 reply.plugin-hostd.writer-queue-full"
                  / %s"resp -542 reply.plugin-hostd.curve-value-not-finite"
                  / %s"resp -543 reply.plugin-hostd.output-not-monitored"
+                 / %s"resp -544 reply.plugin-hostd.preset-not-applied"
                  / %s"resp -901 reply.host.memory-allocation"
                  / %s"resp -902 reply.host.invalid-operation"
 

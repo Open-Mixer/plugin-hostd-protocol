@@ -20,6 +20,7 @@
     "reply.plugin-hostd.durable-write-failed": "El canvi no s'ha pogut desar al disc i no hi serà després de reiniciar; comproveu l'espai lliure i torneu-ho a provar.",
     "reply.plugin-hostd.gave-up": "El plugin ha fallat repetidament i s'ha deixat de provar; reviseu-lo i afegiu-lo de nou.",
     "reply.plugin-hostd.load-refused": "El plugin no ha acceptat el contingut del preset; proveu-ne un altre.",
+    "reply.plugin-hostd.preset-not-applied": "El plugin ha acceptat el preset però encara no l'havia aplicat quan s'ha acabat l'espera; torneu a llegir-ne els valors o torneu a carregar el preset.",
     "reply.plugin-hostd.lv2-adapter-refused": "Aquest plugin LV2 no es pot executar aquí perquè l'adaptador no admet alguna cosa que necessita; trieu un altre plugin.",
     "reply.plugin-hostd.no-backend": "Cap programa instal·lat pot executar aquest tipus de plugin; instal·leu-ne un o trieu un plugin d'un altre tipus.",
     "reply.plugin-hostd.no-cell": "Aquest plugin no té cap mesura amb aquesta freqüència de mostreig i mida de bloc; mesureu-lo amb aquests ajustos o canvieu-los.",

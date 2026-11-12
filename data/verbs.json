@@ -198,6 +198,15 @@
         },
         "args": []
       },
+      "presetNotApplied": {
+        "code": "reply.plugin-hostd.preset-not-applied",
+        "resp": -544,
+        "doc": "the plugin took the preset, and had not run once since, so had not applied it, when the host's wait for that ran out: its values may still be the previous ones",
+        "text": {
+          "en": "The plugin took the preset but had not applied it yet when the wait ran out; read its values again, or load the preset again."
+        },
+        "args": []
+      },
       "dirNotWritable": {
         "code": "reply.plugin-hostd.dir-not-writable",
         "resp": -528,

@@ -1,3 +1,13 @@
+plugin-hostd-protocol (0.5.4) unstable; urgency=medium
+
+  * PRESET_NOT_APPLIED (-544): the plugin took the preset and had not run
+    once since when the host's wait for that ran out; its sentence and the
+    Catalan beside the others.
+  * The release workflow builds a staged pair into the staging channel on
+    demand.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 12 Nov 2026 10:30:00 +0000
+
 plugin-hostd-protocol (0.5.3) unstable; urgency=medium
 
   * The scenario list exercises preset_save: on an instance that does not

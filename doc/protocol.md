@@ -111,7 +111,7 @@ In a session granted `errors`, a refusal `resp <n>` is followed by one more word
 < resp -3 reply.host.instance-non-exists
 ```
 
-- The words are those of the [reply codes](#reply-codes), 48 numbers in all; a number the protocol declares no code for goes out bare.
+- The words are those of the [reply codes](#reply-codes), 49 numbers in all; a number the protocol declares no code for goes out bare.
 - Only a refusal alone gets its word: a reply that carries values after its number, a success and a parse refusal (`not found`, `few arguments`, which are words already) go out as they are.
 - With `tags` as well, the tag comes first: `@a9 resp -3 reply.host.instance-non-exists`.
 
@@ -732,6 +732,7 @@ The codes the daemon adds:
 | -525 | `PRESET_NEEDS_STATE` | the worker: a preset file that carries state for a worker that cannot take state yet |
 | -526 | `PRESET_PLUGIN_CHANGED` | the worker: the preset file's plugin id, version or fingerprint is not the instance's; nothing of it is applied |
 | -527 | `LOAD_REFUSED` | the worker: the plugin refused the preset or the state its file carries |
+| -544 | `PRESET_NOT_APPLIED` | the worker: the plugin took the preset and had not run once since when the host's wait for that ran out |
 | -528 | `DIR_NOT_WRITABLE` | descriptor_dir or qualification_dir cannot be made or written: the daemon does not start, and says which key and which path on stderr with this code; a directory that turns read-only later makes the scan of an add write nothing, and descriptor_get and panel_get of that plugin answer this code |
 | -529 | `DESCRIPTOR_ABSENT` | descriptor_get (panel_get) of a plugin that has no descriptor (panel) in descriptor_dir for its binary as it is now, and none being written: no add since it changed, or a binary that cannot be found |
 | -530 | `DESCRIPTOR_PENDING` | descriptor_get (panel_get) of a plugin whose scan, started by its add, has not written its descriptor (panel) yet: ask again |
