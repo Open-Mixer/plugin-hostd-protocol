@@ -787,6 +787,21 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_TRACK_KINDS(X) \
     X(BUS, OMX_HOST_TRACK_KINDS_BUS) X(RETURN, OMX_HOST_TRACK_KINDS_RETURN) X(MASTER, OMX_HOST_TRACK_KINDS_MASTER)
 
+/* the JACK metadata a worker sets on the uuid of each client it opens for an instance, after each activation, read by
+ * every graph client on jackd and on PipeWire; the client's name stays effect_<instance>. A client matches a hosted node
+ * on the instance key, never on the effect_ prefix of its name (plugin-hostd#33). A server that keeps no metadata (a
+ * PipeWire with no session manager) takes none, and the node keeps its name. Each row's key and the printf format of
+ * its value are PHD_NODE_METADATA_<ID>_KEY and _FORMAT. */
+#define PHD_NODE_METADATA_PRETTY_NAME_KEY    "http://jackaudio.org/metadata/pretty-name"
+#define PHD_NODE_METADATA_PRETTY_NAME_FORMAT "%s (%d)"
+#define PHD_NODE_METADATA_INSTANCE_KEY       "http://openmixer.org/ns/plugin-hostd#instance"
+#define PHD_NODE_METADATA_INSTANCE_FORMAT    "%d"
+/* X(id, name, args, meaning): args what fills the format, in order, separated by commas */
+#define PHD_NODE_METADATA(X) \
+    X(PRETTY_NAME, "pretty_name", "plugin name,instance", \
+      "the name a graph client shows for the node: the plugin's name from its descriptor and the instance") \
+    X(INSTANCE, "instance", "instance", "the instance the node hosts, which a client matches a hosted node on")
+
 /* how a parameter's plain value maps to a control's travel: X(id, name, meaning) */
 #define PHD_PARAM_SCALES(X) \
     X(LINEAR, "linear", "the value is linear in position") \

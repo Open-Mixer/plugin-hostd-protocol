@@ -865,6 +865,16 @@ def page():
     for r in PHD["host_settings"]:
         w(f"- {r['name']}: {r['meaning']}")
     w("")
+    w("### Node metadata")
+    w("")
+    w("The JACK metadata a worker sets on the uuid of each client it opens for an instance, on jackd and on PipeWire. "
+      "The client's name stays `effect_<instance>`; a client shows the pretty name and matches a hosted node on the "
+      "instance key, never on the name's prefix. The value is a printf format, filled by the arguments in order.")
+    w("")
+    w("\n".join(table(["name", "key", "value", "arguments", "meaning"],
+                      [[code(r["name"]), code(r["key"]), code(r["value"]), cell(", ".join(r["args"])), cell(r["meaning"])]
+                       for r in PHD["node_metadata"]])))
+    w("")
 
     # codes
     w("Reply codes")
