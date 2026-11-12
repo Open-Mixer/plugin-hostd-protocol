@@ -1,0 +1,36 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later
+ * Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+ *
+ * tests/macro_compat.c: a consumer of protocol.h's X-macro tables, each expanded with the arguments its consumers
+ * expand it with (plugin-hostd's tools/protocol-gen.c, omx-clap-core). A release may add rows, and new tables, but
+ * a table whose X takes one argument more or less breaks every consumer's build within the same major: this file
+ * stops compiling. make test builds it. */
+#include <stdio.h>
+
+#include "plugin-hostd/protocol.h"
+
+int main(void)
+{
+    unsigned n = 0;
+
+#define X(name, fields, meaning) n += (unsigned)sizeof(name fields meaning);
+    PHD_EVENTS(X)
+#undef X
+#define X(name, value, unit, meaning) n += (unsigned)(value) + (unsigned)sizeof(unit meaning);
+    PHD_CONSTANTS(X)
+#undef X
+#define X(id, code, meaning) n += (unsigned)(code) + (unsigned)sizeof(meaning);
+    PHD_ERRORS(X)
+#undef X
+#define X(id, name, args, reply, ledger, meaning) n += (unsigned)PHD_LEDGER_##ledger + (unsigned)sizeof(args reply meaning);
+    PHD_INSTANCE_VERBS(X)
+#undef X
+#define X(name, source, lv2, clap, console, zynthian) n += (unsigned)sizeof(name);
+    PHD_HOST_VERBS(X)
+#undef X
+#define X(id, name, args, meaning) n += (unsigned)sizeof(name args meaning PHD_NODE_METADATA_##id##_KEY);
+    PHD_NODE_METADATA(X)
+#undef X
+    printf("%u\n", n);
+    return 0;
+}
