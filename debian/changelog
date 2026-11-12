@@ -1,3 +1,10 @@
+plugin-hostd-protocol (0.5.5) unstable; urgency=medium
+
+  * node_metadata: the JACK metadata a worker sets on each instance's client,
+    its pretty name and the instance key a client matches a hosted node on.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 12 Nov 2026 12:30:00 +0000
+
 plugin-hostd-protocol (0.5.4) unstable; urgency=medium
 
   * PRESET_NOT_APPLIED (-544): the plugin took the preset and had not run
