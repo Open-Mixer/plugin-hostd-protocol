@@ -74,6 +74,9 @@
 #define OMX_REPLY_PLUGIN_HOSTD_LOAD_REFUSED "reply.plugin-hostd.load-refused" ///< the plugin refused the preset or the state its file carries
 #define OMX_REPLY_PLUGIN_HOSTD_LOAD_REFUSED_RESP (-527)
 #define OMX_REPLY_PLUGIN_HOSTD_LOAD_REFUSED_TEXT_EN "The plugin did not accept the contents of the preset; try another preset."
+#define OMX_REPLY_PLUGIN_HOSTD_PRESET_NOT_APPLIED "reply.plugin-hostd.preset-not-applied" ///< the plugin took the preset, and had not run once since, so had not applied it, when the host's wait for that ran out: its values may still be the previous ones
+#define OMX_REPLY_PLUGIN_HOSTD_PRESET_NOT_APPLIED_RESP (-544)
+#define OMX_REPLY_PLUGIN_HOSTD_PRESET_NOT_APPLIED_TEXT_EN "The plugin took the preset but had not applied it yet when the wait ran out; read its values again, or load the preset again."
 #define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE "reply.plugin-hostd.dir-not-writable" ///< descriptor_dir or qualification_dir cannot be made or written
 #define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_RESP (-528)
 #define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_TEXT_EN "A folder the plugins need cannot be created or written to; check its location and permissions."
