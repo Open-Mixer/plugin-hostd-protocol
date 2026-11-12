@@ -15,3 +15,5 @@
 /tests/curve_test
 /tests/runner_test
 /tests/monitor_test
+/tests/feedback_lines
+/tests/feedback_lines.out
