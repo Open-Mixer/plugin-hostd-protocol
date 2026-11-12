@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.3
+Version: 0.5.4
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -105,6 +105,11 @@ make test
 %{_datadir}/plugin-hostd-protocol/catalogs/
 
 %changelog
+* Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.4-1
+- PRESET_NOT_APPLIED (-544): the plugin took the preset and had not run once
+  since when the host's wait for that ran out; its sentence and the Catalan
+- the release workflow builds a staged pair into the staging channel on demand
+
 * Tue Nov 10 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.3-1
 - the scenario list exercises preset_save, refused on an instance that does not
   exist; a test holds it to the verbs a console's host backend declares
