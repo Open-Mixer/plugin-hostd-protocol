@@ -243,6 +243,13 @@ def table():
     for f in mod["feedback"]:
         feedback[f["verb"]] = {"line": f["verb"], "origin": "mod-host", "args": [TYPES[a] for a in f["args"]],
                                "tail": f["optional_tail"], "fields": None}
+    # PHD_EVENT_ARGS holds the arguments of PHD_EVENTS' rows, row for row: the same count and each row's name
+    if len(phd["event_args"]) != len(phd["events"]):
+        fail(f"protocol.h: PHD_EVENT_ARGS has {len(phd['event_args'])} rows, PHD_EVENTS {len(phd['events'])}")
+    for n, (ev, ea) in enumerate(zip(phd["events"], phd["event_args"])):
+        if ev["name"] != ea["name"]:
+            fail(f"protocol.h: row {n + 1} of PHD_EVENT_ARGS is {ea['name']}, of PHD_EVENTS {ev['name']}")
+        ev["args"] = ea["args"]
     for ev in phd["events"]:
         if ev["name"] in feedback and feedback[ev["name"]]["origin"] == "mod-host":
             feedback[ev["name"]]["fields"] = ev["fields"]

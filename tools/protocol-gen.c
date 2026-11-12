@@ -253,18 +253,27 @@ static void json(void)
     printf("\n  ],\n  \"remote_page_slots\": %d,\n  \"string_max\": %d,\n  \"events\": [", PHD_REMOTE_PAGE_SLOTS,
            PHD_STRING_MAX);
     sep = "\n";
-#define X(name, fields, args, meaning) \
+#define X(name, fields, meaning) \
     printf("%s    {\"name\": ", sep); \
     jstr(name); \
     printf(", \"fields\": "); \
     jstr(fields); \
-    printf(", \"args\": "); \
-    jstr(args); \
     printf(", \"meaning\": "); \
     jstr(meaning); \
     printf("}"); \
     sep = ",\n";
     PHD_EVENTS(X)
+#undef X
+    printf("\n  ],\n  \"event_args\": [");
+    sep = "\n";
+#define X(name, args) \
+    printf("%s    {\"name\": ", sep); \
+    jstr(name); \
+    printf(", \"args\": "); \
+    jstr(args); \
+    printf("}"); \
+    sep = ",\n";
+    PHD_EVENT_ARGS(X)
 #undef X
     printf("\n  ],\n  \"arg_types\": [");
     sep = "\n";

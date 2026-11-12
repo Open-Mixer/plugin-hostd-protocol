@@ -299,15 +299,11 @@
           },
           "meaning": {
             "type": "string"
-          },
-          "args": {
-            "type": "string"
           }
         },
         "required": [
           "name",
           "fields",
-          "args",
           "meaning"
         ],
         "additionalProperties": false
@@ -659,6 +655,26 @@
         "type": "string"
       },
       "minItems": 1
+    },
+    "event_args": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "args": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "args"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
@@ -688,7 +704,8 @@
     "arg_types",
     "command_forms",
     "pin",
-    "lv2_workers"
+    "lv2_workers",
+    "event_args"
   ],
   "additionalProperties": false
 }
