@@ -1,10 +1,10 @@
 hello 1 errors seq tags
-supervisor_reset "" ""
-@7_- curve_bind 759 532 "" ""
-@C9. patch_get -5 "\""
-midi_learn 79 "" inf inf
-hmi_unmap -4 "\"\""
-@1._ midi_unmap 479 "\""
+@91 param_set_many -8 "Ƞ\"" nan !̣ N
+midi_learn -8 "\"\"" 3 +inf
+history_clear бͦ
+@7 pin_set "" Ă! "" "" ""
+@d_1 estimate 99 9 "ŅЕ"
+@- add "" -218 ˇ !eǫ
 hmi_map 11 "m" 860 -38 6 -5 -0 "F\"" inf +.6 -3
 hide_external_ui -11
 param_monitor -7 "\"!" ! +.87

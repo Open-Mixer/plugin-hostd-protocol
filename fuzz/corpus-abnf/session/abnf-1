@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-set_bpm -3e46
-@_e transport_sync ""
-@.._ load Π!
-cc_unmap 050 "\" "
+@.. curve_bind 514 3 ""
+@2- param_get 5 ""
+@._ bundle_add !ѣU
+cv_map 3 ! "\"ʓ" -infinity +.2E+88 (
+preset_list -01
+pin_changed ""
 pin_set "" eς! "ä\"" ">"
 chain 03 -712 "ʹ"
 @_S param_set_many -667 > 96.5 Ͼ>
 @--. worker_env ` "a" Nͯ;
 node_label -68
 preset_list 996
-@lu chain_get 0
-descriptor_get Ί
