@@ -45,12 +45,15 @@ jobs:
       # omx-contract's C headers, which the declared protocol's generator is built against, are the OpenMixer channel's
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
+        with:
+          # omx-contract 3.16.0 is staged and not yet served (#15)
+          staging: 'true'
       - name: omx-contract's headers, and omx-dsp's curve function
         run: |
-          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.12.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'; else
+          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.16.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'; else
             apt-get -y install --no-install-recommends libomx-contract-dev libomxdsp-dev
             v=$(dpkg-query -W -f='${Version}' libomx-contract-dev)
-            dpkg --compare-versions "$v" ge 3.12.0~
+            dpkg --compare-versions "$v" ge 3.16.0~
             dpkg --compare-versions "$v" lt 4~
             v=$(dpkg-query -W -f='${Version}' libomxdsp-dev)
             dpkg --compare-versions "$v" ge 0.32.0~
@@ -84,10 +87,14 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
+        with:
+          # the staging channel, above the real one: omx-contract 3.16.0 (catalog provenance, translate, the language
+          # list, #15) is staged and not yet served
+          staging: 'true'
       - name: omx-contract and omx-clap-core's and plugin-db's packages of the contract directory
         run: |
           set -euo pipefail
-          dnf -y install 'omx-contract >= 3.12.0' 'omx-contract < 4' 'omx-contract-devel >= 3.12.0' 'omx-contract-devel < 4' omx-clap-core-contract 'plugin-db-contract >= 0.3.0' 'plugin-db-contract < 0.4' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
+          dnf -y install 'omx-contract >= 3.16.0' 'omx-contract < 4' 'omx-contract-devel >= 3.16.0' 'omx-contract-devel < 4' omx-clap-core-contract 'plugin-db-contract >= 0.3.0' 'plugin-db-contract < 0.4' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
           if rpm -q plugin-hostd-contract; then echo "plugin-hostd-contract is installed: it declares the same items"; exit 1; fi
       - name: The python ABNF parser
         run: |
@@ -95,6 +102,17 @@ jobs:
           /opt/abnf/bin/pip install 'abnf>=2.2'
       - name: make check-protocol-tools
         run: make check-protocol-tools PYTHON=/opt/abnf/bin/python
+      # one pack per listed language from the spec and debian/control, and the catalogs through omx-contract's release
+      # gate (translate --check): a listed language with no catalog, a missing key or a stale entry is red (#15)
+      - name: The language packs
+        uses: Open-Mixer/.github/.github/actions/langpacks@openmixer-v1
+        with:
+          name: plugin-hostd-protocol
+          base: plugin-hostd-protocol-contract
+          owner: plugin-hostd-protocol
+          spec: packaging/plugin-hostd-protocol.spec
+          moved: ca:0.5.6
+          gate: make check-catalogs
 
   abi:
     name: ABI check (abidiff against abi/)

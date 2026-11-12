@@ -70,7 +70,8 @@ for word, (where, code) in sorted(owned.items(), key=lambda kv: kv[1][1].get("re
     if word not in messages:
         fail("%s (%s): no Catalan in catalogs/ca.json" % (where, word))
         continue
-    en, ca = text["en"], messages[word]
+    # an entry is the sentence, or {text, by[, model, source]} with its provenance (omx-contract 3.16.0)
+    en, ca = text["en"], messages[word] if isinstance(messages[word], str) else messages[word].get("text", "")
     if not en.strip() or not ca.strip():
         fail("%s: a sentence is empty" % where)
         continue
