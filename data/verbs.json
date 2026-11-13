@@ -1110,7 +1110,7 @@
       "curvePoints": {
         "verb": "curve_points",
         "format": "curve_points %i %i %i",
-        "reply": "resp 0 <count> <x>,<y> ...",
+        "reply": "resp 0 <count> <x>,<y> ... <mark_count> <freq>,<depth>,<q>,<origin> ...",
         "codes": [
           {
             "ref": "HOST_REPLY_CODES.instanceNonExists"
@@ -1143,7 +1143,7 @@
           "mod-host": "unsupported"
         },
         "since": "0.5.0",
-        "doc": "The points of a bound display: <instance> <display> <points>, the grid points asked for. Each bound symbol's value is read from the instance as it is now and the instance's rate with it, and omx-dsp's omx_curve_points draws them: an eq_response x in Hz and y in dB, the bands' anchors added (three a drawn band), a transfer_curve input dB to output dB. The reply is the count and each point x,y, x to four significant digits and y to 0.01 dB, ascending in x; at most curve_points_max (omx-dsp's CURVE_POINTS_MAX, 256) points. A display with no binding, or a binding without a term the model needs (-537); a band shape or slope with no closed form (-536); points outside 2 to curve_points_max, the anchors counted (-539); a value that is not finite or an instance not running at a rate (-542)."
+        "doc": "The points of a bound display: <instance> <display> <points>, the grid points asked for. Each bound symbol's value is read from the instance as it is now and the instance's rate with it, and omx-dsp's omx_curve_points_marked draws them: an eq_response x in Hz and y in dB, the bands' anchors added (three a drawn band), a transfer_curve input dB to output dB. The reply is the count and each point x,y, x to four significant digits and y to 0.01 dB, ascending in x, at most curve_points_max (omx-dsp's CURVE_POINTS_MAX, 256) points; then the count of marks and each one freq,depth,q,origin, a drawn eq_response band whose origin (omx-dsp's CURVE_ORIGINS) is not user, its frequency and depth at the same precision as a point and its Q to 0.01, and its origin word (fbs-fixed, fbs-live, hrp or room-mode): a host that gives every bound term the origin user, or a transfer_curve, marks none. A plugin's own parameters carry no origin a host knows of; the origin comes from the host's backend alone. A display with no binding, or a binding without a term the model needs (-537); a band shape or slope with no closed form (-536); points outside 2 to curve_points_max, the anchors counted (-539); a value that is not finite or an instance not running at a rate (-542)."
       },
       "monitorOutputOff": {
         "verb": "monitor_output_off",

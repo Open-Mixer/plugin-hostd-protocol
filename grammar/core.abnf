@@ -73,8 +73,13 @@ curve-shape      = %s"off" / %s"bell" / %s"lowshelf" / %s"highshelf" / %s"highpa
 ; a head filter's slope, dB per octave of each choice value from 0: the role's declared enumeration
 curve-slopes     = curve-db *("|" curve-db)
 curve-db         = %x31-39 *2DIGIT
-; curve_points' reply: the count and each point, x to four significant digits and y to 0.01 dB
-curve-points-reply = %s"resp" SP %s"0" SP 1*DIGIT 1*(SP curve-point)
+; curve_points' reply: the count and each point, x to four significant digits and y to 0.01 dB; then the count of
+; marks and each one, a drawn band whose origin is not user (CURVE_ORIGINS, omx_curve.h): its frequency and depth at
+; the same precision as a point, its Q to 0.01, and its origin word. A host that gives every bound term the origin
+; user, and a transfer_curve always, marks none
+curve-points-reply = %s"resp" SP %s"0" SP 1*DIGIT 1*(SP curve-point) SP 1*DIGIT *(SP curve-mark)
 curve-point      = curve-x "," curve-y
 curve-x          = ["-"] 1*DIGIT ["." 1*DIGIT]
 curve-y          = ["-"] 1*DIGIT "." 2DIGIT
+curve-mark       = curve-x "," curve-y "," curve-y "," curve-origin
+curve-origin     = %s"fbs-fixed" / %s"fbs-live" / %s"hrp" / %s"room-mode"
