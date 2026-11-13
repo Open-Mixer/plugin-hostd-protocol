@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/omx-contract.schema.json",
   "requires": {
-    "omx-contract-schema": ">= 3.17.2",
+    "omx-contract-schema": ">= 3.18.0",
     "omx-clap-core": ">= 0.30.5"
   },
   "PLUGIN_HOSTD_REPLY_CODES": {
