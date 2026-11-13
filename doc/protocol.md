@@ -789,14 +789,14 @@ The codes the daemon adds:
 
 | schema | installed as | $id | title | format | description |
 |---|---|---|---|---|---|
-| `protocol/plugin-hostd.schema.json` | `/usr/share/plugin-hostd-protocol/plugin-hostd.schema.json` | `https://github.com/FreeMixer/plugin-hostd-protocol/protocol/plugin-hostd.schema.json` | The protocol surface plugin-hostd owns | - | Generated from include/plugin-hostd/protocol.h, which is the declaration; this file says the shape of the JSON. |
+| `protocol/plugin-hostd.schema.json` | `/usr/share/plugin-hostd-protocol/plugin-hostd.schema.json` | `https://github.com/Open-Mixer/plugin-hostd-protocol/protocol/plugin-hostd.schema.json` | The protocol surface plugin-hostd owns | - | Generated from include/plugin-hostd/protocol.h, which is the declaration; this file says the shape of the JSON. |
 
 Counts: 48 mod-host commands, 34 same, 9 differs, 5 refused; 34 verbs mod-host does not have.
 
 Appendix: mod-host's command reference
 --------------------------------------
 
-The "Commands (or Protocol)" section of mod-host's README (FreeMixer/mod-host, branch freemixer, 013ac7d), kept as it
+The "Commands (or Protocol)" section of mod-host's README (Open-Mixer/mod-host, branch freemixer, 013ac7d), kept as it
 is. Copyright 2013-2026 Filipe Coelho, MOD Audio UG and the mod-host contributors, GPL-3.0-or-later.
 
 Where it says "mod-host", read "the host": any host built on this library answers these commands. The library parses

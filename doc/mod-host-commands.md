@@ -1,6 +1,6 @@
 # mod-host's command reference
 
-The "Commands (or Protocol)" section of mod-host's README (FreeMixer/mod-host, branch freemixer, 013ac7d), kept as it
+The "Commands (or Protocol)" section of mod-host's README (Open-Mixer/mod-host, branch freemixer, 013ac7d), kept as it
 is. Copyright 2013-2026 Filipe Coelho, MOD Audio UG and the mod-host contributors, GPL-3.0-or-later.
 
 Where it says "mod-host", read "the host": any host built on this library answers these commands. The library parses
