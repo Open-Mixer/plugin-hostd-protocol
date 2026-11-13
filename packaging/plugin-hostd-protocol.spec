@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.8
+Version: 0.5.9
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -20,7 +20,7 @@ BuildRequires: python3
 # install-contract writes the contract directory's package with omx-contract's script
 BuildRequires: (omx-contract-devel >= 3.18.0 with omx-contract-devel < 4)
 # omx_curve.h, the curve function the curve verbs draw with (header only)
-BuildRequires: (omx-dsp-devel >= 0.32.0 with omx-dsp-devel < 0.33)
+BuildRequires: (omx-dsp-devel >= 0.32.1 with omx-dsp-devel < 0.33)
 
 %description
 libplugin-hostd-protocol is the socket server, line protocol and command
@@ -191,6 +191,15 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Sat Nov 14 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.9-1
+- Built against plugin-db >= 0.4.4 and below 0.5 and omx-dsp >= 0.32.1 and below
+  0.33, the 3.18.0 pass's newest of each, with their ceilings (D30).
+- CI renders against what the channel serves every day, the render check alone,
+  and names the served contract packages when it fails (#27, #32).
+- The fuzz seed corpus is held to its generator on every pull request, and the
+  generator writes the same corpus in every locale (LC_ALL=C); the corpus and
+  both golden transcripts are written again over it (#33, #34).
+
 * Sat Nov 14 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.8-1
 - A reply code declares itself transient: an identical request may succeed
   later with no change by the caller. worker-spawn, gave-up and verb-dropped
