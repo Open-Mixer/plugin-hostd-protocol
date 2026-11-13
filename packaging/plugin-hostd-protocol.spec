@@ -192,6 +192,9 @@ shows the English source sentence.
 
 %changelog
 * Fri Nov 13 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.7-1
+- 0.5.6 was staged and never released: its changes (node_label, the feedback
+  lines' typed arguments, the table's constants, formats and words) ship in this
+  release.
 - The table types and names the replies of plugin-hostd's and the protocol's own
   verbs (reply_forms on each command, resp 0 or a count, a last argument
   repeated over the rest), and arg_types gains list and record types, each
