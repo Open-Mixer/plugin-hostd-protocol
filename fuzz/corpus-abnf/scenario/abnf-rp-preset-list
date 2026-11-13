@@ -1,0 +1,10 @@
+preset_list 48 => resp 3
+preset_list -45 => resp -06
+preset_list -367 => resp 513
+preset_list 943 => resp -969
+preset_list -88 => resp -952
+preset_list -684 => resp -8
+preset_list 6 => resp -9
+preset_list -050 => resp -7
+preset_list -993 => resp 516
+preset_list -30 => resp -3

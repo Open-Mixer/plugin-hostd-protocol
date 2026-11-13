@@ -1,0 +1,10 @@
+history_get "\"\"" => resp 0 "\""
+history_get Ù => resp 0 n!)
+history_get "\"" => resp 0 b
+history_get !/! => resp 0 ""
+history_get "\"" => resp 0 H#!
+history_get "ʒ\"" => resp 0 8ƴɍ
+history_get ! => resp 0 "!"
+history_get ȩ!! => resp 0 !2
+history_get 5ą => resp 0 !8r
+history_get R! => resp 0 "\"\""

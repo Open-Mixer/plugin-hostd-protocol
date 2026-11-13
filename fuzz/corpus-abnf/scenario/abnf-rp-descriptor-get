@@ -1,0 +1,10 @@
+descriptor_get Ё͍ => resp 0 "t"
+descriptor_get !k! => resp 0 ˸s!
+descriptor_get еƾ => resp 0 ϒИ
+descriptor_get "" => resp 0 "\""
+descriptor_get CF => resp 0 "\""
+descriptor_get  => resp 0 "Ý\""
+descriptor_get "" => resp 0 "\""
+descriptor_get !Ɓ! => resp 0 ""
+descriptor_get ˫ʍ => resp 0 ""
+descriptor_get ʟx => resp 0 "KD"

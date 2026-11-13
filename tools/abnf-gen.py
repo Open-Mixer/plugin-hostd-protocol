@@ -70,6 +70,20 @@ def body(word, args, tail):
     return " ".join(parts)
 
 
+def reply_body(form):
+    """a typed reply's rule: resp, 0 or a count, then its arguments"""
+    parts = [literal("resp"), "SP", literal("0") if form["resp"] == "0" else "int"]
+    args = form["args"]
+    rest = bool(args) and ARG_TYPES.get(args[-1], {}).get("rest", False)
+    fixed = args[:-1] if (form["repeat"] or rest) else args
+    parts += [f"SP {arg_rule(a)}" for a in fixed]
+    if rest:
+        parts.append("tail")
+    elif form["repeat"]:
+        parts.append(f"*(SP {arg_rule(args[-1])})")
+    return " ".join(parts)
+
+
 def grammar():
     try:
         table = json.loads(read(TABLE))
@@ -123,6 +137,19 @@ def grammar():
             rhs = forms[0] if len(forms) == 1 else " / ".join(f"({x})" for x in forms)
             w(f"{rule_name('fb', f['line']).ljust(width)}= {rhs}")
     w("")
+    # the typed replies (#19): a rule per verb with reply_forms, its forms each an alternative; resp 0 or a count, then
+    # each argument, a composite one word (its pattern is the table's), the rest type the tail, a repeated last one *(SP)
+    typed = [c for c in commands if c.get("reply_forms")]
+    if typed:
+        w("; the replies the table types, a rule per verb (reply_forms); the reply rule above still takes any resp line")
+        w("typed-reply      = " + "\n                 / ".join(rule_name("rp", c["verb"]) for c in typed))
+        w("")
+        width = max(len(rule_name("rp", c["verb"])) for c in typed) + 1
+        for c in typed:
+            forms = [reply_body(f) for f in c["reply_forms"]]
+            rhs = forms[0] if len(forms) == 1 else " / ".join(f"({x})" for x in forms)
+            w(f"{rule_name('rp', c['verb']).ljust(width)}= {rhs}")
+        w("")
     w("; the extensions hello grants, and hello's reply: the daemon's version, then each extension it grants, once and in")
     w("; this order")
     exts = table["extensions"]

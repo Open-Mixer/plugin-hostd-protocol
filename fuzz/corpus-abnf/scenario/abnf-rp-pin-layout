@@ -1,0 +1,10 @@
+pin_layout -250 => resp 0 !
+pin_layout -64 => resp 0 *!!
+pin_layout -03 => resp 0 Ks
+pin_layout -08 => resp 0 " \""
+pin_layout 0 => resp 0 c
+pin_layout -01 => resp 0 "\"\""
+pin_layout 2 => resp 0 "̴"
+pin_layout 046 => resp 0 "\"\""
+pin_layout -2 => resp 0 ę!
+pin_layout 689 => resp 0 "у"

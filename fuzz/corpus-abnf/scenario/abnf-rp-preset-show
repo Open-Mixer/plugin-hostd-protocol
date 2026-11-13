@@ -1,0 +1,10 @@
+preset_show "P" => resp 0 ""
+preset_show -7 "" => resp 0 , "a\""
+preset_show -62 !WȜ => resp 0 "!"
+preset_show ! => resp 0 !
+preset_show -78 ˥! => resp 0 !!{
+preset_show 8 "" => resp 0 p !Aς
+preset_show -3 "\"\"" => resp 0
+preset_show Ƹ! => resp 0 "f" P!
+preset_show -0 "ǯ" => resp 0 ! "\""
+preset_show Ͷ => resp 0 "\""

@@ -1,0 +1,10 @@
+preset_get 43 -0 => resp 0 ρȁ! "\""
+preset_get -164 32 => resp 0 Γ ̀
+preset_get -227 -663 => resp 0 . ˬō
+preset_get 765 -7 => resp 0 !! "J"
+preset_get -0 -30 => resp 0 "" ""
+preset_get -5 8 => resp 0 "!c" ""
+preset_get -7 -5 => resp 0 "!" !;
+preset_get -842 -766 => resp 0 "" yI9
+preset_get 929 -15 => resp 0 Ȟ XǍ
+preset_get -671 21 => resp 0 P! ""
