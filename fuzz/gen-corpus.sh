@@ -104,6 +104,10 @@ printf 'emit 1\nhello 1 seq\nemit 2\nemit 3\nhello 1 seq tags\nemit 4\n@a emit 5
     > "$out/session/seq"
 printf 'param_get_many 3 gain cutoff\nparam_get_many 3 gain xbad gain\nparam_get_many 9 gain\nhello 1 errors\nparam_get_many 9 gain\nparam_get_many 3 a "b c" ddd\nparam_get_many 3\n' \
     > "$out/session/many"
+# a hello spelt with quotes inside its word (hel"lo"): mod-host's tokenizer takes the quotes out, so the session reads
+# hello and its grant moves; the harness must read it as a hello too (#30). The minimal case, and the fuzz finding.
+printf 'hello 1 tags\n@a param_get 3 gain\nhel"lo" 1\n@x\n' > "$out/session/quoted-hello"
+printf 'hello 1 tags\n@ain\n@a.b-c_d frobnicate 1\n@ remfremo1\n@ remove 3\n@x\nhello gain\n@a.b-c_d frobnicamcate 1\n@ remfremo1\n@ remove 3\n@x\nhello gainJ@a.b-c_d frobnicate %%\n@ r1\n@x\nhellhell1 tags\n@n\nve 3\n@x\nhello gain\n@a.b-c_d frobnicate %%\n@ r1\n@x\nhellhellte %%\n@ r1\n@x\nhellhellh;\235\235\235\235\nhel"lo" "\nhel"lh;\235\235\nhel"lo" "\nhel"lh;\235\235\nhel"lo" "\nhel"lo" \235\235\nhel"lo" "\nhel"lo" " 3\n@x\nhello gain\n@a.b-\nhellhello 1 tags\n@n\n@a1 erin\nin\n@n\n@a1 erin\nin\n' > "$out/session/quoted-hello-crash"
 printf 'param_set_many 3 a 0.5 bb 0.25\nparam_get_many 3 a bb\nparam_set_many 3 a 0.1 xbad 0.2 bb 0.3\nparam_get_many 3 a bb\nparam_set_many 3 a 0.1 bb 2000\nparam_set_many 9 a 1\nparam_set_many 3 a notanumber\nparam_set_many 3 a 1 bb\n' \
     > "$out/session/setmany"
 
