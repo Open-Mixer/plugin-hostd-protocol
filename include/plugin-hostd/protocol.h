@@ -1197,7 +1197,7 @@ static inline int phd_is_note_verb(const char *verb)
       PHD_PLACE_CHAIN_PREFIX "[0-9]+(?:\\" PHD_PLACE_PLAN_SEPARATOR "[0-9]+)?", 0, \
       "where a worker runs: a placement, a full pool's sibling <name>" PHD_POOL_SIBLING_SEPARATOR "<n>, or a plan's " \
       "segment chain:<plan>" PHD_PLACE_PLAN_SEPARATOR "<k>") \
-    X(FIGURE, "figure", PHD_WORD_NONE "|-?[0-9]+(?:\\.[0-9]+)?", 0, "a number, or " PHD_WORD_NONE " when there is none") \
+    X(AMOUNT, "amount", PHD_WORD_NONE "|[0-9]+", 0, "a whole amount (bytes), or " PHD_WORD_NONE " when there is none") \
     X(CORE, "core", PHD_WORD_NONE "|[0-9]+", 0, "an audio core, or " PHD_WORD_NONE " for a worker pinned to none") \
     X(NUMBER, "number", "-?[0-9]+(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?", 0, "a decimal number") \
     X(SHA256, "sha256", "[0-9a-f]{64}", 0, "a SHA-256 in 64 lowercase hexadecimal digits") \
@@ -1225,7 +1225,7 @@ static inline int phd_is_note_verb(const char *verb)
     X("int", "3") X("uint", "2") X("hex", "0x28") X("word", "gain") X("worker", "w3") X("instances", "3,4") \
     X("instance-or-none", "8") X("status", "signal:11") X("suspect", "suspect:12") X("chain", "4.1") \
     X("reasons", "7:budget") X("placement", "own") X("member", "7" PHD_WORKER_PIN_REFUSED) X("worker-or-none", "w2") \
-    X("state", "up") X("place", "chain:4.1") X("figure", "12.5") X("number", "-6.02") \
+    X("state", "up") X("place", "chain:4.1") X("amount", "1024") X("number", "-6.02") \
     X("sha256", "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08") X("quoted", "\"/var/lib/x.json\"") \
     X("key", "crashed") X("value", "0") X("line", "{\"name\":\"warm\"}") X("core", "2")
 
@@ -1249,7 +1249,7 @@ static inline int phd_is_note_verb(const char *verb)
       " state:state core:" PHD_WORD_NONE " pool:" PHD_WORKER_POOL_ON "|" PHD_WORKER_POOL_QUALIFIED \
       " place:place instances:members", "a worker of worker_list") \
     X("reason", ":", "instance:int reason:word", "a member and its reason") \
-    X("member-code", ":", "position:int code:int", "a member's position in the line and its code") \
+    X("member-code", ":", "position:uint code:int", "a member's position in the line and its code") \
     X("layout", PHD_PIN_SCHEME_SEPARATOR, "scheme:word sha256:sha256", "a layout pin, <scheme>:<sha256>") \
     X("point", ",", "x:number y:number", "a point of a curve") \
     X("history-entry", "=", "key:key value:value", "a key=value of a history")
@@ -1274,10 +1274,10 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_PLAN, "0", "segments:segments cores:core-segments") \
     X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list") \
     X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list cores:core-segments") \
-    X(OMX_VERB_ESTIMATE, "0", "latency_frames:int cpu_percent:figure ram_bytes:figure workers:uint unknown_count:uint " \
+    X(OMX_VERB_ESTIMATE, "0", "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint " \
       "unknown:member-codes") \
-    X(OMX_VERB_ESTIMATE, "0", "latency_frames:int cpu_percent:figure ram_bytes:figure workers:uint unknown_count:uint " \
-      "unknown:member-codes ram_used_bytes:figure ram_added_bytes:figure ram_budget_bytes:figure ram_unknown_count:uint") \
+    X(OMX_VERB_ESTIMATE, "0", "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint " \
+      "unknown:member-codes ram_used_bytes:amount ram_added_bytes:amount ram_budget_bytes:amount ram_unknown_count:uint") \
     X(OMX_VERB_HELLO, "0", "version:int extensions:word...") \
     X(OMX_VERB_PARAM_GET_MANY, "0", "values:word...") \
     X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...")
