@@ -1,3 +1,12 @@
+plugin-hostd-protocol (0.5.7) unstable; urgency=medium
+
+  * The table types and names the replies of plugin-hostd's and the protocol's
+    own verbs (reply_forms on each command, resp 0 or a count, a last argument
+    repeated over the rest), and arg_types gains list and record types, each
+    declared once with a pattern written from its parts (#19).
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Fri, 13 Nov 2026 03:00:00 +0000
+
 plugin-hostd-protocol (0.5.6) unstable; urgency=medium
 
   * node_label: a client's label joins a hosted node's pretty-name, <label>:
