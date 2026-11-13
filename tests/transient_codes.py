@@ -2,20 +2,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
 """tests/transient_codes.py <table> <verbs.json> <vocabulary header>: which refusals are transient is a property of the
-code (plugin-hostd-protocol#23, ruling D22), declared once in data/verbs.json and read by a client from the table, never
-a list of code names it keeps. A code declared transient reads transient in the table's reply_codes and has its
-_TRANSIENT macro in the rendered header; a code not declared so carries neither. The four refusals a retry of an add
-may pass (the worker not up, the storm bound spent, the verb dropped with its worker, the pin refused) are transient,
-and descriptor-absent, which says something about the plugin, is not. A planted fault (a flag dropped, one added, a
-macro missing) must be seen."""
+code (plugin-hostd-protocol#23, rulings D22 and D23), declared once in data/verbs.json and read by a client from the
+table, never a list of code names it keeps. A code declared transient reads transient in the table's reply_codes and
+has its _TRANSIENT macro in the rendered header; a code not declared so carries neither. Transient means an identical
+request may succeed later with no change by the caller: the worker not up, the storm bound spent, the verb dropped with
+its worker. descriptor-absent and pin-refused, which say something about the plugin, are not. A planted fault (a flag
+dropped, one added, a macro missing) must be seen."""
 import copy
 import json
 import re
 import sys
 
-TRANSIENT = ("reply.plugin-hostd.worker-spawn", "reply.plugin-hostd.gave-up", "reply.plugin-hostd.verb-dropped",
-             "reply.plugin-hostd.pin-refused")
-NOT_TRANSIENT = ("reply.plugin-hostd.descriptor-absent",)
+TRANSIENT = ("reply.plugin-hostd.worker-spawn", "reply.plugin-hostd.gave-up", "reply.plugin-hostd.verb-dropped")
+# a refused pin is a verdict about the plugin: it needs a different pin or a re-qualification, never the same request
+# again (D23)
+NOT_TRANSIENT = ("reply.plugin-hostd.descriptor-absent", "reply.plugin-hostd.pin-refused")
 
 
 def declared(verbs):

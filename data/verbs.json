@@ -105,7 +105,6 @@
       "pinRefused": {
         "code": "reply.plugin-hostd.pin-refused",
         "resp": -516,
-        "transient": true,
         "doc": "the plugin's pin carries verdict=refused",
         "text": {
           "en": "This plugin failed its checks and is blocked; only you can allow it, by approving the plugin."

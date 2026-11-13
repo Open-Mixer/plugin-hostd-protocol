@@ -147,7 +147,7 @@
     {"resp": -513, "code": "reply.host.no-note-input"},
     {"resp": -514, "code": "reply.host.notes-by-jack"},
     {"resp": -515, "code": "reply.plugin-hostd.no-preset-list"},
-    {"resp": -516, "code": "reply.plugin-hostd.pin-refused", "transient": true},
+    {"resp": -516, "code": "reply.plugin-hostd.pin-refused"},
     {"resp": -517, "code": "reply.host.note-queue-full"},
     {"resp": -518, "code": "reply.plugin-hostd.chain-unknown-instance"},
     {"resp": -519, "code": "reply.plugin-hostd.chain-duplicate"},

@@ -46,7 +46,6 @@
 #define OMX_REPLY_PLUGIN_HOSTD_NO_PRESET_LIST_TEXT_EN "This plugin cannot list its presets; load one by name, or choose one of your own."
 #define OMX_REPLY_PLUGIN_HOSTD_PIN_REFUSED "reply.plugin-hostd.pin-refused" ///< the plugin's pin carries verdict=refused
 #define OMX_REPLY_PLUGIN_HOSTD_PIN_REFUSED_RESP (-516)
-#define OMX_REPLY_PLUGIN_HOSTD_PIN_REFUSED_TRANSIENT 1
 #define OMX_REPLY_PLUGIN_HOSTD_PIN_REFUSED_TEXT_EN "This plugin failed its checks and is blocked; only you can allow it, by approving the plugin."
 #define OMX_REPLY_PLUGIN_HOSTD_CHAIN_UNKNOWN_INSTANCE "reply.plugin-hostd.chain-unknown-instance" ///< a member is an instance no add made
 #define OMX_REPLY_PLUGIN_HOSTD_CHAIN_UNKNOWN_INSTANCE_RESP (-518)
