@@ -119,7 +119,7 @@ In a session granted `errors`, a refusal `resp <n>` is followed by one more word
 < resp -3 reply.host.instance-non-exists
 ```
 
-- The words are those of the [reply codes](#reply-codes), 50 numbers in all; a number the protocol declares no code for goes out bare.
+- The words are those of the [reply codes](#reply-codes), 63 numbers in all; a number the protocol declares no code for goes out bare.
 - Only a refusal alone gets its word: a reply that carries values after its number, a success and a parse refusal (`not found`, `few arguments`, which are words already) go out as they are.
 - With `tags` as well, the tag comes first: `@a9 resp -3 reply.host.instance-non-exists`.
 
@@ -723,8 +723,21 @@ The codes omx-clap-host answers too (omx-clap-core's `reply.host.*`):
 | resp | code | meaning |
 |---|---|---|
 | -1 | `reply.host.instance-invalid` | mod-host's ERR_INSTANCE_INVALID: an instance number outside the host's table |
+| -2 | `reply.host.instance-already-exists` | mod-host's ERR_INSTANCE_ALREADY_EXISTS: add asked for an instance number the host already has |
 | -3 | `reply.host.instance-non-exists` | mod-host's ERR_INSTANCE_NON_EXISTS: an instance no add made |
+| -101 | `reply.host.uri-invalid` | mod-host's ERR_LV2_INVALID_URI: add named a plugin the host does not find |
+| -102 | `reply.host.instantiation-failed` | mod-host's ERR_LV2_INSTANTIATION: the plugin refused to start |
 | -103 | `reply.host.param-symbol-invalid` | mod-host's ERR_LV2_INVALID_PARAM_SYMBOL: a symbol that is not a parameter param_set takes, the plugin's own bypass included |
+| -104 | `reply.host.preset-uri-invalid` | mod-host's ERR_LV2_INVALID_PRESET_URI: a preset this plugin does not have, or a file it cannot take |
+| -105 | `reply.host.state-load-failed` | mod-host's ERR_LV2_CANT_LOAD_STATE: the plugin refused its saved state |
+| -201 | `reply.host.jack-client-creation` | mod-host's ERR_JACK_CLIENT_CREATION: no audio client could be made for the plugin |
+| -202 | `reply.host.jack-client-activation` | mod-host's ERR_JACK_CLIENT_ACTIVATION: the plugin's audio client would not start |
+| -203 | `reply.host.jack-client-deactivation` | mod-host's ERR_JACK_CLIENT_DEACTIVATION: the plugin's audio client would not stop |
+| -204 | `reply.host.jack-port-register` | mod-host's ERR_JACK_PORT_REGISTER: a port of the plugin could not be made |
+| -205 | `reply.host.jack-port-connection` | mod-host's ERR_JACK_PORT_CONNECTION: two ports could not be connected |
+| -206 | `reply.host.jack-port-disconnection` | mod-host's ERR_JACK_PORT_DISCONNECTION: two ports could not be disconnected |
+| -207 | `reply.host.value-out-of-range` | mod-host's ERR_JACK_VALUE_OUT_OF_RANGE: a tempo or a beats-per-bar the transport does not take |
+| -404 | `reply.host.external-ui-unavailable` | mod-host's ERR_EXTERNAL_UI_UNAVAILABLE: the plugin has no window of its own to show |
 | -508 | `reply.host.pin-absent` | a layout pin in a scheme this host does not know, refused as no pin at all |
 | -510 | `reply.host.pin-layout-mismatch` | the add of an instance whose layout after init is not the one pin_expect named: the plugin is not activated |
 | -511 | `reply.host.no-param-contract` | the host holds no checked unit and scale for this parameter: the controller falls back to the layout the scan gives |
