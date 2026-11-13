@@ -675,6 +675,106 @@
         ],
         "additionalProperties": false
       }
+    },
+    "arg_examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "example": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "example"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "list_types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "item": {
+            "type": "string"
+          },
+          "separator": {
+            "type": "string"
+          },
+          "none": {
+            "type": "string"
+          },
+          "spelling": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "item",
+          "separator",
+          "none",
+          "spelling"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "record_types": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "separator": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "string"
+          },
+          "spelling": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "separator",
+          "fields",
+          "spelling"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "reply_args": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "verb": {
+            "type": "string"
+          },
+          "resp": {
+            "type": "string"
+          },
+          "args": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "verb",
+          "resp",
+          "args"
+        ],
+        "additionalProperties": false
+      }
     }
   },
   "required": [
@@ -705,7 +805,11 @@
     "command_forms",
     "pin",
     "lv2_workers",
-    "event_args"
+    "event_args",
+    "arg_examples",
+    "list_types",
+    "record_types",
+    "reply_args"
   ],
   "additionalProperties": false
 }

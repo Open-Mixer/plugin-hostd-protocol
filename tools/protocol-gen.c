@@ -299,6 +299,62 @@ static void json(void)
     sep = ",\n";
     PHD_COMMAND_FORMS(X)
 #undef X
+    printf("\n  ],\n  \"arg_examples\": [");
+    sep = "\n";
+#define X(name, example) \
+    printf("%s    {\"name\": ", sep); \
+    jstr(name); \
+    printf(", \"example\": "); \
+    jstr(example); \
+    printf("}"); \
+    sep = ",\n";
+    PHD_ARG_EXAMPLES(X)
+#undef X
+    printf("\n  ],\n  \"list_types\": [");
+    sep = "\n";
+#define X(name, item, separator, none, spelling) \
+    printf("%s    {\"name\": ", sep); \
+    jstr(name); \
+    printf(", \"item\": "); \
+    jstr(item); \
+    printf(", \"separator\": "); \
+    jstr(separator); \
+    printf(", \"none\": "); \
+    jstr(none); \
+    printf(", \"spelling\": "); \
+    jstr(spelling); \
+    printf("}"); \
+    sep = ",\n";
+    PHD_LIST_TYPES(X)
+#undef X
+    printf("\n  ],\n  \"record_types\": [");
+    sep = "\n";
+#define X(name, separator, fields, spelling) \
+    printf("%s    {\"name\": ", sep); \
+    jstr(name); \
+    printf(", \"separator\": "); \
+    jstr(separator); \
+    printf(", \"fields\": "); \
+    jstr(fields); \
+    printf(", \"spelling\": "); \
+    jstr(spelling); \
+    printf("}"); \
+    sep = ",\n";
+    PHD_RECORD_TYPES(X)
+#undef X
+    printf("\n  ],\n  \"reply_args\": [");
+    sep = "\n";
+#define X(verb, resp, args) \
+    printf("%s    {\"verb\": ", sep); \
+    jstr(verb); \
+    printf(", \"resp\": "); \
+    jstr(resp); \
+    printf(", \"args\": "); \
+    jstr(args); \
+    printf("}"); \
+    sep = ",\n";
+    PHD_REPLY_ARGS(X)
+#undef X
     printf("\n  ],\n  \"pin_limits\": [");
     sep = "\n";
 #define X(id, meaning) \

@@ -211,6 +211,17 @@ def table():
 
     arg_types = {t["name"]: {"pattern": t["pattern"], "rest": t["rest"], "spelling": t["spelling"]}
                  for t in phd["arg_types"]}
+    # a leaf pattern composes into a list's or a record's only with no group of its own that captures
+    for name, t in arg_types.items():
+        if re.search(r"(?<!\\)\((?!\?)", t["pattern"]):
+            fail(f"protocol.h: the {name} type's pattern {t['pattern']!r} captures: write its groups (?:...)")
+    examples = {e["name"]: e["example"] for e in phd["arg_examples"]}
+    for name, t in arg_types.items():
+        if name not in examples:
+            fail(f"protocol.h: the {name} type has no example in PHD_ARG_EXAMPLES")
+        if not re.fullmatch(t["pattern"], examples[name], re.S):
+            fail(f"protocol.h: the {name} type's example {examples[name]!r} is not of its pattern")
+        t["example"] = examples[name]
 
     def named(where, spec):
         """a form written name:type ..., as {args, names, tail}; a type is one of arg_types or literal words a|b"""
@@ -239,6 +250,46 @@ def table():
         else:
             c["forms"] = [dict(f, origin=c["origin"]) for f in forms]
 
+    # the composite types (#19): a list's and a record's structure, and a pattern written from its parts
+    def literal_pattern(kind):
+        return "|".join(re.escape(w) for w in kind.split("|"))
+
+    def pattern_of(kind):
+        return arg_types[kind]["pattern"] if kind in arg_types else literal_pattern(kind)
+
+    for lt in phd["list_types"]:
+        item = lt["item"]
+        if item not in arg_types and lt["item"] not in [r["name"] for r in phd["record_types"]] + \
+                [l["name"] for l in phd["list_types"]]:
+            fail(f"list_types {lt['name']}: its item {item} is no type")
+    pending = [("list", t) for t in phd["list_types"]] + [("record", t) for t in phd["record_types"]]
+    while pending:
+        progressed = False
+        for kind, t in list(pending):
+            if kind == "list":
+                if t["item"] not in arg_types:
+                    continue
+                item = "(?:%s)" % pattern_of(t["item"])
+                body = "%s(?:%s%s)*" % (item, re.escape(t["separator"]), item)
+                nones = [re.escape(w) for w in t["none"].split("|")] if t["none"] else []
+                arg_types[t["name"]] = {"pattern": "|".join(nones + [body]), "rest": False, "spelling": t["spelling"],
+                                        "items": {"type": t["item"], "separator": t["separator"], "none": t["none"]}}
+            else:
+                kinds = [w.split(":", 1)[1] for w in t["fields"].split() if ":" in w]
+                if any(k in [x["name"] for _, x in pending] for k in kinds):
+                    continue
+                form = named(f"record_types {t['name']}", t["fields"])
+                parts = ["(?:%s)" % pattern_of(k) for k in form["args"]]
+                arg_types[t["name"]] = {"pattern": re.escape(t["separator"]).join(parts), "rest": False,
+                                        "spelling": t["spelling"],
+                                        "fields": {"separator": t["separator"], "args": form["args"],
+                                                   "names": form["names"]}}
+            pending.remove((kind, t))
+            progressed = True
+        if not progressed:
+            fail("protocol.h: composite types that name a type nowhere declared, or each other: %s"
+                 % [t["name"] for _, t in pending])
+
     feedback = {}
     for f in mod["feedback"]:
         feedback[f["verb"]] = {"line": f["verb"], "origin": "mod-host", "args": [TYPES[a] for a in f["args"]],
@@ -261,6 +312,18 @@ def table():
             continue
         feedback[ev["name"]] = {"line": ev["name"], "origin": "plugin-hostd", "args": form["args"],
                                 "names": form["names"], "tail": form["tail"], "fields": ev["fields"], "forms": [form]}
+
+    # the replies of this tree's verbs, typed (#19): a form per PHD_REPLY_ARGS row, a last name:type... repeated
+    for r in phd["reply_args"]:
+        if r["verb"] not in commands:
+            fail(f"reply_args: {r['verb']} is no command of the table")
+        spec = r["args"]
+        repeat = spec.endswith("...")
+        form = named(f"reply_args {r['verb']}", spec[:-3] if repeat else spec)
+        if r["resp"] not in ("0", "count"):
+            fail(f"reply_args {r['verb']}: resp {r['resp']!r} is neither 0 nor count")
+        commands[r["verb"]].setdefault("reply_forms", []).append(
+            {"resp": r["resp"], "args": form["args"], "names": form["names"], "repeat": repeat, "tail": form["tail"]})
 
     for word, e in commands.items():
         row = host_rows.get(word)

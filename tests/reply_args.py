@@ -26,13 +26,20 @@ def decode_word(word, kind, types):
         parts = [decode_word(w, t["items"]["type"], types) for w in word.split(t["items"]["separator"])]
         return None if any(p is None for p in parts) else parts
     if "fields" in t:
+        # a field may hold the record's own separator (a place holds ':'): the record's pattern, each field's pattern
+        # captured in order, says where each one ends; all the table's patterns group without capturing
         f = t["fields"]
-        parts = word.split(f["separator"], len(f["args"]) - 1)
-        if len(parts) != len(f["args"]):
+        whole = re.escape(f["separator"]).join("(%s)" % pattern_of(k, types) for k in f["args"])
+        m = re.fullmatch(whole, word)
+        if not m:
             return None
-        vals = [decode_word(p, k, types) for p, k in zip(parts, f["args"])]
+        vals = [decode_word(p, k, types) for p, k in zip(m.groups(), f["args"])]
         return None if any(v is None for v in vals) else dict(zip(f["names"], vals))
     return word if re.fullmatch(t["pattern"], word) else None
+
+
+def pattern_of(kind, types):
+    return types[kind]["pattern"] if kind in types else "|".join(re.escape(w) for w in kind.split("|"))
 
 
 def decode_reply(verb, line, table):
@@ -51,6 +58,10 @@ def decode_form(form, line, types):
         return None
     words = words[2:]
     args, names = form["args"], form["names"]
+    if args and types.get(args[-1], {}).get("rest"):
+        if len(words) < len(args) - 1:
+            return None
+        words = words[:len(args) - 1] + [" ".join(words[len(args) - 1:])]
     if form["repeat"]:
         head = len(args) - 1
         if len(words) < head:
@@ -124,7 +135,8 @@ def main():
             if decode_reply(c["verb"], line, table) is None:
                 failures.append("%s: the sample %r does not decode against %r" % (c["verb"], line, form))
     states = {s["name"] for s in table.get("worker_states", [])}
-    if types.get("state") and set(types["state"].get("pattern", "").strip("()").split("|")) != states:
+    state_words = set(re.sub(r"^\(\?:|\)$", "", types.get("state", {}).get("pattern", "")).split("|"))
+    if types.get("state") and state_words != states:
         failures.append("the state type's words are not the table's worker_states %s" % sorted(states))
     wl = next((c for c in ours if c["verb"] == "worker_list"), None)
     if wl and wl.get("reply_forms"):
