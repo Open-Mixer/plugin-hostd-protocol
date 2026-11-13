@@ -2160,7 +2160,7 @@
 = 
 # scenario-61 answer 2
 > param_get 9 gain
-< resp -2
+< resp -2 reply.host.instance-already-exists
 = param_get(9,gain)
 # scenario-62 answer 2
 > hello 1 errors tags
@@ -2168,11 +2168,11 @@
 = 
 # scenario-63 answer 2
 > @e1 bypass 9 1
-< @e1 resp -2
+< @e1 resp -2 reply.host.instance-already-exists
 = bypass(9,1)
 # scenario-64 answer 2
 > @e2 param_set 9 gain 0.5
-< @e2 resp -2
+< @e2 resp -2 reply.host.instance-already-exists
 = param_set(9,gain,0x1p-1)
 # scenario-65 answer 2
 > hello 1
@@ -5040,7 +5040,7 @@
 = 
 # scenario-61 answer 5
 > param_get 9 gain
-< resp -101
+< resp -101 reply.host.uri-invalid
 = param_get(9,gain)
 # scenario-62 answer 5
 > hello 1 errors tags
@@ -5048,11 +5048,11 @@
 = 
 # scenario-63 answer 5
 > @e1 bypass 9 1
-< @e1 resp -101
+< @e1 resp -101 reply.host.uri-invalid
 = bypass(9,1)
 # scenario-64 answer 5
 > @e2 param_set 9 gain 0.5
-< @e2 resp -101
+< @e2 resp -101 reply.host.uri-invalid
 = param_set(9,gain,0x1p-1)
 # scenario-65 answer 5
 > hello 1
@@ -6960,7 +6960,7 @@
 = 
 # scenario-61 answer 7
 > param_get 9 gain
-< resp -205
+< resp -205 reply.host.jack-port-connection
 = param_get(9,gain)
 # scenario-62 answer 7
 > hello 1 errors tags
@@ -6968,11 +6968,11 @@
 = 
 # scenario-63 answer 7
 > @e1 bypass 9 1
-< @e1 resp -205
+< @e1 resp -205 reply.host.jack-port-connection
 = bypass(9,1)
 # scenario-64 answer 7
 > @e2 param_set 9 gain 0.5
-< @e2 resp -205
+< @e2 resp -205 reply.host.jack-port-connection
 = param_set(9,gain,0x1p-1)
 # scenario-65 answer 7
 > hello 1
@@ -7920,7 +7920,7 @@
 = 
 # scenario-61 answer 8
 > param_get 9 gain
-< resp -105
+< resp -105 reply.host.state-load-failed
 = param_get(9,gain)
 # scenario-62 answer 8
 > hello 1 errors tags
@@ -7928,11 +7928,11 @@
 = 
 # scenario-63 answer 8
 > @e1 bypass 9 1
-< @e1 resp -105
+< @e1 resp -105 reply.host.state-load-failed
 = bypass(9,1)
 # scenario-64 answer 8
 > @e2 param_set 9 gain 0.5
-< @e2 resp -105
+< @e2 resp -105 reply.host.state-load-failed
 = param_set(9,gain,0x1p-1)
 # scenario-65 answer 8
 > hello 1
