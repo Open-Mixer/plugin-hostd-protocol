@@ -156,9 +156,14 @@ def main():
         failures.append("worker_list: no typed reply to plant faults in")
     # the bare lists: a list decoder of its own is seen, apart from any record's pattern. A reply of nested lists
     # decodes into lists of lists, and an item that is not of the list's type, or another separator, is refused
-    nested = decode_reply("plan_get", "resp 0 7,8;9 7:budget,9:plan-refused -;2,3", table)
-    if not nested or nested.get("segments") != [["7", "8"], ["9"]] or nested.get("cores") != [[], ["2", "3"]]:
-        failures.append("plan_get: 7,8;9 and -;2,3 are not read as lists of lists: %r" % (nested,))
+    # the cores are the segments' shape, each member the core of its worker or - for none, as the daemon writes them
+    # (plan_cores: 7,8;9 gives -,-;-)
+    nested = decode_reply("plan_get", "resp 0 7,8;9 7:budget,9:plan-refused -,-;-", table)
+    if not nested or nested.get("segments") != [["7", "8"], ["9"]] or nested.get("cores") != [["-", "-"], ["-"]]:
+        failures.append("plan_get: 7,8;9 and -,-;- are not read as lists of lists: %r" % (nested,))
+    pinned = decode_reply("plan", "resp 0 7,8;9 2,-;3", table)
+    if not pinned or pinned.get("cores") != [["2", "-"], ["3"]]:
+        failures.append("plan: the cores 2,-;3, a member with a core and one with none, are not read: %r" % (pinned,))
     for verb, line in (("plan_get", "resp 0 7,x;9 - -"), ("plan_get", "resp 0 7,8|9 - -"),
                        ("estimate", "resp 0 128 12.5 - 2 1 0:-701,bad"), ("estimate", "resp 0 128 12.5 - 2 1 0;-701")):
         if decode_reply(verb, line, table) is not None:
