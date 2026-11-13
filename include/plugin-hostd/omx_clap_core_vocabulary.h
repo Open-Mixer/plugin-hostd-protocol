@@ -208,51 +208,12 @@
 #define OMX_REPLY_HOST_INSTANCE_INVALID "reply.host.instance-invalid" ///< mod-host's ERR_INSTANCE_INVALID: an instance number outside the host's table
 #define OMX_REPLY_HOST_INSTANCE_INVALID_RESP (-1)
 #define OMX_REPLY_HOST_INSTANCE_INVALID_TEXT_EN "That instance number is not one of the host\342\200\231s. Use an instance the host actually has."
-#define OMX_REPLY_HOST_INSTANCE_ALREADY_EXISTS "reply.host.instance-already-exists" ///< mod-host's ERR_INSTANCE_ALREADY_EXISTS: add asked for an instance number the host already has
-#define OMX_REPLY_HOST_INSTANCE_ALREADY_EXISTS_RESP (-2)
-#define OMX_REPLY_HOST_INSTANCE_ALREADY_EXISTS_TEXT_EN "That instance number is already taken. Add the plugin under a number the host does not have yet."
 #define OMX_REPLY_HOST_INSTANCE_NON_EXISTS "reply.host.instance-non-exists" ///< mod-host's ERR_INSTANCE_NON_EXISTS: an instance no add made
 #define OMX_REPLY_HOST_INSTANCE_NON_EXISTS_RESP (-3)
 #define OMX_REPLY_HOST_INSTANCE_NON_EXISTS_TEXT_EN "No add ever created that instance. Add it before using it."
-#define OMX_REPLY_HOST_URI_INVALID "reply.host.uri-invalid" ///< mod-host's ERR_LV2_INVALID_URI: add named a plugin the host does not find
-#define OMX_REPLY_HOST_URI_INVALID_RESP (-101)
-#define OMX_REPLY_HOST_URI_INVALID_TEXT_EN "The host finds no plugin by that name. Check the plugin is installed and its name is spelt as the scan lists it."
-#define OMX_REPLY_HOST_INSTANTIATION_FAILED "reply.host.instantiation-failed" ///< mod-host's ERR_LV2_INSTANTIATION: the plugin refused to start
-#define OMX_REPLY_HOST_INSTANTIATION_FAILED_RESP (-102)
-#define OMX_REPLY_HOST_INSTANTIATION_FAILED_TEXT_EN "The plugin was found but would not start. Try it again, or choose another plugin if it keeps refusing."
 #define OMX_REPLY_HOST_PARAM_SYMBOL_INVALID "reply.host.param-symbol-invalid" ///< mod-host's ERR_LV2_INVALID_PARAM_SYMBOL: a symbol that is not a parameter param_set takes, the plugin's own bypass included
 #define OMX_REPLY_HOST_PARAM_SYMBOL_INVALID_RESP (-103)
 #define OMX_REPLY_HOST_PARAM_SYMBOL_INVALID_TEXT_EN "That symbol is not one of this plugin\342\200\231s parameters, not even its bypass. Ask the plugin for its parameter list and use one of those symbols."
-#define OMX_REPLY_HOST_PRESET_URI_INVALID "reply.host.preset-uri-invalid" ///< mod-host's ERR_LV2_INVALID_PRESET_URI: a preset this plugin does not have, or a file it cannot take
-#define OMX_REPLY_HOST_PRESET_URI_INVALID_RESP (-104)
-#define OMX_REPLY_HOST_PRESET_URI_INVALID_TEXT_EN "That preset is not one this plugin can load. Choose a preset from the plugin\342\200\231s own list."
-#define OMX_REPLY_HOST_STATE_LOAD_FAILED "reply.host.state-load-failed" ///< mod-host's ERR_LV2_CANT_LOAD_STATE: the plugin refused its saved state
-#define OMX_REPLY_HOST_STATE_LOAD_FAILED_RESP (-105)
-#define OMX_REPLY_HOST_STATE_LOAD_FAILED_TEXT_EN "The plugin would not take its saved state back. Load another preset, or set its values again."
-#define OMX_REPLY_HOST_JACK_CLIENT_CREATION "reply.host.jack-client-creation" ///< mod-host's ERR_JACK_CLIENT_CREATION: no audio client could be made for the plugin
-#define OMX_REPLY_HOST_JACK_CLIENT_CREATION_RESP (-201)
-#define OMX_REPLY_HOST_JACK_CLIENT_CREATION_TEXT_EN "The host could not connect the plugin to the audio server. Check the audio server is running, then add the plugin again."
-#define OMX_REPLY_HOST_JACK_CLIENT_ACTIVATION "reply.host.jack-client-activation" ///< mod-host's ERR_JACK_CLIENT_ACTIVATION: the plugin's audio client would not start
-#define OMX_REPLY_HOST_JACK_CLIENT_ACTIVATION_RESP (-202)
-#define OMX_REPLY_HOST_JACK_CLIENT_ACTIVATION_TEXT_EN "The plugin\342\200\231s audio connection would not start. Check the audio server is running, then add the plugin again."
-#define OMX_REPLY_HOST_JACK_CLIENT_DEACTIVATION "reply.host.jack-client-deactivation" ///< mod-host's ERR_JACK_CLIENT_DEACTIVATION: the plugin's audio client would not stop
-#define OMX_REPLY_HOST_JACK_CLIENT_DEACTIVATION_RESP (-203)
-#define OMX_REPLY_HOST_JACK_CLIENT_DEACTIVATION_TEXT_EN "The plugin\342\200\231s audio connection would not stop. Remove the plugin, or restart the audio server if it stays."
-#define OMX_REPLY_HOST_JACK_PORT_REGISTER "reply.host.jack-port-register" ///< mod-host's ERR_JACK_PORT_REGISTER: a port of the plugin could not be made
-#define OMX_REPLY_HOST_JACK_PORT_REGISTER_RESP (-204)
-#define OMX_REPLY_HOST_JACK_PORT_REGISTER_TEXT_EN "The host could not make one of the plugin\342\200\231s audio ports. Remove some plugins, then add this one again."
-#define OMX_REPLY_HOST_JACK_PORT_CONNECTION "reply.host.jack-port-connection" ///< mod-host's ERR_JACK_PORT_CONNECTION: two ports could not be connected
-#define OMX_REPLY_HOST_JACK_PORT_CONNECTION_RESP (-205)
-#define OMX_REPLY_HOST_JACK_PORT_CONNECTION_TEXT_EN "Those two ports could not be connected. Check both ports exist and carry the same kind of signal."
-#define OMX_REPLY_HOST_JACK_PORT_DISCONNECTION "reply.host.jack-port-disconnection" ///< mod-host's ERR_JACK_PORT_DISCONNECTION: two ports could not be disconnected
-#define OMX_REPLY_HOST_JACK_PORT_DISCONNECTION_RESP (-206)
-#define OMX_REPLY_HOST_JACK_PORT_DISCONNECTION_TEXT_EN "Those two ports could not be disconnected. Check they are connected to each other."
-#define OMX_REPLY_HOST_VALUE_OUT_OF_RANGE "reply.host.value-out-of-range" ///< mod-host's ERR_JACK_VALUE_OUT_OF_RANGE: a tempo or a beats-per-bar the transport does not take
-#define OMX_REPLY_HOST_VALUE_OUT_OF_RANGE_RESP (-207)
-#define OMX_REPLY_HOST_VALUE_OUT_OF_RANGE_TEXT_EN "That tempo or beats per bar is outside what the host accepts. Choose a value within the host\342\200\231s range."
-#define OMX_REPLY_HOST_EXTERNAL_UI_UNAVAILABLE "reply.host.external-ui-unavailable" ///< mod-host's ERR_EXTERNAL_UI_UNAVAILABLE: the plugin has no window of its own to show
-#define OMX_REPLY_HOST_EXTERNAL_UI_UNAVAILABLE_RESP (-404)
-#define OMX_REPLY_HOST_EXTERNAL_UI_UNAVAILABLE_TEXT_EN "This plugin has no window of its own to show. Use the host\342\200\231s controls for it instead."
 #define OMX_REPLY_HOST_MEMORY_ALLOCATION "reply.host.memory-allocation" ///< mod-host's ERR_MEMORY_ALLOCATION: the reply could not be built
 #define OMX_REPLY_HOST_MEMORY_ALLOCATION_RESP (-901)
 #define OMX_REPLY_HOST_MEMORY_ALLOCATION_TEXT_EN "The host ran out of memory while building the reply. Try again once memory is free."
