@@ -24,7 +24,7 @@ jobs:
     container: fedora:44
     steps:
       - name: clang, libFuzzer and the sanitizer runtimes
-        run: dnf -y install --setopt=install_weak_deps=False --setopt=retries=10 clang compiler-rt llvm gcc make git
+        run: dnf -y install --setopt=install_weak_deps=False --setopt=retries=10 clang compiler-rt llvm gcc make git diffutils
       - uses: actions/checkout@v4
       - name: Trust the checkout
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
