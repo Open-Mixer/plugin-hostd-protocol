@@ -114,7 +114,7 @@ jobs:
   protocol:
     needs: checks
     if: needs.checks.outputs.rpm-count != '0'
-    name: declared protocol (render, contract directory, schema, grammar)
+    name: declared protocol (render, contract directory, schema, grammar) (${{ matrix.cell.image }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
@@ -170,7 +170,7 @@ jobs:
 
   abi:
     needs: checks
-    name: ABI check (abidiff against abi/)
+    name: ABI check (abidiff against abi/) (${{ matrix.cell.image }})
     # the schedule is the render check alone (#27)
     if: (github.event_name != 'schedule') && needs.checks.outputs.rpm-count != '0'
     runs-on: ubuntu-latest
