@@ -32,7 +32,9 @@
  * every reader, so the triplets of all the architectures Debian ships a Pi on are listed instead of asking the machine
  * for one. The folders of one image (Zynthian's plugins and presets) are the site's: lv2_extra.
  *
- * CLAP is the standard search of clap/entry.h on Linux: $CLAP_PATH, then ~/.clap, then /usr/lib/clap. */
+ * CLAP is the standard search of clap/entry.h on Linux, $CLAP_PATH, then ~/.clap, then /usr/lib/clap, followed, as LV2 is,
+ * by the folders distributions install plugins in: /usr/local/lib/clap (the Raspberry Pi image's), /usr/lib64/clap
+ * (Fedora's) and /usr/local/lib64/clap. A first-use pin is learned only inside this path (plugin-hostd#82). */
 
 #define PHD_DEFAULT_LV2_PATH \
     "/usr/lib/lv2" \
@@ -42,6 +44,6 @@
     ":/usr/lib64/lv2:/usr/local/lib64/lv2"
 
 /* a leading ~ is the home of whoever reads the list */
-#define PHD_DEFAULT_CLAP_PATH "~/.clap:/usr/lib/clap"
+#define PHD_DEFAULT_CLAP_PATH "~/.clap:/usr/lib/clap:/usr/local/lib/clap:/usr/lib64/clap:/usr/local/lib64/clap"
 
 #endif
