@@ -45,9 +45,6 @@ jobs:
       # omx-contract's C headers, which the declared protocol's generator is built against, are the OpenMixer channel's
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
-        with:
-          # omx-contract 3.16.0 is staged and not yet served (#15)
-          staging: 'true'
       - name: omx-contract's headers, and omx-dsp's curve function
         run: |
           if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.16.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'; else
@@ -87,15 +84,19 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
-        with:
-          # the staging channel, above the real one: omx-contract 3.16.0 (catalog provenance, translate, the language
-          # list, #15) is staged and not yet served
-          staging: 'true'
       - name: omx-contract and omx-clap-core's and plugin-db's packages of the contract directory
         run: |
           set -euo pipefail
           dnf -y install 'omx-contract >= 3.16.0' 'omx-contract < 4' 'omx-contract-devel >= 3.16.0' 'omx-contract-devel < 4' omx-clap-core-contract 'plugin-db-contract >= 0.4.0' 'plugin-db-contract < 0.5' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
           if rpm -q plugin-hostd-contract; then echo "plugin-hostd-contract is installed: it declares the same items"; exit 1; fi
+      # an ordinary run renders and builds against what consumers get, the channel: name where each omx package came
+      # from, and refuse one from the staging channel (#27: a stale staged omx-clap-core-contract outranked the channel)
+      - name: Every contract package comes from the channel
+        run: |
+          set -euo pipefail
+          dnf repoquery --installed --qf '%{name} %{version} %{from_repo}\n' 'omx-*' 'plugin-db-contract' | tee /tmp/from-repo
+          grep -q '^omx-clap-core-contract .* openmixer' /tmp/from-repo || { echo "omx-clap-core-contract is not from the channel"; exit 1; }
+          if grep staging /tmp/from-repo; then echo "a package above came from the staging channel: an ordinary run builds against the channel"; exit 1; fi
       - name: The python ABNF parser
         run: |
           python3 -m venv /opt/abnf
