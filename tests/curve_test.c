@@ -91,7 +91,15 @@ static int b_sample_rate(int instance, double *rate)
     return SUCCESS;
 }
 
-static const host_backend_t g_backend = { .remove = b_remove, .param_set = b_param_set, .param_get = b_param_get };
+/* p30 (instance 4, display 4's band_freq) is a corrector's band; every other symbol carries no origin */
+static int b_param_origin(int instance, const char *symbol, int *origin)
+{
+    *origin = instance == 4 && strcmp(symbol, "p30") == 0 ? OMX_CURVE_ORIGINS_FBS_FIXED : OMX_CURVE_ORIGINS_USER;
+    return SUCCESS;
+}
+
+static const host_backend_t g_backend = { .remove = b_remove, .param_set = b_param_set, .param_get = b_param_get,
+                                           .param_origin = b_param_origin };
 static const host_curve_t g_curve = { .sample_rate = b_sample_rate };
 
 static void *server_thread(void *arg)
@@ -116,14 +124,20 @@ static void expect(conn_t *c, const char *what, const char *command, const char 
     printf("ok   %s '%.80s' -> '%.80s'\n", what, command, got);
 }
 
-/* the reply curve_points must give: omx_curve_points over the request, written as the verb writes it */
+/* the reply curve_points must give: omx_curve_points_marked over the request, written as the verb writes it */
 static void reply_of(const struct omx_curve_request *rq, char *out, size_t size)
 {
     double x[OMX_CURVE_POINTS_MAX], y[OMX_CURVE_POINTS_MAX];
+    struct omx_curve_mark marks[OMX_CURVE_BANDS_MAX];
+    struct omx_curve_extra ex;
     int code = -1;
-    uint32_t n = omx_curve_points(rq, x, y, OMX_CURVE_POINTS_MAX, &code);
+    uint32_t n;
     size_t pos;
 
+    memset(&ex, 0, sizeof(ex));
+    ex.marks = marks;
+    ex.mark_room = OMX_CURVE_BANDS_MAX;
+    n = omx_curve_points_marked(rq, x, y, OMX_CURVE_POINTS_MAX, &ex, &code);
     if (code != OMX_CURVE_OK)
     {
         snprintf(out, size, "omx_curve_points code %d", code);
@@ -142,6 +156,22 @@ static void reply_of(const struct omx_curve_request *rq, char *out, size_t size)
         else
             snprintf(xs, sizeof(xs), "%.*f", decimals, xv);
         pos += (size_t)snprintf(out + pos, size - pos, " %s,%.2f", xs, fabs(y[i]) < 0.005 ? 0.0 : y[i]);
+    }
+    pos += (size_t)snprintf(out + pos, size - pos, " %u", ex.nmarks);
+    for (uint32_t i = 0; i < ex.nmarks; i++)
+    {
+        char xs[32];
+        const struct omx_curve_mark *m = &ex.marks[i];
+        int decimals = m->freq_hz == 0.0 ? -1 : 3 - (int)floor(log10(fabs(m->freq_hz)));
+        double xv = m->freq_hz;
+        if (decimals < 0 && m->freq_hz != 0.0)
+            xv = round(m->freq_hz / pow(10.0, -decimals)) * pow(10.0, -decimals), decimals = 0;
+        if (m->freq_hz == 0.0)
+            snprintf(xs, sizeof(xs), "0");
+        else
+            snprintf(xs, sizeof(xs), "%.*f", decimals, xv);
+        pos += (size_t)snprintf(out + pos, size - pos, " %s,%.2f,%.2f,%s", xs, fabs(m->depth_db) < 0.005 ? 0.0 : m->depth_db,
+                                 m->q, OMX_CURVE_ORIGIN_WORDS[m->origin]);
     }
 }
 
@@ -263,6 +293,35 @@ int main(void)
         set(4, 2, NAN);
         expect(&c, "a gain that is not a number", "curve_points 4 1 64", "resp -542");
         set(4, 2, 2.0f);
+    }
+
+    /* -- a band a corrector planted (param_origin names it) draws a mark; one it did not names none */
+    set(4, 30, 1000.0f), set(4, 31, 6.0f), set(4, 32, 2.0f);
+    expect(&c, "bind a band a corrector planted",
+           "curve_bind 4 4 eq_response eq band_freq.0=p30:hz@bell band_gain.0=p31:db band_q.0=p32", "resp 0");
+    {
+        struct omx_curve_term t[] = {
+            {OMX_CURVE_ROLES_BAND_FREQ, 0, 1000.0f, OMX_CURVE_UNITS_HZ, OMX_CURVE_SHAPES_BELL, OMX_CURVE_ORIGINS_FBS_FIXED},
+            {OMX_CURVE_ROLES_BAND_GAIN, 0, 6.0f, OMX_CURVE_UNITS_DB, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+            {OMX_CURVE_ROLES_BAND_Q, 0, 2.0f, OMX_CURVE_UNITS_NONE, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+        };
+        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_EQ_RESPONSE, OMX_CURVE_FAMILIES_EQ, 48000.0, 40u, 0, 0, 0, t, 3u, 0};
+        expect_curve(&c, "the corrector's band marked", "curve_points 4 4 40", &rq);
+        set(4, 30, 2000.0f);
+        t[0].value = 2000.0f;
+        expect_curve(&c, "the mark follows the band's frequency", "curve_points 4 4 40", &rq);
+    }
+    set(4, 33, 500.0f);
+    expect(&c, "bind a band on p33: param_origin names it none",
+           "curve_bind 4 5 eq_response eq band_freq.0=p33:hz@bell band_gain.0=p31:db band_q.0=p32", "resp 0");
+    {
+        struct omx_curve_term t[] = {
+            {OMX_CURVE_ROLES_BAND_FREQ, 0, 500.0f, OMX_CURVE_UNITS_HZ, OMX_CURVE_SHAPES_BELL, OMX_CURVE_ORIGINS_USER},
+            {OMX_CURVE_ROLES_BAND_GAIN, 0, 6.0f, OMX_CURVE_UNITS_DB, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+            {OMX_CURVE_ROLES_BAND_Q, 0, 2.0f, OMX_CURVE_UNITS_NONE, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+        };
+        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_EQ_RESPONSE, OMX_CURVE_FAMILIES_EQ, 48000.0, 40u, 0, 0, 0, t, 3u, 0};
+        expect_curve(&c, "a plugin's own band draws no mark", "curve_points 4 5 40", &rq);
     }
 
     /* -- a head filter's slope from its declared enumeration: the choice value picks the dB per octave */
