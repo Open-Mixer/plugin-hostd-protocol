@@ -3,7 +3,7 @@ Version: 0.5.7
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
-URL: https://github.com/FreeMixer/plugin-hostd-protocol
+URL: https://github.com/Open-Mixer/plugin-hostd-protocol
 
 Source0: %{url}/archive/v%{version}/%{name}-%{version}.tar.gz
 

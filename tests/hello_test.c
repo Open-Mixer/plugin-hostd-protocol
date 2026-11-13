@@ -261,7 +261,7 @@ int main(void)
     expect(&c, "hello", "hello 1 errors", "resp 0 1 errors");
     expect(&c, "an error word", "param_get 9 gain", "resp -3 reply.host.instance-non-exists");
     expect(&c, "an error word", "refuse -902", "resp -902 reply.host.invalid-operation");
-    expect(&c, "no word declared", "refuse -2", "resp -2");
+    expect(&c, "no word declared", "refuse -4", "resp -4");
     expect(&c, "a refusal with values", "refuse -3 extra", "resp -3 extra");
     expect(&c, "a success", "param_get 3 gain", "resp 0 0.2500");
     expect(&c, "a parse refusal", "remove", "few arguments");
