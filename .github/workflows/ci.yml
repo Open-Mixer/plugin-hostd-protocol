@@ -56,17 +56,17 @@ jobs:
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
       - name: omx-contract's headers, and omx-dsp's curve function
         run: |
-          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'; else
+          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33'; else
             apt-get -y install --no-install-recommends libomx-contract-dev libomxdsp-dev
             v=$(dpkg-query -W -f='${Version}' libomx-contract-dev)
             dpkg --compare-versions "$v" ge 3.18.0~
             dpkg --compare-versions "$v" lt 4~
             v=$(dpkg-query -W -f='${Version}' libomxdsp-dev)
-            dpkg --compare-versions "$v" ge 0.32.0~
+            dpkg --compare-versions "$v" ge 0.32.1~
             dpkg --compare-versions "$v" lt 0.33~
           fi
           pkg-config --exists omx-contract
-          pkg-config --exists 'omxdsp >= 0.32.0'
+          pkg-config --exists 'omxdsp >= 0.32.1'
           pkg-config --exists 'omxdsp < 0.33'
       - name: Trust the checkout
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -96,7 +96,7 @@ jobs:
       - name: omx-contract and omx-clap-core's and plugin-db's packages of the contract directory
         run: |
           set -euo pipefail
-          dnf -y install 'omx-contract >= 3.18.0' 'omx-contract < 4' 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' omx-clap-core-contract 'plugin-db-contract >= 0.4.0' 'plugin-db-contract < 0.5' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
+          dnf -y install 'omx-contract >= 3.18.0' 'omx-contract < 4' 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' omx-clap-core-contract 'plugin-db-contract >= 0.4.4' 'plugin-db-contract < 0.5' 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33'
           if rpm -q plugin-hostd-contract; then echo "plugin-hostd-contract is installed: it declares the same items"; exit 1; fi
       # an ordinary run renders and builds against what consumers get, the channel: name where each omx package came
       # from, and refuse one from the staging channel (#27: a stale staged omx-clap-core-contract outranked the channel)
@@ -146,7 +146,7 @@ jobs:
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
       - name: omx-dsp's curve function
-        run: dnf -y install 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
+        run: dnf -y install 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33'
       - name: Exported symbols
         run: make test-abi
       - name: Types against the baseline
