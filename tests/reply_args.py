@@ -165,6 +165,11 @@ def main():
     for verb, line in (("plan", "resp 0 1,2;3"), ("plan_get", "resp 0 1,2 -")):
         if decode_reply(verb, line, table) is None:
             failures.append("%s: the reply of a daemon from before the cores, %r, has no form" % (verb, line))
+    # estimate's figures as the daemon writes them: whole frames, a finite percent, whole bytes or -, counts
+    for line in ("resp 0 192 24.00 1.5 2 1 -", "resp 0 - 24.00 - 2 1 -", "resp 0 192 nan - 2 1 -",
+                 "resp 0 192 24.00 - 2 1 -1:-544", "resp 0 192 24.00 - 2 1 1:x"):
+        if decode_reply("estimate", line, table) is not None:
+            failures.append("estimate: %r decodes" % line)
     # an instance is never negative
     if decode_reply("plan", "resp 0 -1 -", table) is not None:
         failures.append("plan: a negative instance, resp 0 -1 -, decodes")
