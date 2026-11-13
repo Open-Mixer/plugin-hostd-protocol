@@ -111,7 +111,7 @@ def main():
     types = table.get("arg_types", {})
     failures = []
     ours = [c for c in table["commands"] if c["origin"] in ("plugin-hostd", "plugin-hostd-protocol")]
-    typed = 0
+    typed = count_only = 0
     for c in ours:
         prose = c.get("reply") or ""
         placeholders = len(re.findall(r"<[^>]+>|\.\.\.", prose))
@@ -122,6 +122,7 @@ def main():
         if not forms:
             continue
         typed += 1
+        count_only += all(not f["args"] for f in forms)
         longest = max(forms, key=lambda f: len(f["args"]))
         # the prose's words after resp and its number, a standalone ... being the repetition and no word of its own
         prose_words = [w for w in prose.split(" ")[2:] if w != "..."]
@@ -135,7 +136,8 @@ def main():
             if decode_reply(c["verb"], line, table) is None:
                 failures.append("%s: the sample %r does not decode against %r" % (c["verb"], line, form))
     states = {s["name"] for s in table.get("worker_states", [])}
-    state_words = set(re.sub(r"^\(\?:|\)$", "", types.get("state", {}).get("pattern", "")).split("|"))
+    # the state type's pattern is written from PHD_WORKER_STATES: (?:<name>|...|(?!)), the last alternative never matching
+    state_words = set(re.sub(r"^\(\?:|\)$", "", types.get("state", {}).get("pattern", "")).split("|")) - {"(?!)"}
     if types.get("state") and state_words != states:
         failures.append("the state type's words are not the table's worker_states %s" % sorted(states))
     wl = next((c for c in ours if c["verb"] == "worker_list"), None)
@@ -152,12 +154,21 @@ def main():
                 failures.append("planted fault %s decodes: %s" % (name, line))
     else:
         failures.append("worker_list: no typed reply to plant faults in")
+    # the bare lists: a list decoder of its own is seen, apart from any record's pattern. A reply of nested lists
+    # decodes into lists of lists, and an item that is not of the list's type, or another separator, is refused
+    nested = decode_reply("plan_get", "resp 0 7,8;9 7:budget,9:plan-refused -;2,3", table)
+    if not nested or nested.get("segments") != [["7", "8"], ["9"]] or nested.get("cores") != [[], ["2", "3"]]:
+        failures.append("plan_get: 7,8;9 and -;2,3 are not read as lists of lists: %r" % (nested,))
+    for verb, line in (("plan_get", "resp 0 7,x;9 - -"), ("plan_get", "resp 0 7,8|9 - -"),
+                       ("estimate", "resp 0 128 12.5 - 2 1 0:-701,bad"), ("estimate", "resp 0 128 12.5 - 2 1 0;-701")):
+        if decode_reply(verb, line, table) is not None:
+            failures.append("planted fault in a bare list decodes: %s" % line)
     for f in failures:
         print("FAIL %s" % f)
     if failures:
         return 1
-    print("ok   %d replies of this repository's verbs are typed and named; each sample decodes; 3 planted faults "
-          "refused" % typed)
+    print("ok   %d replies of this repository's verbs are typed and named (%d with words, %d a count alone); each sample "
+          "decodes; nested lists read as lists; 7 planted faults refused" % (typed, typed - count_only, count_only))
     return 0
 
 

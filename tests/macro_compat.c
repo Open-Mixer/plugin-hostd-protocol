@@ -40,6 +40,18 @@ int main(void)
 #define X(verb, args) n += (unsigned)sizeof(verb args);
     PHD_COMMAND_FORMS(X)
 #undef X
+#define X(verb, resp, args) n += (unsigned)sizeof(verb resp args);
+    PHD_REPLY_ARGS(X)
+#undef X
+#define X(name, item, separator, none, spelling) n += (unsigned)sizeof(name item separator none spelling);
+    PHD_LIST_TYPES(X)
+#undef X
+#define X(name, separator, fields, spelling) n += (unsigned)sizeof(name separator fields spelling);
+    PHD_RECORD_TYPES(X)
+#undef X
+#define X(name, example) n += (unsigned)sizeof(name example);
+    PHD_ARG_EXAMPLES(X)
+#undef X
     printf("%u\n", n);
     return 0;
 }
