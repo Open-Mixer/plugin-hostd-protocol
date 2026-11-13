@@ -161,6 +161,13 @@ def main():
     nested = decode_reply("plan_get", "resp 0 7,8;9 7:budget,9:plan-refused -,-;-", table)
     if not nested or nested.get("segments") != [["7", "8"], ["9"]] or nested.get("cores") != [["-", "-"], ["-"]]:
         failures.append("plan_get: 7,8;9 and -,-;- are not read as lists of lists: %r" % (nested,))
+    # a daemon from before the cores (plugin-hostd#226) answers plan with its segments alone, plan_get without cores
+    for verb, line in (("plan", "resp 0 1,2;3"), ("plan_get", "resp 0 1,2 -")):
+        if decode_reply(verb, line, table) is None:
+            failures.append("%s: the reply of a daemon from before the cores, %r, has no form" % (verb, line))
+    # an instance is never negative
+    if decode_reply("plan", "resp 0 -1 -", table) is not None:
+        failures.append("plan: a negative instance, resp 0 -1 -, decodes")
     pinned = decode_reply("plan", "resp 0 7,8;9 2,-;3", table)
     if not pinned or pinned.get("cores") != [["2", "-"], ["3"]]:
         failures.append("plan: the cores 2,-;3, a member with a core and one with none, are not read: %r" % (pinned,))
