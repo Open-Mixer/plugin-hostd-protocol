@@ -18,10 +18,21 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # no Fedora release written into a job: the cells come from check-matrix (rule 11-10, ruling D25)
+  fedora-cells:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/workflows
+      - uses: Open-Mixer/.github/.github/actions/fedora-cells@openmixer-v1
+
   test:
-    name: build + test (${{ matrix.image }})
+    needs: checks
+    name: build + test (${{ matrix.cell.image }})
     # the schedule is the render check alone (#27)
-    if: github.event_name != 'schedule'
+    if: github.event_name != 'schedule' && needs.checks.outputs.count != '0'
     runs-on: ubuntu-latest
     # A backstop only.
     timeout-minutes: 20
@@ -30,11 +41,11 @@ jobs:
       matrix:
         # ruling D25: while the org's OMX_RELEASE_MATRIX is quick, CI covers the quick cells only; bookworm is a full
         # cell, served its floors only at the wave-end full release, so it joins the matrix when the variable is full
-        image: ${{ fromJSON(vars.OMX_RELEASE_MATRIX == 'full' && '["fedora:44", "debian:bookworm", "debian:trixie"]' || '["fedora:44", "debian:trixie"]') }}
+        cell: ${{ fromJSON(needs.checks.outputs.cells) }}
     # privileged only to lower the runner kernel's mmap_rnd_bits: with the hosted image's 32 bits, bookworm's gcc 12
     # AddressSanitizer dies in DEADLYSIGNAL loops or hangs until the timeout (newer libasan copes)
     container:
-      image: ${{ matrix.image }}
+      image: ${{ matrix.cell.image }}
       options: --privileged
     steps:
       - name: Address space randomisation AddressSanitizer can run under
@@ -75,16 +86,43 @@ jobs:
       - name: Tests (protocol, golden, install, symbols, version, the generated protocol and its sabotage)
         run: make test
 
+  # the cells test, protocol and abi run: check-matrix's answer (rule 11-10: fc45 beside fc44;
+  # the quick set while a release wave is open, the whole matrix declared here otherwise)
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      rpm: ${{ steps.m.outputs.rpm }}
+      rpm-count: ${{ steps.m.outputs.rpm-count }}
+      cells: ${{ steps.m.outputs.cells }}
+      count: ${{ steps.m.outputs.count }}
+    steps:
+      - id: m
+        uses: Open-Mixer/.github/.github/actions/check-matrix@openmixer-v1
+        with:
+          wave: ${{ vars.OMX_RELEASE_MATRIX }}
+          rpm-releases: '["44", "45"]'
+          rpm-arches: '["x86_64"]'
+          deb-releases: '["bookworm", "trixie"]'
+          deb-arches: '["amd64"]'
+
   # The declared protocol with the tools a package build does not carry: the rendered headers are what the installed
   # omx-contract renders from data/verbs.json and from omx-clap-core's package (and a header changed by hand is red), the
   # staged contract package validates, protocol/plugin-hostd.json satisfies its schema, and the grammar holds the
   # scenario corpus, the golden transcript and the table, read by python's abnf parser (and a broken rule is red).
   # plugin-hostd-contract before 0.16.0 declares the same items, so it is not installed here.
   protocol:
-    name: declared protocol (render, contract directory, schema, grammar)
+    needs: checks
+    if: needs.checks.outputs.rpm-count != '0'
+    name: declared protocol (render, contract directory, schema, grammar) (${{ matrix.cell.image }})
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    container: fedora:44
+    strategy:
+      fail-fast: false
+      matrix:
+        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
+    container:
+      image: ${{ matrix.cell.image }}
     steps:
       - name: Toolchain
         run: dnf -y install gcc make git pkgconf-pkg-config diffutils python3 python3-jsonschema python3-pyyaml
@@ -131,12 +169,18 @@ jobs:
           gate: make check-catalogs
 
   abi:
-    name: ABI check (abidiff against abi/)
+    needs: checks
+    name: ABI check (abidiff against abi/) (${{ matrix.cell.image }})
     # the schedule is the render check alone (#27)
-    if: github.event_name != 'schedule'
+    if: (github.event_name != 'schedule') && needs.checks.outputs.rpm-count != '0'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    container: fedora:44
+    strategy:
+      fail-fast: false
+      matrix:
+        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
+    container:
+      image: ${{ matrix.cell.image }}
     steps:
       - name: Toolchain
         run: dnf -y install gcc make git pkgconf-pkg-config diffutils binutils gawk libabigail
