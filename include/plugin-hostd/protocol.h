@@ -1157,6 +1157,11 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_GESTURE_END   "end"
 
 #define PHD_EVENT_SUSPECT_PREFIX "suspect:"
+/* the state type's pattern, written from PHD_WORKER_STATES: each name an alternative, the last alternative (?!) one
+ * that never matches, so the list needs no separator after its last name */
+#define PHD_STATE_ALTERNATIVE(id, name, meaning) name "|"
+#define PHD_STATE_PATTERN "(?:" PHD_WORKER_STATES(PHD_STATE_ALTERNATIVE) "(?!))"
+
 /* how a worker ended, the third word of worker_died: exit:<status> or signal:<number> */
 #define PHD_EVENT_EXIT_PREFIX   "exit:"
 #define PHD_EVENT_SIGNAL_PREFIX "signal:"
@@ -1186,7 +1191,7 @@ static inline int phd_is_note_verb(const char *verb)
     X(MEMBER, "member", "[0-9]+" PHD_WORKER_PIN_REFUSED "?", 0, \
       "an instance a worker holds, followed by " PHD_WORKER_PIN_REFUSED " when the pins read again refuse its files") \
     X(WORKER_OR_NONE, "worker-or-none", PHD_WORD_NONE "|w[0-9]+", 0, "a worker, w<k>, or " PHD_WORD_NONE " for none") \
-    X(STATE, "state", "(?:up|starting|backoff|given-up)", 0, "a worker's state, a name of PHD_WORKER_STATES") \
+    X(STATE, "state", PHD_STATE_PATTERN, 0, "a worker's state, a name of PHD_WORKER_STATES") \
     X(PLACE, "place", PHD_PLACE_OWN "|" PHD_PLACE_DEFAULT "|" PHD_PLACE_POOL_PREFIX "[" PHD_POOL_NAME_CLASS "]{" \
       PHD_STR(PHD_POOL_NAME_MIN) "," PHD_STR(PHD_POOL_NAME_MAX) "}(?:" PHD_POOL_SIBLING_SEPARATOR "[0-9]+)?|" \
       PHD_PLACE_CHAIN_PREFIX "[0-9]+(?:\\" PHD_PLACE_PLAN_SEPARATOR "[0-9]+)?", 0, \

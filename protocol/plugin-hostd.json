@@ -284,7 +284,7 @@
     {"name": "placement", "pattern": "own|default|pool:[A-Za-z0-9_-]{1,32}|chain:[0-9]+", "rest": false, "spelling": "a placement, own | pool:<name> | chain:<chain> | default"},
     {"name": "member", "pattern": "[0-9]+!?", "rest": false, "spelling": "an instance a worker holds, followed by ! when the pins read again refuse its files"},
     {"name": "worker-or-none", "pattern": "-|w[0-9]+", "rest": false, "spelling": "a worker, w<k>, or - for none"},
-    {"name": "state", "pattern": "(?:up|starting|backoff|given-up)", "rest": false, "spelling": "a worker's state, a name of PHD_WORKER_STATES"},
+    {"name": "state", "pattern": "(?:up|starting|backoff|given-up|(?!))", "rest": false, "spelling": "a worker's state, a name of PHD_WORKER_STATES"},
     {"name": "place", "pattern": "own|default|pool:[A-Za-z0-9_-]{1,32}(?:#[0-9]+)?|chain:[0-9]+(?:\\.[0-9]+)?", "rest": false, "spelling": "where a worker runs: a placement, a full pool's sibling <name>#<n>, or a plan's segment chain:<plan>.<k>"},
     {"name": "figure", "pattern": "-|-?[0-9]+(?:\\.[0-9]+)?", "rest": false, "spelling": "a number, or - when there is none"},
     {"name": "number", "pattern": "-?[0-9]+(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?", "rest": false, "spelling": "a decimal number"},

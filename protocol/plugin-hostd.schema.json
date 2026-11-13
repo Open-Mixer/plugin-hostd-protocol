@@ -584,7 +584,8 @@
             "type": "string"
           },
           "pattern": {
-            "type": "string"
+            "type": "string",
+            "description": "A regular expression a whole word must match, in the dialect ECMAScript and PCRE (Python re) share: groups never capture, written (?:...), so a composite's pattern composes its parts and a record's pattern, its fields each wrapped in a capturing group by the reader, captures them in order; no named group, no backreference, no lookbehind, no flag; (?!) is the alternative that never matches."
           },
           "rest": {
             "type": "boolean"
