@@ -1235,7 +1235,7 @@ static inline int phd_is_note_verb(const char *verb)
  * X(name, item, separator, none, spelling) and X(name, separator, fields, spelling) */
 #define PHD_LIST_TYPES(X) \
     X("members", "member", ",", PHD_WORD_NONE, "the instances a worker holds, in order") \
-    X("instance-list", "int", ",", PHD_WORD_NONE, "instance numbers, in order") \
+    X("instance-list", "uint", ",", PHD_WORD_NONE, "instance numbers, in order") \
     X("core-list", "core", ",", "", "each member's core, in the segment's order") \
     X("segments", "instance-list", ";", "", "a plan's segments, each its instances") \
     X("core-segments", "core-list", ";", "", "each segment's cores") \
@@ -1256,7 +1256,9 @@ static inline int phd_is_note_verb(const char *verb)
 
 /* The replies of this tree's verbs, typed and named (#19): X(verb, resp, args), resp 0, or count when the reply's
  * number counts (the words a last repeated argument gives, when it has one); args as PHD_EVENT_ARGS writes them, a
- * last one name:type... repeated over the rest of the line. A verb may have more than one row, a form each. */
+ * last one name:type... repeated over the rest of the line. A verb may have more than one row, a form each: plan's and
+ * plan_get's without cores are the replies of a daemon from before plugin-hostd#226, estimate's six words an older
+ * daemon's. */
 #define PHD_REPLY_ARGS(X) \
     X(OMX_VERB_WORKER_LIST, "count", "workers:worker-record...") \
     X(OMX_VERB_INSTANCE_INFO, "0", "worker:worker pid:int state:state crashes:uint quarantined:uint") \
@@ -1268,7 +1270,9 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_PRESET_GET, "0", "load_key:word name:word") \
     X(OMX_VERB_PRESET_SHOW, "0", "json:line") \
     X(OMX_VERB_HISTORY_GET, "0", "history:history") \
+    X(OMX_VERB_PLAN, "0", "segments:segments") \
     X(OMX_VERB_PLAN, "0", "segments:segments cores:core-segments") \
+    X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list") \
     X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list cores:core-segments") \
     X(OMX_VERB_ESTIMATE, "0", "latency_frames:int cpu_percent:figure ram_bytes:figure workers:uint unknown_count:uint " \
       "unknown:member-codes") \

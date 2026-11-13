@@ -332,7 +332,7 @@
   ],
   "list_types": [
     {"name": "members", "item": "member", "separator": ",", "none": "-", "spelling": "the instances a worker holds, in order"},
-    {"name": "instance-list", "item": "int", "separator": ",", "none": "-", "spelling": "instance numbers, in order"},
+    {"name": "instance-list", "item": "uint", "separator": ",", "none": "-", "spelling": "instance numbers, in order"},
     {"name": "core-list", "item": "core", "separator": ",", "none": "", "spelling": "each member's core, in the segment's order"},
     {"name": "segments", "item": "instance-list", "separator": ";", "none": "", "spelling": "a plan's segments, each its instances"},
     {"name": "core-segments", "item": "core-list", "separator": ";", "none": "", "spelling": "each segment's cores"},
@@ -359,7 +359,9 @@
     {"verb": "preset_get", "resp": "0", "args": "load_key:word name:word"},
     {"verb": "preset_show", "resp": "0", "args": "json:line"},
     {"verb": "history_get", "resp": "0", "args": "history:history"},
+    {"verb": "plan", "resp": "0", "args": "segments:segments"},
     {"verb": "plan", "resp": "0", "args": "segments:segments cores:core-segments"},
+    {"verb": "plan_get", "resp": "0", "args": "segments:segments reasons:reason-list"},
     {"verb": "plan_get", "resp": "0", "args": "segments:segments reasons:reason-list cores:core-segments"},
     {"verb": "estimate", "resp": "0", "args": "latency_frames:int cpu_percent:figure ram_bytes:figure workers:uint unknown_count:uint unknown:member-codes"},
     {"verb": "estimate", "resp": "0", "args": "latency_frames:int cpu_percent:figure ram_bytes:figure workers:uint unknown_count:uint unknown:member-codes ram_used_bytes:figure ram_added_bytes:figure ram_budget_bytes:figure ram_unknown_count:uint"},
