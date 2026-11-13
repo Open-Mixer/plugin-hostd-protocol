@@ -122,13 +122,16 @@ def table():
         host_codes[parts[0] + "".join(x.capitalize() for x in parts[1:])] = int(m.group(3))
         words.setdefault(int(m.group(3)), set()).add(m.group(2))
     phd_codes = {k: v["resp"] for k, v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].items()}
+    # a refusal the same request may be taken past later (#23, D22): the code's own property, never a list of names
+    transient = {v["code"] for v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].values() if v.get("transient") is True}
     for v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].values():
         words.setdefault(v["resp"], set()).add(v["code"])
     # the word an error word answer carries after a refusal's number: one word a number, or the table is not written
     for resp, w in words.items():
         if len(w) > 1:
             fail(f"resp {resp} is declared as more than one code: {', '.join(sorted(w))}")
-    reply_codes = [{"resp": r, "code": next(iter(w))} for r, w in sorted(words.items(), reverse=True)]
+    reply_codes = [{"resp": r, "code": next(iter(w)), **({"transient": True} if next(iter(w)) in transient else {})}
+                   for r, w in sorted(words.items(), reverse=True)]
 
     def resolve(ref):
         group, name = ref.split(".", 1)

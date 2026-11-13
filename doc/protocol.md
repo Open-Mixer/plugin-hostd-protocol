@@ -8,7 +8,7 @@ The plugin-hostd protocol
 
 The plugin-hostd protocol is a superset of mod-host's text protocol: any mod-host client works unchanged.
 
-Protocol `plugin-hostd`, version 1 of its JSON declaration (`protocol/plugin-hostd.json`); mod-host's protocol as the daemon models it is `protocol/mod-host.json`, version 1, written from the mod-host headers `mod-host.h`, `protocol.h`, `host-errors.h` the daemon is built against. The verbs the daemon adds are declared in `data/verbs.json` (since 0.12.0, requiring omx-contract-schema >= 3.12.0, omx-clap-core >= 0.30.5).
+Protocol `plugin-hostd`, version 1 of its JSON declaration (`protocol/plugin-hostd.json`); mod-host's protocol as the daemon models it is `protocol/mod-host.json`, version 1, written from the mod-host headers `mod-host.h`, `protocol.h`, `host-errors.h` the daemon is built against. The verbs the daemon adds are declared in `data/verbs.json` (since 0.12.0, requiring omx-contract-schema >= 3.18.0, omx-clap-core >= 0.30.5).
 
 1. Transport
 ------------
@@ -734,55 +734,55 @@ The codes omx-clap-host answers too (omx-clap-core's `reply.host.*`):
 | -901 | `reply.host.memory-allocation` | mod-host's ERR_MEMORY_ALLOCATION: the reply could not be built |
 | -902 | `reply.host.invalid-operation` | mod-host's ERR_INVALID_OPERATION: a word outside the verb's grammar, or a verb the host refuses on purpose |
 
-The codes the daemon adds:
+The codes the daemon adds. A transient one says nothing about the plugin or the request: the same request may be taken later, and a client asks the code's `transient` in the table's `reply_codes`, never a list of names (#23):
 
-| resp | name | meaning |
-|---|---|---|
-| -501 | `PLACEMENT_INVALID` | placement invalid: not a placement, or not valid here, as a pool:<name> for a plugin of a format whose pin holds only in a world of the plugin's own, while require_pins is on |
-| -502 | `NO_BACKEND` | no worker program for the scheme |
-| -503 | `WORKER_SPAWN` | the worker is not up: the spawn failed, or it is in backoff; ask again after instance_restored |
-| -504 | `REPLAY` | the name of a refused replay, never a reply: a replayed add that its pin or the worker refuses is announced by the instance_replay_refused event with the refusal's own code, and written to stderr with this one and the step that refused it |
-| -505 | `GAVE_UP` | the storm bound is spent for that placement |
-| -506 | `NO_SUCH_WORKER` | no such worker |
-| -507 | `VERB_DROPPED` | the worker died on this very command and the daemon dropped it: it is not replayed, and the instance_verb_dropped event names it; or it died on, or did not answer in rpc_timeout_ms, the pin_expect of an add, which is then never forwarded |
-| -508 | `PIN_ABSENT` | pin_mode strict and the plugin has no pin, or its layout pin is in a scheme this version does not know: add is refused and no worker sees it |
-| -509 | `PIN_BINARY_MISMATCH` | a pinned file is missing or its SHA-256 differs, or the plugin's manifest names a file the pin does not hold: add is refused and no worker sees it |
-| -510 | `PIN_LAYOUT_MISMATCH` | the worker found the parameter layout after init differs from the layout pin: the instance is destroyed before activate |
-| -511 | `NO_PARAM_CONTRACT` | the host holds no checked unit and scale for this parameter: fall back to qualification |
-| -512 | `LV2_ADAPTER_REFUSED` | the lv2-clap worker's LV2 adapter cannot run this plugin (MIDI it does not feed, a required feature it lacks, a layout it does not take): the worker answered the add -102, the lv2_adapter_refused event carries the hosting.* code of that reply; the plugin is never handed to another host; a plugin no bundle of the worker's world holds is no refusal: the worker's -101 is answered |
-| -513 | `NO_NOTE_INPUT` | the instance's plugin takes no notes (an effect): its worker answers note_on, note_off and all_notes_off with this code |
-| -514 | `NOTES_BY_JACK` | the instance's worker takes no notes on its socket (mod-host): the daemon answers the note verbs and note_input with this code, and the plugin is played through its jack MIDI input with connect |
-| -515 | `NO_PRESET_LIST` | the instance's worker cannot list the plugin's presets (mod-host): the daemon answers preset_list and preset_get with this code; preset_load still takes a preset the controller knows |
-| -516 | `PIN_REFUSED` | the plugin's pin carries verdict=refused: its files are the ones that failed qualification, so add is refused and no worker sees it, and a replayed add is refused the same way; files that differ from the pin answer (-509) first. A pins_dir pin of that verdict is not overridden by the host's pins: pin_set of its plugin answers this code. Only the user's pin_accept under pin_mode first-use loads it, alone |
-| -517 | `NOTE_QUEUE_FULL` | the instance's worker has no room for this note_on, note_off or all_notes_off before its next block: the line was not taken and nothing of it is kept; the controller may send it again |
-| -518 | `CHAIN_UNKNOWN_INSTANCE` | a member of chain is an instance no add made: the chain is not declared |
-| -519 | `CHAIN_DUPLICATE` | an instance is named twice in one chain: the chain is not declared |
-| -520 | `CHAIN_INSTANCE_BUSY` | a member of chain is already in another chain: the chain is not declared; chain_clear of the other chain frees it |
-| -521 | `CHAIN_MIXED_FORMAT` | the members of chain are not all run by one worker program, or are of two rows of one program and a row does not run chains in one client, so no one worker runs them: the chain is not declared |
-| -522 | `NO_SUCH_CHAIN` | chain_clear or chain_get of a chain no chain declared |
-| -523 | `PRESET_NOT_OFFERED` | the worker: preset_load or preset_show of a stable name the plugin does not offer, or of a plugin with no preset system and no state |
-| -524 | `PRESET_INVALID` | preset_save with a file path that is not absolute or with no name, or preset_load or preset_show of a file that cannot be read, is no JSON, is of a format version other than org.openmixer.preset/1 and org.openmixer.preset/2, or breaks the format (docs/presets.md): the daemon answers it and no worker sees the file |
-| -525 | `PRESET_NEEDS_STATE` | the worker: a preset file that carries state for a worker that cannot take state yet |
-| -526 | `PRESET_PLUGIN_CHANGED` | the worker: the preset file's plugin id, version or fingerprint is not the instance's; nothing of it is applied |
-| -527 | `LOAD_REFUSED` | the worker: the plugin refused the preset or the state its file carries |
-| -544 | `PRESET_NOT_APPLIED` | the worker: the plugin took the preset and had not run once since when the host's wait for that ran out |
-| -528 | `DIR_NOT_WRITABLE` | descriptor_dir or qualification_dir cannot be made or written: the daemon does not start, and says which key and which path on stderr with this code; a directory that turns read-only later makes the scan of an add write nothing, and descriptor_get and panel_get of that plugin answer this code |
-| -529 | `DESCRIPTOR_ABSENT` | descriptor_get (panel_get) of a plugin that has no descriptor (panel) in descriptor_dir for its binary as it is now, and none being written: no add since it changed, or a binary that cannot be found |
-| -530 | `DESCRIPTOR_PENDING` | descriptor_get (panel_get) of a plugin whose scan, started by its add, has not written its descriptor (panel) yet: ask again |
-| -531 | `DESCRIPTOR_SCAN_FAILED` | descriptor_get (panel_get) of a plugin whose last scan wrote no descriptor (panel): the scanner refused the plugin, made no dump or no panel, or is not installed; the add it ran for stands, and stderr and the scan's log say why. The next add scans again |
-| -532 | `NO_SUCH_PLAN` | plan_get or plan_clear of a chain no plan planned |
-| -533 | `NO_RECORD` | a member of estimate that no qualification record in qualification_dir names: never a reply, the code of the member in the reply's list |
-| -534 | `NO_CELL` | a member of estimate whose qualification records hold no point of the grid at that rate and quantum with a cost and a latency: never a reply, the code of the member in the reply's list |
-| -535 | `UNKNOWN_PLUGIN` | a member of estimate whose uri names no plugin installed here (its format cannot tell the plugin's binary, or the binary is not there): never a reply, the code of the member in the reply's list |
-| -536 | `CURVE_KIND_UNKNOWN` | curve_bind of a family with no closed form for the display's kind, or curve_points of a binding whose values pick a band shape or a head filter slope with no closed form: no curve is drawn |
-| -537 | `CURVE_TERM_MISSING` | curve_points of a display with no binding, or of a binding that lacks a term the model needs (a band's frequency, shape or Q, a threshold, a ratio, a gate's range): no curve is drawn from a guess |
-| -538 | `CURVE_UNIT_REFUSED` | curve_bind of a term in a unit its role does not take: nothing of the line is kept |
-| -539 | `CURVE_POINTS_RANGE` | curve_points of fewer than 2 points or more than a curve carries, three anchors a drawn band counted, or of a band index past what fits |
-| -540 | `DURABLE_WRITE_FAILED` | the daemon's writer thread could not write the file the verb changes (history_clear, pin_clear, pin_accept): the change is not on disk, and stderr names the path and the error |
-| -541 | `WRITER_QUEUE_FULL` | the daemon's writer queue holds its most writes or bytes: the write the verb needs is refused and nothing of the verb changed; the controller may send it again |
-| -542 | `CURVE_VALUE_NOT_FINITE` | curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn |
-| -543 | `OUTPUT_NOT_MONITORED` | monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier |
-| -545 | `LABEL_INVALID` | node_label of a label longer than PHD_NODE_LABEL_MAX bytes or not UTF-8: the node keeps the label it had |
+| resp | name | transient | meaning |
+|---|---|---|---|
+| -501 | `PLACEMENT_INVALID` |  | placement invalid: not a placement, or not valid here, as a pool:<name> for a plugin of a format whose pin holds only in a world of the plugin's own, while require_pins is on |
+| -502 | `NO_BACKEND` |  | no worker program for the scheme |
+| -503 | `WORKER_SPAWN` | yes | the worker is not up: the spawn failed, or it is in backoff; ask again after instance_restored |
+| -504 | `REPLAY` |  | the name of a refused replay, never a reply: a replayed add that its pin or the worker refuses is announced by the instance_replay_refused event with the refusal's own code, and written to stderr with this one and the step that refused it |
+| -505 | `GAVE_UP` | yes | the storm bound is spent for that placement |
+| -506 | `NO_SUCH_WORKER` |  | no such worker |
+| -507 | `VERB_DROPPED` | yes | the worker died on this very command and the daemon dropped it: it is not replayed, and the instance_verb_dropped event names it; or it died on, or did not answer in rpc_timeout_ms, the pin_expect of an add, which is then never forwarded |
+| -508 | `PIN_ABSENT` |  | pin_mode strict and the plugin has no pin, or its layout pin is in a scheme this version does not know: add is refused and no worker sees it |
+| -509 | `PIN_BINARY_MISMATCH` |  | a pinned file is missing or its SHA-256 differs, or the plugin's manifest names a file the pin does not hold: add is refused and no worker sees it |
+| -510 | `PIN_LAYOUT_MISMATCH` |  | the worker found the parameter layout after init differs from the layout pin: the instance is destroyed before activate |
+| -511 | `NO_PARAM_CONTRACT` |  | the host holds no checked unit and scale for this parameter: fall back to qualification |
+| -512 | `LV2_ADAPTER_REFUSED` |  | the lv2-clap worker's LV2 adapter cannot run this plugin (MIDI it does not feed, a required feature it lacks, a layout it does not take): the worker answered the add -102, the lv2_adapter_refused event carries the hosting.* code of that reply; the plugin is never handed to another host; a plugin no bundle of the worker's world holds is no refusal: the worker's -101 is answered |
+| -513 | `NO_NOTE_INPUT` |  | the instance's plugin takes no notes (an effect): its worker answers note_on, note_off and all_notes_off with this code |
+| -514 | `NOTES_BY_JACK` |  | the instance's worker takes no notes on its socket (mod-host): the daemon answers the note verbs and note_input with this code, and the plugin is played through its jack MIDI input with connect |
+| -515 | `NO_PRESET_LIST` |  | the instance's worker cannot list the plugin's presets (mod-host): the daemon answers preset_list and preset_get with this code; preset_load still takes a preset the controller knows |
+| -516 | `PIN_REFUSED` | yes | the plugin's pin carries verdict=refused: its files are the ones that failed qualification, so add is refused and no worker sees it, and a replayed add is refused the same way; files that differ from the pin answer (-509) first. A pins_dir pin of that verdict is not overridden by the host's pins: pin_set of its plugin answers this code. Only the user's pin_accept under pin_mode first-use loads it, alone |
+| -517 | `NOTE_QUEUE_FULL` |  | the instance's worker has no room for this note_on, note_off or all_notes_off before its next block: the line was not taken and nothing of it is kept; the controller may send it again |
+| -518 | `CHAIN_UNKNOWN_INSTANCE` |  | a member of chain is an instance no add made: the chain is not declared |
+| -519 | `CHAIN_DUPLICATE` |  | an instance is named twice in one chain: the chain is not declared |
+| -520 | `CHAIN_INSTANCE_BUSY` |  | a member of chain is already in another chain: the chain is not declared; chain_clear of the other chain frees it |
+| -521 | `CHAIN_MIXED_FORMAT` |  | the members of chain are not all run by one worker program, or are of two rows of one program and a row does not run chains in one client, so no one worker runs them: the chain is not declared |
+| -522 | `NO_SUCH_CHAIN` |  | chain_clear or chain_get of a chain no chain declared |
+| -523 | `PRESET_NOT_OFFERED` |  | the worker: preset_load or preset_show of a stable name the plugin does not offer, or of a plugin with no preset system and no state |
+| -524 | `PRESET_INVALID` |  | preset_save with a file path that is not absolute or with no name, or preset_load or preset_show of a file that cannot be read, is no JSON, is of a format version other than org.openmixer.preset/1 and org.openmixer.preset/2, or breaks the format (docs/presets.md): the daemon answers it and no worker sees the file |
+| -525 | `PRESET_NEEDS_STATE` |  | the worker: a preset file that carries state for a worker that cannot take state yet |
+| -526 | `PRESET_PLUGIN_CHANGED` |  | the worker: the preset file's plugin id, version or fingerprint is not the instance's; nothing of it is applied |
+| -527 | `LOAD_REFUSED` |  | the worker: the plugin refused the preset or the state its file carries |
+| -544 | `PRESET_NOT_APPLIED` |  | the worker: the plugin took the preset and had not run once since when the host's wait for that ran out |
+| -528 | `DIR_NOT_WRITABLE` |  | descriptor_dir or qualification_dir cannot be made or written: the daemon does not start, and says which key and which path on stderr with this code; a directory that turns read-only later makes the scan of an add write nothing, and descriptor_get and panel_get of that plugin answer this code |
+| -529 | `DESCRIPTOR_ABSENT` |  | descriptor_get (panel_get) of a plugin that has no descriptor (panel) in descriptor_dir for its binary as it is now, and none being written: no add since it changed, or a binary that cannot be found |
+| -530 | `DESCRIPTOR_PENDING` |  | descriptor_get (panel_get) of a plugin whose scan, started by its add, has not written its descriptor (panel) yet: ask again |
+| -531 | `DESCRIPTOR_SCAN_FAILED` |  | descriptor_get (panel_get) of a plugin whose last scan wrote no descriptor (panel): the scanner refused the plugin, made no dump or no panel, or is not installed; the add it ran for stands, and stderr and the scan's log say why. The next add scans again |
+| -532 | `NO_SUCH_PLAN` |  | plan_get or plan_clear of a chain no plan planned |
+| -533 | `NO_RECORD` |  | a member of estimate that no qualification record in qualification_dir names: never a reply, the code of the member in the reply's list |
+| -534 | `NO_CELL` |  | a member of estimate whose qualification records hold no point of the grid at that rate and quantum with a cost and a latency: never a reply, the code of the member in the reply's list |
+| -535 | `UNKNOWN_PLUGIN` |  | a member of estimate whose uri names no plugin installed here (its format cannot tell the plugin's binary, or the binary is not there): never a reply, the code of the member in the reply's list |
+| -536 | `CURVE_KIND_UNKNOWN` |  | curve_bind of a family with no closed form for the display's kind, or curve_points of a binding whose values pick a band shape or a head filter slope with no closed form: no curve is drawn |
+| -537 | `CURVE_TERM_MISSING` |  | curve_points of a display with no binding, or of a binding that lacks a term the model needs (a band's frequency, shape or Q, a threshold, a ratio, a gate's range): no curve is drawn from a guess |
+| -538 | `CURVE_UNIT_REFUSED` |  | curve_bind of a term in a unit its role does not take: nothing of the line is kept |
+| -539 | `CURVE_POINTS_RANGE` |  | curve_points of fewer than 2 points or more than a curve carries, three anchors a drawn band counted, or of a band index past what fits |
+| -540 | `DURABLE_WRITE_FAILED` |  | the daemon's writer thread could not write the file the verb changes (history_clear, pin_clear, pin_accept): the change is not on disk, and stderr names the path and the error |
+| -541 | `WRITER_QUEUE_FULL` |  | the daemon's writer queue holds its most writes or bytes: the write the verb needs is refused and nothing of the verb changed; the controller may send it again |
+| -542 | `CURVE_VALUE_NOT_FINITE` |  | curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn |
+| -543 | `OUTPUT_NOT_MONITORED` |  | monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier |
+| -545 | `LABEL_INVALID` |  | node_label of a label longer than PHD_NODE_LABEL_MAX bytes or not UTF-8: the node keeps the label it had |
 
 5. JSON documents
 -----------------
