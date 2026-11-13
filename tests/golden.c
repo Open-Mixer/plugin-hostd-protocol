@@ -120,11 +120,13 @@ static int b_monitor_output(int instance, const char *symbol)
     record("monitor_output(%d,%s)", instance, symbol);
     return answer(instance);
 }
+#ifdef HOST_DISPATCH_HAS_MONITOR_OFF
 static int b_monitor_output_off(int instance, const char *symbol)
 {
     record("monitor_output_off(%d,%s)", instance, symbol);
     return answer(instance);
 }
+#endif
 static int b_track_info(int instance, const char *name, const char *color, const char *kind)
 {
     record("track_info(%d,%s,%s,%s)", instance, name, color, kind ? kind : "NULL");
