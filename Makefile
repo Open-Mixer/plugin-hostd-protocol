@@ -431,12 +431,12 @@ render-verbs check-rendered:
 	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
 	  $(OMX_CONTRACT) render --target c --package omx-clap-core --installed --out $$tmp; \
 	for f in omx_clap_core_host_verbs.h omx_clap_core_vocabulary.h; do \
-	  $(if $(filter check-rendered,$@),cmp -s $$tmp/$$f include/plugin-hostd/$$f || { echo "include/plugin-hostd/$$f is not the render of omx-clap-core's package" >&2; exit 1; },cp $$tmp/$$f include/plugin-hostd/$$f); \
+	  $(if $(filter check-rendered,$@),diff -u include/plugin-hostd/$$f $$tmp/$$f >&2 || { echo "include/plugin-hostd/$$f is not the render of omx-clap-core's package" >&2; exit 1; },cp $$tmp/$$f include/plugin-hostd/$$f); \
 	done
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
 	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
 	  $(OMX_CONTRACT) render --target c --package plugin-db --installed --out $$tmp; \
-	$(if $(filter check-rendered,$@),cmp -s $$tmp/plugin_db_vocabulary.h include/plugin-hostd/plugin_db_vocabulary.h || { echo "include/plugin-hostd/plugin_db_vocabulary.h is not the render of plugin-db's package" >&2; exit 1; },cp $$tmp/plugin_db_vocabulary.h include/plugin-hostd/plugin_db_vocabulary.h); \
+	$(if $(filter check-rendered,$@),diff -u include/plugin-hostd/plugin_db_vocabulary.h $$tmp/plugin_db_vocabulary.h >&2 || { echo "include/plugin-hostd/plugin_db_vocabulary.h is not the render of plugin-db's package" >&2; exit 1; },cp $$tmp/plugin_db_vocabulary.h include/plugin-hostd/plugin_db_vocabulary.h); \
 	echo "the rendered headers are current"
 
 check-schema:
