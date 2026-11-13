@@ -24,7 +24,7 @@ jobs:
     container: fedora:44
     steps:
       - name: clang, libFuzzer and the sanitizer runtimes
-        run: dnf -y install --setopt=install_weak_deps=False --setopt=retries=10 clang compiler-rt llvm gcc make git
+        run: dnf -y install --setopt=install_weak_deps=False --setopt=retries=10 clang compiler-rt llvm gcc make git diffutils
       - uses: actions/checkout@v4
       - name: Trust the checkout
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -32,6 +32,10 @@ jobs:
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
       - name: omx-dsp's curve function, which the dispatcher draws with
         run: dnf -y install 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
+      # a scenario or a generator change not followed by make fuzz-corpus is red in its own pull request (#33); after the
+      # dependencies, which the Makefile asks pkg-config for when it is read
+      - name: The seed corpus is what fuzz/gen-corpus.sh writes
+        run: make fuzz-corpus-check
       - name: Build the harnesses
         run: make fuzz
       - name: Every check's mutant record is met on its own seed

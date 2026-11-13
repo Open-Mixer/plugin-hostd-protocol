@@ -1,1 +1,1 @@
-remote_page_get 9 0
+preset_save 9 probe /tmp/state probe.ttl

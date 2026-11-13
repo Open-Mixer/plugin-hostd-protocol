@@ -107,3 +107,8 @@ hello 1 tags no_such_extension => resp 0 1 tags | resp -902 | not found
 @hello @s1 param_get 9 $PARAM => @s1 resp -3
 @hello hello 1 => resp 0 1
 hello 0 tags => resp -902 | not found
+
+# preset_save names the instance first: with none at 9 it is refused before anything is written (mod-host answers
+# its ERR_INSTANCE_INVALID, -1); a host that does not save presets answers -902. Last in the list, so the golden
+# transcripts keep the numbering of every exchange before it.
+preset_save 9 probe $DIR probe.ttl => resp -3 | resp -1 | resp -902

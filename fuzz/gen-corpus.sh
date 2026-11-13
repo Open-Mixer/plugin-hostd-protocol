@@ -2,6 +2,10 @@
 # Writes the seed corpora into $1 (default fuzz/corpus): one file per seed, named by what it is. Seeds come
 # from tests/host-scenarios.txt and from the verbs of the protocol, never from a network capture.
 set -eu
+# the seeds are numbered in sort's order, which is the locale's collation: every machine writes the same corpus only
+# in one locale, C, byte order (a UTF-8 locale and C put "#FF800" and "- aux" in opposite orders)
+LC_ALL=C
+export LC_ALL
 out=${1:-fuzz/corpus}
 scen=tests/host-scenarios.txt
 
