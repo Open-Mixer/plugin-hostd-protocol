@@ -483,6 +483,14 @@ fuzz-run: fuzz
 fuzz-corpus:
 	sh fuzz/gen-corpus.sh fuzz/corpus
 
+# the committed seed corpus is what fuzz/gen-corpus.sh writes from the tree's own files (#33): a change to
+# tests/host-scenarios.txt or the generator that is not followed by make fuzz-corpus is red in its own pull request
+fuzz-corpus-check:
+	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
+	sh fuzz/gen-corpus.sh $$tmp/corpus; \
+	diff -r $$tmp/corpus fuzz/corpus || { echo "fuzz/corpus is not what fuzz/gen-corpus.sh writes: run make fuzz-corpus"; exit 1; }; \
+	echo "the seed corpus is current"
+
 # the seeds generated from the grammar (tools/abnf-corpus.py, python's abnf module): fuzz-run adds them to each
 # harness's corpus. check-generated fails when the grammar changed since they were written; test-abnf-corpus (in
 # check-protocol-tools) writes them again and compares
@@ -531,4 +539,4 @@ clean:
         check-schema test-grammar test-code-text test-code-text-sabotage
 .PHONY: all install test test-protocol test-protocol-commands test-utils test-socket test-bind test-golden \
         test-golden-modhost golden-update golden-modhost test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-runner test-hello-sabotage test-bind-sabotage test-install test-abi \
-        abi-symbols abi-stage abi-baseline abi-check version-check fuzz fuzz-run fuzz-corpus fuzz-abnf-corpus test-abnf-corpus fuzz-sabotage fuzz-records fuzz-coverage clean
+        abi-symbols abi-stage abi-baseline abi-check version-check fuzz fuzz-run fuzz-corpus fuzz-corpus-check fuzz-abnf-corpus test-abnf-corpus fuzz-sabotage fuzz-records fuzz-coverage clean
