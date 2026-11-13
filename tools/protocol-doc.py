@@ -899,10 +899,13 @@ def page():
                       [[str(r), code(word), cell(meaning)] for r, word, meaning in sorted(HOST_CODES.values(),
                                                                                          key=lambda x: -x[0])])))
     w("")
-    w("The codes the daemon adds:")
+    w("The codes the daemon adds. A transient one says nothing about the plugin or the request: the same request may be "
+      "taken later, and a client asks the code's `transient` in the table's `reply_codes`, never a list of names (#23):")
     w("")
-    w("\n".join(table(["resp", "name", "meaning"],
-                      [[str(e["code"]), code(e["name"]), cell(e["meaning"])] for e in PHD["errors"]])))
+    transient = {r["resp"] for r in TABLE["reply_codes"] if r.get("transient") is True}
+    w("\n".join(table(["resp", "name", "transient", "meaning"],
+                      [[str(e["code"]), code(e["name"]), "yes" if e["code"] in transient else "", cell(e["meaning"])]
+                       for e in PHD["errors"]])))
     w("")
 
     # documents

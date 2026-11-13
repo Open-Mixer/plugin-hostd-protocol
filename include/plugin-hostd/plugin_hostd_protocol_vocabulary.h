@@ -4,7 +4,7 @@
 #define PLUGIN_HOSTD_PROTOCOL_VOCABULARY_H
 /*
  * GENERATED: DO NOT EDIT BY HAND.
- * Produced by `omx-contract render --target c` from FreeMixer/plugin-hostd-protocol's data/: the vocabulary
+ * Produced by `omx-contract render --target c` from Open-Mixer/plugin-hostd-protocol's data/: the vocabulary
  * (docs/data-layout.md). A code is OMX_ and the code in upper snake case, and a reply code that carries a resp has it as that name and _RESP; a word is OMX_<ITEM>_<NAME>, each words
  * item with its _COUNT and an _INIT of its words in their order. A consumer writes and compares these, never a
  * literal of its own.
@@ -19,18 +19,21 @@
 #define OMX_REPLY_PLUGIN_HOSTD_NO_BACKEND_TEXT_EN "No installed program can run this kind of plugin; install one, or choose a plugin of another kind."
 #define OMX_REPLY_PLUGIN_HOSTD_WORKER_SPAWN "reply.plugin-hostd.worker-spawn" ///< the worker is not up
 #define OMX_REPLY_PLUGIN_HOSTD_WORKER_SPAWN_RESP (-503)
+#define OMX_REPLY_PLUGIN_HOSTD_WORKER_SPAWN_TRANSIENT 1
 #define OMX_REPLY_PLUGIN_HOSTD_WORKER_SPAWN_TEXT_EN "The program that runs the plugin is not running; wait a moment and try again."
 #define OMX_REPLY_PLUGIN_HOSTD_REPLAY "reply.plugin-hostd.replay" ///< the name of a refused replay on stderr, never a reply
 #define OMX_REPLY_PLUGIN_HOSTD_REPLAY_RESP (-504)
 #define OMX_REPLY_PLUGIN_HOSTD_REPLAY_TEXT_EN "A plugin could not be put back after a restart and was left out; add it again."
 #define OMX_REPLY_PLUGIN_HOSTD_GAVE_UP "reply.plugin-hostd.gave-up" ///< the storm bound is spent for that placement
 #define OMX_REPLY_PLUGIN_HOSTD_GAVE_UP_RESP (-505)
+#define OMX_REPLY_PLUGIN_HOSTD_GAVE_UP_TRANSIENT 1
 #define OMX_REPLY_PLUGIN_HOSTD_GAVE_UP_TEXT_EN "The plugin kept failing and was given up on; check it, then add it again."
 #define OMX_REPLY_PLUGIN_HOSTD_NO_SUCH_WORKER "reply.plugin-hostd.no-such-worker" ///< no such worker
 #define OMX_REPLY_PLUGIN_HOSTD_NO_SUCH_WORKER_RESP (-506)
 #define OMX_REPLY_PLUGIN_HOSTD_NO_SUCH_WORKER_TEXT_EN "No plugin host with that name is running; refresh the list and choose another."
 #define OMX_REPLY_PLUGIN_HOSTD_VERB_DROPPED "reply.plugin-hostd.verb-dropped" ///< the worker died on this very command and the daemon dropped it
 #define OMX_REPLY_PLUGIN_HOSTD_VERB_DROPPED_RESP (-507)
+#define OMX_REPLY_PLUGIN_HOSTD_VERB_DROPPED_TRANSIENT 1
 #define OMX_REPLY_PLUGIN_HOSTD_VERB_DROPPED_TEXT_EN "The plugin stopped just as it was asked to do this, so the request was lost; try again."
 #define OMX_REPLY_PLUGIN_HOSTD_PIN_BINARY_MISMATCH "reply.plugin-hostd.pin-binary-mismatch" ///< a pinned file is missing or its SHA-256 differs
 #define OMX_REPLY_PLUGIN_HOSTD_PIN_BINARY_MISMATCH_RESP (-509)

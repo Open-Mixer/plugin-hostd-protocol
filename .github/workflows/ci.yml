@@ -21,7 +21,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        image: ['fedora:44', 'debian:bookworm', 'debian:trixie']
+        # ruling D25: while the org's OMX_RELEASE_MATRIX is quick, CI covers the quick cells only; bookworm is a full
+        # cell, served its floors only at the wave-end full release, so it joins the matrix when the variable is full
+        image: ${{ fromJSON(vars.OMX_RELEASE_MATRIX == 'full' && '["fedora:44", "debian:bookworm", "debian:trixie"]' || '["fedora:44", "debian:trixie"]') }}
     # privileged only to lower the runner kernel's mmap_rnd_bits: with the hosted image's 32 bits, bookworm's gcc 12
     # AddressSanitizer dies in DEADLYSIGNAL loops or hangs until the timeout (newer libasan copes)
     container:
@@ -47,10 +49,10 @@ jobs:
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
       - name: omx-contract's headers, and omx-dsp's curve function
         run: |
-          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.16.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'; else
+          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'; else
             apt-get -y install --no-install-recommends libomx-contract-dev libomxdsp-dev
             v=$(dpkg-query -W -f='${Version}' libomx-contract-dev)
-            dpkg --compare-versions "$v" ge 3.16.0~
+            dpkg --compare-versions "$v" ge 3.18.0~
             dpkg --compare-versions "$v" lt 4~
             v=$(dpkg-query -W -f='${Version}' libomxdsp-dev)
             dpkg --compare-versions "$v" ge 0.32.0~
@@ -87,7 +89,7 @@ jobs:
       - name: omx-contract and omx-clap-core's and plugin-db's packages of the contract directory
         run: |
           set -euo pipefail
-          dnf -y install 'omx-contract >= 3.16.0' 'omx-contract < 4' 'omx-contract-devel >= 3.16.0' 'omx-contract-devel < 4' omx-clap-core-contract 'plugin-db-contract >= 0.4.0' 'plugin-db-contract < 0.5' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
+          dnf -y install 'omx-contract >= 3.18.0' 'omx-contract < 4' 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' omx-clap-core-contract 'plugin-db-contract >= 0.4.0' 'plugin-db-contract < 0.5' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
           if rpm -q plugin-hostd-contract; then echo "plugin-hostd-contract is installed: it declares the same items"; exit 1; fi
       # an ordinary run renders and builds against what consumers get, the channel: name where each omx package came
       # from, and refuse one from the staging channel (#27: a stale staged omx-clap-core-contract outranked the channel)

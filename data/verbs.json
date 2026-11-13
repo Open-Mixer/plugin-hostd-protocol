@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/omx-contract.schema.json",
   "requires": {
-    "omx-contract-schema": ">= 3.12.0",
+    "omx-contract-schema": ">= 3.18.0",
     "omx-clap-core": ">= 0.30.5"
   },
   "PLUGIN_HOSTD_REPLY_CODES": {
@@ -30,6 +30,7 @@
       "workerSpawn": {
         "code": "reply.plugin-hostd.worker-spawn",
         "resp": -503,
+        "transient": true,
         "doc": "the worker is not up",
         "text": {
           "en": "The program that runs the plugin is not running; wait a moment and try again."
@@ -48,6 +49,7 @@
       "gaveUp": {
         "code": "reply.plugin-hostd.gave-up",
         "resp": -505,
+        "transient": true,
         "doc": "the storm bound is spent for that placement",
         "text": {
           "en": "The plugin kept failing and was given up on; check it, then add it again."
@@ -66,6 +68,7 @@
       "verbDropped": {
         "code": "reply.plugin-hostd.verb-dropped",
         "resp": -507,
+        "transient": true,
         "doc": "the worker died on this very command and the daemon dropped it",
         "text": {
           "en": "The plugin stopped just as it was asked to do this, so the request was lost; try again."

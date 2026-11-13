@@ -109,7 +109,7 @@ TEST_PROGS = tests/feedback_lines tests/macro_compat tests/protocol_test tests/p
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-table-constants test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text
+      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
 test-protocol: tests/protocol_test
@@ -353,6 +353,10 @@ test-reply-args:
 test-table-constants:
 	python3 tests/table_constants.py protocol/plugin-hostd-protocol.json protocol/plugin-hostd.json
 
+# which refusals are transient: a property of the code in data/verbs.json, in the table and the rendered header (#23)
+test-transient-codes:
+	python3 tests/transient_codes.py protocol/plugin-hostd-protocol.json data/verbs.json include/plugin-hostd/plugin_hostd_protocol_vocabulary.h
+
 test-verb-table:
 	python3 tests/verb_table.py
 	python3 tests/verb_table_sabotage.py
@@ -522,7 +526,7 @@ fuzz-coverage: $(FUZZ_HARNESSES:%=$(FUZZ_COV_BUILD)/fuzz_%)
 clean:
 	rm -rf src/*.o $(LIB_SO) $(LIB_SONAME) $(LIB_FILE) $(TEST_PROGS) build
 
-.PHONY: gen check-generated protocol-doc check-protocol-doc test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker \
+.PHONY: gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-mod-host-json test-generated-sabotage test-default-lv2-worker \
         check-protocol-tools install-contract check-contract-dir render-verbs check-rendered test-rendered-sabotage \
         check-schema test-grammar test-code-text test-code-text-sabotage
 .PHONY: all install test test-protocol test-protocol-commands test-utils test-socket test-bind test-golden \
