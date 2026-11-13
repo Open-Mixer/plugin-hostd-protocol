@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/FreeMixer/plugin-hostd-protocol/protocol/plugin-hostd.schema.json",
+  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/protocol/plugin-hostd.schema.json",
   "title": "The protocol surface plugin-hostd owns",
   "description": "Generated from include/plugin-hostd/protocol.h, which is the declaration; this file says the shape of the JSON.",
   "type": "object",

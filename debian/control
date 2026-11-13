@@ -10,9 +10,9 @@ Build-Depends: debhelper-compat (= 13),
                pkgconf,
                python3
 Standards-Version: 4.6.2
-Homepage: https://github.com/FreeMixer/plugin-hostd-protocol
-Vcs-Git: https://github.com/FreeMixer/plugin-hostd-protocol.git
-Vcs-Browser: https://github.com/FreeMixer/plugin-hostd-protocol
+Homepage: https://github.com/Open-Mixer/plugin-hostd-protocol
+Vcs-Git: https://github.com/Open-Mixer/plugin-hostd-protocol.git
+Vcs-Browser: https://github.com/Open-Mixer/plugin-hostd-protocol
 Rules-Requires-Root: no
 
 Package: libplugin-hostd-protocol0

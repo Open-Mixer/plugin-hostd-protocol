@@ -1,7 +1,7 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: plugin-hostd-protocol
-Upstream-Contact: https://github.com/FreeMixer/plugin-hostd-protocol
-Source: https://github.com/FreeMixer/plugin-hostd-protocol
+Upstream-Contact: https://github.com/Open-Mixer/plugin-hostd-protocol
+Source: https://github.com/Open-Mixer/plugin-hostd-protocol
 
 Files: *
 Copyright: 2026 Pau Aliagas <linuxnow@gmail.com>
@@ -14,14 +14,14 @@ Copyright: 2013-2026 Filipe Coelho <falktx@falktx.com>
            2013-2026 MOD Audio UG and the mod-host contributors
 License: GPL-3+
 Comment: mod-host's protocol code (https://github.com/mod-audio/mod-host), from
- FreeMixer/mod-host, branch freemixer, 013ac7d. doc/protocol.md is written by
+ Open-Mixer/mod-host, branch freemixer, 013ac7d. doc/protocol.md is written by
  tools/protocol-doc.py and carries doc/mod-host-commands.md, mod-host's text.
 
 Files: include/plugin-hostd/*
 Copyright: 2026 Pau Aliagas <linuxnow@gmail.com>
 License: GPL-3+
 Comment: plugin-hostd's declared protocol, moved here from
- FreeMixer/plugin-hostd; the rendered headers are written by omx-contract.
+ Open-Mixer/plugin-hostd; the rendered headers are written by omx-contract.
 
 License: GPL-3+
  This program is free software: you can redistribute it and/or modify it
