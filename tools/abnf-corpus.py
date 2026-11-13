@@ -106,6 +106,13 @@ def write(out):
     for n in range(1, SCENARIOS + 1):
         lines = [f"{line('request', rng)} => {line('answer', rng)}" for _ in range(SCENARIO_LINES)]
         files[f"scenario/abnf-{n}"] = "\n".join(lines).encode() + b"\n"
+    # a typed reply after its command, as the scenario harness reads a request and its answer (#19)
+    replies = sorted({l.split()[0] for l in text().splitlines() if l.startswith("rp-")})
+    for rule in replies:
+        cmd = "cmd-" + rule[3:]
+        if cmd in names:
+            lines = [f"{line(cmd, rng)} => {line(rule, rng)}" for _ in range(SCENARIO_LINES)]
+            files[f"scenario/abnf-{rule}"] = "\n".join(lines).encode() + b"\n"
     files["GRAMMAR.sha256"] = (hashlib.sha256(text().encode()).hexdigest() + "  grammar/plugin-hostd-protocol.abnf\n").encode()
     for rel, data in files.items():
         path = os.path.join(out, rel)

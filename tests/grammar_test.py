@@ -167,6 +167,22 @@ for f_ in table["feedback"]:
 for word in table["refused"]:
     must_not("command", word, f"the refused {word}")
 
+# each typed reply (#19) parses as its rule and as typed-reply: resp, 0 or a count, a sample word of each argument, a
+# repeated last one twice; a reply a word short of every form of its verb does not
+typed_replies = 0
+for c in table["commands"]:
+    for form in c.get("reply_forms") or []:
+        typed_replies += 1
+        rule = "rp-" + c["verb"].replace("_", "-")
+        words = [SAMPLE[a] for a in form["args"]] + ([SAMPLE[form["args"][-1]]] if form["repeat"] else [])
+        line = " ".join(["resp", "0" if form["resp"] == "0" else str(len(words))] + words)
+        must(rule, line, f"the table's reply of {c['verb']}")
+        must("typed-reply", line, f"the table's reply of {c['verb']}")
+        shorter = [len(f["args"]) for f in c["reply_forms"]]
+        rest = bool(form["args"]) and ARG_TYPES.get(form["args"][-1], {}).get("rest", False)
+        if form["args"] and not form["repeat"] and not rest and len(form["args"]) - 1 not in shorter:
+            must_not(rule, " ".join(["resp", "0"] + [SAMPLE[a] for a in form["args"][:-1]]), f"{c['verb']}'s reply, short")
+
 # ---- hello and request tags ----
 version = table["version"]
 words = [e["word"] for e in table["extensions"]]

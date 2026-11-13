@@ -1157,6 +1157,11 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_GESTURE_END   "end"
 
 #define PHD_EVENT_SUSPECT_PREFIX "suspect:"
+/* the state type's pattern, written from PHD_WORKER_STATES: each name an alternative, the last alternative (?!) one
+ * that never matches, so the list needs no separator after its last name */
+#define PHD_STATE_ALTERNATIVE(id, name, meaning) name "|"
+#define PHD_STATE_PATTERN "(?:" PHD_WORKER_STATES(PHD_STATE_ALTERNATIVE) "(?!))"
+
 /* how a worker ended, the third word of worker_died: exit:<status> or signal:<number> */
 #define PHD_EVENT_EXIT_PREFIX   "exit:"
 #define PHD_EVENT_SIGNAL_PREFIX "signal:"
@@ -1170,19 +1175,35 @@ static inline int phd_is_note_verb(const char *verb)
     X(HEX, "hex", "0|0x[0-9a-f]+", 0, "a number in hexadecimal, 0x and its digits, or 0") \
     X(WORD, "word", "[^ ]+", 0, "one word") \
     X(WORKER, "worker", "w[0-9]+", 0, "a worker, w<k>, as worker_list names it") \
-    X(INSTANCES, "instances", PHD_WORD_NONE "|[0-9]+(,[0-9]+)*", 0, \
+    X(INSTANCES, "instances", PHD_WORD_NONE "|[0-9]+(?:,[0-9]+)*", 0, \
       "instance numbers joined by ',', in order, or " PHD_WORD_NONE " for none") \
     X(INSTANCE_OR_NONE, "instance-or-none", PHD_WORD_NONE "|[0-9]+", 0, "an instance number, or " PHD_WORD_NONE " for none") \
-    X(STATUS, "status", "(" PHD_EVENT_EXIT_PREFIX "|" PHD_EVENT_SIGNAL_PREFIX ")-?[0-9]+", 0, \
+    X(STATUS, "status", "(?:" PHD_EVENT_EXIT_PREFIX "|" PHD_EVENT_SIGNAL_PREFIX ")-?[0-9]+", 0, \
       PHD_EVENT_EXIT_PREFIX "<status> for a process that exited, " PHD_EVENT_SIGNAL_PREFIX "<number> for one a signal ended") \
     X(SUSPECT, "suspect", PHD_EVENT_SUSPECT_PREFIX "[0-9]+", 0, PHD_EVENT_SUSPECT_PREFIX "<ms>, the age of the reply") \
-    X(CHAIN, "chain", "[0-9]+(\\" PHD_PLACE_PLAN_SEPARATOR "[0-9]+)?", 0, \
+    X(CHAIN, "chain", "[0-9]+(?:\\" PHD_PLACE_PLAN_SEPARATOR "[0-9]+)?", 0, \
       "a chain's number, or <plan>" PHD_PLACE_PLAN_SEPARATOR "<k> for segment k of a plan") \
-    X(REASONS, "reasons", PHD_WORD_NONE "|[0-9]+:[^ ,]+(,[0-9]+:[^ ,]+)*", 0, \
+    X(REASONS, "reasons", PHD_WORD_NONE "|[0-9]+:[^ ,]+(?:,[0-9]+:[^ ,]+)*", 0, \
       "<instance>:<reason> joined by ',', or " PHD_WORD_NONE " for none") \
     X(PLACEMENT, "placement", PHD_PLACE_OWN "|" PHD_PLACE_DEFAULT "|" PHD_PLACE_POOL_PREFIX "[" PHD_POOL_NAME_CLASS "]{" \
       PHD_STR(PHD_POOL_NAME_MIN) "," PHD_STR(PHD_POOL_NAME_MAX) "}|" PHD_PLACE_CHAIN_PREFIX "[0-9]+", 0, \
       "a placement, " PHD_PLACEMENT_SYNTAX) \
+    X(MEMBER, "member", "[0-9]+" PHD_WORKER_PIN_REFUSED "?", 0, \
+      "an instance a worker holds, followed by " PHD_WORKER_PIN_REFUSED " when the pins read again refuse its files") \
+    X(WORKER_OR_NONE, "worker-or-none", PHD_WORD_NONE "|w[0-9]+", 0, "a worker, w<k>, or " PHD_WORD_NONE " for none") \
+    X(STATE, "state", PHD_STATE_PATTERN, 0, "a worker's state, a name of PHD_WORKER_STATES") \
+    X(PLACE, "place", PHD_PLACE_OWN "|" PHD_PLACE_DEFAULT "|" PHD_PLACE_POOL_PREFIX "[" PHD_POOL_NAME_CLASS "]{" \
+      PHD_STR(PHD_POOL_NAME_MIN) "," PHD_STR(PHD_POOL_NAME_MAX) "}(?:" PHD_POOL_SIBLING_SEPARATOR "[0-9]+)?|" \
+      PHD_PLACE_CHAIN_PREFIX "[0-9]+(?:\\" PHD_PLACE_PLAN_SEPARATOR "[0-9]+)?", 0, \
+      "where a worker runs: a placement, a full pool's sibling <name>" PHD_POOL_SIBLING_SEPARATOR "<n>, or a plan's " \
+      "segment chain:<plan>" PHD_PLACE_PLAN_SEPARATOR "<k>") \
+    X(AMOUNT, "amount", PHD_WORD_NONE "|[0-9]+", 0, "a whole amount (bytes), or " PHD_WORD_NONE " when there is none") \
+    X(CORE, "core", PHD_WORD_NONE "|[0-9]+", 0, "an audio core, or " PHD_WORD_NONE " for a worker pinned to none") \
+    X(NUMBER, "number", "-?[0-9]+(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?", 0, "a decimal number") \
+    X(SHA256, "sha256", "[0-9a-f]{64}", 0, "a SHA-256 in 64 lowercase hexadecimal digits") \
+    X(QUOTED, "quoted", "\"[^\"]*\"", 0, "a path in double quotes") \
+    X(KEY, "key", "[a-z_]+", 0, "a key of a key=value") \
+    X(VALUE, "value", "[^, ]*", 0, "a value of a key=value") \
     X(LINE, "line", ".*", 1, "the rest of the line, its words as they were sent")
 
 /* The forms of a command whose words the verb table's one format does not name: each form its arguments name:type, as
@@ -1197,6 +1218,69 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_SUPERVISOR_RESET, "") \
     X(OMX_VERB_SUPERVISOR_RESET, "worker:worker") \
     X(OMX_VERB_SUPERVISOR_RESET, "target:" PHD_WORD_ALL)
+
+/* An example word of each leaf type of PHD_ARG_TYPES, which a test writes sample lines and replies from (#19).
+ * X(name, example) */
+#define PHD_ARG_EXAMPLES(X) \
+    X("int", "3") X("uint", "2") X("hex", "0x28") X("word", "gain") X("worker", "w3") X("instances", "3,4") \
+    X("instance-or-none", "8") X("status", "signal:11") X("suspect", "suspect:12") X("chain", "4.1") \
+    X("reasons", "7:budget") X("placement", "own") X("member", "7" PHD_WORKER_PIN_REFUSED) X("worker-or-none", "w2") \
+    X("state", "up") X("place", "chain:4.1") X("amount", "1024") X("number", "-6.02") \
+    X("sha256", "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08") X("quoted", "\"/var/lib/x.json\"") \
+    X("key", "crashed") X("value", "0") X("line", "{\"name\":\"warm\"}") X("core", "2")
+
+/* The composite types (#19): a list is items of one type joined by a separator, or one of its none words (a|b, "" for
+ * none); a record is named fields joined by a separator, its fields name:type as PHD_EVENT_ARGS writes them. The
+ * table carries each with a pattern written from its parts, so a reader of patterns alone reads it as a word.
+ * X(name, item, separator, none, spelling) and X(name, separator, fields, spelling) */
+#define PHD_LIST_TYPES(X) \
+    X("members", "member", ",", PHD_WORD_NONE, "the instances a worker holds, in order") \
+    X("instance-list", "uint", ",", PHD_WORD_NONE, "instance numbers, in order") \
+    X("core-list", "core", ",", "", "each member's core, in the segment's order") \
+    X("segments", "instance-list", ";", "", "a plan's segments, each its instances") \
+    X("core-segments", "core-list", ";", "", "each segment's cores") \
+    X("reason-list", "reason", ",", PHD_WORD_NONE, "each member's reason") \
+    X("member-codes", "member-code", ",", PHD_WORD_NONE, "each member with no figure: its position and its code") \
+    X("history", "history-entry", ",", PHD_WORD_NONE "|" PHD_WORD_UNAVAILABLE, \
+      "a plugin's history: digest, class, crashed, raises_xruns and the history keys; " PHD_WORD_UNAVAILABLE \
+      " while the history file is blocked")
+#define PHD_RECORD_TYPES(X) \
+    X("worker-record", ":", "worker:worker pid:int format:" PHD_FORMAT_LV2 "|" PHD_FORMAT_CLAP "|" PHD_FORMAT_LV2_CLAP \
+      " state:state core:" PHD_WORD_NONE " pool:" PHD_WORKER_POOL_ON "|" PHD_WORKER_POOL_QUALIFIED \
+      " place:place instances:members", "a worker of worker_list") \
+    X("reason", ":", "instance:int reason:word", "a member and its reason") \
+    X("member-code", ":", "position:uint code:int", "a member's position in the line and its code") \
+    X("layout", PHD_PIN_SCHEME_SEPARATOR, "scheme:word sha256:sha256", "a layout pin, <scheme>:<sha256>") \
+    X("point", ",", "x:number y:number", "a point of a curve") \
+    X("history-entry", "=", "key:key value:value", "a key=value of a history")
+
+/* The replies of this tree's verbs, typed and named (#19): X(verb, resp, args), resp 0, or count when the reply's
+ * number counts (the words a last repeated argument gives, when it has one); args as PHD_EVENT_ARGS writes them, a
+ * last one name:type... repeated over the rest of the line. A verb may have more than one row, a form each: plan's and
+ * plan_get's without cores are the replies of a daemon from before plugin-hostd#226, estimate's six words an older
+ * daemon's. */
+#define PHD_REPLY_ARGS(X) \
+    X(OMX_VERB_WORKER_LIST, "count", "workers:worker-record...") \
+    X(OMX_VERB_INSTANCE_INFO, "0", "worker:worker pid:int state:state crashes:uint quarantined:uint") \
+    X(OMX_VERB_PIN_LAYOUT, "0", "layout:layout") \
+    X(OMX_VERB_CHAIN_GET, "0", "worker:worker-or-none members:instance-list running:instance-list") \
+    X(OMX_VERB_DESCRIPTOR_GET, "0", "path:quoted") \
+    X(OMX_VERB_PANEL_GET, "0", "path:quoted") \
+    X(OMX_VERB_PRESET_LIST, "count", "") \
+    X(OMX_VERB_PRESET_GET, "0", "load_key:word name:word") \
+    X(OMX_VERB_PRESET_SHOW, "0", "json:line") \
+    X(OMX_VERB_HISTORY_GET, "0", "history:history") \
+    X(OMX_VERB_PLAN, "0", "segments:segments") \
+    X(OMX_VERB_PLAN, "0", "segments:segments cores:core-segments") \
+    X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list") \
+    X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list cores:core-segments") \
+    X(OMX_VERB_ESTIMATE, "0", "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint " \
+      "unknown:member-codes") \
+    X(OMX_VERB_ESTIMATE, "0", "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint " \
+      "unknown:member-codes ram_used_bytes:amount ram_added_bytes:amount ram_budget_bytes:amount ram_unknown_count:uint") \
+    X(OMX_VERB_HELLO, "0", "version:int extensions:word...") \
+    X(OMX_VERB_PARAM_GET_MANY, "0", "values:word...") \
+    X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...")
 
 /* the same line, as the daemon formats it: name and format in one literal */
 #define PHD_EVENT_WORKER_DIED_FMT           PHD_EVENT_WORKER_DIED " w%d %d %s %s"

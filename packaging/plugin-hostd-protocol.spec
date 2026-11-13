@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.6
+Version: 0.5.7
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -191,6 +191,15 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Fri Nov 13 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.7-1
+- 0.5.6 was staged and never released: its changes (node_label, the feedback
+  lines' typed arguments, the table's constants, formats and words) ship in this
+  release.
+- The table types and names the replies of plugin-hostd's and the protocol's own
+  verbs (reply_forms on each command, resp 0 or a count, a last argument
+  repeated over the rest), and arg_types gains list and record types, each
+  declared once with a pattern written from its parts (#19).
+
 * Thu Nov 12 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.6-1
 - node_label: a client's label joins a hosted node's pretty-name, <label>:
   <plugin name> (<instance>); no words clears it; -545

@@ -1,0 +1,10 @@
+preset_get -6 -2 => resp 0 ό! ""
+preset_get 065 -195 => resp 0 "ͨ" BГН
+preset_get 1 2 => resp 0 "" ""
+preset_get -7 0 => resp 0 "T˛" `
+preset_get 444 -403 => resp 0 # Ò!!
+preset_get -18 -8 => resp 0 ~ r
+preset_get -34 7 => resp 0 ȁ!! !}!
+preset_get 644 -416 => resp 0 ̀ "\"\""
+preset_get 96 637 => resp 0 "\"" ˬō
+preset_get 765 -7 => resp 0 !! "J"

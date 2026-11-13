@@ -7,9 +7,10 @@ name: release
 # (workflow_dispatch) is a dry run: it builds and lints everything and publishes nothing, unless it names a
 # tag in source-ref and sets publish: then it releases that tag's sources with this workflow (a tag whose own
 # release workflow can no longer run).
-# A dispatched run with staged on (never a tag) builds fc44 x86_64 and trixie amd64 only and publishes them to the
-# staging channel for the next layer of the release chain to build against; nothing reaches the real channel, and the
-# release still publishes once from the v<version> tag (Open-Mixer/.github build-rpm.yml, build-deb.yml).
+# A dispatched run with staged on (never a tag) builds the staged matrix of Open-Mixer/.github's build-rpm.yml and
+# build-deb.yml, which own it for every repository (the wave's quick matrix is Open-Mixer/.github#42), and publishes it
+# to the staging channel for the next layer of the release chain to build against; nothing reaches the real channel,
+# and the release still publishes once from the v<version> tag.
 
 on:
   push:

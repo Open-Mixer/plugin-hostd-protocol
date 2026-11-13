@@ -1,0 +1,10 @@
+pin_layout -35 => resp 0 !!
+pin_layout 9 => resp 0 ""
+pin_layout -83 => resp 0 ΍
+pin_layout -86 => resp 0 ""
+pin_layout 702 => resp 0 ǌ
+pin_layout -4 => resp 0 "\""
+pin_layout -2 => resp 0 T
+pin_layout -859 => resp 0 !
+pin_layout -403 => resp 0 Ks
+pin_layout -08 => resp 0 " \""

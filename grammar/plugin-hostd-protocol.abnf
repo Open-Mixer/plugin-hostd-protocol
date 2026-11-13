@@ -433,6 +433,41 @@ fb-worker-respawned        = %s"worker_respawned" SP word SP int SP int SP int
 ; plugin-hostd: <count>
 fb-xruns                   = %s"xruns" SP word
 
+; the replies the table types, a rule per verb (reply_forms); the reply rule above still takes any resp line
+typed-reply      = rp-preset-show
+                 / rp-chain-get
+                 / rp-descriptor-get
+                 / rp-estimate
+                 / rp-history-get
+                 / rp-instance-info
+                 / rp-panel-get
+                 / rp-pin-layout
+                 / rp-plan
+                 / rp-plan-get
+                 / rp-preset-get
+                 / rp-preset-list
+                 / rp-worker-list
+                 / rp-curve-points
+                 / rp-hello
+                 / rp-param-get-many
+
+rp-preset-show    = %s"resp" SP %s"0" tail
+rp-chain-get      = %s"resp" SP %s"0" SP word SP word SP word
+rp-descriptor-get = %s"resp" SP %s"0" SP word
+rp-estimate       = (%s"resp" SP %s"0" SP word SP word SP word SP word SP word SP word) / (%s"resp" SP %s"0" SP word SP word SP word SP word SP word SP word SP word SP word SP word SP word)
+rp-history-get    = %s"resp" SP %s"0" SP word
+rp-instance-info  = %s"resp" SP %s"0" SP word SP int SP word SP word SP word
+rp-panel-get      = %s"resp" SP %s"0" SP word
+rp-pin-layout     = %s"resp" SP %s"0" SP word
+rp-plan           = (%s"resp" SP %s"0" SP word) / (%s"resp" SP %s"0" SP word SP word)
+rp-plan-get       = (%s"resp" SP %s"0" SP word SP word) / (%s"resp" SP %s"0" SP word SP word SP word)
+rp-preset-get     = %s"resp" SP %s"0" SP word SP word
+rp-preset-list    = %s"resp" SP int
+rp-worker-list    = %s"resp" SP int *(SP word)
+rp-curve-points   = %s"resp" SP %s"0" SP word *(SP word)
+rp-hello          = %s"resp" SP %s"0" SP int *(SP word)
+rp-param-get-many = %s"resp" SP %s"0" *(SP word)
+
 ; the extensions hello grants, and hello's reply: the daemon's version, then each extension it grants, once and in
 ; this order
 extension        = ext-tags / ext-errors / ext-seq
