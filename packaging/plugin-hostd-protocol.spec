@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.7
+Version: 0.5.8
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -191,6 +191,21 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Sat Nov 14 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.8-1
+- A reply code declares itself transient: an identical request may succeed
+  later with no change by the caller. worker-spawn, gave-up and verb-dropped
+  are; pin-refused, a verdict about the plugin, is not. The table's reply_codes
+  and the rendered header carry it, so a client asks the code and keeps no list
+  of names (#23, rulings D22, D23). omx-contract >= 3.18.0, the release that
+  carries the property.
+- CI builds against the channel alone, never the staging channel, and names the
+  repository each contract package came from (#28); the vocabulary header is
+  the served omx-clap-core-contract 0.32.3's.
+- check-rendered prints the difference when a header is not the render (#26).
+- CI installs plugin-db-contract from the 0.4 line the channel serves (#22).
+- CI covers the quick cells while OMX_RELEASE_MATRIX is quick: bookworm joins
+  the build matrix at the full release (ruling D25).
+
 * Fri Nov 13 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.7-1
 - 0.5.6 was staged and never released: its changes (node_label, the feedback
   lines' typed arguments, the table's constants, formats and words) ship in this
