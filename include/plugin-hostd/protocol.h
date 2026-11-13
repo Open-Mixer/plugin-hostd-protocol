@@ -1198,6 +1198,7 @@ static inline int phd_is_note_verb(const char *verb)
       "where a worker runs: a placement, a full pool's sibling <name>" PHD_POOL_SIBLING_SEPARATOR "<n>, or a plan's " \
       "segment chain:<plan>" PHD_PLACE_PLAN_SEPARATOR "<k>") \
     X(FIGURE, "figure", PHD_WORD_NONE "|-?[0-9]+(?:\\.[0-9]+)?", 0, "a number, or " PHD_WORD_NONE " when there is none") \
+    X(CORE, "core", PHD_WORD_NONE "|[0-9]+", 0, "an audio core, or " PHD_WORD_NONE " for a worker pinned to none") \
     X(NUMBER, "number", "-?[0-9]+(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?", 0, "a decimal number") \
     X(SHA256, "sha256", "[0-9a-f]{64}", 0, "a SHA-256 in 64 lowercase hexadecimal digits") \
     X(QUOTED, "quoted", "\"[^\"]*\"", 0, "a path in double quotes") \
@@ -1226,7 +1227,7 @@ static inline int phd_is_note_verb(const char *verb)
     X("reasons", "7:budget") X("placement", "own") X("member", "7" PHD_WORKER_PIN_REFUSED) X("worker-or-none", "w2") \
     X("state", "up") X("place", "chain:4.1") X("figure", "12.5") X("number", "-6.02") \
     X("sha256", "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08") X("quoted", "\"/var/lib/x.json\"") \
-    X("key", "crashed") X("value", "0") X("line", "{\"name\":\"warm\"}")
+    X("key", "crashed") X("value", "0") X("line", "{\"name\":\"warm\"}") X("core", "2")
 
 /* The composite types (#19): a list is items of one type joined by a separator, or one of its none words (a|b, "" for
  * none); a record is named fields joined by a separator, its fields name:type as PHD_EVENT_ARGS writes them. The
@@ -1235,7 +1236,7 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_LIST_TYPES(X) \
     X("members", "member", ",", PHD_WORD_NONE, "the instances a worker holds, in order") \
     X("instance-list", "int", ",", PHD_WORD_NONE, "instance numbers, in order") \
-    X("core-list", "int", ",", PHD_WORD_NONE, "audio cores") \
+    X("core-list", "core", ",", "", "each member's core, in the segment's order") \
     X("segments", "instance-list", ";", "", "a plan's segments, each its instances") \
     X("core-segments", "core-list", ";", "", "each segment's cores") \
     X("reason-list", "reason", ",", PHD_WORD_NONE, "each member's reason") \

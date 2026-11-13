@@ -287,6 +287,7 @@
     {"name": "state", "pattern": "(?:up|starting|backoff|given-up|(?!))", "rest": false, "spelling": "a worker's state, a name of PHD_WORKER_STATES"},
     {"name": "place", "pattern": "own|default|pool:[A-Za-z0-9_-]{1,32}(?:#[0-9]+)?|chain:[0-9]+(?:\\.[0-9]+)?", "rest": false, "spelling": "where a worker runs: a placement, a full pool's sibling <name>#<n>, or a plan's segment chain:<plan>.<k>"},
     {"name": "figure", "pattern": "-|-?[0-9]+(?:\\.[0-9]+)?", "rest": false, "spelling": "a number, or - when there is none"},
+    {"name": "core", "pattern": "-|[0-9]+", "rest": false, "spelling": "an audio core, or - for a worker pinned to none"},
     {"name": "number", "pattern": "-?[0-9]+(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?", "rest": false, "spelling": "a decimal number"},
     {"name": "sha256", "pattern": "[0-9a-f]{64}", "rest": false, "spelling": "a SHA-256 in 64 lowercase hexadecimal digits"},
     {"name": "quoted", "pattern": "\"[^\"]*\"", "rest": false, "spelling": "a path in double quotes"},
@@ -326,12 +327,13 @@
     {"name": "quoted", "example": "\"/var/lib/x.json\""},
     {"name": "key", "example": "crashed"},
     {"name": "value", "example": "0"},
-    {"name": "line", "example": "{\"name\":\"warm\"}"}
+    {"name": "line", "example": "{\"name\":\"warm\"}"},
+    {"name": "core", "example": "2"}
   ],
   "list_types": [
     {"name": "members", "item": "member", "separator": ",", "none": "-", "spelling": "the instances a worker holds, in order"},
     {"name": "instance-list", "item": "int", "separator": ",", "none": "-", "spelling": "instance numbers, in order"},
-    {"name": "core-list", "item": "int", "separator": ",", "none": "-", "spelling": "audio cores"},
+    {"name": "core-list", "item": "core", "separator": ",", "none": "", "spelling": "each member's core, in the segment's order"},
     {"name": "segments", "item": "instance-list", "separator": ";", "none": "", "spelling": "a plan's segments, each its instances"},
     {"name": "core-segments", "item": "core-list", "separator": ";", "none": "", "spelling": "each segment's cores"},
     {"name": "reason-list", "item": "reason", "separator": ",", "none": "-", "spelling": "each member's reason"},
