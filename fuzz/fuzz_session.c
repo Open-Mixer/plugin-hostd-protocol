@@ -17,6 +17,7 @@
 #include "../src/reply-words.h"
 #include "../include/plugin-hostd/protocol.h"
 #include "../include/host-dispatch.h"
+#include "../include/utils.h"
 #include <stdio.h>
 
 static const char *const g_extensions[] = OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_INIT;
@@ -394,6 +395,23 @@ static int hello_model(const char *line, char *want, size_t size)
     return 1;
 }
 
+/* whether the session reads a hello in line: its first word, or the first after a tag, as the library's own tokenizer
+   reads it (mod-host's strarr_split, which takes the quotes out of a word wherever they stand, so hel"lo" is hello),
+   never the line's text (#30) */
+static int reads_hello(const char *line)
+{
+    char *copy = strdup(line), **w;
+    int hello;
+    /* not a property: the harness's own allocation failed */
+    if (!copy)
+        abort();
+    w = strarr_split(copy);
+    hello = w && w[0] && (!strcmp(w[0], "hello") || (w[0][0] == '@' && w[1] && !strcmp(w[1], "hello")));
+    free(w);
+    free(copy);
+    return hello;
+}
+
 static char g_got[FUZZ_REPLY_MAX], g_rest[FUZZ_REPLY_MAX], g_want[FUZZ_REPLY_MAX];
 
 static void run_line(const char *line)
@@ -415,8 +433,9 @@ static void run_line(const char *line)
         }
         return;
     }
-    /* a hello the harness does not read itself would move the grant behind its model */
-    if (strstr(line, "hello"))
+    /* a hello the harness does not read itself would move the grant behind its model: one in the text, and one the
+       session's tokenizer reads where the text spells it otherwise */
+    if (strstr(line, "hello") || reads_hello(line))
         return;
 
     tag = g_tags ? tag_of(line) : 0;
