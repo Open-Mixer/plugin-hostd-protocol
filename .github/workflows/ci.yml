@@ -1,9 +1,14 @@
 name: ci
-# A push runs on main only; a pull request already runs its branch.
+# A push runs on main only; a pull request already runs its branch. The schedule renders against what the channel
+# serves now, so a served contract package that changes the render turns main red when it is served (#27): only the
+# declared-protocol job runs on it.
 on:
   push:
     branches: [main, dedupe/all]
   pull_request:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
@@ -15,6 +20,8 @@ concurrency:
 jobs:
   test:
     name: build + test (${{ matrix.image }})
+    # the schedule is the render check alone (#27)
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     # A backstop only.
     timeout-minutes: 20
@@ -80,7 +87,7 @@ jobs:
     container: fedora:44
     steps:
       - name: Toolchain
-        run: dnf -y install gcc make git pkgconf-pkg-config diffutils python3 python3-jsonschema
+        run: dnf -y install gcc make git pkgconf-pkg-config diffutils python3 python3-jsonschema python3-pyyaml
       - uses: actions/checkout@v4
       - name: Trust the checkout
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -105,6 +112,12 @@ jobs:
           /opt/abnf/bin/pip install 'abnf>=2.2'
       - name: make check-protocol-tools
         run: make check-protocol-tools PYTHON=/opt/abnf/bin/python
+      # check-rendered prints the difference (#26); this names what the channel served when it was taken
+      - name: The served packages the render ran against
+        if: failure()
+        run: |
+          echo "::error::the render check failed against these served contract packages:"
+          cat /tmp/from-repo 2>/dev/null || echo "(the job failed before the served packages were listed)"
       # one pack per listed language from the spec and debian/control, and the catalogs through omx-contract's release
       # gate (translate --check): a listed language with no catalog, a missing key or a stale entry is red (#15)
       - name: The language packs
@@ -119,6 +132,8 @@ jobs:
 
   abi:
     name: ABI check (abidiff against abi/)
+    # the schedule is the render check alone (#27)
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     container: fedora:44
@@ -140,4 +155,6 @@ jobs:
   # the checks every OpenMixer repository runs on what it publishes: commit messages, private references, and no
   # local copy of either (Open-Mixer/.github's public-sources-check)
   public-sources:
+    # the schedule is the render check alone (#27)
+    if: github.event_name != 'schedule'
     uses: Open-Mixer/.github/.github/workflows/public-sources-check.yml@openmixer-v1
