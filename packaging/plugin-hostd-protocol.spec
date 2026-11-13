@@ -199,6 +199,10 @@ shows the English source sentence.
 - The fuzz seed corpus is held to its generator on every pull request, and the
   generator writes the same corpus in every locale (LC_ALL=C); the corpus and
   both golden transcripts are written again over it (#33, #34).
+- The default CLAP search path holds the folders distributions install plugins
+  in, /usr/local/lib/clap, /usr/lib64/clap and /usr/local/lib64/clap, after
+  clap/entry.h's: a fresh plugin-hostd learns a first-use pin there
+  (plugin-hostd#82, #36).
 
 * Sat Nov 14 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.8-1
 - A reply code declares itself transient: an identical request may succeed
