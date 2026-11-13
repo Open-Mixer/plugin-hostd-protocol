@@ -278,6 +278,10 @@
 > hello 0 tags
 < not found
 = 
+# scenario-71 answer 0
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 0
 > cpu_load
 < not found
@@ -539,35 +543,39 @@
 < resp -3
 = preset_load(3,urn:no:such:preset)
 # fuzz/corpus/protocol/scenario-37 answer 0
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-38 answer 0
 > remote_page_get 9 0
 < resp 0 0 "Main \\"A\\"\\" "Page" gain - gain - gain - gain -
 = remote_page_get(9,0)
-# fuzz/corpus/protocol/scenario-38 answer 0
+# fuzz/corpus/protocol/scenario-39 answer 0
 > remote_pages 9
 < resp 1
 = remote_pages(9)
-# fuzz/corpus/protocol/scenario-39 answer 0
-> remove 3
-< resp -3
-= remove(3)
 # fuzz/corpus/protocol/scenario-4 answer 0
 > bypass 3 1
 < resp -3
 = bypass(3,1)
 # fuzz/corpus/protocol/scenario-40 answer 0
+> remove 3
+< resp -3
+= remove(3)
+# fuzz/corpus/protocol/scenario-41 answer 0
 > state_load /tmp/state
 < resp -1
 = state_load(/tmp/state)
-# fuzz/corpus/protocol/scenario-41 answer 0
+# fuzz/corpus/protocol/scenario-42 answer 0
 > state_save /tmp/state
 < resp -1
 = state_save(/tmp/state)
-# fuzz/corpus/protocol/scenario-42 answer 0
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # fuzz/corpus/protocol/scenario-43 answer 0
 > track_info 3 Kick - aux
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-44 answer 0
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # fuzz/corpus/protocol/scenario-5 answer 0
@@ -590,6 +598,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < not found
 = 
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 0
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp 0
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72,0,#FF8800\x1301)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 0
 > cpu_load
 < not found
@@ -863,35 +875,39 @@
 < resp -3
 = preset_load(3,urn:no:such:preset)
 # dispatch:fuzz/corpus/dispatch/scenario-37 answer 0
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-38 answer 0
 > remote_page_get 9 0
 < resp 0 0 "Main \\"A\\"\\" "Page" gain - gain - gain - gain -
 = remote_page_get(9,0)
-# dispatch:fuzz/corpus/dispatch/scenario-38 answer 0
+# dispatch:fuzz/corpus/dispatch/scenario-39 answer 0
 > remote_pages 9
 < resp 1
 = remote_pages(9)
-# dispatch:fuzz/corpus/dispatch/scenario-39 answer 0
-> remove 3
-< resp -3
-= remove(3)
 # dispatch:fuzz/corpus/dispatch/scenario-4 answer 0
 > bypass 3 1
 < resp -3
 = bypass(3,1)
 # dispatch:fuzz/corpus/dispatch/scenario-40 answer 0
+> remove 3
+< resp -3
+= remove(3)
+# dispatch:fuzz/corpus/dispatch/scenario-41 answer 0
 > state_load /tmp/state
 < resp -1
 = state_load(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-41 answer 0
+# dispatch:fuzz/corpus/dispatch/scenario-42 answer 0
 > state_save /tmp/state
 < resp -1
 = state_save(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-42 answer 0
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # dispatch:fuzz/corpus/dispatch/scenario-43 answer 0
 > track_info 3 Kick - aux
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-44 answer 0
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # dispatch:fuzz/corpus/dispatch/scenario-5 answer 0
@@ -1230,6 +1246,10 @@
 > hello 0 tags
 < not found
 = 
+# scenario-71 answer 1
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 1
 > cpu_load
 < not found
@@ -1491,35 +1511,39 @@
 < resp -4
 = preset_load(3,urn:no:such:preset)
 # fuzz/corpus/protocol/scenario-37 answer 1
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-38 answer 1
 > remote_page_get 9 0
 < resp -1
 = remote_page_get(9,0)
-# fuzz/corpus/protocol/scenario-38 answer 1
+# fuzz/corpus/protocol/scenario-39 answer 1
 > remote_pages 9
 < resp -1
 = remote_pages(9)
-# fuzz/corpus/protocol/scenario-39 answer 1
-> remove 3
-< resp -4
-= remove(3)
 # fuzz/corpus/protocol/scenario-4 answer 1
 > bypass 3 1
 < resp -4
 = bypass(3,1)
 # fuzz/corpus/protocol/scenario-40 answer 1
+> remove 3
+< resp -4
+= remove(3)
+# fuzz/corpus/protocol/scenario-41 answer 1
 > state_load /tmp/state
 < resp -2
 = state_load(/tmp/state)
-# fuzz/corpus/protocol/scenario-41 answer 1
+# fuzz/corpus/protocol/scenario-42 answer 1
 > state_save /tmp/state
 < resp -2
 = state_save(/tmp/state)
-# fuzz/corpus/protocol/scenario-42 answer 1
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # fuzz/corpus/protocol/scenario-43 answer 1
 > track_info 3 Kick - aux
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-44 answer 1
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # fuzz/corpus/protocol/scenario-5 answer 1
@@ -1542,6 +1566,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < not found
 = 
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 1
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -1
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72,0,#FF8800\x1301)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 1
 > cpu_load
 < not found
@@ -1815,35 +1843,39 @@
 < resp -4
 = preset_load(3,urn:no:such:preset)
 # dispatch:fuzz/corpus/dispatch/scenario-37 answer 1
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-38 answer 1
 > remote_page_get 9 0
 < resp -1
 = remote_page_get(9,0)
-# dispatch:fuzz/corpus/dispatch/scenario-38 answer 1
+# dispatch:fuzz/corpus/dispatch/scenario-39 answer 1
 > remote_pages 9
 < resp -1
 = remote_pages(9)
-# dispatch:fuzz/corpus/dispatch/scenario-39 answer 1
-> remove 3
-< resp -4
-= remove(3)
 # dispatch:fuzz/corpus/dispatch/scenario-4 answer 1
 > bypass 3 1
 < resp -4
 = bypass(3,1)
 # dispatch:fuzz/corpus/dispatch/scenario-40 answer 1
+> remove 3
+< resp -4
+= remove(3)
+# dispatch:fuzz/corpus/dispatch/scenario-41 answer 1
 > state_load /tmp/state
 < resp -2
 = state_load(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-41 answer 1
+# dispatch:fuzz/corpus/dispatch/scenario-42 answer 1
 > state_save /tmp/state
 < resp -2
 = state_save(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-42 answer 1
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # dispatch:fuzz/corpus/dispatch/scenario-43 answer 1
 > track_info 3 Kick - aux
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-44 answer 1
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # dispatch:fuzz/corpus/dispatch/scenario-5 answer 1
@@ -2182,6 +2214,10 @@
 > hello 0 tags
 < not found
 = 
+# scenario-71 answer 2
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 2
 > cpu_load
 < not found
@@ -2443,35 +2479,39 @@
 < resp -101
 = preset_load(3,urn:no:such:preset)
 # fuzz/corpus/protocol/scenario-37 answer 2
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-38 answer 2
 > remote_page_get 9 0
 < resp -2
 = remote_page_get(9,0)
-# fuzz/corpus/protocol/scenario-38 answer 2
+# fuzz/corpus/protocol/scenario-39 answer 2
 > remote_pages 9
 < resp -2
 = remote_pages(9)
-# fuzz/corpus/protocol/scenario-39 answer 2
-> remove 3
-< resp -101
-= remove(3)
 # fuzz/corpus/protocol/scenario-4 answer 2
 > bypass 3 1
 < resp -101
 = bypass(3,1)
 # fuzz/corpus/protocol/scenario-40 answer 2
+> remove 3
+< resp -101
+= remove(3)
+# fuzz/corpus/protocol/scenario-41 answer 2
 > state_load /tmp/state
 < resp -3
 = state_load(/tmp/state)
-# fuzz/corpus/protocol/scenario-41 answer 2
+# fuzz/corpus/protocol/scenario-42 answer 2
 > state_save /tmp/state
 < resp -3
 = state_save(/tmp/state)
-# fuzz/corpus/protocol/scenario-42 answer 2
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # fuzz/corpus/protocol/scenario-43 answer 2
 > track_info 3 Kick - aux
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-44 answer 2
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # fuzz/corpus/protocol/scenario-5 answer 2
@@ -2494,6 +2534,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < not found
 = 
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 2
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -2
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72,0,#FF8800\x1301)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 2
 > cpu_load
 < not found
@@ -2767,35 +2811,39 @@
 < resp -101
 = preset_load(3,urn:no:such:preset)
 # dispatch:fuzz/corpus/dispatch/scenario-37 answer 2
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-38 answer 2
 > remote_page_get 9 0
 < resp -2
 = remote_page_get(9,0)
-# dispatch:fuzz/corpus/dispatch/scenario-38 answer 2
+# dispatch:fuzz/corpus/dispatch/scenario-39 answer 2
 > remote_pages 9
 < resp -2
 = remote_pages(9)
-# dispatch:fuzz/corpus/dispatch/scenario-39 answer 2
-> remove 3
-< resp -101
-= remove(3)
 # dispatch:fuzz/corpus/dispatch/scenario-4 answer 2
 > bypass 3 1
 < resp -101
 = bypass(3,1)
 # dispatch:fuzz/corpus/dispatch/scenario-40 answer 2
+> remove 3
+< resp -101
+= remove(3)
+# dispatch:fuzz/corpus/dispatch/scenario-41 answer 2
 > state_load /tmp/state
 < resp -3
 = state_load(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-41 answer 2
+# dispatch:fuzz/corpus/dispatch/scenario-42 answer 2
 > state_save /tmp/state
 < resp -3
 = state_save(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-42 answer 2
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # dispatch:fuzz/corpus/dispatch/scenario-43 answer 2
 > track_info 3 Kick - aux
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-44 answer 2
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # dispatch:fuzz/corpus/dispatch/scenario-5 answer 2
@@ -3134,6 +3182,10 @@
 > hello 0 tags
 < not found
 = 
+# scenario-71 answer 3
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 3
 > cpu_load
 < not found
@@ -3395,35 +3447,39 @@
 < resp -902
 = preset_load(3,urn:no:such:preset)
 # fuzz/corpus/protocol/scenario-37 answer 3
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-38 answer 3
 > remote_page_get 9 0
 < resp -3
 = remote_page_get(9,0)
-# fuzz/corpus/protocol/scenario-38 answer 3
+# fuzz/corpus/protocol/scenario-39 answer 3
 > remote_pages 9
 < resp -3
 = remote_pages(9)
-# fuzz/corpus/protocol/scenario-39 answer 3
-> remove 3
-< resp -902
-= remove(3)
 # fuzz/corpus/protocol/scenario-4 answer 3
 > bypass 3 1
 < resp -902
 = bypass(3,1)
 # fuzz/corpus/protocol/scenario-40 answer 3
+> remove 3
+< resp -902
+= remove(3)
+# fuzz/corpus/protocol/scenario-41 answer 3
 > state_load /tmp/state
 < resp -4
 = state_load(/tmp/state)
-# fuzz/corpus/protocol/scenario-41 answer 3
+# fuzz/corpus/protocol/scenario-42 answer 3
 > state_save /tmp/state
 < resp -4
 = state_save(/tmp/state)
-# fuzz/corpus/protocol/scenario-42 answer 3
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # fuzz/corpus/protocol/scenario-43 answer 3
 > track_info 3 Kick - aux
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-44 answer 3
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # fuzz/corpus/protocol/scenario-5 answer 3
@@ -3446,6 +3502,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < not found
 = 
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 3
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -3
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72,0,#FF8800\x1301)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 3
 > cpu_load
 < not found
@@ -3719,35 +3779,39 @@
 < resp -902
 = preset_load(3,urn:no:such:preset)
 # dispatch:fuzz/corpus/dispatch/scenario-37 answer 3
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-38 answer 3
 > remote_page_get 9 0
 < resp -3
 = remote_page_get(9,0)
-# dispatch:fuzz/corpus/dispatch/scenario-38 answer 3
+# dispatch:fuzz/corpus/dispatch/scenario-39 answer 3
 > remote_pages 9
 < resp -3
 = remote_pages(9)
-# dispatch:fuzz/corpus/dispatch/scenario-39 answer 3
-> remove 3
-< resp -902
-= remove(3)
 # dispatch:fuzz/corpus/dispatch/scenario-4 answer 3
 > bypass 3 1
 < resp -902
 = bypass(3,1)
 # dispatch:fuzz/corpus/dispatch/scenario-40 answer 3
+> remove 3
+< resp -902
+= remove(3)
+# dispatch:fuzz/corpus/dispatch/scenario-41 answer 3
 > state_load /tmp/state
 < resp -4
 = state_load(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-41 answer 3
+# dispatch:fuzz/corpus/dispatch/scenario-42 answer 3
 > state_save /tmp/state
 < resp -4
 = state_save(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-42 answer 3
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # dispatch:fuzz/corpus/dispatch/scenario-43 answer 3
 > track_info 3 Kick - aux
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-44 answer 3
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # dispatch:fuzz/corpus/dispatch/scenario-5 answer 3
@@ -4086,6 +4150,10 @@
 > hello 0 tags
 < not found
 = 
+# scenario-71 answer 4
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 4
 > cpu_load
 < not found
@@ -4347,35 +4415,39 @@
 < resp -205
 = preset_load(3,urn:no:such:preset)
 # fuzz/corpus/protocol/scenario-37 answer 4
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-38 answer 4
 > remote_page_get 9 0
 < resp -4
 = remote_page_get(9,0)
-# fuzz/corpus/protocol/scenario-38 answer 4
+# fuzz/corpus/protocol/scenario-39 answer 4
 > remote_pages 9
 < resp -4
 = remote_pages(9)
-# fuzz/corpus/protocol/scenario-39 answer 4
-> remove 3
-< resp -205
-= remove(3)
 # fuzz/corpus/protocol/scenario-4 answer 4
 > bypass 3 1
 < resp -205
 = bypass(3,1)
 # fuzz/corpus/protocol/scenario-40 answer 4
+> remove 3
+< resp -205
+= remove(3)
+# fuzz/corpus/protocol/scenario-41 answer 4
 > state_load /tmp/state
 < resp -101
 = state_load(/tmp/state)
-# fuzz/corpus/protocol/scenario-41 answer 4
+# fuzz/corpus/protocol/scenario-42 answer 4
 > state_save /tmp/state
 < resp -101
 = state_save(/tmp/state)
-# fuzz/corpus/protocol/scenario-42 answer 4
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # fuzz/corpus/protocol/scenario-43 answer 4
 > track_info 3 Kick - aux
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-44 answer 4
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # fuzz/corpus/protocol/scenario-5 answer 4
@@ -4398,6 +4470,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < not found
 = 
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 4
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -4
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72,0,#FF8800\x1301)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 4
 > cpu_load
 < not found
@@ -4671,35 +4747,39 @@
 < resp -205
 = preset_load(3,urn:no:such:preset)
 # dispatch:fuzz/corpus/dispatch/scenario-37 answer 4
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-38 answer 4
 > remote_page_get 9 0
 < resp -4
 = remote_page_get(9,0)
-# dispatch:fuzz/corpus/dispatch/scenario-38 answer 4
+# dispatch:fuzz/corpus/dispatch/scenario-39 answer 4
 > remote_pages 9
 < resp -4
 = remote_pages(9)
-# dispatch:fuzz/corpus/dispatch/scenario-39 answer 4
-> remove 3
-< resp -205
-= remove(3)
 # dispatch:fuzz/corpus/dispatch/scenario-4 answer 4
 > bypass 3 1
 < resp -205
 = bypass(3,1)
 # dispatch:fuzz/corpus/dispatch/scenario-40 answer 4
+> remove 3
+< resp -205
+= remove(3)
+# dispatch:fuzz/corpus/dispatch/scenario-41 answer 4
 > state_load /tmp/state
 < resp -101
 = state_load(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-41 answer 4
+# dispatch:fuzz/corpus/dispatch/scenario-42 answer 4
 > state_save /tmp/state
 < resp -101
 = state_save(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-42 answer 4
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # dispatch:fuzz/corpus/dispatch/scenario-43 answer 4
 > track_info 3 Kick - aux
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-44 answer 4
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # dispatch:fuzz/corpus/dispatch/scenario-5 answer 4
@@ -5038,6 +5118,10 @@
 > hello 0 tags
 < not found
 = 
+# scenario-71 answer 5
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 5
 > cpu_load
 < not found
@@ -5299,35 +5383,39 @@
 < resp -105
 = preset_load(3,urn:no:such:preset)
 # fuzz/corpus/protocol/scenario-37 answer 5
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-38 answer 5
 > remote_page_get 9 0
 < resp -101
 = remote_page_get(9,0)
-# fuzz/corpus/protocol/scenario-38 answer 5
+# fuzz/corpus/protocol/scenario-39 answer 5
 > remote_pages 9
 < resp -101
 = remote_pages(9)
-# fuzz/corpus/protocol/scenario-39 answer 5
-> remove 3
-< resp -105
-= remove(3)
 # fuzz/corpus/protocol/scenario-4 answer 5
 > bypass 3 1
 < resp -105
 = bypass(3,1)
 # fuzz/corpus/protocol/scenario-40 answer 5
+> remove 3
+< resp -105
+= remove(3)
+# fuzz/corpus/protocol/scenario-41 answer 5
 > state_load /tmp/state
 < resp -902
 = state_load(/tmp/state)
-# fuzz/corpus/protocol/scenario-41 answer 5
+# fuzz/corpus/protocol/scenario-42 answer 5
 > state_save /tmp/state
 < resp -902
 = state_save(/tmp/state)
-# fuzz/corpus/protocol/scenario-42 answer 5
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # fuzz/corpus/protocol/scenario-43 answer 5
 > track_info 3 Kick - aux
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-44 answer 5
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # fuzz/corpus/protocol/scenario-5 answer 5
@@ -5350,6 +5438,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < not found
 = 
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 5
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -101
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72,0,#FF8800\x1301)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 5
 > cpu_load
 < not found
@@ -5623,35 +5715,39 @@
 < resp -105
 = preset_load(3,urn:no:such:preset)
 # dispatch:fuzz/corpus/dispatch/scenario-37 answer 5
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-38 answer 5
 > remote_page_get 9 0
 < resp -101
 = remote_page_get(9,0)
-# dispatch:fuzz/corpus/dispatch/scenario-38 answer 5
+# dispatch:fuzz/corpus/dispatch/scenario-39 answer 5
 > remote_pages 9
 < resp -101
 = remote_pages(9)
-# dispatch:fuzz/corpus/dispatch/scenario-39 answer 5
-> remove 3
-< resp -105
-= remove(3)
 # dispatch:fuzz/corpus/dispatch/scenario-4 answer 5
 > bypass 3 1
 < resp -105
 = bypass(3,1)
 # dispatch:fuzz/corpus/dispatch/scenario-40 answer 5
+> remove 3
+< resp -105
+= remove(3)
+# dispatch:fuzz/corpus/dispatch/scenario-41 answer 5
 > state_load /tmp/state
 < resp -902
 = state_load(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-41 answer 5
+# dispatch:fuzz/corpus/dispatch/scenario-42 answer 5
 > state_save /tmp/state
 < resp -902
 = state_save(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-42 answer 5
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # dispatch:fuzz/corpus/dispatch/scenario-43 answer 5
 > track_info 3 Kick - aux
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-44 answer 5
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # dispatch:fuzz/corpus/dispatch/scenario-5 answer 5
@@ -5990,6 +6086,10 @@
 > hello 0 tags
 < not found
 = 
+# scenario-71 answer 6
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 6
 > cpu_load
 < not found
@@ -6251,35 +6351,39 @@
 < resp 0
 = preset_load(3,urn:no:such:preset)
 # fuzz/corpus/protocol/scenario-37 answer 6
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-38 answer 6
 > remote_page_get 9 0
 < resp -902
 = remote_page_get(9,0)
-# fuzz/corpus/protocol/scenario-38 answer 6
+# fuzz/corpus/protocol/scenario-39 answer 6
 > remote_pages 9
 < resp -902
 = remote_pages(9)
-# fuzz/corpus/protocol/scenario-39 answer 6
-> remove 3
-< resp 0
-= remove(3)
 # fuzz/corpus/protocol/scenario-4 answer 6
 > bypass 3 1
 < resp 0
 = bypass(3,1)
 # fuzz/corpus/protocol/scenario-40 answer 6
+> remove 3
+< resp 0
+= remove(3)
+# fuzz/corpus/protocol/scenario-41 answer 6
 > state_load /tmp/state
 < resp -205
 = state_load(/tmp/state)
-# fuzz/corpus/protocol/scenario-41 answer 6
+# fuzz/corpus/protocol/scenario-42 answer 6
 > state_save /tmp/state
 < resp -205
 = state_save(/tmp/state)
-# fuzz/corpus/protocol/scenario-42 answer 6
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # fuzz/corpus/protocol/scenario-43 answer 6
 > track_info 3 Kick - aux
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-44 answer 6
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # fuzz/corpus/protocol/scenario-5 answer 6
@@ -6302,6 +6406,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < not found
 = 
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 6
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -902
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72,0,#FF8800\x1301)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 6
 > cpu_load
 < not found
@@ -6575,35 +6683,39 @@
 < resp 0
 = preset_load(3,urn:no:such:preset)
 # dispatch:fuzz/corpus/dispatch/scenario-37 answer 6
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-38 answer 6
 > remote_page_get 9 0
 < resp -902
 = remote_page_get(9,0)
-# dispatch:fuzz/corpus/dispatch/scenario-38 answer 6
+# dispatch:fuzz/corpus/dispatch/scenario-39 answer 6
 > remote_pages 9
 < resp -902
 = remote_pages(9)
-# dispatch:fuzz/corpus/dispatch/scenario-39 answer 6
-> remove 3
-< resp 0
-= remove(3)
 # dispatch:fuzz/corpus/dispatch/scenario-4 answer 6
 > bypass 3 1
 < resp 0
 = bypass(3,1)
 # dispatch:fuzz/corpus/dispatch/scenario-40 answer 6
+> remove 3
+< resp 0
+= remove(3)
+# dispatch:fuzz/corpus/dispatch/scenario-41 answer 6
 > state_load /tmp/state
 < resp -205
 = state_load(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-41 answer 6
+# dispatch:fuzz/corpus/dispatch/scenario-42 answer 6
 > state_save /tmp/state
 < resp -205
 = state_save(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-42 answer 6
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # dispatch:fuzz/corpus/dispatch/scenario-43 answer 6
 > track_info 3 Kick - aux
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-44 answer 6
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # dispatch:fuzz/corpus/dispatch/scenario-5 answer 6
@@ -6942,6 +7054,10 @@
 > hello 0 tags
 < not found
 = 
+# scenario-71 answer 7
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 7
 > cpu_load
 < not found
@@ -7203,35 +7319,39 @@
 < resp -1
 = preset_load(3,urn:no:such:preset)
 # fuzz/corpus/protocol/scenario-37 answer 7
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-38 answer 7
 > remote_page_get 9 0
 < resp -205
 = remote_page_get(9,0)
-# fuzz/corpus/protocol/scenario-38 answer 7
+# fuzz/corpus/protocol/scenario-39 answer 7
 > remote_pages 9
 < resp -205
 = remote_pages(9)
-# fuzz/corpus/protocol/scenario-39 answer 7
-> remove 3
-< resp -1
-= remove(3)
 # fuzz/corpus/protocol/scenario-4 answer 7
 > bypass 3 1
 < resp -1
 = bypass(3,1)
 # fuzz/corpus/protocol/scenario-40 answer 7
+> remove 3
+< resp -1
+= remove(3)
+# fuzz/corpus/protocol/scenario-41 answer 7
 > state_load /tmp/state
 < resp -105
 = state_load(/tmp/state)
-# fuzz/corpus/protocol/scenario-41 answer 7
+# fuzz/corpus/protocol/scenario-42 answer 7
 > state_save /tmp/state
 < resp -105
 = state_save(/tmp/state)
-# fuzz/corpus/protocol/scenario-42 answer 7
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # fuzz/corpus/protocol/scenario-43 answer 7
 > track_info 3 Kick - aux
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-44 answer 7
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # fuzz/corpus/protocol/scenario-5 answer 7
@@ -7254,6 +7374,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < not found
 = 
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 7
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -205
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72,0,#FF8800\x1301)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 7
 > cpu_load
 < not found
@@ -7527,35 +7651,39 @@
 < resp -1
 = preset_load(3,urn:no:such:preset)
 # dispatch:fuzz/corpus/dispatch/scenario-37 answer 7
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-38 answer 7
 > remote_page_get 9 0
 < resp -205
 = remote_page_get(9,0)
-# dispatch:fuzz/corpus/dispatch/scenario-38 answer 7
+# dispatch:fuzz/corpus/dispatch/scenario-39 answer 7
 > remote_pages 9
 < resp -205
 = remote_pages(9)
-# dispatch:fuzz/corpus/dispatch/scenario-39 answer 7
-> remove 3
-< resp -1
-= remove(3)
 # dispatch:fuzz/corpus/dispatch/scenario-4 answer 7
 > bypass 3 1
 < resp -1
 = bypass(3,1)
 # dispatch:fuzz/corpus/dispatch/scenario-40 answer 7
+> remove 3
+< resp -1
+= remove(3)
+# dispatch:fuzz/corpus/dispatch/scenario-41 answer 7
 > state_load /tmp/state
 < resp -105
 = state_load(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-41 answer 7
+# dispatch:fuzz/corpus/dispatch/scenario-42 answer 7
 > state_save /tmp/state
 < resp -105
 = state_save(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-42 answer 7
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # dispatch:fuzz/corpus/dispatch/scenario-43 answer 7
 > track_info 3 Kick - aux
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-44 answer 7
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # dispatch:fuzz/corpus/dispatch/scenario-5 answer 7
@@ -7894,6 +8022,10 @@
 > hello 0 tags
 < not found
 = 
+# scenario-71 answer 8
+> preset_save 9 probe /tmp/golden probe.ttl
+< resp -902
+= 
 # fuzz/corpus/protocol/extra-1 answer 8
 > cpu_load
 < not found
@@ -8155,35 +8287,39 @@
 < resp -2
 = preset_load(3,urn:no:such:preset)
 # fuzz/corpus/protocol/scenario-37 answer 8
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-38 answer 8
 > remote_page_get 9 0
 < resp -105
 = remote_page_get(9,0)
-# fuzz/corpus/protocol/scenario-38 answer 8
+# fuzz/corpus/protocol/scenario-39 answer 8
 > remote_pages 9
 < resp -105
 = remote_pages(9)
-# fuzz/corpus/protocol/scenario-39 answer 8
-> remove 3
-< resp -2
-= remove(3)
 # fuzz/corpus/protocol/scenario-4 answer 8
 > bypass 3 1
 < resp -2
 = bypass(3,1)
 # fuzz/corpus/protocol/scenario-40 answer 8
+> remove 3
+< resp -2
+= remove(3)
+# fuzz/corpus/protocol/scenario-41 answer 8
 > state_load /tmp/state
 < resp 0
 = state_load(/tmp/state)
-# fuzz/corpus/protocol/scenario-41 answer 8
+# fuzz/corpus/protocol/scenario-42 answer 8
 > state_save /tmp/state
 < resp 0
 = state_save(/tmp/state)
-# fuzz/corpus/protocol/scenario-42 answer 8
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # fuzz/corpus/protocol/scenario-43 answer 8
 > track_info 3 Kick - aux
+< resp -902
+= 
+# fuzz/corpus/protocol/scenario-44 answer 8
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # fuzz/corpus/protocol/scenario-5 answer 8
@@ -8206,6 +8342,10 @@
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:db@bell
 < not found
 = 
+# dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 8
+> add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
+< resp -105
+= add(clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72,0,#FF8800\x1301)
 # dispatch:fuzz/corpus/dispatch/extra-1 answer 8
 > cpu_load
 < not found
@@ -8479,35 +8619,39 @@
 < resp -2
 = preset_load(3,urn:no:such:preset)
 # dispatch:fuzz/corpus/dispatch/scenario-37 answer 8
+> preset_save 9 probe /tmp/state probe.ttl
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-38 answer 8
 > remote_page_get 9 0
 < resp -105
 = remote_page_get(9,0)
-# dispatch:fuzz/corpus/dispatch/scenario-38 answer 8
+# dispatch:fuzz/corpus/dispatch/scenario-39 answer 8
 > remote_pages 9
 < resp -105
 = remote_pages(9)
-# dispatch:fuzz/corpus/dispatch/scenario-39 answer 8
-> remove 3
-< resp -2
-= remove(3)
 # dispatch:fuzz/corpus/dispatch/scenario-4 answer 8
 > bypass 3 1
 < resp -2
 = bypass(3,1)
 # dispatch:fuzz/corpus/dispatch/scenario-40 answer 8
+> remove 3
+< resp -2
+= remove(3)
+# dispatch:fuzz/corpus/dispatch/scenario-41 answer 8
 > state_load /tmp/state
 < resp 0
 = state_load(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-41 answer 8
+# dispatch:fuzz/corpus/dispatch/scenario-42 answer 8
 > state_save /tmp/state
 < resp 0
 = state_save(/tmp/state)
-# dispatch:fuzz/corpus/dispatch/scenario-42 answer 8
-> track_info 3 Kick #FF800
-< resp -902
-= 
 # dispatch:fuzz/corpus/dispatch/scenario-43 answer 8
 > track_info 3 Kick - aux
+< resp -902
+= 
+# dispatch:fuzz/corpus/dispatch/scenario-44 answer 8
+> track_info 3 Kick #FF800
 < resp -902
 = 
 # dispatch:fuzz/corpus/dispatch/scenario-5 answer 8

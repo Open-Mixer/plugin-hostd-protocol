@@ -113,3 +113,7 @@ fuzz/corpus/protocol/extra-33 omx-dsp#301
 dispatch:fuzz/corpus/dispatch/extra-33 omx-dsp#301
 fuzz/corpus/protocol/extra-34 omx-dsp#301
 dispatch:fuzz/corpus/dispatch/extra-34 omx-dsp#301
+# a bare clap: uri whose path holds a space is one uri (0.4.1, phd_add_uri): ours reads add's uri on to the word that
+# holds its '#', mod-host takes the first word and reads the next as the instance; first compared when the corpus was
+# written again (#33)
+dispatch:fuzz/corpus/dispatch/add-clap-high-bytes plugin-hostd-protocol#33
