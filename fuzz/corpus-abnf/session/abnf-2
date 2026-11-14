@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-@.U descriptor_get Ί
-monitor "²" -63 10
-@-- worker_list
-all_notes_off 571
-track_info 07 !͹˔ "\"\"" "\"!" z!
-monitor_output_off 4 "\""
-@_ panel_get " \""
-chain_clear -37
-history_get ~
-@_ curve_bind -198 8 !
-@-9 set_bpm -infinity
-@-_ midi_unmap 01 ""
+@0 load !͝!
+@_ property_info -37 887
+@_1_ quarantine_clear "\"\""
+@31 hmi_map -39 ) -67 -26 -1 8 -4 "η" -083 inf -50
+show_external_ui -956
+@10 history_clear "\"\""
+midi_learn -2 CȖѪ +nan -inf
+@-. plan_clear -2
+instance_info 1
+set_bpm .7e+982
+pin_clear "ŅЕ"
+@4H- cc_value_set 8 ˇ inf

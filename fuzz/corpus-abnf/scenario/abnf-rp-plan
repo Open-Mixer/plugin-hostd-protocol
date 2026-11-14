@@ -1,10 +1,10 @@
-plan 0 -84 !!! => resp 0 "\"\""
-plan -88 -90 Ŀ => resp 0 !!
-plan 11 689 => resp 0 u!ћ !
-plan -1 -226 => resp 0 ϭ!
-plan -7 680 => resp 0 "\"|"
-plan 6 85 !!˛ " " => resp 0 "" ""
+plan 86 2 => resp 0 "ƪ"
+plan 585 01 z ! => resp 0 "" ""
 plan 08 -38 Ă !ǧΔ => resp 0 "" "4\""
 plan 856 -191 тɽ! Тј => resp 0 "+"
 plan -986 -610 ! ĕ => resp 0 Щ /(=
 plan -29 -06 "\"" "\"" => resp 0 "b\"" Ǽs
+plan 5 65 => resp 0 "\""
+plan 42 36 => resp 0 Ėǜ
+plan 2 59 => resp 0 !ϟd !
+plan 2 7 => resp 0 "ɋ"

@@ -41,7 +41,7 @@ Discovery: the daemon declares itself in files, not on the socket. The verb tabl
 The verb table and the grammar
 ------------------------------
 
-`protocol/plugin-hostd-protocol.json` is the one table of the protocol: every command, each once, with its origin, its argument types, its reply and its refusals, and every feedback line. It is merged from `protocol/mod-host.json`, `protocol/plugin-hostd.json`, `data/verbs.json`, `include/plugin-hostd/omx_clap_core_host_verbs.h` by `tools/protocol-table.py`; 48 commands of origin mod-host, 28 commands of origin plugin-hostd, 11 commands of origin omx-clap-core, 6 commands of origin plugin-hostd-protocol, 21 feedback lines.
+`protocol/plugin-hostd-protocol.json` is the one table of the protocol: every command, each once, with its origin, its argument types, its reply and its refusals, and every feedback line. It is merged from `protocol/mod-host.json`, `protocol/plugin-hostd.json`, `data/verbs.json`, `include/plugin-hostd/omx_clap_core_host_verbs.h` by `tools/protocol-table.py`; 48 commands of origin mod-host, 28 commands of origin plugin-hostd, 15 commands of origin omx-clap-core, 6 commands of origin plugin-hostd-protocol, 21 feedback lines.
 
 `grammar/plugin-hostd-protocol.abnf` is the grammar of a line, in ABNF (RFC 5234, with RFC 7405's case-sensitive strings): the lexical core, written once by hand (`grammar/core.abnf`), and a rule per command, per feedback line and per parse refusal generated from the table by `tools/abnf-gen.py`. Every line of the scenario corpus and every reply the library writes in the golden transcript is held to it (`make test-grammar`).
 
@@ -119,7 +119,7 @@ In a session granted `errors`, a refusal `resp <n>` is followed by one more word
 < resp -3 reply.host.instance-non-exists
 ```
 
-- The words are those of the [reply codes](#reply-codes), 63 numbers in all; a number the protocol declares no code for goes out bare.
+- The words are those of the [reply codes](#reply-codes), 67 numbers in all; a number the protocol declares no code for goes out bare.
 - Only a refusal alone gets its word: a reply that carries values after its number, a success and a parse refusal (`not found`, `few arguments`, which are words already) go out as they are.
 - With `tags` as well, the tag comes first: `@a9 resp -3 reply.host.instance-non-exists`.
 
@@ -649,6 +649,43 @@ A hosted node's client stays `effect_<instance>`; its pretty-name, JACK metadata
 < resp 0
 ```
 
+### File and text properties, by instance
+
+| verb | arguments | types | reply | codes | since (the group's) | hosts | meaning |
+|---|---|---|---|---|---|---|---|
+| `property_list` | `<instance>` | int | `resp <count>` | -902 reply.host.invalid-operation; -3 reply.host.instance-non-exists | - | plugin-hostd optional, omx-clap-host required, mod-host unsupported | the plugin's file and text properties (org.openmixer.properties/1): how many; 0 for an instance of a worker that has none |
+| `property_info` | `<instance> <index>` | int int | `resp 0 <symbol> <kind> <access> <name>` | -902 reply.host.invalid-operation; -3 reply.host.instance-non-exists; -106 reply.host.property-symbol-invalid | - | plugin-hostd optional, omx-clap-host required, mod-host unsupported | one property, 0 to count - 1: its symbol, its kind (path or string), its access (rw, w or r) and its name; (-106) for an index that is not one |
+| `property_get` | `<instance> <symbol>` | int word | `resp 0 <value>` | -902 reply.host.invalid-operation; -3 reply.host.instance-non-exists; -106 reply.host.property-symbol-invalid; -107 reply.host.property-access | - | plugin-hostd optional, omx-clap-host required, mod-host unsupported | the value the plugin holds now, one quoted-escaped word; (-107) for a property that is not readable |
+| `property_set` | `<instance> <symbol> <value>` | int word word | `resp 0` | -902 reply.host.invalid-operation; -3 reply.host.instance-non-exists; -106 reply.host.property-symbol-invalid; -107 reply.host.property-access; -108 reply.host.property-value-invalid; -109 reply.host.property-queue-full | - | plugin-hostd optional, omx-clap-host required, mod-host unsupported | set a property to a quoted-escaped value, which reaches the plugin at its next block; the ledger keeps the latest per symbol and replays each to a respawned worker. (-107) for one not writable, (-108) for a value too large, not UTF-8 or a path that is not absolute, (-109) to send again |
+
+`property_list`:
+
+```
+> property_list 0
+< resp <count>
+```
+
+`property_info`:
+
+```
+> property_info 0 0
+< resp 0 <symbol> <kind> <access> <name>
+```
+
+`property_get`:
+
+```
+> property_get 0 <symbol>
+< resp 0 <value>
+```
+
+`property_set`:
+
+```
+> property_set 0 <symbol> <value>
+< resp 0
+```
+
 4. Events and feedback
 ----------------------
 
@@ -730,6 +767,10 @@ The codes omx-clap-host answers too (omx-clap-core's `reply.host.*`):
 | -103 | `reply.host.param-symbol-invalid` | mod-host's ERR_LV2_INVALID_PARAM_SYMBOL: a symbol that is not a parameter param_set takes, the plugin's own bypass included |
 | -104 | `reply.host.preset-uri-invalid` | mod-host's ERR_LV2_INVALID_PRESET_URI: a preset this plugin does not have, or a file it cannot take |
 | -105 | `reply.host.state-load-failed` | mod-host's ERR_LV2_CANT_LOAD_STATE: the plugin refused its saved state |
+| -106 | `reply.host.property-symbol-invalid` | a symbol that is not one of the instance's file or text properties (org.openmixer.properties/1), or an index past its last |
+| -107 | `reply.host.property-access` | a set of a property that is not writable, or a get of one that is not readable |
+| -108 | `reply.host.property-value-invalid` | a property value the host does not hand on: larger than OMX_CLAP_PROPERTY_VALUE_MAX with its NUL, not UTF-8, or a path that is not absolute |
+| -109 | `reply.host.property-queue-full` | the instance's property ring has no room before its next block: nothing of the set is kept, and it may be sent again |
 | -201 | `reply.host.jack-client-creation` | mod-host's ERR_JACK_CLIENT_CREATION: no audio client could be made for the plugin |
 | -202 | `reply.host.jack-client-activation` | mod-host's ERR_JACK_CLIENT_ACTIVATION: the plugin's audio client would not start |
 | -203 | `reply.host.jack-client-deactivation` | mod-host's ERR_JACK_CLIENT_DEACTIVATION: the plugin's audio client would not stop |
@@ -804,7 +845,7 @@ The codes the daemon adds. A transient one says nothing about the plugin or the 
 |---|---|---|---|---|---|
 | `protocol/plugin-hostd.schema.json` | `/usr/share/plugin-hostd-protocol/plugin-hostd.schema.json` | `https://github.com/Open-Mixer/plugin-hostd-protocol/protocol/plugin-hostd.schema.json` | The protocol surface plugin-hostd owns | - | Generated from include/plugin-hostd/protocol.h, which is the declaration; this file says the shape of the JSON. |
 
-Counts: 48 mod-host commands, 34 same, 9 differs, 5 refused; 34 verbs mod-host does not have.
+Counts: 48 mod-host commands, 34 same, 9 differs, 5 refused; 38 verbs mod-host does not have.
 
 Appendix: mod-host's command reference
 --------------------------------------

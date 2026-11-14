@@ -105,6 +105,10 @@ What each host profile owes each verb a controller sends:
 | `remote_pages` | mod-host | optional | optional | optional | optional |
 | `remote_page_get` | mod-host | optional | optional | optional | optional |
 | `param_info` | mod-host | optional | optional | optional | optional |
+| `property_list` | daemon | optional | optional | optional | optional |
+| `property_info` | daemon | optional | optional | optional | optional |
+| `property_get` | daemon | optional | optional | optional | optional |
+| `property_set` | daemon | optional | optional | optional | optional |
 | `preset_list` | daemon | optional | optional | optional | optional |
 | `preset_get` | daemon | optional | optional | optional | optional |
 | `note_input` | daemon | optional | optional | optional | optional |
