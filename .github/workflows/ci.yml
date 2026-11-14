@@ -94,7 +94,7 @@ jobs:
       - name: omx-contract and omx-clap-core's and plugin-db's packages of the contract directory
         run: |
           set -euo pipefail
-          dnf -y install 'omx-contract >= 3.18.0' 'omx-contract < 4' 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' omx-clap-core-contract 'plugin-db-contract >= 0.4.4' 'plugin-db-contract < 0.5' 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33'
+          dnf -y install 'omx-contract >= 0.32.0' 0.4.0' 0.33.0' 3.18.0' 'omx-contract < 4' 'omx-clap-core-contract 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' omx-clap-core-contract 'plugin-db-contract >= 0.4.4' 'plugin-db-contract < 0.5' 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33'
           if rpm -q plugin-hostd-contract; then echo "plugin-hostd-contract is installed: it declares the same items"; exit 1; fi
       # an ordinary run renders and builds against what consumers get, the channel: name where each omx package came
       # from, and refuse one from the staging channel (#27: a stale staged omx-clap-core-contract outranked the channel)

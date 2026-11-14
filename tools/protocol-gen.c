@@ -207,7 +207,7 @@ static void json(void)
     jstr(args); \
     printf(", \"reply\": "); \
     jstr(reply); \
-    printf(", \"ledger\": \"%s\", \"meaning\": ", PHD_LEDGER_##ledger == PHD_LEDGER_REPLACE ? "replace" : "none"); \
+    printf(", \"ledger\": \"%s\", \"meaning\": ", PHD_LEDGER_##ledger == PHD_LEDGER_REPLACE_KEYED ? "replace-keyed" : PHD_LEDGER_##ledger == PHD_LEDGER_REPLACE ? "replace" : "none"); \
     jstr(meaning); \
     printf("}"); \
     sep = ",\n";

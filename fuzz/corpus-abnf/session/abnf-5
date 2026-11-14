@@ -1,13 +1,13 @@
-hello 1 errors tags
+hello 1 errors seq tags
+state_load !
 @-. midi_unmap 6 !!̻
-lv2_worker_set "" ʍ
-preset_show ʬ
-param_get 25 "\""
-state_load ć5
-chain_get -013
-monitor_output_off -7 ""
-@O_ cv_map -290 "\"" "" +inf inf !zʊ
-@. preset_load 7 Ф
-monitor_output 1 !ʮ
-@_._ bundle_add BI
-@- bundle_remove ! "л\""
+estimate -08 -492 ʬ
+show_external_ui 5
+@. state_load ć5
+property_list -013
+worker_list
+@_ policy_set "" "Ġ"
+add q 9 ""
+@0x- set_bpm inf
+@- quarantine_clear B
+load "!"
