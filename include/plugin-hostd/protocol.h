@@ -1202,6 +1202,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(NUMBER, "number", "-?[0-9]+(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?", 0, "a decimal number") \
     X(SHA256, "sha256", "[0-9a-f]{64}", 0, "a SHA-256 in 64 lowercase hexadecimal digits") \
     X(QUOTED, "quoted", "\"[^\"]*\"", 0, "a path in double quotes") \
+    X(QUOTED_ESCAPED, "quoted-escaped", "\"(?:[^\"\\\\]|\\\\[\"\\\\])*\"", 0, \
+      "text in double quotes, \\\" a quote and \\\\ a backslash inside it (a property's value)") \
     X(KEY, "key", "[a-z_]+", 0, "a key of a key=value") \
     X(VALUE, "value", "[^, ]*", 0, "a value of a key=value") \
     X(LINE, "line", ".*", 1, "the rest of the line, its words as they were sent")
@@ -1226,7 +1228,7 @@ static inline int phd_is_note_verb(const char *verb)
     X("instance-or-none", "8") X("status", "signal:11") X("suspect", "suspect:12") X("chain", "4.1") \
     X("reasons", "7:budget") X("placement", "own") X("member", "7" PHD_WORKER_PIN_REFUSED) X("worker-or-none", "w2") \
     X("state", "up") X("place", "chain:4.1") X("amount", "1024") X("number", "-6.02") \
-    X("sha256", "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08") X("quoted", "\"/var/lib/x.json\"") \
+    X("sha256", "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08") X("quoted", "\"/var/lib/x.json\"") X("quoted-escaped", "\"Sala \\\"A\\\" \\\\ 1\"") \
     X("key", "crashed") X("value", "0") X("line", "{\"name\":\"warm\"}") X("core", "2")
 
 /* The composite types (#19): a list is items of one type joined by a separator, or one of its none words (a|b, "" for

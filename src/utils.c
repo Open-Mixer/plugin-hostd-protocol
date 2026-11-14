@@ -85,16 +85,32 @@
 ************************************************************************************************************************
 */
 
+/* a token's delimiting quotes out, and its escapes in (the quoted-escaped argument, grammar/plugin-hostd-protocol.abnf):
+ * a marked \" is one quote and a marked \\ one backslash; the split marks them with \x01 and \x02, which a line never
+ * holds (the grammar takes no control character) */
 static void parse_quote(char *str)
 {
-    char *pstr = str;
+    char *r = str, *w = str;
 
-    while (*pstr)
+    for (; *r; r++)
     {
-        if (*pstr == '"')
-            memmove(pstr, pstr+1, strlen(pstr));
-        pstr++;
+        if (*r == '"')
+            continue;
+        if (*r == '\x01' && r[1] == '"')
+        {
+            *w++ = '"';
+            r++;
+            continue;
+        }
+        if (*r == '\x02' && r[1] == '\\')
+        {
+            *w++ = '\\';
+            r++;
+            continue;
+        }
+        *w++ = *r;
     }
+    *w = '\0';
 }
 
 static void trim_spaces(char *str)
@@ -141,9 +157,9 @@ char** strarr_split(char *str)
                 pstr++;
         }
 #ifdef ENABLE_QUOTATION_MARKS
-        else if (*pstr == '\\' && *(pstr+1) == '"')
+        else if (*pstr == '\\' && (*(pstr+1) == '"' || (quote && *(pstr+1) == '\\')))
         {
-            // special case for escaped quotes
+            // an escaped quote, or inside quotes an escaped backslash: one character, never a delimiter
             pstr++;
         }
         else if (*pstr == '"')
@@ -185,8 +201,13 @@ char** strarr_split(char *str)
 #ifdef ENABLE_QUOTATION_MARKS
         else if (*pstr == '\\' && *(pstr+1) == '"')
         {
-            // special case for escaped quotes
-            *pstr++ = '"';
+            // an escaped quote: the backslash marks it, unescape() keeps it as a quote of the value
+            *pstr++ = '\x01';
+        }
+        else if (quote && *pstr == '\\' && *(pstr+1) == '\\')
+        {
+            // inside quotes, an escaped backslash: unescape() keeps one
+            *pstr++ = '\x02';
         }
         else if (*pstr == '"')
         {
