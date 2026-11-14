@@ -1,13 +1,13 @@
-hello 1 errors seq tags
-@-g history_get " "
-param_set 2 "Ɔ " θ
-@2l. monitor_output_off -6 "6 "
-@-1 plan_get -8
-@_ estimate -90 2 Œe "P\""
-load !
-history_clear " \""
-note_off -03 2 -4 -879
-@e-- audio_ports 03
-@_a track_info 48 H+! "Į" !u wţ
-@..4 monitor "" -316 -70
-plan 2 037 "\"" Ěi
+hello 1 seq tags
+@_ chain -90 2 !e)
+set_bpb -nan
+cc_value_set 8 !В! +nan
+@1 licensee -4
+@._. hide_external_ui -6
+@__ note_drops -1
+pool_config & -48
+pin_accept +!
+@.k feature_enable bwţ -893
+@6 preset_load 316 ")\""
+connect "â\"" ņ=Н
+pin_reload

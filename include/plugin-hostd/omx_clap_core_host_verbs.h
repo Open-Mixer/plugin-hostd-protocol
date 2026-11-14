@@ -105,6 +105,34 @@ struct omx_host_verb {
 #define OMX_VERB_ALL_NOTES_OFF_CODES_COUNT 6u
 #define OMX_VERB_ALL_NOTES_OFF_CODES_INIT { -513, -514, -517, -3, -902, -901 } /* reply.host.no-note-input, reply.host.notes-by-jack, reply.host.note-queue-full, reply.host.instance-non-exists, reply.host.invalid-operation, reply.host.memory-allocation */
 
+/* OMX_CLAP_CORE_SHARED_VERBS.propertyList (data/verbs.json): The instance's file and text properties (org.openmixer.properties/1, #15): how many; 0 for a plugin that offers none or whose table broke a rule at load. */
+#define OMX_VERB_PROPERTY_LIST "property_list"
+#define OMX_VERB_PROPERTY_LIST_FMT "property_list %i"
+#define OMX_VERB_PROPERTY_LIST_REPLY "resp <count>"
+#define OMX_VERB_PROPERTY_LIST_CODES_COUNT 2u
+#define OMX_VERB_PROPERTY_LIST_CODES_INIT { -902, -3 } /* reply.host.invalid-operation, reply.host.instance-non-exists */
+
+/* OMX_CLAP_CORE_SHARED_VERBS.propertyInfo (data/verbs.json): One property, 0 to count - 1: its symbol, its kind (path or string), its access (rw, w or r) and its name as a quoted-escaped word; -106 for an index that is not one. */
+#define OMX_VERB_PROPERTY_INFO "property_info"
+#define OMX_VERB_PROPERTY_INFO_FMT "property_info %i %i"
+#define OMX_VERB_PROPERTY_INFO_REPLY "resp 0 <symbol> <kind> <access> <name>"
+#define OMX_VERB_PROPERTY_INFO_CODES_COUNT 3u
+#define OMX_VERB_PROPERTY_INFO_CODES_INIT { -902, -3, -106 } /* reply.host.invalid-operation, reply.host.instance-non-exists, reply.host.property-symbol-invalid */
+
+/* OMX_CLAP_CORE_SHARED_VERBS.propertyGet (data/verbs.json): The value the plugin holds now for the property of that symbol, as a quoted-escaped word ("" when unset); -107 for one that is not readable. */
+#define OMX_VERB_PROPERTY_GET "property_get"
+#define OMX_VERB_PROPERTY_GET_FMT "property_get %i %s"
+#define OMX_VERB_PROPERTY_GET_REPLY "resp 0 <value>"
+#define OMX_VERB_PROPERTY_GET_CODES_COUNT 4u
+#define OMX_VERB_PROPERTY_GET_CODES_INIT { -902, -3, -106, -107 } /* reply.host.invalid-operation, reply.host.instance-non-exists, reply.host.property-symbol-invalid, reply.host.property-access */
+
+/* OMX_CLAP_CORE_SHARED_VERBS.propertySet (data/verbs.json): Set the property of that symbol to the quoted-escaped value: it reaches the plugin at its next block; -107 for one that is not writable, -108 for a value too large, not UTF-8 or a path that is not absolute, -109 when the instance's ring is full (send it again). */
+#define OMX_VERB_PROPERTY_SET "property_set"
+#define OMX_VERB_PROPERTY_SET_FMT "property_set %i %s %s"
+#define OMX_VERB_PROPERTY_SET_REPLY "resp 0"
+#define OMX_VERB_PROPERTY_SET_CODES_COUNT 6u
+#define OMX_VERB_PROPERTY_SET_CODES_INIT { -902, -3, -106, -107, -108, -109 } /* reply.host.invalid-operation, reply.host.instance-non-exists, reply.host.property-symbol-invalid, reply.host.property-access, reply.host.property-value-invalid, reply.host.property-queue-full */
+
 /* OMX_CLAP_HOST_VERBS.audioPorts (data/verbs.json): The instance's audio ports, inputs first and each side's main port first, each with the JACK ports that carry it; dry while the instance passes its input through. */
 #define OMX_VERB_AUDIO_PORTS "audio_ports"
 #define OMX_VERB_AUDIO_PORTS_FMT "audio_ports %i"
@@ -140,7 +168,7 @@ struct omx_host_verb {
 #define OMX_VERB_NOTE_OUT_DROPS_CODES_COUNT 1u
 #define OMX_VERB_NOTE_OUT_DROPS_CODES_INIT { -3 } /* reply.host.instance-non-exists */
 
-#define OMX_CLAP_CORE_HOST_VERB_COUNT 15u
+#define OMX_CLAP_CORE_HOST_VERB_COUNT 19u
 
 /* Every verb, in the order of its items, with what each host owes it. */
 static inline const struct omx_host_verb *omx_clap_core_host_verbs(void) {
@@ -155,6 +183,10 @@ static inline const struct omx_host_verb *omx_clap_core_host_verbs(void) {
     { OMX_VERB_NOTE_ON, OMX_VERB_NOTE_ON_FMT, OMX_VERB_NOTE_ON_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_NOTE_OFF, OMX_VERB_NOTE_OFF_FMT, OMX_VERB_NOTE_OFF_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_ALL_NOTES_OFF, OMX_VERB_ALL_NOTES_OFF_FMT, OMX_VERB_ALL_NOTES_OFF_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
+    { OMX_VERB_PROPERTY_LIST, OMX_VERB_PROPERTY_LIST_FMT, OMX_VERB_PROPERTY_LIST_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
+    { OMX_VERB_PROPERTY_INFO, OMX_VERB_PROPERTY_INFO_FMT, OMX_VERB_PROPERTY_INFO_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
+    { OMX_VERB_PROPERTY_GET, OMX_VERB_PROPERTY_GET_FMT, OMX_VERB_PROPERTY_GET_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
+    { OMX_VERB_PROPERTY_SET, OMX_VERB_PROPERTY_SET_FMT, OMX_VERB_PROPERTY_SET_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_AUDIO_PORTS, OMX_VERB_AUDIO_PORTS_FMT, OMX_VERB_AUDIO_PORTS_REPLY, { OMX_HOST_VERB_UNSUPPORTED, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_HIDE_EXTERNAL_UI, OMX_VERB_HIDE_EXTERNAL_UI_FMT, OMX_VERB_HIDE_EXTERNAL_UI_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_IDLE_HOLD, OMX_VERB_IDLE_HOLD_FMT, OMX_VERB_IDLE_HOLD_REPLY, { OMX_HOST_VERB_UNSUPPORTED, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },

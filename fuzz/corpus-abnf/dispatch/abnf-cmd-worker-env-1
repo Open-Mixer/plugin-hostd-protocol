@@ -1,1 +1,1 @@
-worker_env "" !! C
+worker_env "!" "U\"" ""

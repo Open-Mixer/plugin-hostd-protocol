@@ -146,6 +146,10 @@ command          = cmd-add
                  / cmd-note-on
                  / cmd-note-out-drops
                  / cmd-pin-expect
+                 / cmd-property-get
+                 / cmd-property-info
+                 / cmd-property-list
+                 / cmd-property-set
                  / cmd-chain
                  / cmd-chain-clear
                  / cmd-chain-get
@@ -301,6 +305,14 @@ cmd-note-on              = %s"note_on" SP int SP int SP int SP int
 cmd-note-out-drops       = %s"note_out_drops" SP int
 ; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS; sent by the daemon to a worker
 cmd-pin-expect           = %s"pin_expect" SP int SP word
+; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+cmd-property-get         = %s"property_get" SP int SP word
+; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+cmd-property-info        = %s"property_info" SP int SP int
+; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+cmd-property-list        = %s"property_list" SP int
+; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+cmd-property-set         = %s"property_set" SP int SP word SP quoted-escaped
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.chain
 cmd-chain                = %s"chain" SP int SP int tail
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.chainClear
@@ -432,7 +444,7 @@ fb-supervisor-gave-up      = %s"supervisor_gave_up" SP word SP int SP int
 ; plugin-hostd: <worker> <ms>
 fb-worker-backoff          = %s"worker_backoff" SP word SP int
 ; plugin-hostd: <worker> <pid> <exit:N | signal:N> <instance>,...
-fb-worker-died             = %s"worker_died" SP word SP int SP word SP word
+fb-worker-died             = %s"worker_died" SP word SP int SP status SP word
 ; plugin-hostd: <worker> <pid> <replayed_count> <ms>
 fb-worker-respawned        = %s"worker_respawned" SP word SP int SP int SP int
 ; plugin-hostd: <count>
@@ -440,6 +452,8 @@ fb-xruns                   = %s"xruns" SP word
 
 ; the replies the table types, a rule per verb (reply_forms); the reply rule above still takes any resp line
 typed-reply      = rp-preset-show
+                 / rp-property-get
+                 / rp-property-info
                  / rp-chain-get
                  / rp-descriptor-get
                  / rp-estimate
@@ -457,12 +471,14 @@ typed-reply      = rp-preset-show
                  / rp-param-get-many
 
 rp-preset-show    = %s"resp" SP %s"0" tail
+rp-property-get   = %s"resp" SP %s"0" SP quoted-escaped
+rp-property-info  = %s"resp" SP %s"0" SP word SP word SP word SP quoted-escaped
 rp-chain-get      = %s"resp" SP %s"0" SP word SP word SP word
-rp-descriptor-get = %s"resp" SP %s"0" SP word
+rp-descriptor-get = %s"resp" SP %s"0" SP quoted
 rp-estimate       = (%s"resp" SP %s"0" SP word SP word SP word SP word SP word SP word) / (%s"resp" SP %s"0" SP word SP word SP word SP word SP word SP word SP word SP word SP word SP word)
 rp-history-get    = %s"resp" SP %s"0" SP word
 rp-instance-info  = %s"resp" SP %s"0" SP word SP int SP word SP word SP word
-rp-panel-get      = %s"resp" SP %s"0" SP word
+rp-panel-get      = %s"resp" SP %s"0" SP quoted
 rp-pin-layout     = %s"resp" SP %s"0" SP word
 rp-plan           = (%s"resp" SP %s"0" SP word) / (%s"resp" SP %s"0" SP word SP word)
 rp-plan-get       = (%s"resp" SP %s"0" SP word SP word) / (%s"resp" SP %s"0" SP word SP word SP word)
@@ -490,6 +506,10 @@ error-reply      = %s"resp -1 reply.host.instance-invalid"
                  / %s"resp -103 reply.host.param-symbol-invalid"
                  / %s"resp -104 reply.host.preset-uri-invalid"
                  / %s"resp -105 reply.host.state-load-failed"
+                 / %s"resp -106 reply.host.property-symbol-invalid"
+                 / %s"resp -107 reply.host.property-access"
+                 / %s"resp -108 reply.host.property-value-invalid"
+                 / %s"resp -109 reply.host.property-queue-full"
                  / %s"resp -201 reply.host.jack-client-creation"
                  / %s"resp -202 reply.host.jack-client-activation"
                  / %s"resp -203 reply.host.jack-client-deactivation"

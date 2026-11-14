@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-state_tmpdir >!|
-load !!!
-pin_clear "\""
-curve_points -494 -306 -897
-@3 worker_list
-pin_layout 9
-plan_get 63
-preset_show ""
-@6 instance_info -81
-history_clear s!
+preset_save 96 "B" !! "\""
+hmi_map -8 f!ê -85 -5 -30 -294 1 "\"" infinity inf -30
+@.._ param_monitor -2 "!U" ">\"" -84
+@. quarantine_clear s!
 patch_get 2 "\"ĉ"
 @30 monitor_output -6 !7
+param_get -06 !
+load !
+all_notes_off -7
+@Nd8 patch_set 769 "" "\"@"
+@.-. quarantine_clear ""
+@_ monitor \ -083 -65
