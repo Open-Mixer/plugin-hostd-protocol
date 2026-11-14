@@ -47,6 +47,11 @@ bare-char        = %x21 / %x23-7E / %x80-10FFFF
 quoted           = DQUOTE *(escaped-quote / quoted-char) DQUOTE
 escaped-quote    = %x5C DQUOTE
 quoted-char      = %x20-21 / %x23-7E / %x80-10FFFF
+; a quoted value that is text, not a word (a property's value): \" is a quote and \\ a backslash inside it, and a lone
+; backslash is no value; the quotes are not part of it, and every byte between them is (omx-clap-core#15)
+quoted-escaped   = DQUOTE *(escaped-char / plain-char) DQUOTE
+escaped-char     = %x5C (DQUOTE / %x5C)
+plain-char       = %x20-21 / %x23-5B / %x5D-7E / %x80-10FFFF
 
 ; the tail of a format line that ends in ...: any further words
 tail             = *(SP word)

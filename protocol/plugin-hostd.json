@@ -291,6 +291,7 @@
     {"name": "number", "pattern": "-?[0-9]+(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?", "rest": false, "spelling": "a decimal number"},
     {"name": "sha256", "pattern": "[0-9a-f]{64}", "rest": false, "spelling": "a SHA-256 in 64 lowercase hexadecimal digits"},
     {"name": "quoted", "pattern": "\"[^\"]*\"", "rest": false, "spelling": "a path in double quotes"},
+    {"name": "quoted-escaped", "pattern": "\"(?:[^\"\\\\]|\\\\[\"\\\\])*\"", "rest": false, "spelling": "text in double quotes, \\\" a quote and \\\\ a backslash inside it (a property's value)"},
     {"name": "key", "pattern": "[a-z_]+", "rest": false, "spelling": "a key of a key=value"},
     {"name": "value", "pattern": "[^, ]*", "rest": false, "spelling": "a value of a key=value"},
     {"name": "line", "pattern": ".*", "rest": true, "spelling": "the rest of the line, its words as they were sent"}
@@ -325,6 +326,7 @@
     {"name": "number", "example": "-6.02"},
     {"name": "sha256", "example": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"},
     {"name": "quoted", "example": "\"/var/lib/x.json\""},
+    {"name": "quoted-escaped", "example": "\"Sala \\\"A\\\" \\\\ 1\""},
     {"name": "key", "example": "crashed"},
     {"name": "value", "example": "0"},
     {"name": "line", "example": "{\"name\":\"warm\"}"},
