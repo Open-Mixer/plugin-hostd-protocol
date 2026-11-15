@@ -77,6 +77,14 @@ $(LIB_SONAME): $(LIB_FILE)
 $(LIB_SO): $(LIB_SONAME)
 	ln -sf $(LIB_SONAME) $@
 
+# the protocol's Python client (clients/python/plugin_hostd_client) into PYTHON3_SITELIB: the package
+# python3-plugin-hostd-client, noarch, importable as plugin_hostd_client (issue 45)
+PYTHON3_SITELIB ?= $(shell python3 -c 'import sysconfig; print(sysconfig.get_path("purelib"))')
+.PHONY: install-python
+install-python:
+	install -d $(DESTDIR)$(PYTHON3_SITELIB)/plugin_hostd_client
+	install -m 0644 clients/python/plugin_hostd_client/__init__.py $(DESTDIR)$(PYTHON3_SITELIB)/plugin_hostd_client/
+
 install: $(LIB_FILE)
 	install -d $(DESTDIR)$(LIBDIR)/pkgconfig $(DESTDIR)$(INCLUDEDIR)/$(NAME) $(DESTDIR)$(DATADIR)/$(NAME)
 	install -m 755 $(LIB_FILE) $(DESTDIR)$(LIBDIR)/

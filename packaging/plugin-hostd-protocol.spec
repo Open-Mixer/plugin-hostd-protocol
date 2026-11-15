@@ -16,6 +16,8 @@ BuildRequires: binutils
 BuildRequires: libasan
 BuildRequires: libubsan
 BuildRequires: python3
+# %%{python3_sitelib}, where the Python client installs (python3-plugin-hostd-client)
+BuildRequires: python3-devel
 # the declared protocol: tools/protocol-gen holds protocol.h's parameter scales to omx-contract's C headers, and
 # install-contract writes the contract directory's package with omx-contract's script
 BuildRequires: (omx-contract-devel >= 3.18.0 with omx-contract-devel < 4)
@@ -45,6 +47,21 @@ It also carries the declared protocol: plugin-hostd/protocol.h and the headers
 it includes, the one verb table, the grammar of a line in ABNF, and the
 protocol as JSON, each named by a pkg-config variable.
 
+%package -n python3-plugin-hostd-client
+Summary: The Python client of the plugin-hostd line protocol
+BuildArch: noarch
+Requires: python3
+# plugin-hostd-tests before 0.21.0 shipped the same module under /usr/libexec/plugin-hostd/tests/lib (not on sys.path:
+# no file conflict); it now requires this package
+
+%description -n python3-plugin-hostd-client
+plugin_hostd_client, the Python client of the plugin-hostd line protocol: a
+command is one line ended by a NUL, a reply one NUL-ended line; send, try_send
+(a timeout or a closed peer named, never raised) and expect. The transport
+every test of plugin-hostd, omx-clap-host and the controllers imports; the
+codec of the declared commands and replies is plugin_hostd_protocol.
+Its documentation is on openmixer.org.
+
 %package contract
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
@@ -70,6 +87,8 @@ Its documentation is on openmixer.org.
 %make_install PREFIX=%{_prefix} LIBDIR=%{_libdir} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir}
 # data/verbs.json, as the package plugin-hostd-protocol of omx-contract's contract directory
 %make_build install-contract DESTDIR=%{buildroot} PREFIX=%{_prefix}
+# the Python client, python3-plugin-hostd-client
+%make_build install-python DESTDIR=%{buildroot} PYTHON3_SITELIB=%{python3_sitelib}
 
 %check
 make test
@@ -97,6 +116,10 @@ make test
 %{_datadir}/plugin-hostd-protocol/protocol.md
 %{_datadir}/plugin-hostd-protocol/plugin-hostd.schema.json
 %{_datadir}/plugin-hostd-protocol/protocol-gen.c
+
+%files -n python3-plugin-hostd-client
+%license COPYING
+%{python3_sitelib}/plugin_hostd_client/
 
 %files contract
 %license COPYING
