@@ -1,27 +1,18 @@
 name: ci
-# A push runs on main only; a pull request already runs its branch. The schedule renders against what the channel
-# serves now, so a served contract package that changes the render turns main red when it is served (#27): only the
-# declared-protocol job runs on it.
+# Run by workflow_dispatch: on a pull request's head before it is merged (gh workflow run ci.yml --ref <branch>),
+# and on demand. The fast checks run on every pull request from public-sources.yml.
 on:
-  push:
-    branches: [main, dedupe/all]
-  pull_request:
-  schedule:
-    - cron: '17 4 * * *'
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  # A new push to a pull request cancels the run it supersedes. Every other run (main, a tag) has a group of its own
-  # and is never cancelled; the run id keeps two pushes to main from replacing each other while one is queued.
+  # Every dispatch has a group of its own (the run id) and is never cancelled.
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   test:
     name: build + test (${{ matrix.image }})
-    # the schedule is the render check alone (#27)
-    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     # A backstop only.
     timeout-minutes: 20
@@ -132,8 +123,6 @@ jobs:
 
   abi:
     name: ABI check (abidiff against abi/)
-    # the schedule is the render check alone (#27)
-    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     container: fedora:44
@@ -151,10 +140,3 @@ jobs:
         run: make test-abi
       - name: Types against the baseline
         run: make abi-check
-
-  # the checks every OpenMixer repository runs on what it publishes: commit messages, private references, and no
-  # local copy of either (Open-Mixer/.github's public-sources-check)
-  public-sources:
-    # the schedule is the render check alone (#27)
-    if: github.event_name != 'schedule'
-    uses: Open-Mixer/.github/.github/workflows/public-sources-check.yml@openmixer-v1
