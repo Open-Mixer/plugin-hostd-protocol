@@ -9,7 +9,7 @@ Build-Depends: debhelper-compat (= 13),
                omx-clap-core-contract (<< 0.34~),
                omx-contract-data (>= 3.16.0~),
                omx-contract-data (<< 4~),
-               libomxdsp-dev (>= 0.32.1~),
+               libomxdsp-dev (>= 0.32.4~),
                libomxdsp-dev (<< 0.33~),
                pkgconf,
                python3

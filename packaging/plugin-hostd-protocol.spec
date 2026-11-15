@@ -25,7 +25,7 @@ BuildRequires: (omx-contract-devel >= 3.18.0 with omx-contract-devel < 4)
 BuildRequires: (omx-clap-core-contract >= 0.32.3 with omx-clap-core-contract < 0.34)
 BuildRequires: (omx-contract-data >= 3.16.0 with omx-contract-data < 4)
 # omx_curve.h, the curve function the curve verbs draw with (header only)
-BuildRequires: (omx-dsp-devel >= 0.32.1 with omx-dsp-devel < 0.33)
+BuildRequires: (omx-dsp-devel >= 0.32.4 with omx-dsp-devel < 0.33)
 
 %description
 libplugin-hostd-protocol is the socket server, line protocol and command

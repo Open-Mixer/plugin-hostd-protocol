@@ -68,7 +68,8 @@ curve-term       = curve-role ["." curve-index] "=" curve-symbol [":" curve-unit
 curve-index      = 1*9DIGIT
 curve-role       = %s"band_type" / %s"band_freq" / %s"band_gain" / %s"band_q" / %s"band_on" / %s"hpf_freq" /
                    %s"hpf_slope" / %s"hpf_on" / %s"lpf_freq" / %s"lpf_slope" / %s"lpf_on" / %s"threshold" /
-                   %s"ratio" / %s"knee" / %s"makeup" / %s"range" / %s"knee_start" / %s"knee_end"
+                   %s"ratio" / %s"knee" / %s"makeup" / %s"range" / %s"knee_start" / %s"knee_end" /
+                   %s"drive" / %s"tone" / %s"model" / %s"mix" / %s"output"
 ; a parameter's symbol; a host's own control starts with ":" (:bypass)
 curve-symbol     = [":"] 1*(ALPHA / DIGIT / "_" / "-" / ".")
 curve-unit       = 1*(%x61-7A)
