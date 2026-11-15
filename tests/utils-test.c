@@ -81,6 +81,11 @@ int main(void)
         static const char *const utf8[] = { "property_set", "3", "label", "Sala gran \xc3\xa0 \xe2\x9c\x93", NULL };
         static const char *const bare[] = { "param_set", "0", "gain", "0.5", NULL };
         static const char *const lone[] = { "property_set", "3", "label", "C:\\dir", NULL };
+        /* "" inside quotes stands for one ", as mod-host's tokenizer reads it, and a raw control byte is a byte: the
+         * escapes are written in place, never as marker bytes a line could carry (fuzz/fuzz.h's fuzz_words) */
+        static const char *const doubled[] = { "label", "x\"y", NULL };
+        static const char *const run[] = { "state_save\"\"\"\"", "b", NULL };
+        static const char *const raw[] = { "label", "a\x01\"b", NULL };
 
         check_all("property_set 3 label \"a \\\"b\\\" \\\\c\"", set);
         check_all("property_set 3 gainfile \"/var/lib/omx/a file.txt\"", path);
@@ -88,6 +93,9 @@ int main(void)
         check_all("property_set 3 label \"Sala gran \xc3\xa0 \xe2\x9c\x93\"", utf8);
         check_all("param_set 0 gain 0.5", bare);
         check_all("property_set 3 label \"C:\\\\dir\"", lone);
+        check_all("label \"x\"\"y\"", doubled);
+        check_all("state_save\"\"\"\"\"\"\"\"\"\"b \"b\"", run);
+        check_all("label \"a\x01\"\"b\"", raw);
     }
 
     if (g_failures)
