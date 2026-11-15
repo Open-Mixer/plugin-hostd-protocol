@@ -135,7 +135,22 @@ static void json(void)
     jstr(PHD_PIN_PATH_EXCLUDED);
     printf(",\n    \"path_escape\": ");
     jstr(PHD_PIN_PATH_ESCAPE);
-    printf("\n  },\n  \"lv2_workers\": [");
+    printf("\n  },\n  \"panel_file\": {\n    \"name\": ");
+    jstr(PHD_PANEL_NAME_SYNTAX);
+    printf(",\n    \"keys\": [");
+    sep = "\n";
+#define X(key, required, since, meaning) \
+    printf("%s      {\"key\": ", sep); \
+    jstr(key); \
+    printf(", \"required\": %s, \"since\": ", (required) ? "true" : "false"); \
+    jstr(since); \
+    printf(", \"meaning\": "); \
+    jstr(meaning); \
+    printf("}"); \
+    sep = ",\n";
+    PHD_PANEL_FILE_KEYS(X)
+#undef X
+    printf("\n    ]\n  },\n  \"lv2_workers\": [");
     jstr(PHD_LV2_WORKER_MOD_HOST);
     printf(", ");
     jstr(PHD_LV2_WORKER_CLAP_HOST);

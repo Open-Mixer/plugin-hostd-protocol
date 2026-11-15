@@ -725,7 +725,10 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "the panel the plugin publishes (org.openmixer.panel-description/1), answered from descriptor_dir: the file " \
       PHD_PANEL_NAME_SYNTAX ", named as its descriptor, which the same scan writes once the descriptor is in place, " \
       "{\"plugin\": {\"format\", \"id\"}, \"panel\": <the panel object omx-clap-scan --json prints for the plugin, " \
-      "null when it serves none>}; an LV2 plugin's panel is null. The codes are " OMX_VERB_DESCRIPTOR_GET "'s: -529 " \
+      "null when it serves none>, \"meters\": [<the clap.meters/1 meters the panel's displays index, each a row of descriptor_get's meters[], " \
+      "same ids>]} " \
+      "(the keys of PHD_PANEL_FILE_KEYS; meters is optional, absent from a file written before it); an LV2 plugin's " \
+      "panel is null and its meters empty. The codes are " OMX_VERB_DESCRIPTOR_GET "'s: -529 " \
       "when there is none, -530 while its scan runs, -531 when its last scan wrote nothing, -528 when the directory " \
       "could not be written") \
     X(HISTORY_GET, OMX_VERB_HISTORY_GET, "<uri>", OMX_VERB_HISTORY_GET_REPLY, \
@@ -1533,6 +1536,22 @@ static inline int phd_is_note_verb(const char *verb)
  * after the descriptor, once and atomically (docs/panel.md) */
 #define PHD_PANEL_SUBDIR              "panels"
 #define PHD_PANEL_NAME_SYNTAX         PHD_PANEL_SUBDIR "/" PHD_DESCRIPTOR_NAME_SYNTAX
+
+/* The panel file's keys, one JSON object: X(key, required, since, meaning). A key that is not required is additive: a
+ * file written before its since has none, and a reader that does not know it reads the file as before. meters holds
+ * the plugin's clap.meters/1 meters whose id a display of the panel names in its meterIds, in the plugin's order, each
+ * a row of the shape the descriptor's meters[] has (omx-contract docs/descriptors.md: id, symbol, kind, channels,
+ * unit, min, max, scale), the same id and the same values descriptor_get's file gives it: every meter id a display
+ * names is the id of one row, so the file resolves its own displays, and a reader reads one meter shape. */
+#define PHD_PANEL_KEY_METERS          "meters"
+#define PHD_PANEL_FILE_KEYS(X) \
+    X("plugin", 1, "0.5.0", "the plugin, {\"format\": \"clap\" | \"lv2\", \"id\": <its id or URI>}") \
+    X("panel", 1, "0.5.0", "the panel object (org.openmixer.panel-description/1) omx-clap-scan --json prints for the " \
+      "plugin, byte for byte; null when it serves none, and for an LV2 plugin") \
+    X(PHD_PANEL_KEY_METERS, 0, "0.5.10", "the clap.meters/1 meters the panel's displays index (a display's " \
+      "meterIds), in the plugin's order, each a row of the descriptor's meters[] shape ({id, symbol, kind, channels, " \
+      "unit, min, max, scale}), with the id and the values " OMX_VERB_DESCRIPTOR_GET "'s file gives it; empty when " \
+      "the panel is null or its displays index none. A display naming a meter id no row carries is never written")
 
 /* the settings file: one "key value" per line, '#' starts a comment.
  * A string setting: X(key, size, default, env, meaning); env names the variable that stands in for the default when
