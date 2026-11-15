@@ -31,7 +31,7 @@ jobs:
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
       - name: omx-dsp's curve function, which the dispatcher draws with
-        run: dnf -y install 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
+        run: dnf -y install 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33'
       # a scenario or a generator change not followed by make fuzz-corpus is red in its own pull request (#33); after the
       # dependencies, which the Makefile asks pkg-config for when it is read
       - name: The seed corpus is what fuzz/gen-corpus.sh writes
