@@ -261,7 +261,8 @@ for line in ("clear", "transfer_curve dynamics threshold=thr:dbfs ratio=ratio:ra
              "eq_response eq band_freq.0=f_0:hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf",
              "eq_response eq band_type.31=t-31@-|bell band_freq.31=f.31:khz@notch hpf_on=:bypass",
              "eq_response eq band_type.0=t@bell|allpass1|allpass2 band_freq.0=f:hz hpf_slope=s@12|24 lpf_slope=l:db",
-             "transfer_curve gate threshold=t:db range=r:db knee_start=a:db knee_end=b:db ratio=q:coef"):
+             "transfer_curve gate threshold=t:db range=r:db knee_start=a:db knee_end=b:db ratio=q:coef",
+             "transfer_curve drive drive=amount:db model=curve tone=character mix=mix:pc output=trim:db"):
     must("curve-binding", line, "a curve binding")
     must("cmd-curve-bind", "curve_bind 3 0 " + line, "a curve_bind line")
 for line in ("", "clear threshold=t:db", "bar_graph dynamics threshold=t:db", "transfer_curve dynamics",
