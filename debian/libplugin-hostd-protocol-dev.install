@@ -6,3 +6,4 @@ usr/share/plugin-hostd-protocol/host_scenarios.c
 usr/share/plugin-hostd-protocol/protocol.md
 usr/share/plugin-hostd-protocol/plugin-hostd.schema.json
 usr/share/plugin-hostd-protocol/protocol-gen.c
+usr/share/plugin-hostd-protocol/codec-fixtures.json

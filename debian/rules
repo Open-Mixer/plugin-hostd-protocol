@@ -2,6 +2,7 @@
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 include /usr/share/dpkg/architecture.mk
+include /usr/share/dpkg/pkg-info.mk
 
 MAKE_VARS = PREFIX=/usr LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)
 
@@ -15,8 +16,13 @@ override_dh_auto_install:
 	dh_auto_install -- $(MAKE_VARS)
 	# data/verbs.json, as the package plugin-hostd-protocol of omx-contract's contract directory
 	$(MAKE) install-contract DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr
-	# the Python client, python3-plugin-hostd-client
+	# the Python packages, python3-plugin-hostd-client and python3-plugin-hostd-protocol
 	$(MAKE) install-python DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr PYTHON3_SITELIB=/usr/lib/python3/dist-packages
+
+# the one epoch of this source: python3-plugin-hostd-protocol is 1:<version> (plugin-hostd built that name at 0.20.x)
+override_dh_gencontrol:
+	dh_gencontrol -Npython3-plugin-hostd-protocol
+	dh_gencontrol -ppython3-plugin-hostd-protocol -- -v1:$(DEB_VERSION)
 
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))

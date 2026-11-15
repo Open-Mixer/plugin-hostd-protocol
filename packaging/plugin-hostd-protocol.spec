@@ -62,6 +62,31 @@ every test of plugin-hostd, omx-clap-host and the controllers imports; the
 codec of the declared commands and replies is plugin_hostd_protocol.
 Its documentation is on openmixer.org.
 
+%package -n python3-plugin-hostd-protocol
+Summary: The Python codec of the plugin-hostd protocol
+BuildArch: noarch
+# The one package with an epoch: plugin-hostd 0.20.6 and before built a package of this name at plugin-hostd's own
+# version (0.20.x), which sorts above any 0.5.x; epoch 1 makes this one the upgrade. Its source is this repository since
+# 0.5.10, and plugin-hostd's first release without it floors on it.
+Epoch: 1
+Requires: python3
+Requires: (plugin-hostd-protocol >= 0.5.8 with plugin-hostd-protocol < 0.6)
+Requires: (plugin-hostd-protocol-contract >= 0.5.8 with plugin-hostd-protocol-contract < 0.6)
+Requires: (omx-clap-core-contract >= 0.32.3 with omx-clap-core-contract < 0.33)
+Requires: (omx-contract >= 3.12.0 with omx-contract < 4)
+# omx-contract's catalog reader, omx_contract_catalog.py, which reads a catalog entry whatever its shape
+Requires: (omx-contract-data >= 3.16.0 with omx-contract-data < 4)
+
+%description -n python3-plugin-hostd-protocol
+plugin_hostd_protocol, the Python codec of the plugin-hostd protocol: one codec
+over the files plugin-hostd-protocol installs, which encodes and decodes every
+command the protocol declares, parses the replies, feedback lines and protocol
+errors, and gives each reply code its sentence. A controller speaks the
+protocol through it and restates nothing; the npm package
+@openmixer/plugin-hostd-client is the same codec in TypeScript. The transport
+is plugin_hostd_client.
+Its documentation is on openmixer.org.
+
 %package contract
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
@@ -87,8 +112,8 @@ Its documentation is on openmixer.org.
 %make_install PREFIX=%{_prefix} LIBDIR=%{_libdir} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir}
 # data/verbs.json, as the package plugin-hostd-protocol of omx-contract's contract directory
 %make_build install-contract DESTDIR=%{buildroot} PREFIX=%{_prefix}
-# the Python client, python3-plugin-hostd-client
-%make_build install-python DESTDIR=%{buildroot} PYTHON3_SITELIB=%{python3_sitelib}
+# the Python packages, python3-plugin-hostd-client and python3-plugin-hostd-protocol
+%make_build install-python DESTDIR=%{buildroot} PREFIX=%{_prefix} DATADIR=%{_datadir} PYTHON3_SITELIB=%{python3_sitelib}
 
 %check
 make test
@@ -116,10 +141,15 @@ make test
 %{_datadir}/plugin-hostd-protocol/protocol.md
 %{_datadir}/plugin-hostd-protocol/plugin-hostd.schema.json
 %{_datadir}/plugin-hostd-protocol/protocol-gen.c
+%{_datadir}/plugin-hostd-protocol/codec-fixtures.json
 
 %files -n python3-plugin-hostd-client
 %license COPYING
 %{python3_sitelib}/plugin_hostd_client/
+
+%files -n python3-plugin-hostd-protocol
+%license COPYING
+%{python3_sitelib}/plugin_hostd_protocol/
 
 %files contract
 %license COPYING
