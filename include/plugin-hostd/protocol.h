@@ -1149,6 +1149,16 @@ static inline int phd_is_note_verb(const char *verb)
               "started later, of a new placement, as well; a worker's refusal of one is written to stderr and is no failure") \
     X(GRAMMAR, "a line whose words are not that command's grammar is passed on and not kept")
 
+/* ---------------------------------------------------------------- the qualify spool (R-112)
+ * One request per plugin that has no verdict, written by the daemon and read by plugin-qualify's watched service, which
+ * alone writes the verdict. The directory is beside the pin store; a request is one file, written whole by a temporary
+ * file in the same directory renamed over its name, its lines "uri <uri>" then one "file <path> <sha256>" per file the
+ * daemon hashed. The daemon runs no probe, queue or judge and loads no plugin code. */
+#define PHD_QUALIFY_SPOOL_DIR      "qualify"
+#define PHD_QUALIFY_REQUEST_SUFFIX ".request"
+#define PHD_QUALIFY_REQUEST_URI    "uri"
+#define PHD_QUALIFY_REQUEST_FILE   "file"
+
 /* ---------------------------------------------------------------- feedback events */
 
 /* one NUL-terminated line each on the feedback port; a worker is "w<k>" */
@@ -1166,6 +1176,7 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_EVENT_CHAIN_REFUSED           "chain_refused"
 #define PHD_EVENT_CHAIN_STALLED           "chain_stalled"
 #define PHD_EVENT_PLAN_REASON             "plan_reason"
+#define PHD_EVENT_QUALIFY_REQUESTED       "qualify_requested"
 /* written by a worker, relayed as it wrote it */
 #define PHD_EVENT_REMOTE_PAGES_CHANGED    "remote_pages_changed"
 #define PHD_EVENT_REMOTE_PAGE_SUGGEST     "remote_page_suggest"
@@ -1332,6 +1343,7 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_EVENT_CHAIN_REFUSED_FMT         PHD_EVENT_CHAIN_REFUSED " %s %d"
 #define PHD_EVENT_CHAIN_STALLED_FMT         PHD_EVENT_CHAIN_STALLED " %s %s %s %d"
 #define PHD_EVENT_PLAN_REASON_FMT           PHD_EVENT_PLAN_REASON " %d %s"
+#define PHD_EVENT_QUALIFY_REQUESTED_FMT     PHD_EVENT_QUALIFY_REQUESTED " %s"
 
 /* the table of the docs: X(name, fields, meaning), one row per shape of a line */
 #define PHD_EVENTS(X) \
@@ -1363,6 +1375,10 @@ static inline int phd_is_note_verb(const char *verb)
       "said once each time it is declared or gathered again, and the daemon goes on trying") \
     X(PHD_EVENT_PLAN_REASON, "<chain> <instance>:<reason>,...", \
       "a plan of the chain changed: the reasons " OMX_VERB_PLAN_GET " answers now, after the segments, " PHD_WORD_NONE " for none") \
+    X(PHD_EVENT_QUALIFY_REQUESTED, "<uri>", \
+      "a plugin with no verdict was added under require_pins with pin_mode first-use: its insert is bypassed, no worker " \
+      "holds it, and one request for its quick qualification is in the spool (" PHD_QUALIFY_SPOOL_DIR "); said at most " \
+      "once for a plugin until a verdict lands") \
     X(PHD_EVENT_SUPERVISOR_GAVE_UP, "<worker> <deaths> <window_ms>", "the storm bound is spent; respawning ends") \
     X(PHD_EVENT_PIN_CHANGED, "<uri> " PHD_PIN_CHANGED_FILES " | " PHD_PIN_CHANGED_LAYOUT, \
       "an add or a replay of a plugin was refused because its files, or the layout the worker found, differ from its " \
@@ -1415,6 +1431,7 @@ static inline int phd_is_note_verb(const char *verb)
     X(PHD_EVENT_CHAIN_REFUSED, "chain:chain code:int") \
     X(PHD_EVENT_CHAIN_STALLED, "chain:chain instance:instance-or-none step:word code:int") \
     X(PHD_EVENT_PLAN_REASON, "chain:int reasons:reasons") \
+    X(PHD_EVENT_QUALIFY_REQUESTED, "uri:word") \
     X(PHD_EVENT_SUPERVISOR_GAVE_UP, "worker:worker deaths:int window_ms:int") \
     X(PHD_EVENT_PIN_CHANGED, "uri:word changed:" PHD_PIN_CHANGED_FILES "|" PHD_PIN_CHANGED_LAYOUT) \
     X(PHD_EVENT_LV2_ADAPTER_REFUSED, "uri:word reason:word lv2_worker:" PHD_LV2_WORKER_CLAP_HOST) \
