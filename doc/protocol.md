@@ -566,6 +566,14 @@ A path of a pin, and the path of a `clap:` uri, is written percent-encoded (`PHD
 < resp 0
 ```
 
+The panel file `panel_get` answers (`panels/<id>@<version>-<hash>.json` of descriptor_dir) is one JSON object with these keys; a key that is not required is additive, absent from a file written before its version:
+
+| key | required | since | meaning |
+|---|---|---|---|
+| `plugin` | yes | 0.5.0 | the plugin, {"format": "clap" \| "lv2", "id": <its id or URI>} |
+| `panel` | yes | 0.5.0 | the panel object (org.openmixer.panel-description/1) omx-clap-scan --json prints for the plugin, byte for byte; null when it serves none, and for an LV2 plugin |
+| `meters` | no | 0.5.10 | the clap.meters/1 meters the panel's displays index (a display's meterIds), in the plugin's order, each a row of the descriptor's meters[] shape ({id, symbol, kind, channels, unit, min, max, scale}), with the id and the values descriptor_get's file gives it; empty when the panel is null or its displays index none. A display naming a meter id no row carries is never written |
+
 ### Presets and notes, by instance
 
 | verb | arguments | types | reply | codes | since (the group's) | hosts | meaning |
