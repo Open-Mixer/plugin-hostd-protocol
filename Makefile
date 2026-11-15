@@ -129,7 +129,7 @@ TEST_PROGS = tests/feedback_lines tests/macro_compat tests/protocol_test tests/p
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec
+      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
 test-protocol: tests/protocol_test
@@ -396,6 +396,10 @@ test-transient-codes:
 test-search-paths:
 	python3 tests/search_paths_test.py
 
+# the property verbs in the daemon's tables and the grammar (omx-clap-core#15)
+test-property-rows:
+	python3 tests/property_rows_test.py
+
 test-verb-table:
 	python3 tests/verb_table.py
 	python3 tests/verb_table_sabotage.py
@@ -425,7 +429,8 @@ test-generated-sabotage:
 # The checks that need tools a package build does not: run by CI (.github/workflows/ci.yml, job protocol).
 #   check-rendered   the four rendered headers are what omx-contract renders from data/verbs.json (staged as the
 #                    package plugin-hostd-protocol of the contract directory) and from omx-clap-core's installed package;
-#                    test-rendered-sabotage holds it to failing
+#                    test-rendered-sabotage holds it to failing. A contract directory named first on OMX_CONTRACT_PATH
+#                    outranks the installed one: CI stages omx-clap-core's data/ from its source there
 #   check-contract-dir  that staged package validates with the installed contract directory
 #   check-schema     protocol/plugin-hostd.json against its schema (python3-jsonschema)
 #   test-grammar     the grammar against the scenario corpus, the golden transcript and the table (python abnf)
@@ -577,7 +582,7 @@ fuzz-coverage: $(FUZZ_HARNESSES:%=$(FUZZ_COV_BUILD)/fuzz_%)
 clean:
 	rm -rf src/*.o $(LIB_SO) $(LIB_SONAME) $(LIB_FILE) $(TEST_PROGS) build
 
-.PHONY: gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-mod-host-json test-generated-sabotage test-default-lv2-worker test-served-render-ci \
+.PHONY: gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-property-rows test-mod-host-json test-generated-sabotage test-default-lv2-worker test-served-render-ci \
         check-protocol-tools install-contract check-contract-dir render-verbs check-rendered test-rendered-sabotage \
         check-schema test-grammar test-code-text test-code-text-sabotage
 .PHONY: all install test test-protocol test-protocol-commands test-utils test-socket test-bind test-golden \

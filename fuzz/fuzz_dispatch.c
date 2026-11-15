@@ -280,7 +280,7 @@ __attribute__((noinline)) static void check_value(int modeled, const char *expec
        input: extra-8
        mutant: src/host-dispatch.c:544 `"Infinity"` -> `"inf"`
        input: param-info-inf
-       mutant: src/utils.c:206 `quote = 0;` -> ``
+       mutant: src/utils.c:215 `quote = 0;` -> ``
        input: track-info-quoted
        mutant: src/host-dispatch.c:422 ` && *p >= 0xc2` -> ``
        input: track-info-overlong

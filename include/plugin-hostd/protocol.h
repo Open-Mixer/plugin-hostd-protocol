@@ -819,11 +819,14 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(LOG, "log", "the value is geometric in position; both bounds are positive") \
     X(STEPPED, "stepped", "the whole numbers from min to max, step 1")
 
-/* what the ledger keeps of a verb: nothing, or the latest one per instance, replayed after the add */
+/* what the ledger keeps of a verb: nothing; the latest one per instance; or the latest one per instance and first argument
+ * (replace-keyed, ruling of 2026-11-14 on omx-clap-core#15: a property is the daemon's state, so a respawned worker gets
+ * back every symbol it was given, each the latest set of it, in the order they were first set). Replayed after the add. */
 /* show_external_ui: mod-host.h declares it as the format SHOW_EXTERNAL_UI, and omx-clap-core's verb table does not */
 #define PHD_VERB_SHOW_EXTERNAL_UI "show_external_ui"
 #define PHD_LEDGER_NONE    0
 #define PHD_LEDGER_REPLACE 1
+#define PHD_LEDGER_REPLACE_KEYED 2
 
 /* X(id, name, arguments, reply, ledger, meaning) */
 #define PHD_INSTANCE_VERBS(X) \
@@ -845,6 +848,20 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "resp 0 <page_id> <section> <page_name> <s1> <s2> <s3> <s4> <s5> <s6> <s7> <s8>", NONE, \
       "one page, 0 to count - 1: each slot the symbol param_set takes, " PHD_EMPTY_SLOT " for an empty one; -902 " \
       "for a page that is not one") \
+    X(PROPERTY_LIST, OMX_VERB_PROPERTY_LIST, "<instance>", OMX_VERB_PROPERTY_LIST_REPLY, NONE, \
+      "the plugin's file and text properties (org.openmixer.properties/1): how many; 0 for an instance of a worker " \
+      "that has none") \
+    X(PROPERTY_INFO, OMX_VERB_PROPERTY_INFO, "<instance> <index>", OMX_VERB_PROPERTY_INFO_REPLY, NONE, \
+      "one property, 0 to count - 1: its symbol, its kind (path or string), its access (rw, w or r) and its name; " \
+      PHD_STR(OMX_REPLY_HOST_PROPERTY_SYMBOL_INVALID_RESP) " for an index that is not one") \
+    X(PROPERTY_GET, OMX_VERB_PROPERTY_GET, "<instance> <symbol>", OMX_VERB_PROPERTY_GET_REPLY, NONE, \
+      "the value the plugin holds now, one quoted-escaped word; " PHD_STR(OMX_REPLY_HOST_PROPERTY_ACCESS_RESP) \
+      " for a property that is not readable") \
+    X(PROPERTY_SET, OMX_VERB_PROPERTY_SET, "<instance> <symbol> <value>", OMX_VERB_PROPERTY_SET_REPLY, REPLACE_KEYED, \
+      "set a property to a quoted-escaped value, which reaches the plugin at its next block; the ledger keeps the latest " \
+      "per symbol and replays each to a respawned worker. " PHD_STR(OMX_REPLY_HOST_PROPERTY_ACCESS_RESP) " for one not " \
+      "writable, " PHD_STR(OMX_REPLY_HOST_PROPERTY_VALUE_INVALID_RESP) " for a value too large, not UTF-8 or a path " \
+      "that is not absolute, " PHD_STR(OMX_REPLY_HOST_PROPERTY_QUEUE_FULL_RESP) " to send again") \
     X(PARAM_INFO, OMX_VERB_PARAM_INFO, "<instance> <symbol>", \
       "resp 0 <unit> <scale> <min> <max> <default> <step> <stable_symbol>", NONE, \
       "what a parameter's value means: its unit, its scale, and the symbol it keeps across hosts and versions; -103 " \
@@ -1082,6 +1099,10 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_REMOTE_PAGES, MOD_HOST, OPTIONAL, OPTIONAL, OPTIONAL, OPTIONAL) \
     X(OMX_VERB_REMOTE_PAGE_GET, MOD_HOST, OPTIONAL, OPTIONAL, OPTIONAL, OPTIONAL) \
     X(OMX_VERB_PARAM_INFO, MOD_HOST, OPTIONAL, OPTIONAL, OPTIONAL, OPTIONAL) \
+    X(OMX_VERB_PROPERTY_LIST, DAEMON, OPTIONAL, OPTIONAL, OPTIONAL, OPTIONAL) \
+    X(OMX_VERB_PROPERTY_INFO, DAEMON, OPTIONAL, OPTIONAL, OPTIONAL, OPTIONAL) \
+    X(OMX_VERB_PROPERTY_GET, DAEMON, OPTIONAL, OPTIONAL, OPTIONAL, OPTIONAL) \
+    X(OMX_VERB_PROPERTY_SET, DAEMON, OPTIONAL, OPTIONAL, OPTIONAL, OPTIONAL) \
     X(OMX_VERB_PRESET_LIST, DAEMON, OPTIONAL, OPTIONAL, OPTIONAL, OPTIONAL) \
     X(OMX_VERB_PRESET_GET, DAEMON, OPTIONAL, OPTIONAL, OPTIONAL, OPTIONAL) \
     X(OMX_VERB_NOTE_INPUT, DAEMON, OPTIONAL, OPTIONAL, OPTIONAL, OPTIONAL) \
@@ -1202,6 +1223,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(NUMBER, "number", "-?[0-9]+(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?", 0, "a decimal number") \
     X(SHA256, "sha256", "[0-9a-f]{64}", 0, "a SHA-256 in 64 lowercase hexadecimal digits") \
     X(QUOTED, "quoted", "\"[^\"]*\"", 0, "a path in double quotes") \
+    X(QUOTED_ESCAPED, "quoted-escaped", "\"(?:[^\"\\\\]|\\\\[\"\\\\])*\"", 0, \
+      "text in double quotes, \\\" a quote and \\\\ a backslash inside it (a property's value)") \
     X(KEY, "key", "[a-z_]+", 0, "a key of a key=value") \
     X(VALUE, "value", "[^, ]*", 0, "a value of a key=value") \
     X(LINE, "line", ".*", 1, "the rest of the line, its words as they were sent")
@@ -1217,7 +1240,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(PHD_VERB_ADD, "uri:word instance:int placement:placement client:word") \
     X(OMX_VERB_SUPERVISOR_RESET, "") \
     X(OMX_VERB_SUPERVISOR_RESET, "worker:worker") \
-    X(OMX_VERB_SUPERVISOR_RESET, "target:" PHD_WORD_ALL)
+    X(OMX_VERB_SUPERVISOR_RESET, "target:" PHD_WORD_ALL) \
+    X(OMX_VERB_PROPERTY_SET, "instance:int symbol:word value:quoted-escaped")
 
 /* An example word of each leaf type of PHD_ARG_TYPES, which a test writes sample lines and replies from (#19).
  * X(name, example) */
@@ -1226,7 +1250,7 @@ static inline int phd_is_note_verb(const char *verb)
     X("instance-or-none", "8") X("status", "signal:11") X("suspect", "suspect:12") X("chain", "4.1") \
     X("reasons", "7:budget") X("placement", "own") X("member", "7" PHD_WORKER_PIN_REFUSED) X("worker-or-none", "w2") \
     X("state", "up") X("place", "chain:4.1") X("amount", "1024") X("number", "-6.02") \
-    X("sha256", "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08") X("quoted", "\"/var/lib/x.json\"") \
+    X("sha256", "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08") X("quoted", "\"/var/lib/x.json\"") X("quoted-escaped", "\"Sala \\\"A\\\" \\\\ 1\"") \
     X("key", "crashed") X("value", "0") X("line", "{\"name\":\"warm\"}") X("core", "2")
 
 /* The composite types (#19): a list is items of one type joined by a separator, or one of its none words (a|b, "" for
@@ -1268,6 +1292,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_PANEL_GET, "0", "path:quoted") \
     X(OMX_VERB_PRESET_LIST, "count", "") \
     X(OMX_VERB_PRESET_GET, "0", "load_key:word name:word") \
+    X(OMX_VERB_PROPERTY_INFO, "0", "symbol:word kind:word access:word name:quoted-escaped") \
+    X(OMX_VERB_PROPERTY_GET, "0", "value:quoted-escaped") \
     X(OMX_VERB_PRESET_SHOW, "0", "json:line") \
     X(OMX_VERB_HISTORY_GET, "0", "history:history") \
     X(OMX_VERB_PLAN, "0", "segments:segments") \

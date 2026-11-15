@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-@91 param_set_many -8 "Ƞ\"" nan !̣ N
-midi_learn -8 "\"\"" 3 +inf
-history_clear бͦ
-@7 pin_set "" Ă! "" "" ""
-@d_1 estimate 99 9 "ŅЕ"
-@- add "" -218 ˇ !eǫ
-hmi_map 11 "m" 860 -38 6 -5 -0 "F\"" inf +.6 -3
-hide_external_ui -11
-param_monitor -7 "\"!" ! +.87
-@- monitor_output_off -494 "l\""
-@__ node_label -9
-plan -40 455
+note_off -6 98 -73 6
+@- note_out_drops 0
+@._- remote_page_get 68 5
+@.1 midi_map -25 "" 1 -7 -nan +88.82
+audio_ports 044
+@t-8 remove -925
+@__. midi_learn -090 $Κ inf +.43e+18
+param_monitor 247 "" "" 084e-619
+@. state_tmpdir ʓ7
+state_tmpdir A
+quit
+quit

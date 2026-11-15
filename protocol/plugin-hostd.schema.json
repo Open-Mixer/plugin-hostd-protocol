@@ -233,7 +233,8 @@
           "ledger": {
             "enum": [
               "none",
-              "replace"
+              "replace",
+              "replace-keyed"
             ]
           },
           "meaning": {

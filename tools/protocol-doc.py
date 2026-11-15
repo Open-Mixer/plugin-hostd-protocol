@@ -288,6 +288,7 @@ OURS_GROUPS = [
     ("Presets and notes, by instance", r"^(preset_|note_|all_notes_off$)"),
     ("The plugin's own window", r"^(show|hide)_external_ui$"),
     ("The node's name in the graph", r"^node_label$"),
+    ("File and text properties, by instance", r"^property_"),
 ]
 
 # the prose a group opens with, before its table
