@@ -147,6 +147,23 @@ class Constants(unittest.TestCase):
         self.assertFalse(self.protocol.transient(self.protocol.code.descriptor_absent))
         with self.assertRaises(ProtocolError):
             self.protocol.transient(-99999)
+
+    def test_a_code_declared_to_leave_no_mark_reads_so_and_pin_refused_is_one_and_still_not_transient(self):
+        """The second refusal class (ruled 2026-11-15): a refusal that leaves no mark on the plugin (no verdict, no
+        history) is read from the table's declaration, like transient, never from a list of names the client keeps.
+        pin-refused is in it and stays not transient: the same request is refused again until the pin changes."""
+        rows = self.table["reply_codes"]
+        self.assertTrue(any(r.get("leaves_no_mark") is True for r in rows), "the table declares a code that leaves no mark")
+        for r in rows:
+            want = r.get("leaves_no_mark") is True
+            self.assertIs(self.protocol.leaves_no_mark(r["resp"]), want, r["code"])
+            self.assertIs(self.protocol.leaves_no_mark(r["code"]), want, r["code"])
+        self.assertTrue(self.protocol.leaves_no_mark(self.protocol.code.pin_refused))
+        self.assertTrue(self.protocol.leaves_no_mark(-516))
+        self.assertFalse(self.protocol.transient(self.protocol.code.pin_refused))
+        self.assertFalse(self.protocol.leaves_no_mark(self.protocol.code.descriptor_absent))
+        with self.assertRaises(ProtocolError):
+            self.protocol.leaves_no_mark(-99999)
 class Numbers(unittest.TestCase):
     def test_a_number_that_is_not_finite_or_a_boolean_is_refused(self):
         p = Protocol()
