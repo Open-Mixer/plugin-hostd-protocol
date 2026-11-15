@@ -1,7 +1,11 @@
 name: ci
 # Run by workflow_dispatch: on a pull request's head before it is merged (gh workflow run ci.yml --ref <branch>),
-# and on demand. The fast checks run on every pull request from public-sources.yml.
+# and on demand. The fast checks run on every pull request from public-sources.yml. The schedule renders against what
+# the channel serves now, so a served contract package that changes the render turns main red when it is served (#27):
+# only the declared-protocol job runs on it.
 on:
+  schedule:
+    - cron: '17 4 * * *'
   workflow_dispatch:
 permissions:
   contents: read
@@ -13,6 +17,8 @@ concurrency:
 jobs:
   test:
     name: build + test (${{ matrix.image }})
+    # the schedule is the render check alone (#27)
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     # A backstop only.
     timeout-minutes: 20
@@ -123,6 +129,8 @@ jobs:
 
   abi:
     name: ABI check (abidiff against abi/)
+    # the schedule is the render check alone (#27)
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     container: fedora:44
