@@ -77,6 +77,14 @@ $(LIB_SONAME): $(LIB_FILE)
 $(LIB_SO): $(LIB_SONAME)
 	ln -sf $(LIB_SONAME) $@
 
+# the protocol's Python client (clients/python/plugin_hostd_client) into PYTHON3_SITELIB: the package
+# python3-plugin-hostd-client, noarch, importable as plugin_hostd_client (issue 45)
+PYTHON3_SITELIB ?= $(shell python3 -c 'import sysconfig; print(sysconfig.get_path("purelib"))')
+.PHONY: install-python
+install-python:
+	install -d $(DESTDIR)$(PYTHON3_SITELIB)/plugin_hostd_client
+	install -m 0644 clients/python/plugin_hostd_client/__init__.py $(DESTDIR)$(PYTHON3_SITELIB)/plugin_hostd_client/
+
 install: $(LIB_FILE)
 	install -d $(DESTDIR)$(LIBDIR)/pkgconfig $(DESTDIR)$(INCLUDEDIR)/$(NAME) $(DESTDIR)$(DATADIR)/$(NAME)
 	install -m 755 $(LIB_FILE) $(DESTDIR)$(LIBDIR)/
@@ -109,7 +117,7 @@ TEST_PROGS = tests/feedback_lines tests/macro_compat tests/protocol_test tests/p
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text
+      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
 test-protocol: tests/protocol_test
@@ -350,6 +358,12 @@ test-reply-args:
 	python3 tests/reply_args.py protocol/plugin-hostd-protocol.json
 
 # the wire's constants, the pin's words and the LV2 workers, in the installed table as protocol.h declares them
+# the protocol's Python client (clients/python/plugin_hostd_client, python3-plugin-hostd-client): NUL framing, split replies,
+# timeout, close, and its newline sabotage (plugin-hostd-protocol issue 45: the owner ships the client)
+.PHONY: test-client
+test-client:
+	python3 tests/client_test.py
+
 test-table-constants:
 	python3 tests/table_constants.py protocol/plugin-hostd-protocol.json protocol/plugin-hostd.json
 
