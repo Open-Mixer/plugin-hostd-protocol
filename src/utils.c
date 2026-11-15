@@ -85,30 +85,18 @@
 ************************************************************************************************************************
 */
 
-/* a token's delimiting quotes out, and its escapes in (the quoted-escaped argument, grammar/plugin-hostd-protocol.abnf):
- * a marked \" is one quote and a marked \\ one backslash; the split marks them with \x01 and \x02, which a line never
- * holds (the grammar takes no control character) */
+/* a token's quotes out: each '"' goes and the character after it stays, whatever it is, so "" leaves one '"'. The split
+ * writes an escape (\" and, inside quotes, \\) as a '"' before the character it keeps (the quoted-escaped argument,
+ * grammar/plugin-hostd-protocol.abnf), so no byte of the line is read as anything but itself */
 static void parse_quote(char *str)
 {
     char *r = str, *w = str;
 
-    for (; *r; r++)
+    while (*r)
     {
-        if (*r == '"')
-            continue;
-        if (*r == '\x01' && r[1] == '"')
-        {
-            *w++ = '"';
-            r++;
-            continue;
-        }
-        if (*r == '\x02' && r[1] == '\\')
-        {
-            *w++ = '\\';
-            r++;
-            continue;
-        }
-        *w++ = *r;
+        if (*r == '"' && !*++r)
+            break;
+        *w++ = *r++;
     }
     *w = '\0';
 }
@@ -201,13 +189,13 @@ char** strarr_split(char *str)
 #ifdef ENABLE_QUOTATION_MARKS
         else if (*pstr == '\\' && *(pstr+1) == '"')
         {
-            // an escaped quote: the backslash marks it, unescape() keeps it as a quote of the value
-            *pstr++ = '\x01';
+            // an escaped quote: the backslash becomes a quote, which parse_quote() drops, keeping the quote after it
+            *pstr++ = '"';
         }
         else if (quote && *pstr == '\\' && *(pstr+1) == '\\')
         {
-            // inside quotes, an escaped backslash: unescape() keeps one
-            *pstr++ = '\x02';
+            // inside quotes, an escaped backslash: the same, parse_quote() keeps the second backslash
+            *pstr++ = '"';
         }
         else if (*pstr == '"')
         {
