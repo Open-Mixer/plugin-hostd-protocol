@@ -1,7 +1,7 @@
 {
   "$schema": "../schema/omx-contract.schema.json",
   "requires": {
-    "omx-contract-schema": ">= 3.18.0",
+    "omx-contract-schema": ">= 3.20.0",
     "omx-clap-core": ">= 0.30.5"
   },
   "PLUGIN_HOSTD_REPLY_CODES": {
@@ -105,6 +105,7 @@
       "pinRefused": {
         "code": "reply.plugin-hostd.pin-refused",
         "resp": -516,
+        "leavesNoMark": true,
         "doc": "the plugin's pin carries verdict=refused",
         "text": {
           "en": "This plugin failed its checks and is blocked; only you can allow it, by approving the plugin."

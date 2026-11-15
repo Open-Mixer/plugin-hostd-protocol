@@ -124,13 +124,17 @@ def table():
     phd_codes = {k: v["resp"] for k, v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].items()}
     # a refusal the same request may be taken past later (#23, D22): the code's own property, never a list of names
     transient = {v["code"] for v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].values() if v.get("transient") is True}
+    # a refusal that leaves no mark on the plugin, no verdict and no history (ruled 2026-11-15, the pin-refused class):
+    # the code's own property too (omx-contract 3.20.0's leavesNoMark), read by a client as leaves_no_mark
+    leaves = {v["code"] for v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].values() if v.get("leavesNoMark") is True}
     for v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].values():
         words.setdefault(v["resp"], set()).add(v["code"])
     # the word an error word answer carries after a refusal's number: one word a number, or the table is not written
     for resp, w in words.items():
         if len(w) > 1:
             fail(f"resp {resp} is declared as more than one code: {', '.join(sorted(w))}")
-    reply_codes = [{"resp": r, "code": next(iter(w)), **({"transient": True} if next(iter(w)) in transient else {})}
+    reply_codes = [{"resp": r, "code": next(iter(w)), **({"transient": True} if next(iter(w)) in transient else {}),
+                    **({"leaves_no_mark": True} if next(iter(w)) in leaves else {})}
                    for r, w in sorted(words.items(), reverse=True)]
 
     def resolve(ref):

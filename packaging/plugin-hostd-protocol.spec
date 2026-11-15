@@ -20,7 +20,7 @@ BuildRequires: python3
 BuildRequires: python3-devel
 # the declared protocol: tools/protocol-gen holds protocol.h's parameter scales to omx-contract's C headers, and
 # install-contract writes the contract directory's package with omx-contract's script
-BuildRequires: (omx-contract-devel >= 3.18.0 with omx-contract-devel < 4)
+BuildRequires: (omx-contract-devel >= 3.20.0 with omx-contract-devel < 4)
 # the codec's tests (make test-codec) read omx-clap-core's sentences and omx-contract's catalog reader
 BuildRequires: (omx-clap-core-contract >= 0.32.3 with omx-clap-core-contract < 0.34)
 BuildRequires: (omx-contract-data >= 3.16.0 with omx-contract-data < 4)
@@ -93,7 +93,7 @@ Its documentation is on openmixer.org.
 %package contract
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
-Requires: (omx-contract >= 3.18.0 with omx-contract < 4)
+Requires: (omx-contract >= 3.20.0 with omx-contract < 4)
 # plugin-hostd before 0.16.0 declared the same items in its own package of the contract directory
 Conflicts: plugin-hostd-contract < 0.16.0
 

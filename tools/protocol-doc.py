@@ -910,11 +910,15 @@ def page():
                                                                                          key=lambda x: -x[0])])))
     w("")
     w("The codes the daemon adds. A transient one says nothing about the plugin or the request: the same request may be "
-      "taken later, and a client asks the code's `transient` in the table's `reply_codes`, never a list of names (#23):")
+      "taken later, and a client asks the code's `transient` in the table's `reply_codes`, never a list of names (#23). "
+      "One that leaves no mark writes no verdict and no history for the plugin, and a client asks its `leaves_no_mark` "
+      "the same way (the pin-refused class); a refused pin leaves no mark and is not transient:")
     w("")
     transient = {r["resp"] for r in TABLE["reply_codes"] if r.get("transient") is True}
-    w("\n".join(table(["resp", "name", "transient", "meaning"],
-                      [[str(e["code"]), code(e["name"]), "yes" if e["code"] in transient else "", cell(e["meaning"])]
+    no_mark = {r["resp"] for r in TABLE["reply_codes"] if r.get("leaves_no_mark") is True}
+    w("\n".join(table(["resp", "name", "transient", "leaves no mark", "meaning"],
+                      [[str(e["code"]), code(e["name"]), "yes" if e["code"] in transient else "",
+                        "yes" if e["code"] in no_mark else "", cell(e["meaning"])]
                        for e in PHD["errors"]])))
     w("")
 
