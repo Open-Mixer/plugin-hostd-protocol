@@ -7,6 +7,10 @@ on:
   schedule:
     - cron: '17 4 * * *'
   workflow_dispatch:
+    inputs:
+      clap-core-ref:
+        description: the omx-clap-core branch, tag or commit whose data/ (verbs.json) the declared-protocol job reads
+        default: main
 permissions:
   contents: read
 concurrency:
@@ -78,11 +82,16 @@ jobs:
   # staged contract package validates, protocol/plugin-hostd.json satisfies its schema, and the grammar holds the
   # scenario corpus, the golden transcript and the table, read by python's abnf parser (and a broken rule is red).
   # plugin-hostd-contract before 0.16.0 declares the same items, so it is not installed here.
+  # omx-clap-core's contract (data/verbs.json, the shared verbs protocol/plugin-hostd-protocol.json imports) is read from
+  # its source at CLAP_CORE_REF, not from the channel: a protocol release comes before the omx-clap-core release that
+  # needs it, so the package of the verbs it declares is not served yet when this job runs.
   protocol:
     name: declared protocol (render, contract directory, schema, grammar)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     container: fedora:44
+    env:
+      CLAP_CORE_REF: ${{ inputs.clap-core-ref || 'main' }}
     steps:
       - name: Toolchain
         run: dnf -y install gcc make git pkgconf-pkg-config diffutils python3 python3-jsonschema python3-pyyaml
@@ -91,19 +100,37 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
-      - name: omx-contract and omx-clap-core's and plugin-db's packages of the contract directory
+      - name: omx-contract and plugin-db's package of the contract directory
         run: |
           set -euo pipefail
-          dnf -y install 'omx-contract >= 0.32.0' 0.4.0' 0.33.0' 3.18.0' 'omx-contract < 4' 'omx-clap-core-contract 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' omx-clap-core-contract 'plugin-db-contract >= 0.4.4' 'plugin-db-contract < 0.5' 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33'
+          dnf -y install 'omx-contract >= 3.18.0' 'omx-contract < 4' 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' 'plugin-db-contract >= 0.4.4' 'plugin-db-contract < 0.5' 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33'
           if rpm -q plugin-hostd-contract; then echo "plugin-hostd-contract is installed: it declares the same items"; exit 1; fi
       # an ordinary run renders and builds against what consumers get, the channel: name where each omx package came
-      # from, and refuse one from the staging channel (#27: a stale staged omx-clap-core-contract outranked the channel)
+      # from, and refuse one from the staging channel (#27: a stale staged contract package outranked the channel)
       - name: Every contract package comes from the channel
         run: |
           set -euo pipefail
           dnf repoquery --installed --qf '%{name} %{version} %{from_repo}\n' 'omx-*' 'plugin-db-contract' | tee /tmp/from-repo
-          grep -q '^omx-clap-core-contract .* openmixer' /tmp/from-repo || { echo "omx-clap-core-contract is not from the channel"; exit 1; }
           if grep staging /tmp/from-repo; then echo "a package above came from the staging channel: an ordinary run builds against the channel"; exit 1; fi
+      # one fetch of omx-clap-core at CLAP_CORE_REF, resolved to its commit and named; its data/ is staged as the package
+      # omx-clap-core of a contract directory of its own, ahead of the installed one on OMX_CONTRACT_PATH, which every
+      # make target that renders, validates or translates reads
+      - name: omx-clap-core's data/verbs.json from its source
+        run: |
+          set -euo pipefail
+          url=https://github.com/Open-Mixer/omx-clap-core
+          sha=$(git ls-remote "$url" "$CLAP_CORE_REF" "refs/tags/$CLAP_CORE_REF^{}" | awk 'END { print $1 }')
+          if [ -z "$sha" ] && printf '%s' "$CLAP_CORE_REF" | grep -qxE '[0-9a-f]{40}'; then sha=$CLAP_CORE_REF; fi
+          [ -n "$sha" ] || { echo "omx-clap-core has no ref $CLAP_CORE_REF"; exit 1; }
+          src=$RUNNER_TEMP/omx-clap-core
+          git init -q "$src"
+          git -C "$src" fetch -q --depth 1 "$url" "$sha"
+          git -C "$src" checkout -q FETCH_HEAD -- data VERSION
+          test "$(git -C "$src" rev-parse FETCH_HEAD)" = "$sha"
+          echo "omx-clap-core data/verbs.json read at $sha ($CLAP_CORE_REF)" | tee -a /tmp/from-repo
+          dir=$RUNNER_TEMP/clap-core-contract
+          (cd "$src" && sh "$(pkg-config --variable=datadir omx-contract)/install-contract-dir.sh" omx-clap-core "$(cat VERSION)" 3 data "$dir" data)
+          echo "OMX_CONTRACT_PATH=$dir" >> "$GITHUB_ENV"
       - name: The python ABNF parser
         run: |
           python3 -m venv /opt/abnf

@@ -429,7 +429,8 @@ test-generated-sabotage:
 # The checks that need tools a package build does not: run by CI (.github/workflows/ci.yml, job protocol).
 #   check-rendered   the four rendered headers are what omx-contract renders from data/verbs.json (staged as the
 #                    package plugin-hostd-protocol of the contract directory) and from omx-clap-core's installed package;
-#                    test-rendered-sabotage holds it to failing
+#                    test-rendered-sabotage holds it to failing. A contract directory named first on OMX_CONTRACT_PATH
+#                    outranks the installed one: CI stages omx-clap-core's data/ from its source there
 #   check-contract-dir  that staged package validates with the installed contract directory
 #   check-schema     protocol/plugin-hostd.json against its schema (python3-jsonschema)
 #   test-grammar     the grammar against the scenario corpus, the golden transcript and the table (python abnf)
