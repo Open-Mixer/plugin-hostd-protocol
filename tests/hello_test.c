@@ -58,7 +58,7 @@ static float *param_of(int instance, const char *symbol, int *code)
     if (*code == SUCCESS && strcmp(symbol, "cutoff") == 0)
         return &g_cutoff;
     if (*code == SUCCESS)
-        *code = ERR_LV2_INVALID_PARAM_SYMBOL;
+        *code = ERR_HOST_INVALID_PARAM_SYMBOL;
     return NULL;
 }
 

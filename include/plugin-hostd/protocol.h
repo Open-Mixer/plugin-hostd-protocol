@@ -976,14 +976,15 @@ static inline int phd_track_info_valid(char *const *word, int count)
 /* whether word is a whole number from lo to hi, in decimal with no sign but a leading '-' ('-0' is not a number: zero has one spelling) */
 static inline int phd_number_in(const char *word, int lo, int hi)
 {
-    long v = 0;
+    long long v = 0;
     int n = word[0] == '-' ? 1 : 0;
 
     if (!word[n])
         return 0;
     for (; word[n]; n++)
     {
-        if (word[n] < '0' || word[n] > '9' || v > 100000)
+        /* the digits stop at a value no int bound can hold, so v never overflows; the bound itself is lo and hi */
+        if (word[n] < '0' || word[n] > '9' || v > 1000000000LL)
             return 0;
         v = v * 10 + (word[n] - '0');
     }
@@ -1283,9 +1284,7 @@ static inline int phd_is_note_verb(const char *verb)
 
 /* The replies of this tree's verbs, typed and named (#19): X(verb, resp, args), resp 0, or count when the reply's
  * number counts (the words a last repeated argument gives, when it has one); args as PHD_EVENT_ARGS writes them, a
- * last one name:type... repeated over the rest of the line. A verb may have more than one row, a form each: plan's and
- * plan_get's without cores are the replies of a daemon from before plugin-hostd#226, estimate's six words an older
- * daemon's. */
+ * last one name:type... repeated over the rest of the line. */
 #define PHD_REPLY_ARGS(X) \
     X(OMX_VERB_WORKER_LIST, "count", "workers:worker-record...") \
     X(OMX_VERB_INSTANCE_INFO, "0", "worker:worker pid:int state:state crashes:uint quarantined:uint") \
@@ -1299,13 +1298,9 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_PROPERTY_GET, "0", "value:quoted-escaped") \
     X(OMX_VERB_PRESET_SHOW, "0", "json:line") \
     X(OMX_VERB_HISTORY_GET, "0", "history:history") \
-    X(OMX_VERB_PLAN, "0", "segments:segments") \
     X(OMX_VERB_PLAN, "0", "segments:segments cores:core-segments") \
-    X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list") \
     X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list cores:core-segments") \
-    X(OMX_VERB_ESTIMATE, "0", "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint " \
-      "unknown:member-codes") \
-    X(OMX_VERB_ESTIMATE, "0", "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint " \
+        X(OMX_VERB_ESTIMATE, "0", "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint " \
       "unknown:member-codes ram_used_bytes:amount ram_added_bytes:amount ram_budget_bytes:amount ram_unknown_count:uint") \
     X(OMX_VERB_HELLO, "0", "version:int extensions:word...") \
     X(OMX_VERB_PARAM_GET_MANY, "0", "values:word...") \

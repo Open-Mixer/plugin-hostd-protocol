@@ -58,8 +58,8 @@ jobs:
       # and the codec's tests read the sentences of omx-clap-core's package and omx-contract's catalog reader (issue 46)
       - name: omx-contract's headers, and omx-dsp's curve function
         run: |
-          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33' omx-clap-core-contract omx-contract-data; else
-            apt-get -y install --no-install-recommends libomx-contract-dev libomxdsp-dev omx-clap-core-contract omx-contract-data
+          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33' omx-clap-core-contract omx-contract-data python3-omx-contract; else
+            apt-get -y install --no-install-recommends libomx-contract-dev libomxdsp-dev omx-clap-core-contract omx-contract-data python3-omx-contract
             v=$(dpkg-query -W -f='${Version}' libomx-contract-dev)
             dpkg --compare-versions "$v" ge 3.18.0~
             dpkg --compare-versions "$v" lt 4~
@@ -152,7 +152,6 @@ jobs:
           base: plugin-hostd-protocol-contract
           owner: plugin-hostd-protocol
           spec: packaging/plugin-hostd-protocol.spec
-          moved: ca:0.5.6
           gate: make check-catalogs
 
   abi:

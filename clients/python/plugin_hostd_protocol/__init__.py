@@ -23,21 +23,13 @@ __all__ = ["Protocol", "ProtocolError", "words", "quote", "encode_path", "decode
 
 
 def _catalog_reader():
-    """omx-contract's catalog reader (omx_contract_catalog.py, omx-contract-data): the one reading of a catalog entry,
-    a string or an object {text, by, source}, and of a stale machine entry (#78). It lives in omx-contract's data
-    directory: OMX_CONTRACT_DATADIR, else where pkg-config said it was when the client was installed, else
-    pkg-config's datadir of omx-contract, else /usr/share/omx-contract."""
-    import importlib.util
-    root = os.environ.get("OMX_CONTRACT_DATADIR") or getattr(_installed, "OMX_CONTRACT_DATADIR", None) or \
-        _pkg_config("--variable=datadir", "omx-contract") or "/usr/share/omx-contract"
-    path = os.path.join(root, "omx_contract_catalog.py")
-    spec = importlib.util.spec_from_file_location("omx_contract_catalog", path)
-    if spec is None or not os.path.isfile(path):
-        raise ProtocolError("no catalog reader at %s: omx-contract-data is not installed and OMX_CONTRACT_DATADIR is not set"
-                            % path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
+    """omx-contract's catalog reader (omx_contract.catalog, python3-omx-contract): the one reading of a catalog entry,
+    a string or an object {text, by, source}, and of a stale machine entry (#78)."""
+    try:
+        from omx_contract import catalog
+    except ImportError as e:
+        raise ProtocolError("no catalog reader: python3-omx-contract is not installed (%s)" % e)
+    return catalog
 
 
 class ProtocolError(ValueError):
@@ -54,10 +46,19 @@ ESCAPE = "%"
 EXCLUDED = ",= \t\r\n"
 
 
+def _no_nul(text):
+    """text itself; ProtocolError when it holds a NUL: the protocol's line end, so one command would be two and every
+    reply after it would answer the wrong one"""
+    if "\0" in text:
+        raise ProtocolError("a NUL is the end of a line, it is in no word")
+    return text
+
+
 def words(line):
     """The words of a line as the daemon reads them: split at whitespace; a word that starts with a quotation mark
     runs to the next one no backslash escapes, \\" in it is a quote, the marks are not part of it; a quoted word that
-    never closes runs to the end of the line."""
+    never closes runs to the end of the line. ProtocolError for a line that holds a NUL."""
+    _no_nul(line)
     out, i, n = [], 0, len(line)
     while i < n:
         if line[i] in SPACE:
@@ -83,11 +84,12 @@ def words(line):
 
 def quote(value):
     """A value as one quoted word: in quotation marks, \\" for a quote (the grammar's only escape)."""
-    return '"' + value.replace('"', '\\"') + '"'
+    return '"' + _no_nul(value).replace('"', '\\"') + '"'
 
 
 def _word(value):
     """A string as one word: bare when it can be, quoted when it is empty or holds whitespace or a quote."""
+    _no_nul(value)
     if value and not any(c in SPACE or c == '"' for c in value):
         return value
     return quote(value)

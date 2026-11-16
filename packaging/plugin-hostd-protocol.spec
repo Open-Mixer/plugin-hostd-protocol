@@ -24,6 +24,7 @@ BuildRequires: (omx-contract-devel >= 3.18.0 with omx-contract-devel < 4)
 # the codec's tests (make test-codec) read omx-clap-core's sentences and omx-contract's catalog reader
 BuildRequires: (omx-clap-core-contract >= 0.32.3 with omx-clap-core-contract < 0.34)
 BuildRequires: (omx-contract-data >= 3.16.0 with omx-contract-data < 4)
+BuildRequires: python3-omx-contract >= 3.18.1
 # omx_curve.h, the curve function the curve verbs draw with (header only)
 BuildRequires: (omx-dsp-devel >= 0.32.1 with omx-dsp-devel < 0.33)
 
@@ -77,8 +78,8 @@ Requires: (plugin-hostd-protocol >= 0.5.8 with plugin-hostd-protocol < 0.6)
 Requires: (plugin-hostd-protocol-contract >= 0.5.8 with plugin-hostd-protocol-contract < 0.6)
 Requires: (omx-clap-core-contract >= 0.32.3 with omx-clap-core-contract < 0.34)
 Requires: (omx-contract >= 3.12.0 with omx-contract < 4)
-# omx-contract's catalog reader, omx_contract_catalog.py, which reads a catalog entry whatever its shape
-Requires: (omx-contract-data >= 3.16.0 with omx-contract-data < 4)
+# omx-contract's catalog reader, omx_contract.catalog, which reads a catalog entry whatever its shape
+Requires: python3-omx-contract >= 3.18.1
 
 %description -n python3-plugin-hostd-protocol
 plugin_hostd_protocol, the Python codec of the plugin-hostd protocol: one codec
@@ -94,8 +95,6 @@ Its documentation is on openmixer.org.
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
 Requires: (omx-contract >= 3.18.0 with omx-contract < 4)
-# plugin-hostd before 0.16.0 declared the same items in its own package of the contract directory
-Conflicts: plugin-hostd-contract < 0.16.0
 
 %description contract
 data/verbs.json of plugin-hostd-protocol, the verbs and reply codes

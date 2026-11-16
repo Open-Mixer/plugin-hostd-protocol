@@ -25,6 +25,8 @@ class Client:
         return cls(socket.create_connection((host, port), timeout=timeout), timeout)
 
     def send(self, line, timeout=None):
+        if "\0" in line:  # the line end: one command would be two and every reply after it the wrong one's
+            raise ValueError("a command line holds a NUL, the protocol's line end: %r" % line)
         self.sock.sendall(line.encode() + b"\0")
         end = time.monotonic() + (self.timeout if timeout is None else timeout)
         while b"\0" not in self.buf:
