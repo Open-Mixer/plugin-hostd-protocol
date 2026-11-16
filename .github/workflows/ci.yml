@@ -1,38 +1,28 @@
 name: ci
-# A push runs on main only; a pull request already runs its branch. The schedule renders against what the channel
-# serves now, so a served contract package that changes the render turns main red when it is served (#27): only the
-# declared-protocol job runs on it.
+# Run by workflow_dispatch: on a pull request's head before it is merged (gh workflow run ci.yml --ref <branch>),
+# and on demand. The fast checks run on every pull request from public-sources.yml. The schedule renders against what
+# the channel serves now, so a served contract package that changes the render turns main red when it is served (#27):
+# only the declared-protocol job runs on it.
 on:
-  push:
-    branches: [main, dedupe/all]
-  pull_request:
   schedule:
     - cron: '17 4 * * *'
   workflow_dispatch:
+    inputs:
+      clap-core-ref:
+        description: the omx-clap-core branch, tag or commit whose data/ (verbs.json) the declared-protocol job reads
+        default: main
 permissions:
   contents: read
 concurrency:
-  # A new push to a pull request cancels the run it supersedes. Every other run (main, a tag) has a group of its own
-  # and is never cancelled; the run id keeps two pushes to main from replacing each other while one is queued.
+  # Every dispatch has a group of its own (the run id) and is never cancelled.
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # no Fedora release written into a job: the cells come from check-matrix (rule 11-10, ruling D25)
-  fedora-cells:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          sparse-checkout: .github/workflows
-      - uses: Open-Mixer/.github/.github/actions/fedora-cells@openmixer-v1
-
   test:
-    needs: checks
-    name: build + test (${{ matrix.cell.image }})
+    name: build + test (${{ matrix.image }})
     # the schedule is the render check alone (#27)
-    if: github.event_name != 'schedule' && needs.checks.outputs.count != '0'
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     # A backstop only.
     timeout-minutes: 20
@@ -41,11 +31,11 @@ jobs:
       matrix:
         # ruling D25: while the org's OMX_RELEASE_MATRIX is quick, CI covers the quick cells only; bookworm is a full
         # cell, served its floors only at the wave-end full release, so it joins the matrix when the variable is full
-        cell: ${{ fromJSON(needs.checks.outputs.cells) }}
+        image: ${{ fromJSON(vars.OMX_RELEASE_MATRIX == 'full' && '["fedora:44", "debian:bookworm", "debian:trixie"]' || '["fedora:44", "debian:trixie"]') }}
     # privileged only to lower the runner kernel's mmap_rnd_bits: with the hosted image's 32 bits, bookworm's gcc 12
     # AddressSanitizer dies in DEADLYSIGNAL loops or hangs until the timeout (newer libasan copes)
     container:
-      image: ${{ matrix.cell.image }}
+      image: ${{ matrix.image }}
       options: --privileged
     steps:
       - name: Address space randomisation AddressSanitizer can run under
@@ -65,19 +55,20 @@ jobs:
       # omx-contract's C headers, which the declared protocol's generator is built against, are the OpenMixer channel's
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
+      # and the codec's tests read the sentences of omx-clap-core's package and omx-contract's catalog reader (issue 46)
       - name: omx-contract's headers, and omx-dsp's curve function
         run: |
-          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'; else
-            apt-get -y install --no-install-recommends libomx-contract-dev libomxdsp-dev
+          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33' omx-clap-core-contract omx-contract-data; else
+            apt-get -y install --no-install-recommends libomx-contract-dev libomxdsp-dev omx-clap-core-contract omx-contract-data
             v=$(dpkg-query -W -f='${Version}' libomx-contract-dev)
             dpkg --compare-versions "$v" ge 3.18.0~
             dpkg --compare-versions "$v" lt 4~
             v=$(dpkg-query -W -f='${Version}' libomxdsp-dev)
-            dpkg --compare-versions "$v" ge 0.32.0~
+            dpkg --compare-versions "$v" ge 0.32.1~
             dpkg --compare-versions "$v" lt 0.33~
           fi
           pkg-config --exists omx-contract
-          pkg-config --exists 'omxdsp >= 0.32.0'
+          pkg-config --exists 'omxdsp >= 0.32.1'
           pkg-config --exists 'omxdsp < 0.33'
       - name: Trust the checkout
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -86,43 +77,21 @@ jobs:
       - name: Tests (protocol, golden, install, symbols, version, the generated protocol and its sabotage)
         run: make test
 
-  # the cells test, protocol and abi run: check-matrix's answer (rule 11-10: fc45 beside fc44;
-  # the quick set while a release wave is open, the whole matrix declared here otherwise)
-  checks:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      rpm: ${{ steps.m.outputs.rpm }}
-      rpm-count: ${{ steps.m.outputs.rpm-count }}
-      cells: ${{ steps.m.outputs.cells }}
-      count: ${{ steps.m.outputs.count }}
-    steps:
-      - id: m
-        uses: Open-Mixer/.github/.github/actions/check-matrix@openmixer-v1
-        with:
-          wave: ${{ vars.OMX_RELEASE_MATRIX }}
-          rpm-releases: '["44", "45"]'
-          rpm-arches: '["x86_64"]'
-          deb-releases: '["bookworm", "trixie"]'
-          deb-arches: '["amd64"]'
-
   # The declared protocol with the tools a package build does not carry: the rendered headers are what the installed
   # omx-contract renders from data/verbs.json and from omx-clap-core's package (and a header changed by hand is red), the
   # staged contract package validates, protocol/plugin-hostd.json satisfies its schema, and the grammar holds the
   # scenario corpus, the golden transcript and the table, read by python's abnf parser (and a broken rule is red).
   # plugin-hostd-contract before 0.16.0 declares the same items, so it is not installed here.
+  # omx-clap-core's contract (data/verbs.json, the shared verbs protocol/plugin-hostd-protocol.json imports) is read from
+  # its source at CLAP_CORE_REF, not from the channel: a protocol release comes before the omx-clap-core release that
+  # needs it, so the package of the verbs it declares is not served yet when this job runs.
   protocol:
-    needs: checks
-    if: needs.checks.outputs.rpm-count != '0'
-    name: declared protocol (render, contract directory, schema, grammar) (${{ matrix.cell.image }})
+    name: declared protocol (render, contract directory, schema, grammar)
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
-    container:
-      image: ${{ matrix.cell.image }}
+    container: fedora:44
+    env:
+      CLAP_CORE_REF: ${{ inputs.clap-core-ref || 'main' }}
     steps:
       - name: Toolchain
         run: dnf -y install gcc make git pkgconf-pkg-config diffutils python3 python3-jsonschema python3-pyyaml
@@ -131,19 +100,37 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
-      - name: omx-contract and omx-clap-core's and plugin-db's packages of the contract directory
+      - name: omx-contract and plugin-db's package of the contract directory
         run: |
           set -euo pipefail
-          dnf -y install 'omx-contract >= 3.18.0' 'omx-contract < 4' 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' omx-clap-core-contract 'plugin-db-contract >= 0.4.0' 'plugin-db-contract < 0.5' 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
+          dnf -y install 'omx-contract >= 3.18.0' 'omx-contract < 4' 'omx-contract-devel >= 3.18.0' 'omx-contract-devel < 4' 'plugin-db-contract >= 0.4.4' 'plugin-db-contract < 0.5' 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33'
           if rpm -q plugin-hostd-contract; then echo "plugin-hostd-contract is installed: it declares the same items"; exit 1; fi
       # an ordinary run renders and builds against what consumers get, the channel: name where each omx package came
-      # from, and refuse one from the staging channel (#27: a stale staged omx-clap-core-contract outranked the channel)
+      # from, and refuse one from the staging channel (#27: a stale staged contract package outranked the channel)
       - name: Every contract package comes from the channel
         run: |
           set -euo pipefail
           dnf repoquery --installed --qf '%{name} %{version} %{from_repo}\n' 'omx-*' 'plugin-db-contract' | tee /tmp/from-repo
-          grep -q '^omx-clap-core-contract .* openmixer' /tmp/from-repo || { echo "omx-clap-core-contract is not from the channel"; exit 1; }
           if grep staging /tmp/from-repo; then echo "a package above came from the staging channel: an ordinary run builds against the channel"; exit 1; fi
+      # one fetch of omx-clap-core at CLAP_CORE_REF, resolved to its commit and named; its data/ is staged as the package
+      # omx-clap-core of a contract directory of its own, ahead of the installed one on OMX_CONTRACT_PATH, which every
+      # make target that renders, validates or translates reads
+      - name: omx-clap-core's data/verbs.json from its source
+        run: |
+          set -euo pipefail
+          url=https://github.com/Open-Mixer/omx-clap-core
+          sha=$(git ls-remote "$url" "$CLAP_CORE_REF" "refs/tags/$CLAP_CORE_REF^{}" | awk 'END { print $1 }')
+          if [ -z "$sha" ] && printf '%s' "$CLAP_CORE_REF" | grep -qxE '[0-9a-f]{40}'; then sha=$CLAP_CORE_REF; fi
+          [ -n "$sha" ] || { echo "omx-clap-core has no ref $CLAP_CORE_REF"; exit 1; }
+          src=$RUNNER_TEMP/omx-clap-core
+          git init -q "$src"
+          git -C "$src" fetch -q --depth 1 "$url" "$sha"
+          git -C "$src" checkout -q FETCH_HEAD -- data VERSION
+          test "$(git -C "$src" rev-parse FETCH_HEAD)" = "$sha"
+          echo "omx-clap-core data/verbs.json read at $sha ($CLAP_CORE_REF)" | tee -a /tmp/from-repo
+          dir=$RUNNER_TEMP/clap-core-contract
+          (cd "$src" && sh "$(pkg-config --variable=datadir omx-contract)/install-contract-dir.sh" omx-clap-core "$(cat VERSION)" 3 data "$dir" data)
+          echo "OMX_CONTRACT_PATH=$dir" >> "$GITHUB_ENV"
       - name: The python ABNF parser
         run: |
           python3 -m venv /opt/abnf
@@ -169,18 +156,12 @@ jobs:
           gate: make check-catalogs
 
   abi:
-    needs: checks
-    name: ABI check (abidiff against abi/) (${{ matrix.cell.image }})
+    name: ABI check (abidiff against abi/)
     # the schedule is the render check alone (#27)
-    if: (github.event_name != 'schedule') && needs.checks.outputs.rpm-count != '0'
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
-    container:
-      image: ${{ matrix.cell.image }}
+    container: fedora:44
     steps:
       - name: Toolchain
         run: dnf -y install gcc make git pkgconf-pkg-config diffutils binutils gawk libabigail
@@ -190,15 +171,8 @@ jobs:
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
       - name: omx-dsp's curve function
-        run: dnf -y install 'omx-dsp-devel >= 0.32.0' 'omx-dsp-devel < 0.33'
+        run: dnf -y install 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33'
       - name: Exported symbols
         run: make test-abi
       - name: Types against the baseline
         run: make abi-check
-
-  # the checks every OpenMixer repository runs on what it publishes: commit messages, private references, and no
-  # local copy of either (Open-Mixer/.github's public-sources-check)
-  public-sources:
-    # the schedule is the render check alone (#27)
-    if: github.event_name != 'schedule'
-    uses: Open-Mixer/.github/.github/workflows/public-sources-check.yml@openmixer-v1
