@@ -19,8 +19,39 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # no Fedora release written into a job: the cells come from check-matrix (rule 11-10, ruling D25)
+  fedora-cells:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/workflows
+      - uses: Open-Mixer/.github/.github/actions/fedora-cells@openmixer-v1
+
+  # the cells the jobs run on: check-matrix's answer (fc45 beside fc44; the quick set while a release wave is open)
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      rpm: ${{ steps.m.outputs.rpm }}
+      rpm-count: ${{ steps.m.outputs.rpm-count }}
+      cells: ${{ steps.m.outputs.cells }}
+      count: ${{ steps.m.outputs.count }}
+    steps:
+      - id: m
+        uses: Open-Mixer/.github/.github/actions/check-matrix@openmixer-v1
+        with:
+          wave: ${{ vars.OMX_RELEASE_MATRIX }}
+          rpm-releases: '["44", "45"]'
+          rpm-arches: '["x86_64"]'
+          deb-releases: '["bookworm", "trixie"]'
+          deb-arches: '["amd64"]'
+
   test:
-    name: build + test (${{ matrix.image }})
+    name: build + test (${{ matrix.cell.image }})
+    needs: checks
+    if: needs.checks.outputs.count != '0'
     # the schedule is the render check alone (#27)
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
@@ -31,11 +62,11 @@ jobs:
       matrix:
         # ruling D25: while the org's OMX_RELEASE_MATRIX is quick, CI covers the quick cells only; bookworm is a full
         # cell, served its floors only at the wave-end full release, so it joins the matrix when the variable is full
-        image: ${{ fromJSON(vars.OMX_RELEASE_MATRIX == 'full' && '["fedora:44", "debian:bookworm", "debian:trixie"]' || '["fedora:44", "debian:trixie"]') }}
+        cell: ${{ fromJSON(needs.checks.outputs.cells) }}
     # privileged only to lower the runner kernel's mmap_rnd_bits: with the hosted image's 32 bits, bookworm's gcc 12
     # AddressSanitizer dies in DEADLYSIGNAL loops or hangs until the timeout (newer libasan copes)
     container:
-      image: ${{ matrix.image }}
+      image: ${{ matrix.cell.image }}
       options: --privileged
     steps:
       - name: Address space randomisation AddressSanitizer can run under
@@ -86,10 +117,17 @@ jobs:
   # its source at CLAP_CORE_REF, not from the channel: a protocol release comes before the omx-clap-core release that
   # needs it, so the package of the verbs it declares is not served yet when this job runs.
   protocol:
-    name: declared protocol (render, contract directory, schema, grammar)
+    name: declared protocol (render, contract directory, schema, grammar) (${{ matrix.cell.image }})
+    needs: checks
+    if: needs.checks.outputs.rpm-count != '0'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    container: fedora:44
+    strategy:
+      fail-fast: false
+      matrix:
+        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
+    container:
+      image: ${{ matrix.cell.image }}
     env:
       CLAP_CORE_REF: ${{ inputs.clap-core-ref || 'main' }}
     steps:
@@ -156,12 +194,18 @@ jobs:
           gate: make check-catalogs
 
   abi:
-    name: ABI check (abidiff against abi/)
+    name: ABI check (abidiff against abi/) (${{ matrix.cell.image }})
+    needs: checks
     # the schedule is the render check alone (#27)
-    if: github.event_name != 'schedule'
+    if: github.event_name != 'schedule' && needs.checks.outputs.rpm-count != '0'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    container: fedora:44
+    strategy:
+      fail-fast: false
+      matrix:
+        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
+    container:
+      image: ${{ matrix.cell.image }}
     steps:
       - name: Toolchain
         run: dnf -y install gcc make git pkgconf-pkg-config diffutils binutils gawk libabigail
