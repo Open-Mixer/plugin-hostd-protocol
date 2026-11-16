@@ -20,12 +20,12 @@ BuildRequires: python3
 BuildRequires: python3-devel
 # the declared protocol: tools/protocol-gen holds protocol.h's parameter scales to omx-contract's C headers, and
 # install-contract writes the contract directory's package with omx-contract's script
-BuildRequires: (omx-contract-devel >= 3.19.0 with omx-contract-devel < 4)
+BuildRequires: omx-contract-devel >= 3.19.0
 # the codec's tests (make test-codec) read omx-clap-core's sentences and omx-contract's catalog reader
-BuildRequires: (omx-clap-core-contract >= 0.32.3 with omx-clap-core-contract < 0.34)
-BuildRequires: (omx-contract-data >= 3.19.0 with omx-contract-data < 4)
+BuildRequires: omx-clap-core-contract >= 0.32.3
+BuildRequires: omx-contract-data >= 3.19.0
 # omx_curve.h, the curve function the curve verbs draw with (header only)
-BuildRequires: (omx-dsp-devel >= 0.32.2 with omx-dsp-devel < 0.33)
+BuildRequires: omx-dsp-devel >= 0.32.2
 
 %description
 libplugin-hostd-protocol is the socket server, line protocol and command
@@ -73,12 +73,12 @@ BuildArch: noarch
 # 0.5.10, and plugin-hostd's first release without it floors on it.
 Epoch: 1
 Requires: python3
-Requires: (plugin-hostd-protocol >= 0.5.8 with plugin-hostd-protocol < 0.6)
-Requires: (plugin-hostd-protocol-contract >= 0.5.8 with plugin-hostd-protocol-contract < 0.6)
-Requires: (omx-clap-core-contract >= 0.32.3 with omx-clap-core-contract < 0.34)
-Requires: (omx-contract >= 3.19.0 with omx-contract < 4)
+Requires: plugin-hostd-protocol >= 0.5.8
+Requires: plugin-hostd-protocol-contract >= 0.5.8
+Requires: omx-clap-core-contract >= 0.32.3
+Requires: omx-contract >= 3.19.0
 # omx-contract's catalog reader, omx_contract_catalog.py, which reads a catalog entry whatever its shape
-Requires: (omx-contract-data >= 3.19.0 with omx-contract-data < 4)
+Requires: omx-contract-data >= 3.19.0
 
 %description -n python3-plugin-hostd-protocol
 plugin_hostd_protocol, the Python codec of the plugin-hostd protocol: one codec
@@ -93,7 +93,7 @@ Its documentation is on openmixer.org.
 %package contract
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
-Requires: (omx-contract >= 3.19.0 with omx-contract < 4)
+Requires: omx-contract >= 3.19.0
 # plugin-hostd before 0.16.0 declared the same items in its own package of the contract directory
 Conflicts: plugin-hostd-contract < 0.16.0
 
