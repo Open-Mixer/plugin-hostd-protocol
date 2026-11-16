@@ -85,16 +85,20 @@
 ************************************************************************************************************************
 */
 
+/* a token's quotes out: each '"' goes and the character after it stays, whatever it is, so "" leaves one '"'. The split
+ * writes an escape (\" and, inside quotes, \\) as a '"' before the character it keeps (the quoted-escaped argument,
+ * grammar/plugin-hostd-protocol.abnf), so no byte of the line is read as anything but itself */
 static void parse_quote(char *str)
 {
-    char *pstr = str;
+    char *r = str, *w = str;
 
-    while (*pstr)
+    while (*r)
     {
-        if (*pstr == '"')
-            memmove(pstr, pstr+1, strlen(pstr));
-        pstr++;
+        if (*r == '"' && !*++r)
+            break;
+        *w++ = *r++;
     }
+    *w = '\0';
 }
 
 static void trim_spaces(char *str)
@@ -141,9 +145,9 @@ char** strarr_split(char *str)
                 pstr++;
         }
 #ifdef ENABLE_QUOTATION_MARKS
-        else if (*pstr == '\\' && *(pstr+1) == '"')
+        else if (*pstr == '\\' && (*(pstr+1) == '"' || (quote && *(pstr+1) == '\\')))
         {
-            // special case for escaped quotes
+            // an escaped quote, or inside quotes an escaped backslash: one character, never a delimiter
             pstr++;
         }
         else if (*pstr == '"')
@@ -185,7 +189,12 @@ char** strarr_split(char *str)
 #ifdef ENABLE_QUOTATION_MARKS
         else if (*pstr == '\\' && *(pstr+1) == '"')
         {
-            // special case for escaped quotes
+            // an escaped quote: the backslash becomes a quote, which parse_quote() drops, keeping the quote after it
+            *pstr++ = '"';
+        }
+        else if (quote && *pstr == '\\' && *(pstr+1) == '\\')
+        {
+            // inside quotes, an escaped backslash: the same, parse_quote() keeps the second backslash
             *pstr++ = '"';
         }
         else if (*pstr == '"')

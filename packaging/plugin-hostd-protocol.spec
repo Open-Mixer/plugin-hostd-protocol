@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.8
+Version: 0.5.9
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -16,11 +16,16 @@ BuildRequires: binutils
 BuildRequires: libasan
 BuildRequires: libubsan
 BuildRequires: python3
+# %%{python3_sitelib}, where the Python client installs (python3-plugin-hostd-client)
+BuildRequires: python3-devel
 # the declared protocol: tools/protocol-gen holds protocol.h's parameter scales to omx-contract's C headers, and
 # install-contract writes the contract directory's package with omx-contract's script
 BuildRequires: (omx-contract-devel >= 3.18.0 with omx-contract-devel < 4)
+# the codec's tests (make test-codec) read omx-clap-core's sentences and omx-contract's catalog reader
+BuildRequires: (omx-clap-core-contract >= 0.32.3 with omx-clap-core-contract < 0.34)
+BuildRequires: (omx-contract-data >= 3.16.0 with omx-contract-data < 4)
 # omx_curve.h, the curve function the curve verbs draw with (header only)
-BuildRequires: (omx-dsp-devel >= 0.32.0 with omx-dsp-devel < 0.33)
+BuildRequires: (omx-dsp-devel >= 0.32.1 with omx-dsp-devel < 0.33)
 
 %description
 libplugin-hostd-protocol is the socket server, line protocol and command
@@ -44,6 +49,46 @@ Its documentation is on openmixer.org.
 It also carries the declared protocol: plugin-hostd/protocol.h and the headers
 it includes, the one verb table, the grammar of a line in ABNF, and the
 protocol as JSON, each named by a pkg-config variable.
+
+%package -n python3-plugin-hostd-client
+Summary: The Python client of the plugin-hostd line protocol
+BuildArch: noarch
+Requires: python3
+# plugin-hostd-tests before 0.21.0 shipped the same module under /usr/libexec/plugin-hostd/tests/lib (not on sys.path:
+# no file conflict); it now requires this package
+
+%description -n python3-plugin-hostd-client
+plugin_hostd_client, the Python client of the plugin-hostd line protocol: a
+command is one line ended by a NUL, a reply one NUL-ended line; send, try_send
+(a timeout or a closed peer named, never raised) and expect. The transport
+every test of plugin-hostd, omx-clap-host and the controllers imports; the
+codec of the declared commands and replies is plugin_hostd_protocol.
+Its documentation is on openmixer.org.
+
+%package -n python3-plugin-hostd-protocol
+Summary: The Python codec of the plugin-hostd protocol
+BuildArch: noarch
+# The one package with an epoch: plugin-hostd 0.20.6 and before built a package of this name at plugin-hostd's own
+# version (0.20.x), which sorts above any 0.5.x; epoch 1 makes this one the upgrade. Its source is this repository since
+# 0.5.10, and plugin-hostd's first release without it floors on it.
+Epoch: 1
+Requires: python3
+Requires: (plugin-hostd-protocol >= 0.5.8 with plugin-hostd-protocol < 0.6)
+Requires: (plugin-hostd-protocol-contract >= 0.5.8 with plugin-hostd-protocol-contract < 0.6)
+Requires: (omx-clap-core-contract >= 0.32.3 with omx-clap-core-contract < 0.34)
+Requires: (omx-contract >= 3.12.0 with omx-contract < 4)
+# omx-contract's catalog reader, omx_contract_catalog.py, which reads a catalog entry whatever its shape
+Requires: (omx-contract-data >= 3.16.0 with omx-contract-data < 4)
+
+%description -n python3-plugin-hostd-protocol
+plugin_hostd_protocol, the Python codec of the plugin-hostd protocol: one codec
+over the files plugin-hostd-protocol installs, which encodes and decodes every
+command the protocol declares, parses the replies, feedback lines and protocol
+errors, and gives each reply code its sentence. A controller speaks the
+protocol through it and restates nothing; the npm package
+@openmixer/plugin-hostd-client is the same codec in TypeScript. The transport
+is plugin_hostd_client.
+Its documentation is on openmixer.org.
 
 %package contract
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
@@ -70,6 +115,8 @@ Its documentation is on openmixer.org.
 %make_install PREFIX=%{_prefix} LIBDIR=%{_libdir} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir}
 # data/verbs.json, as the package plugin-hostd-protocol of omx-contract's contract directory
 %make_build install-contract DESTDIR=%{buildroot} PREFIX=%{_prefix}
+# the Python packages, python3-plugin-hostd-client and python3-plugin-hostd-protocol
+%make_build install-python DESTDIR=%{buildroot} PREFIX=%{_prefix} DATADIR=%{_datadir} PYTHON3_SITELIB=%{python3_sitelib}
 
 %check
 make test
@@ -97,6 +144,15 @@ make test
 %{_datadir}/plugin-hostd-protocol/protocol.md
 %{_datadir}/plugin-hostd-protocol/plugin-hostd.schema.json
 %{_datadir}/plugin-hostd-protocol/protocol-gen.c
+%{_datadir}/plugin-hostd-protocol/codec-fixtures.json
+
+%files -n python3-plugin-hostd-client
+%license COPYING
+%{python3_sitelib}/plugin_hostd_client/
+
+%files -n python3-plugin-hostd-protocol
+%license COPYING
+%{python3_sitelib}/plugin_hostd_protocol/
 
 %files contract
 %license COPYING
@@ -191,6 +247,19 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Sat Nov 14 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.9-1
+- Built against plugin-db >= 0.4.4 and below 0.5 and omx-dsp >= 0.32.1 and below
+  0.33, the 3.18.0 pass's newest of each, with their ceilings (D30).
+- CI renders against what the channel serves every day, the render check alone,
+  and names the served contract packages when it fails (#27, #32).
+- The fuzz seed corpus is held to its generator on every pull request, and the
+  generator writes the same corpus in every locale (LC_ALL=C); the corpus and
+  both golden transcripts are written again over it (#33, #34).
+- The default CLAP search path holds the folders distributions install plugins
+  in, /usr/local/lib/clap, /usr/lib64/clap and /usr/local/lib64/clap, after
+  clap/entry.h's: a fresh plugin-hostd learns a first-use pin there
+  (plugin-hostd#82, #36).
+
 * Sat Nov 14 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.8-1
 - A reply code declares itself transient: an identical request may succeed
   later with no change by the caller. worker-spawn, gave-up and verb-dropped

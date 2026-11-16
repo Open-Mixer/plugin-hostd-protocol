@@ -17,6 +17,14 @@
     "path_excluded": ",= \u0009\u000d\u000a",
     "path_escape": "%"
   },
+  "panel_file": {
+    "name": "panels/<id>@<version>-<hash>.json",
+    "keys": [
+      {"key": "plugin", "required": true, "since": "0.5.0", "meaning": "the plugin, {\"format\": \"clap\" | \"lv2\", \"id\": <its id or URI>}"},
+      {"key": "panel", "required": true, "since": "0.5.0", "meaning": "the panel object (org.openmixer.panel-description/1) omx-clap-scan --json prints for the plugin, byte for byte; null when it serves none, and for an LV2 plugin"},
+      {"key": "meters", "required": false, "since": "0.5.10", "meaning": "the clap.meters/1 meters the panel's displays index (a display's meterIds), in the plugin's order, each a row of the descriptor's meters[] shape ({id, symbol, kind, channels, unit, min, max, scale}), with the id and the values descriptor_get's file gives it; empty when the panel is null or its displays index none. A display naming a meter id no row carries is never written"}
+    ]
+  },
   "lv2_workers": ["mod-host", "omx-clap-host"],
   "placement": {
     "own": "own",
@@ -105,7 +113,7 @@
     {"name": "plan_get", "arguments": "<chain>", "reply": "resp 0 <instance>,...;<instance>,...;... <instance>:<reason>,... <core>,...;<core>,...;...", "meaning": "read the last plan of a chain back: its segments as plan answered them, then the members that have a reason, instance:reason joined by commas (- for none); the reasons are the words of PLUGIN_HOSTD_GROUPING_REASONS (data/grouping.json), then the cores of the members as plan answers them; -532 for a chain no plan planned, -902 for a chain that is not a number"},
     {"name": "plan_clear", "arguments": "<chain>", "reply": "resp 0", "meaning": "forget the plan: each member goes to a worker of its own; -532 for a chain no plan planned"},
     {"name": "descriptor_get", "arguments": "<uri>", "reply": "resp 0 \"<path>\"", "meaning": "the scanned descriptor of the plugin, answered from descriptor_dir: the file named for its binary as it is now (<id>@<version>-<hash>.json), written by the scan the plugin's add ran. -529 when there is none, -530 while its scan runs, -531 when its last scan wrote nothing, -528 when the directory could not be written"},
-    {"name": "panel_get", "arguments": "<uri>", "reply": "resp 0 \"<path>\"", "meaning": "the panel the plugin publishes (org.openmixer.panel-description/1), answered from descriptor_dir: the file panels/<id>@<version>-<hash>.json, named as its descriptor, which the same scan writes once the descriptor is in place, {\"plugin\": {\"format\", \"id\"}, \"panel\": <the panel object omx-clap-scan --json prints for the plugin, null when it serves none>}; an LV2 plugin's panel is null. The codes are descriptor_get's: -529 when there is none, -530 while its scan runs, -531 when its last scan wrote nothing, -528 when the directory could not be written"},
+    {"name": "panel_get", "arguments": "<uri>", "reply": "resp 0 \"<path>\"", "meaning": "the panel the plugin publishes (org.openmixer.panel-description/1), answered from descriptor_dir: the file panels/<id>@<version>-<hash>.json, named as its descriptor, which the same scan writes once the descriptor is in place, {\"plugin\": {\"format\", \"id\"}, \"panel\": <the panel object omx-clap-scan --json prints for the plugin, null when it serves none>, \"meters\": [<the clap.meters/1 meters the panel's displays index, each a row of descriptor_get's meters[], same ids>]} (the keys of PHD_PANEL_FILE_KEYS; meters is optional, absent from a file written before it); an LV2 plugin's panel is null and its meters empty. The codes are descriptor_get's: -529 when there is none, -530 while its scan runs, -531 when its last scan wrote nothing, -528 when the directory could not be written"},
     {"name": "history_get", "arguments": "<uri>", "reply": "resp 0 <history>", "meaning": "what the daemon kept of the plugin on this host class, for the binary its pin holds now (the running history: the windows it ran alone and in a group, its crashes, restarts and quarantines): one word of comma-joined digest=<sha256>, class=<host class>, crashed=<0|1>, raises_xruns=<0|1> and then every key=value of the record (data/history.json); - when the plugin has no pin or no record, unavailable while the history file is blocked or history_window_s is 0, -902 for a line that is not one word"},
     {"name": "history_clear", "arguments": "<uri> | all", "reply": "resp 0", "meaning": "delete the history of one plugin (every binary and host class of it), or all of it, from memory and from the file at once; -902 while the history is blocked or off, or for a line that is not one word"},
     {"name": "estimate", "arguments": "<rate> <quantum> <uri> [<uri> ...]", "reply": "resp 0 <latency_frames> <cpu_percent> <ram_bytes> <workers> <unknown_count> <member>:<code>,... <ram_used_bytes> <ram_added_bytes> <ram_budget_bytes> <ram_unknown_count>", "meaning": "what a chain of these plugins, in signal order and named as add names them, would cost at that rate and quantum, read from the qualification records of qualification_dir; no plugin is loaded and nothing moves. latency_frames adds up each member's measured latency of the grid point, else its declared one; cpu_percent adds up each member's median nanoseconds per sample times the rate, percent of one core's cycle (a member's cost per block over the block's duration); ram_bytes adds up the Pss of the worker each member ran alone in, the history's pss_mb_solo of the binary its pin holds on this host class, - unless every member has one, since no qualification record carries a RAM figure; workers is how many workers plan would place the members in (an isolated one alone); unknown_count is how many members have no figure at that rate and quantum, and the latency and the CPU add up only the others. The last word names each of them as its position in the line, from 0, and its code, -533 for no record, -534 for no point of the grid at that rate and quantum, -535 for a uri that names no plugin installed here, joined by commas, - for none. Several records of one plugin (several versions) give the largest figure. -902 for a rate or a quantum that is not a whole number above 0, or no uri"}
@@ -115,6 +123,10 @@
     {"name": "node_label", "arguments": "<instance> [<label word> ...]", "reply": "resp 0", "ledger": "replace", "meaning": "label the node for graph clients: the worker that holds the instance sets its pretty-name to the labelled form of PHD_NODE_METADATA, the label the words joined by one space; no words clears it, back to the plain form. -545 for a label over PHD_NODE_LABEL_MAX bytes or not UTF-8; the ledger keeps the latest, so a respawned worker is labelled again (plugin-hostd#35)"},
     {"name": "remote_pages", "arguments": "<instance>", "reply": "resp <count>", "ledger": "none", "meaning": "the plugin's remote-control pages, from clap.remote-controls; 0 for an instance of a format whose worker has none"},
     {"name": "remote_page_get", "arguments": "<instance> <page>", "reply": "resp 0 <page_id> <section> <page_name> <s1> <s2> <s3> <s4> <s5> <s6> <s7> <s8>", "ledger": "none", "meaning": "one page, 0 to count - 1: each slot the symbol param_set takes, - for an empty one; -902 for a page that is not one"},
+    {"name": "property_list", "arguments": "<instance>", "reply": "resp <count>", "ledger": "none", "meaning": "the plugin's file and text properties (org.openmixer.properties/1): how many; 0 for an instance of a worker that has none"},
+    {"name": "property_info", "arguments": "<instance> <index>", "reply": "resp 0 <symbol> <kind> <access> <name>", "ledger": "none", "meaning": "one property, 0 to count - 1: its symbol, its kind (path or string), its access (rw, w or r) and its name; (-106) for an index that is not one"},
+    {"name": "property_get", "arguments": "<instance> <symbol>", "reply": "resp 0 <value>", "ledger": "none", "meaning": "the value the plugin holds now, one quoted-escaped word; (-107) for a property that is not readable"},
+    {"name": "property_set", "arguments": "<instance> <symbol> <value>", "reply": "resp 0", "ledger": "replace-keyed", "meaning": "set a property to a quoted-escaped value, which reaches the plugin at its next block; the ledger keeps the latest per symbol and replays each to a respawned worker. (-107) for one not writable, (-108) for a value too large, not UTF-8 or a path that is not absolute, (-109) to send again"},
     {"name": "param_info", "arguments": "<instance> <symbol>", "reply": "resp 0 <unit> <scale> <min> <max> <default> <step> <stable_symbol>", "ledger": "none", "meaning": "what a parameter's value means: its unit, its scale, and the symbol it keeps across hosts and versions; -103 for a symbol that is not a parameter, the plugin's own bypass and :bypass included; -511 for a parameter whose unit and scale the worker holds no checked contract for"},
     {"name": "preset_list", "arguments": "<instance>", "reply": "resp <count>", "ledger": "none", "meaning": "the plugin's presets, the ones its preset discovery or its bundle lists; (-515) for an instance of a worker that cannot list them"},
     {"name": "preset_get", "arguments": "<instance> <index>", "reply": "resp 0 <load_key> <name>", "ledger": "none", "meaning": "one preset, 0 to count - 1: the key preset_load takes for it, and its name; -902 for an index that is not one"},
@@ -182,6 +194,10 @@
     {"name": "remote_pages", "source": "mod-host", "levels": {"lv2-worker": "optional", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}},
     {"name": "remote_page_get", "source": "mod-host", "levels": {"lv2-worker": "optional", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}},
     {"name": "param_info", "source": "mod-host", "levels": {"lv2-worker": "optional", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}},
+    {"name": "property_list", "source": "daemon", "levels": {"lv2-worker": "optional", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}},
+    {"name": "property_info", "source": "daemon", "levels": {"lv2-worker": "optional", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}},
+    {"name": "property_get", "source": "daemon", "levels": {"lv2-worker": "optional", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}},
+    {"name": "property_set", "source": "daemon", "levels": {"lv2-worker": "optional", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}},
     {"name": "preset_list", "source": "daemon", "levels": {"lv2-worker": "optional", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}},
     {"name": "preset_get", "source": "daemon", "levels": {"lv2-worker": "optional", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}},
     {"name": "note_input", "source": "daemon", "levels": {"lv2-worker": "optional", "clap-worker": "optional", "console": "optional", "zynthian": "optional"}},
@@ -291,6 +307,7 @@
     {"name": "number", "pattern": "-?[0-9]+(?:\\.[0-9]+)?(?:[eE][-+]?[0-9]+)?", "rest": false, "spelling": "a decimal number"},
     {"name": "sha256", "pattern": "[0-9a-f]{64}", "rest": false, "spelling": "a SHA-256 in 64 lowercase hexadecimal digits"},
     {"name": "quoted", "pattern": "\"[^\"]*\"", "rest": false, "spelling": "a path in double quotes"},
+    {"name": "quoted-escaped", "pattern": "\"(?:[^\"\\\\]|\\\\[\"\\\\])*\"", "rest": false, "spelling": "text in double quotes, \\\" a quote and \\\\ a backslash inside it (a property's value)"},
     {"name": "key", "pattern": "[a-z_]+", "rest": false, "spelling": "a key of a key=value"},
     {"name": "value", "pattern": "[^, ]*", "rest": false, "spelling": "a value of a key=value"},
     {"name": "line", "pattern": ".*", "rest": true, "spelling": "the rest of the line, its words as they were sent"}
@@ -302,7 +319,8 @@
     {"verb": "add", "args": "uri:word instance:int placement:placement client:word"},
     {"verb": "supervisor_reset", "args": ""},
     {"verb": "supervisor_reset", "args": "worker:worker"},
-    {"verb": "supervisor_reset", "args": "target:all"}
+    {"verb": "supervisor_reset", "args": "target:all"},
+    {"verb": "property_set", "args": "instance:int symbol:word value:quoted-escaped"}
   ],
   "arg_examples": [
     {"name": "int", "example": "3"},
@@ -325,6 +343,7 @@
     {"name": "number", "example": "-6.02"},
     {"name": "sha256", "example": "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"},
     {"name": "quoted", "example": "\"/var/lib/x.json\""},
+    {"name": "quoted-escaped", "example": "\"Sala \\\"A\\\" \\\\ 1\""},
     {"name": "key", "example": "crashed"},
     {"name": "value", "example": "0"},
     {"name": "line", "example": "{\"name\":\"warm\"}"},
@@ -357,6 +376,8 @@
     {"verb": "panel_get", "resp": "0", "args": "path:quoted"},
     {"verb": "preset_list", "resp": "count", "args": ""},
     {"verb": "preset_get", "resp": "0", "args": "load_key:word name:word"},
+    {"verb": "property_info", "resp": "0", "args": "symbol:word kind:word access:word name:quoted-escaped"},
+    {"verb": "property_get", "resp": "0", "args": "value:quoted-escaped"},
     {"verb": "preset_show", "resp": "0", "args": "json:line"},
     {"verb": "history_get", "resp": "0", "args": "history:history"},
     {"verb": "plan", "resp": "0", "args": "segments:segments"},

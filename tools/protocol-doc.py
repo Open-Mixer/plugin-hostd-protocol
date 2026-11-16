@@ -288,6 +288,7 @@ OURS_GROUPS = [
     ("Presets and notes, by instance", r"^(preset_|note_|all_notes_off$)"),
     ("The plugin's own window", r"^(show|hide)_external_ui$"),
     ("The node's name in the graph", r"^node_label$"),
+    ("File and text properties, by instance", r"^property_"),
 ]
 
 # the prose a group opens with, before its table
@@ -847,6 +848,15 @@ def page():
             w(f"> {line}")
             w(f"< {reply}")
             w("```")
+            w("")
+        if title == "Descriptors, panels and the running history":
+            pf = PHD["panel_file"]
+            w(f"The panel file `panel_get` answers ({code(pf['name'])} of descriptor_dir) is one JSON object with these "
+              "keys; a key that is not required is additive, absent from a file written before its version:")
+            w("")
+            w("\n".join(table(["key", "required", "since", "meaning"],
+                              [[code(k["key"]), "yes" if k["required"] else "no", k["since"], cell(k["meaning"])]
+                               for k in pf["keys"]])))
             w("")
 
     # events

@@ -6,6 +6,9 @@ datadir=@DATADIR@
 # these headers and this library: <runner> <port> <scenarios> NAME=value ...
 scenarios=${datadir}/plugin-hostd-protocol/host-scenarios.txt
 runner=${datadir}/plugin-hostd-protocol/host_scenarios.c
+# the codec's fixtures (clients/fixtures/codec.json): the cases both clients of the codec, Python here and TypeScript in
+# plugin-hostd, are held to
+codecfixtures=${datadir}/plugin-hostd-protocol/codec-fixtures.json
 # the commands, replies and error codes (doc/protocol.md)
 protocoldoc=${datadir}/plugin-hostd-protocol/protocol.md
 # the declared protocol: the one verb table, the grammar of a line (ABNF), what plugin-hostd/protocol.h declares as JSON

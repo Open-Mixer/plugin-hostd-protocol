@@ -233,7 +233,8 @@
           "ledger": {
             "enum": [
               "none",
-              "replace"
+              "replace",
+              "replace-keyed"
             ]
           },
           "meaning": {
@@ -650,6 +651,48 @@
       ],
       "additionalProperties": false
     },
+    "panel_file": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "keys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "type": "string"
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "since": {
+                "type": "string",
+                "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+              },
+              "meaning": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "key",
+              "required",
+              "since",
+              "meaning"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "name",
+        "keys"
+      ],
+      "additionalProperties": false
+    },
     "lv2_workers": {
       "type": "array",
       "items": {
@@ -805,6 +848,7 @@
     "arg_types",
     "command_forms",
     "pin",
+    "panel_file",
     "lv2_workers",
     "event_args",
     "arg_examples",

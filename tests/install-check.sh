@@ -36,6 +36,8 @@ libs=$(pkg-config --libs $name)
 [ "$(pkg-config --variable=scenarios $name)" = "$prefix/share/$name/host-scenarios.txt" ] \
     || fail "the scenarios variable does not name the installed corpus"
 [ "$(pkg-config --variable=runner $name)" = "$prefix/share/$name/host_scenarios.c" ] || fail "the runner variable is wrong"
+[ "$(pkg-config --variable=codecfixtures $name)" = "$prefix/share/$name/codec-fixtures.json" ] \
+    && [ -f "$prefix/share/$name/codec-fixtures.json" ] || fail "the codecfixtures variable does not name the installed fixtures"
 [ "$(pkg-config --variable=protocoldoc $name)" = "$prefix/share/$name/protocol.md" ] || fail "the protocoldoc variable is wrong"
 
 # every installed header stands alone, and every header the build lists is installed
