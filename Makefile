@@ -128,7 +128,7 @@ TEST_PROGS = tests/feedback_lines tests/macro_compat tests/protocol_test tests/p
              tests/socket-test tests/bind-test tests/adopt-test tests/utils-test
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
-      test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
+      test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
       check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range
 
 # every omx-clap-core-contract range admits the next omx-clap-core minor (the chain releases this protocol first)
@@ -232,6 +232,11 @@ test-hello: tests/hello_test
 # one it does not serve, a required one fails; test-hello-sabotage breaks this too
 test-runner: tests/runner_test
 	./tests/runner_test
+
+# the demonstration asserts its refusal (an ok line naming it, no FAIL line), and an unexpected refusal still fails
+# (tests/runner-quiet.sh, with its sabotage)
+test-runner-quiet: tests/runner_test
+	bash tests/runner-quiet.sh ./tests/runner_test
 
 tests/runner_test: tests/runner_test.c $(SRC) $(HEADERS) $(PROTOCOL_HEADERS) src/session.h
 	$(CC) $(INCS) $(TEST_CFLAGS) $(SAN) -o $@ $< $(SRC) -lpthread -lm
