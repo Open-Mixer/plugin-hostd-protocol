@@ -5,8 +5,8 @@ Maintainer: Pau Aliagas <linuxnow@gmail.com>
 Build-Depends: debhelper-compat (= 13),
                libomx-contract-dev (>= 3.18.0~),
                libomx-contract-dev (<< 4~),
-               omx-clap-core-contract (>= 0.32.3~),
-               omx-clap-core-contract (<< 0.33~),
+               omx-clap-core-contract (>= 0.33.0~),
+               omx-clap-core-contract (<< 0.34~),
                omx-contract-data (>= 3.16.0~),
                omx-contract-data (<< 4~),
                libomxdsp-dev (>= 0.32.1~),
@@ -69,7 +69,7 @@ Multi-Arch: foreign
 Section: python
 Depends: python3, libplugin-hostd-protocol0 (>= 0.5.8~), libplugin-hostd-protocol0 (<< 0.6~),
          plugin-hostd-protocol-contract (>= 0.5.8~), plugin-hostd-protocol-contract (<< 0.6~),
-         omx-clap-core-contract (>= 0.32.3~), omx-clap-core-contract (<< 0.33~),
+         omx-clap-core-contract (>= 0.33.0~), omx-clap-core-contract (<< 0.34~),
          omx-contract (>= 3.18.0~), omx-contract (<< 4~),
          omx-contract-data (>= 3.16.0~), omx-contract-data (<< 4~), ${misc:Depends}
 Description: plugin-hostd protocol, its Python codec
