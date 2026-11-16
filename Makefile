@@ -33,7 +33,7 @@ endif
 OMXDSP_FLOOR = 0.32.1
 OMXDSP_CEILING = 0.33
 OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 'omxdsp < $(OMXDSP_CEILING)' 2>/dev/null)
-ifeq ($(filter clean version-check,$(MAKECMDGOALS)),)
+ifeq ($(filter clean version-check deps deps-check,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
 $(error no omx-dsp >= $(OMXDSP_FLOOR) and < $(OMXDSP_CEILING) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
@@ -597,3 +597,15 @@ clean:
 .PHONY: all install test test-protocol test-protocol-commands test-utils test-socket test-bind test-golden \
         test-golden-modhost golden-update golden-modhost test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-runner test-hello-sabotage test-bind-sabotage test-install test-abi \
         abi-symbols abi-stage abi-baseline abi-check version-check fuzz fuzz-run fuzz-corpus fuzz-corpus-check fuzz-abnf-corpus test-abnf-corpus fuzz-sabotage fuzz-records fuzz-coverage clean
+
+# The dependency floors are written once, in packaging/deps.txt; the spec and debian/control are generated from it with
+# Open-Mixer/.github's deps-render. make deps writes them, make deps-check refuses drift (name a checkout of that
+# repository: make deps-check DOTGITHUB=<dir>).
+DOTGITHUB ?=
+.PHONY: deps deps-check
+deps:
+	@test -n "$(DOTGITHUB)" || { echo "$@: name a checkout of Open-Mixer/.github: make $@ DOTGITHUB=<dir>" >&2; exit 2; }
+	$(DOTGITHUB)/.github/actions/deps-render/render.sh --write .
+deps-check:
+	@test -n "$(DOTGITHUB)" || { echo "$@: name a checkout of Open-Mixer/.github: make $@ DOTGITHUB=<dir>" >&2; exit 2; }
+	$(DOTGITHUB)/.github/actions/deps-render/render.sh --check .

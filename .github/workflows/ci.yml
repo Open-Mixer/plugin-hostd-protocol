@@ -72,6 +72,9 @@ jobs:
           pkg-config --exists 'omxdsp < 0.33'
       - name: Trust the checkout
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      # packaging/deps.txt is the one place a floor is written: the spec and debian/control follow it
+      - name: The dependency floors are the ones packaging/deps.txt declares
+        uses: Open-Mixer/.github/.github/actions/deps-render@openmixer-v1
       - name: Build
         run: make
       - name: Tests (protocol, golden, install, symbols, version, the generated protocol and its sabotage)
