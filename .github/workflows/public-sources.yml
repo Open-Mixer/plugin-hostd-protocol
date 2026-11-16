@@ -27,13 +27,14 @@ jobs:
   # local copy of either (Open-Mixer/.github's public-sources-check)
   public-sources:
     uses: Open-Mixer/.github/.github/workflows/public-sources-check.yml@openmixer-v1
-  # the Python clients' docstrings (ruff D1 over tools/ruff-d.baseline): the C headers' comments are in `make test`
-  # (check-doc-gate); the Makefile reads omx-dsp at parse time, so the job runs the gate without make
-  ruff-d:
-    name: no new public Python item without a docstring
+  # the documentation gates, both standard tools: ruff (D and the default rules, today's findings carried by noqa comments)
+  # on the Python clients, and doxygen over the installed headers against tools/doxygen.baseline (a ratchet that only
+  # falls); the Makefile reads omx-dsp at parse time, so the job runs the two commands without make
+  doc-gates:
+    name: documentation gates (ruff, doxygen)
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - run: python3 -m pip install ruff==0.17.5
-      - run: python3 tools/ruff_d_gate.py --self-test && python3 tools/ruff_d_gate.py --baseline tools/ruff-d.baseline clients/python
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends doxygen && python3 -m pip install ruff==0.17.5
+      - run: ruff check clients/python && sh tools/doxygen_gate.sh

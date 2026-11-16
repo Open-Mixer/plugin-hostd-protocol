@@ -23,6 +23,10 @@
 ************************************************************************************************************************
 */
 
+/** @file mod-host.h
+ * @brief The declarations of mod-host.h.
+ */
+
 #ifndef  MOD_HOST_H
 #define  MOD_HOST_H
 

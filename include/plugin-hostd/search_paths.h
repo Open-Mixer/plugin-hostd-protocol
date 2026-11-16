@@ -18,6 +18,10 @@
  * Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
  */
 
+/** @file search_paths.h
+ * @brief The declarations of search_paths.h.
+ */
+
 #ifndef PLUGIN_HOSTD_SEARCH_PATHS_H
 #define PLUGIN_HOSTD_SEARCH_PATHS_H
 

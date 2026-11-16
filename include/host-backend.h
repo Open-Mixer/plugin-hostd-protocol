@@ -23,6 +23,10 @@
 ************************************************************************************************************************
 */
 
+/** @file host-backend.h
+ * @brief The declarations of host-backend.h.
+ */
+
 #ifndef HOST_BACKEND_H
 #define HOST_BACKEND_H
 
