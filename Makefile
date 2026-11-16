@@ -127,7 +127,20 @@ TEST_PROGS = tests/feedback_lines tests/macro_compat tests/protocol_test tests/p
              tests/hello_test tests/curve_test tests/monitor_test tests/runner_test \
              tests/socket-test tests/bind-test tests/adopt-test tests/utils-test
 
-test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
+# every public function and struct of the installed headers has a comment before it (tools/doc_gate.py); the headers
+# that lack one today are tools/doc-gate.baseline, and the list only shrinks
+.PHONY: check-doc-gate
+check-doc-gate:
+	python3 tools/doc_gate.py --self-test
+	python3 tools/doc_gate.py --baseline tools/doc-gate.baseline $(HEADERS) include/plugin-hostd/protocol.h include/plugin-hostd/search_paths.h
+
+# ruff's D1 rules (a public item without a docstring) on the Python clients, a ratchet over tools/ruff-d.baseline; needs ruff
+.PHONY: check-ruff-d
+check-ruff-d:
+	python3 tools/ruff_d_gate.py --self-test
+	python3 tools/ruff_d_gate.py --baseline tools/ruff-d.baseline clients/python
+
+test: check-doc-gate test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
       check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range
 
