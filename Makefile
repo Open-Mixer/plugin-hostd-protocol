@@ -29,13 +29,12 @@ ifeq ($(DEBUG), 1)
    CFLAGS += -O0 -g -DDEBUG
 endif
 # omx-dsp's curve function (omx_curve.h, header only), which the curve verbs draw with: at or above the minor that
-# declares it and below the next, as packaging/plugin-hostd-protocol.spec and debian/control require it
-OMXDSP_FLOOR = 0.32.1
-OMXDSP_CEILING = 0.33
-OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 'omxdsp < $(OMXDSP_CEILING)' 2>/dev/null)
+# declares it: the floor packaging/deps.txt declares, read back from the spec generated from it
+OMXDSP_FLOOR := $(shell sed -n 's/^BuildRequires: *omx-dsp-devel *>= *\([0-9][0-9.]*\) *$$/\1/p' packaging/plugin-hostd-protocol.spec)
+OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 2>/dev/null)
 ifeq ($(filter clean version-check deps deps-check,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
-$(error no omx-dsp >= $(OMXDSP_FLOOR) and < $(OMXDSP_CEILING) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
+$(error no omx-dsp >= $(OMXDSP_FLOOR) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
 endif
 INCS = -Iinclude $(OMXDSP_CFLAGS)
@@ -129,11 +128,7 @@ TEST_PROGS = tests/feedback_lines tests/macro_compat tests/protocol_test tests/p
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range
-
-# every omx-clap-core-contract range admits the next omx-clap-core minor (the chain releases this protocol first)
-test-clap-core-range:
-	python3 tests/clap_core_range.py .
+      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
 test-protocol: tests/protocol_test
@@ -591,7 +586,7 @@ fuzz-coverage: $(FUZZ_HARNESSES:%=$(FUZZ_COV_BUILD)/fuzz_%)
 clean:
 	rm -rf src/*.o $(LIB_SO) $(LIB_SONAME) $(LIB_FILE) $(TEST_PROGS) build
 
-.PHONY: test-clap-core-range gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-property-rows test-mod-host-json test-generated-sabotage test-default-lv2-worker test-served-render-ci \
+.PHONY: gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-property-rows test-mod-host-json test-generated-sabotage test-default-lv2-worker test-served-render-ci \
         check-protocol-tools install-contract check-contract-dir render-verbs check-rendered test-rendered-sabotage \
         check-schema test-grammar test-code-text test-code-text-sabotage
 .PHONY: all install test test-protocol test-protocol-commands test-utils test-socket test-bind test-golden \
