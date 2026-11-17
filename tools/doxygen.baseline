@@ -10,43 +10,7 @@ include/host-backend.h: warning: Member preset_load)(int instance, const char *u
 include/host-backend.h: warning: Member remove)(int instance) (variable) of struct HOST_BACKEND_T is not documented.
 include/host-backend.h: warning: Member state_load)(const char *dir) (variable) of struct HOST_BACKEND_T is not documented.
 include/host-backend.h: warning: Member state_save)(const char *dir) (variable) of struct HOST_BACKEND_T is not documented.
-include/host-dispatch.h: warning: Compound HOST_CURVE_T is not documented.
-include/host-dispatch.h: warning: Compound HOST_PARAM_INFO_T is not documented.
-include/host-dispatch.h: warning: Compound HOST_PLUGIN_INFO_T is not documented.
-include/host-dispatch.h: warning: Compound HOST_REMOTE_PAGE_T is not documented.
-include/host-dispatch.h: warning: Member HOST_DISPATCH_HAS_CURVE (macro definition) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member HOST_DISPATCH_HAS_MONITOR_OFF (macro definition) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member HOST_INFO_STRING_SIZE (macro definition) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member HOST_REMOTE_PAGE_SLOTS (macro definition) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member def (variable) of struct HOST_PARAM_INFO_T is not documented.
-include/host-dispatch.h: warning: Member host_curve_t (typedef) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member host_dispatch_output_set(int instance, const char *symbol, float value) (function) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member host_dispatch_register(const host_backend_t *backend) (function) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member host_dispatch_register_curve(const host_curve_t *curve) (function) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member host_dispatch_register_monitor_output(int(*monitor_output)(int instance, const char *symbol)) (function) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member host_dispatch_register_monitor_output_off(int(*monitor_output_off)(int instance, const char *symbol)) (function) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member host_dispatch_register_plugin_info(const host_plugin_info_t *info) (function) of file host-dispatch.h is not documented.
 include/host-dispatch.h: warning: Member host_dispatch_register_unsupported(void) (function) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member host_dispatch_remote_pages_changed(int instance) (function) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member host_dispatch_unsupported_cb(proto_t *proto) (function) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member host_param_info_t (typedef) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member host_plugin_info_t (typedef) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member host_remote_page_t (typedef) of file host-dispatch.h is not documented.
-include/host-dispatch.h: warning: Member id (variable) of struct HOST_REMOTE_PAGE_T is not documented.
-include/host-dispatch.h: warning: Member max (variable) of struct HOST_PARAM_INFO_T is not documented.
-include/host-dispatch.h: warning: Member min (variable) of struct HOST_PARAM_INFO_T is not documented.
-include/host-dispatch.h: warning: Member name[HOST_INFO_STRING_SIZE] (variable) of struct HOST_REMOTE_PAGE_T is not documented.
-include/host-dispatch.h: warning: Member param_info)(int instance, const char *symbol, host_param_info_t *info) (variable) of struct HOST_PLUGIN_INFO_T is not documented.
-include/host-dispatch.h: warning: Member remote_page_get)(int instance, int page, host_remote_page_t *page_out) (variable) of struct HOST_PLUGIN_INFO_T is not documented.
-include/host-dispatch.h: warning: Member remote_pages)(int instance) (variable) of struct HOST_PLUGIN_INFO_T is not documented.
-include/host-dispatch.h: warning: Member sample_rate)(int instance, double *rate) (variable) of struct HOST_CURVE_T is not documented.
-include/host-dispatch.h: warning: Member scale (variable) of struct HOST_PARAM_INFO_T is not documented.
-include/host-dispatch.h: warning: Member section[HOST_INFO_STRING_SIZE] (variable) of struct HOST_REMOTE_PAGE_T is not documented.
-include/host-dispatch.h: warning: Member slots[HOST_REMOTE_PAGE_SLOTS][HOST_INFO_STRING_SIZE] (variable) of struct HOST_REMOTE_PAGE_T is not documented.
-include/host-dispatch.h: warning: Member stable_symbol (variable) of struct HOST_PARAM_INFO_T is not documented.
-include/host-dispatch.h: warning: Member step (variable) of struct HOST_PARAM_INFO_T is not documented.
-include/host-dispatch.h: warning: Member track_info)(int instance, const char *name, const char *color, const char *kind) (variable) of struct HOST_PLUGIN_INFO_T is not documented.
-include/host-dispatch.h: warning: Member unit (variable) of struct HOST_PARAM_INFO_T is not documented.
 include/host-scenario.h: warning: Compound HOST_SCENARIO_DIRECT_T is not documented.
 include/host-scenario.h: warning: Compound HOST_SCENARIO_LIST_T is not documented.
 include/host-scenario.h: warning: Compound HOST_SCENARIO_T is not documented.
