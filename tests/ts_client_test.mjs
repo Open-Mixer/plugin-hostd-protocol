@@ -30,6 +30,9 @@ const SCRIPT = new Map([
   ['ping', 'resp 0'],
 ]);
 
+const peers = [];
+test.after(() => { for (const p of peers) p.stop(); });
+
 /** a peer: the feedback port first or no command is read, as plugin-hostd does; `seen` collects the lines it was sent */
 async function peer(opts = {}) {
   const seen = [];
@@ -61,8 +64,10 @@ async function peer(opts = {}) {
     const port = cmd.address().port;
     try {
       await new Promise((res, rej) => { fb.once('error', rej); fb.listen(port + 1, '127.0.0.1', res); });
-      return { port, seen, push: (l) => feedback.write(l + '\0'),
+      const p = { port, seen, push: (l) => feedback.write(l + '\0'),
         stop: () => { for (const s of sockets) s.destroy(); cmd.close(); fb.close(); } };
+      peers.push(p);
+      return p;
     } catch { await new Promise((r) => cmd.close(r)); }
   }
   throw new Error('no two adjacent ports');
