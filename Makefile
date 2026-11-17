@@ -29,14 +29,13 @@ ifeq ($(DEBUG), 1)
    CFLAGS += -O0 -g -DDEBUG
 endif
 # omx-dsp's curve function (omx_curve.h, header only), which the curve verbs draw with: at or above the minor that
-# declares it and below the next, as packaging/plugin-hostd-protocol.spec and debian/control require it
+# declares it (no ceiling), as packaging/plugin-hostd-protocol.spec and debian/control require it
 OMXDSP_FLOOR = 0.32.1
-OMXDSP_CEILING = 0.33
-OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 'omxdsp < $(OMXDSP_CEILING)' 2>/dev/null)
+OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 2>/dev/null)
 # the shapes' targets read JSON and a generator, no header
 ifeq ($(filter clean version-check test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
-$(error no omx-dsp >= $(OMXDSP_FLOOR) and < $(OMXDSP_CEILING) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
+$(error no omx-dsp >= $(OMXDSP_FLOOR) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
 endif
 INCS = -Iinclude $(OMXDSP_CFLAGS)
