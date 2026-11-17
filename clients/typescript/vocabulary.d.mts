@@ -142,6 +142,8 @@ export type ArgType =
   | 'reason-list'
   | 'member-codes'
   | 'history'
+  | 'float'
+  | 'all'
 ;
 export interface ArgTypeDecl { readonly pattern: string; readonly rest: boolean }
 export interface VerbForm { readonly args: readonly ArgType[]; readonly names: readonly string[] | null; readonly tail: boolean }

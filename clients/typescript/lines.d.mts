@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import type { Verb } from './vocabulary.mjs';
 
-export type ErrorKind = 'refused' | 'protocol' | 'malformed';
+export type ErrorKind = 'refused' | 'protocol' | 'malformed' | 'connect' | 'closed' | 'timeout' | 'oversize';
 export declare class HostdError extends Error {
-  constructor(kind: ErrorKind, reply: string, extra?: { code?: number | null; word?: string | null; data?: readonly string[] });
+  constructor(kind: ErrorKind, reply: string | null, extra?: { code?: number | null; word?: string | null; data?: readonly string[]; detail?: string | null });
   readonly kind: ErrorKind;
-  /** the reply line as the host wrote it */
-  readonly reply: string;
+  /** the reply line as the host wrote it; null for a transport kind (connect, closed, timeout, oversize) */
+  readonly reply: string | null;
   /** a refusal's number (`resp -3`), or the table's number of a parse refusal (`not found` is -1) */
   readonly code: number | null;
   /** the stable word of a refusal (`reply.host.instance-non-exists`), or the text of a parse refusal */

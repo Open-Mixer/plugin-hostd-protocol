@@ -8,11 +8,14 @@ import { HostdError, encode, parseCurvePoints, parseReply } from './lines.mjs';
 
 export { HostdError, encode, encodeWord, parseReply, parseCurvePoints } from './lines.mjs';
 
+const transport = (kind, detail, e) => Object.assign(new HostdError(kind, null, { detail, word: e?.code ?? null }), { cause: e });
+
 function open(port, host) {
   return new Promise((resolve, reject) => {
     const s = net.connect({ port, host });
-    s.once('connect', () => { s.removeListener('error', reject); resolve(s); });
-    s.once('error', reject);
+    const fail = (e) => reject(transport('connect', `${host}:${port}: ${e.message}`, e));
+    s.once('connect', () => { s.removeListener('error', fail); resolve(s); });
+    s.once('error', fail);
   });
 }
 
@@ -27,7 +30,7 @@ export async function connect({ port = DEFAULT_COMMAND_PORT, host = '127.0.0.1',
 }
 
 export class Client {
-  #sock; #fb; #timeout; #buf = Buffer.alloc(0); #waiter = null; #closed = false; #chain = Promise.resolve();
+  #sock; #fb; #timeout; #buf = Buffer.alloc(0); #waiter = null; #dead = null; #chain = Promise.resolve();
 
   constructor(sock, fb, timeout, onFeedback) {
     this.#sock = sock;
@@ -35,11 +38,14 @@ export class Client {
     this.#timeout = timeout;
     sock.on('data', (d) => {
       this.#buf = Buffer.concat([this.#buf, d]);
-      if (this.#buf.length > MESSAGE_MAX && !this.#buf.includes(0)) this.#fail(new Error(`a reply past ${MESSAGE_MAX} bytes`));
-      else this.#take();
+      const nul = this.#buf.indexOf(0);
+      if (nul > MESSAGE_MAX || (nul < 0 && this.#buf.length > MESSAGE_MAX)) {
+        this.#fail(transport('oversize', `a reply past ${MESSAGE_MAX} bytes: the connection is closed`));
+        this.#sock.destroy();
+      } else this.#take();
     });
-    sock.on('close', () => { this.#closed = true; this.#fail(new Error('the peer closed')); });
-    sock.on('error', (e) => this.#fail(e));
+    sock.on('close', () => this.#fail(transport('closed', 'the peer closed')));
+    sock.on('error', (e) => this.#fail(transport('closed', e.message, e)));
     if (fb) {
       let fbuf = Buffer.alloc(0);
       fb.on('data', (d) => {
@@ -67,6 +73,7 @@ export class Client {
   }
 
   #fail(err) {
+    this.#dead ??= err;
     const w = this.#waiter;
     this.#waiter = null;
     if (w) w.reject(err);
@@ -76,15 +83,17 @@ export class Client {
   send(line) {
     const run = () => new Promise((resolve, reject) => {
       if (line.includes('\0')) return reject(new TypeError('a line holds no NUL'));
-      if (this.#closed) return reject(new Error(`the peer closed on ${line}`));
+      if (this.#dead) return reject(this.#dead.kind === 'closed' ? transport('closed', `the peer closed on ${line}`, this.#dead.cause) : this.#dead);
       const timer = setTimeout(() => {
         this.#waiter = null;
+        const e = transport('timeout', `no reply to ${line} in ${this.#timeout} ms`);
+        this.#dead = e;
         this.close();
-        reject(new Error(`no reply to ${line} in ${this.#timeout} ms`));
+        reject(e);
       }, this.#timeout);
       this.#waiter = {
         resolve: (r) => { clearTimeout(timer); resolve(r); },
-        reject: (e) => { clearTimeout(timer); reject(e.message === 'the peer closed' ? new Error(`the peer closed on ${line}`) : e); },
+        reject: (e) => { clearTimeout(timer); reject(e.kind === 'closed' ? transport('closed', `the peer closed on ${line}`, e.cause) : e); },
       };
       this.#sock.write(Buffer.concat([Buffer.from(line), Buffer.alloc(1)]));
       this.#take();

@@ -4,10 +4,14 @@
 // vocabulary's; nothing here names one.
 import { ARG_TYPES, PROTOCOL_ERRORS, REPLY_CODES, STRING_MAX, VERBS } from './vocabulary.mjs';
 
-/** A reply that is not a success. kind: 'refused' (resp <negative>), 'protocol' (a parse refusal such as `not found`) or 'malformed' (not a reply the protocol declares). */
+/**
+ * A reply that is not a success, or a transport that failed. kind: 'refused' (resp <negative>), 'protocol' (a parse refusal
+ * such as `not found`), 'malformed' (not a reply the protocol declares); and, with `reply` null, the transport's: 'connect',
+ * 'closed', 'timeout', 'oversize' (a reply past the cap, the socket closed).
+ */
 export class HostdError extends Error {
-  constructor(kind, reply, { code = null, word = null, data = [] } = {}) {
-    super(`${kind}: ${reply}${word && !reply.includes(word) ? ` (${word})` : ''}`);
+  constructor(kind, reply, { code = null, word = null, data = [], detail = null } = {}) {
+    super(detail ? `${kind}: ${detail}` : `${kind}: ${reply}${word && !reply.includes(word) ? ` (${word})` : ''}`);
     this.name = 'HostdError';
     this.kind = kind;
     this.reply = reply;
@@ -19,32 +23,40 @@ export class HostdError extends Error {
 
 const CONTROL = /[\u0000-\u001f\u007f]/;
 
-/** A word as grammar/core.abnf spells it: bare when it holds no space, control character or double quote, else in quotes with each quote written \". */
+/** A word as the daemon reads it: bare when it holds no space or double quote, else in quotes with each quote written \" and each backslash \\ (src/utils.c reads \\ as one backslash inside quotes; grammar/core.abnf's `quoted` has no such escape, so a value ending in a backslash cannot be written by it). */
 export function encodeWord(value) {
   const v = String(value);
   if (CONTROL.test(v)) throw new TypeError(`a value with a control character has no spelling: ${JSON.stringify(v)}`);
   if (Buffer.byteLength(v) > STRING_MAX) throw new TypeError(`a value past ${STRING_MAX} bytes has no spelling`);
-  return v !== '' && !/[ "]/.test(v) ? v : `"${v.replace(/"/g, '\\"')}"`;
+  return v !== '' && !/[ "]/.test(v) ? v : `"${v.replace(/["\\]/g, '\\$&')}"`;
 }
 
-/** The line for `verb` and its arguments: the form with that many arguments, each written as its declared type says. */
-export function encode(verb, ...args) {
-  const decl = Object.hasOwn(VERBS, verb) ? VERBS[verb] : undefined;
-  if (!decl) throw new TypeError(`${verb} is not a verb of the protocol`);
-  const form = decl.forms.find((f) => args.length === f.args.length || (f.tail && args.length >= f.args.length));
-  if (!form) throw new TypeError(`${verb} takes ${decl.forms.map((f) => f.args.length + (f.tail ? '+' : '')).join(' or ')} arguments, not ${args.length}`);
+function writeForm(verb, form, args) {
   const words = args.map((a, i) => {
     const type = form.args[i] ?? 'word';
     const s = String(a);
     if (type === 'word') return encodeWord(s);
-    if (ARG_TYPES[type].rest) {
-      if (CONTROL.test(s)) throw new TypeError(`${verb}: argument ${i + 1} has a control character`);
-      return s;
-    }
+    if (ARG_TYPES[type].rest) return s;
     if (!new RegExp(`^(?:${ARG_TYPES[type].pattern})$`).test(s)) throw new TypeError(`${verb}: argument ${i + 1}, ${JSON.stringify(s)}, is not a ${type}`);
     return s;
   });
   return [verb, ...words].join(' ');
+}
+
+/** The line for `verb` and its arguments: the first form with that many arguments whose types they all are, each written as its type says. A control character in any argument is refused. */
+export function encode(verb, ...args) {
+  const decl = Object.hasOwn(VERBS, verb) ? VERBS[verb] : undefined;
+  if (!decl) throw new TypeError(`${verb} is not a verb of the protocol`);
+  args.forEach((a, i) => {
+    if (CONTROL.test(String(a))) throw new TypeError(`${verb}: argument ${i + 1} has a control character`);
+  });
+  const forms = decl.forms.filter((f) => args.length === f.args.length || (f.tail && args.length >= f.args.length));
+  if (!forms.length) throw new TypeError(`${verb} takes ${decl.forms.map((f) => f.args.length + (f.tail ? '+' : '')).join(' or ')} arguments, not ${args.length}`);
+  let first;
+  for (const f of forms) {
+    try { return writeForm(verb, f, args); } catch (e) { first ??= e; }
+  }
+  throw first;
 }
 
 const WORD = /^reply\.[a-z0-9-]+\.[a-z0-9-]+$/;

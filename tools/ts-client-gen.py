@@ -26,6 +26,14 @@ def fail(msg):
     sys.exit(f"ts-client-gen: {msg}")
 
 
+# the argument types core.abnf declares by their own rule, which the table's arg_types does not hold: `float`, as the
+# grammar spells it (a sign, a decimal or one of nan, inf, infinity in any case)
+CORE_TYPES = {
+    "float": r"[-+]?(?:[0-9]+(?:\.[0-9]*)?(?:[eE][-+]?[0-9]+)?|\.[0-9]+(?:[eE][-+]?[0-9]+)?|[nN][aA][nN]|[iI][nN][fF](?:[iI][nN][iI][tT][yY])?)",
+}
+LITERAL = re.compile(r"[a-z0-9-]+(\|[a-z0-9-]+)*")
+
+
 def js(v, ind=0):
     """a JSON value as TypeScript with single quotes"""
     pad = "  " * (ind + 1)
@@ -67,6 +75,17 @@ def build(table_path):
             "reply": c["reply"],
         }
     types = {k: {"pattern": v["pattern"], "rest": v["rest"]} for k, v in t["arg_types"].items()}
+    for c in t["commands"]:
+        for f in c["forms"]:
+            for a in f["args"]:
+                if a in types:
+                    continue
+                if a in CORE_TYPES:
+                    types[a] = {"pattern": CORE_TYPES[a], "rest": False}
+                elif LITERAL.fullmatch(a):
+                    types[a] = {"pattern": a, "rest": False}  # literal words a|b: one of them (all)
+                else:
+                    fail(f"{c['verb']}: the form type {a} is declared in no arg_types, no core type and is no literal word")
     codes = {str(r["resp"]): r["code"] for r in t["reply_codes"]}
     errors = [{"word": e["message"], "code": e["code"]} for e in t["protocol_errors"]]
     mjs = BANNER

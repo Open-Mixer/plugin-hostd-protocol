@@ -31,8 +31,25 @@ A reply that is not a success is a `HostdError`, never a string to compare. It h
 - `kind: 'protocol'`, a parse refusal (`not found`, `few arguments`, ...): `word` is that text and `code` the table's
   number for it.
 
-A peer that closes before the reply, a reply that does not come in time (the connection is then closed: a late reply
-would answer the next line) and a line past 16 MiB are errors too.
+The transport's failures are `HostdError` kinds too, with `reply` null and the system's code, if any, in `word`:
+
+- `connect`: the command or feedback port refused or unreachable;
+- `closed`: the peer closed or reset the connection, before or during a reply;
+- `timeout`: no reply in time; the connection is then closed, as a late reply would answer the next line;
+- `oversize`: a reply past 16 MiB (`SOCKET_MSG_MAX_SIZE`); the socket is closed and every later call answers the same error.
+
+The one gap: a call the caller wrote wrongly (an unknown verb, an argument count or type the vocabulary does not declare, a
+control character in an argument) throws a `TypeError` before anything is sent. That is a fault of the caller's code, not
+of the connection or the host, and it is not a `HostdError`.
+
+## How a line is written
+
+`encode(verb, ...args)` takes the first form of the verb with that many arguments whose types every argument is, so
+`supervisor_reset all` and `supervisor_reset w3` are both written. A type is the table's, `float` (core.abnf's rule) or a
+literal word (`all`). `tools/ts-client-gen.py` refuses a form type declared in none of them, by its name. A control
+character in any argument is refused, whatever its type. A `word` is bare when it holds no space or double quote; otherwise
+it is quoted, a quote written `\"` and a backslash `\\`, which is how the daemon's tokenizer (`src/utils.c`) reads a quoted
+word. The types `quoted` and `quoted-escaped` are written as given: the caller supplies the quotes.
 
 ## What it does not do
 

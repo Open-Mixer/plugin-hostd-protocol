@@ -214,7 +214,7 @@ test('every verb of the table encodes with a valid value per argument type and r
       if (f.tail) args.push('tail');
       const rest = TABLE.arg_types[f.args.at(-1)]?.rest;
       const line = encode(c.verb, ...args);
-      const want = [c.verb, ...args.flatMap((a, i) => (rest && i === f.args.length - 1 ? a.split(' ') : [a]))];
+      const want = [c.verb, ...args.flatMap((a, i) => (rest && i === f.args.length - 1 ? a.split(' ') : /^quoted/.test(f.args[i]) ? cSplit(a) : [a]))];
       assert.deepEqual(cSplit(line), want, `${c.verb} ${f.args.join(' ')}`);
       n++;
     }

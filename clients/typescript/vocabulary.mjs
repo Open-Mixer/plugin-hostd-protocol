@@ -160,6 +160,14 @@ export const ARG_TYPES = {
     'pattern': '\\-|unavailable|(?:(?:[a-z_]+)=(?:[^, ]*))(?:,(?:(?:[a-z_]+)=(?:[^, ]*)))*',
     'rest': false,
   },
+  'float': {
+    'pattern': '[-+]?(?:[0-9]+(?:\\.[0-9]*)?(?:[eE][-+]?[0-9]+)?|\\.[0-9]+(?:[eE][-+]?[0-9]+)?|[nN][aA][nN]|[iI][nN][fF](?:[iI][nN][iI][tT][yY])?)',
+    'rest': false,
+  },
+  'all': {
+    'pattern': 'all',
+    'rest': false,
+  },
 };
 export const VERBS = {
   'add': {
