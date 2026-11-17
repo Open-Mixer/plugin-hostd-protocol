@@ -20,10 +20,10 @@ BuildRequires: python3
 BuildRequires: python3-devel
 # the declared protocol: tools/protocol-gen holds protocol.h's parameter scales to omx-contract's C headers, and
 # install-contract writes the contract directory's package with omx-contract's script
-BuildRequires: omx-contract-devel >= 3.20.0
+BuildRequires: omx-contract-devel >= 3.19.0
 # the codec's tests (make test-codec) read omx-clap-core's sentences and omx-contract's catalog reader
 BuildRequires: omx-clap-core-contract >= 0.32.3
-BuildRequires: omx-contract-data >= 3.20.0
+BuildRequires: omx-contract-data >= 3.19.0
 # omx_curve.h, the curve function the curve verbs draw with (header only)
 BuildRequires: omx-dsp-devel >= 0.32.2
 
@@ -76,9 +76,9 @@ Requires: python3
 Requires: plugin-hostd-protocol >= 0.5.8
 Requires: plugin-hostd-protocol-contract >= 0.5.8
 Requires: omx-clap-core-contract >= 0.32.3
-Requires: omx-contract >= 3.20.0
+Requires: omx-contract >= 3.19.0
 # omx-contract's catalog reader, omx_contract_catalog.py, which reads a catalog entry whatever its shape
-Requires: omx-contract-data >= 3.20.0
+Requires: omx-contract-data >= 3.19.0
 
 %description -n python3-plugin-hostd-protocol
 plugin_hostd_protocol, the Python codec of the plugin-hostd protocol: one codec
@@ -93,7 +93,7 @@ Its documentation is on openmixer.org.
 %package contract
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
-Requires: omx-contract >= 3.20.0
+Requires: omx-contract >= 3.19.0
 # plugin-hostd before 0.16.0 declared the same items in its own package of the contract directory
 Conflicts: plugin-hostd-contract < 0.16.0
 
@@ -248,10 +248,10 @@ shows the English source sentence.
 
 %changelog
 * Sun Nov 15 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.10-1
-- Built against omx-contract >= 3.20.0 and below 4, plugin-db >= 0.4.5 and below
+- Built against omx-contract >= 3.19.0 and below 4, plugin-db >= 0.4.5 and below
   0.5 and omx-dsp >= 0.32.2 and below 0.33, the 3.19.0 pass's newest of each,
   with their ceilings (D30); every omx-contract floor (-devel, -data and the
-  runtime package) moves to 3.20.0.
+  runtime package) moves to 3.19.0.
 - python3-plugin-hostd-client, a new noarch package: the protocol's Python
   client ships from here (#47, #45).
 - python3-plugin-hostd-protocol, the Python codec, ships from here with epoch 1,

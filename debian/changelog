@@ -1,9 +1,9 @@
 plugin-hostd-protocol (0.5.10) unstable; urgency=medium
 
-  * Built against omx-contract >= 3.20.0 and below 4, plugin-db >= 0.4.5 and
+  * Built against omx-contract >= 3.19.0 and below 4, plugin-db >= 0.4.5 and
     below 0.5 and omx-dsp >= 0.32.2 and below 0.33, the 3.19.0 pass's newest
     of each, with their ceilings (D30); every omx-contract floor (-devel,
-    -data and the runtime package) moves to 3.20.0.
+    -data and the runtime package) moves to 3.19.0.
   * python3-plugin-hostd-client, a new noarch package: the protocol's Python
     client ships from here (#47, #45).
   * python3-plugin-hostd-protocol, the Python codec, ships from here with
