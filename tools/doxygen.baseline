@@ -1,35 +1,4 @@
 include/host-dispatch.h: warning: Member host_dispatch_register_unsupported(void) (function) of file host-dispatch.h is not documented.
-include/host-scenario.h: warning: Compound HOST_SCENARIO_DIRECT_T is not documented.
-include/host-scenario.h: warning: Compound HOST_SCENARIO_LIST_T is not documented.
-include/host-scenario.h: warning: Compound HOST_SCENARIO_T is not documented.
-include/host-scenario.h: warning: Compound HOST_SCENARIO_VAR_T is not documented.
-include/host-scenario.h: warning: Member HOST_SCENARIO_MAX_ABSENT (macro definition) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member HOST_SCENARIO_MAX_LINES (macro definition) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member HOST_SCENARIO_MAX_VARS (macro definition) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member HOST_SCENARIO_REPLY_SIZE (macro definition) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member backend (variable) of struct HOST_SCENARIO_DIRECT_T is not documented.
-include/host-scenario.h: warning: Member command (variable) of struct HOST_SCENARIO_T is not documented.
-include/host-scenario.h: warning: Member count (variable) of struct HOST_SCENARIO_LIST_T is not documented.
-include/host-scenario.h: warning: Member fd[2] (variable) of struct HOST_SCENARIO_DIRECT_T is not documented.
-include/host-scenario.h: warning: Member guard (variable) of struct HOST_SCENARIO_T is not documented.
-include/host-scenario.h: warning: Member host_scenario_direct_close(host_scenario_direct_t *direct) (function) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_direct_exchange(void *ctx, const char *command, char *reply, size_t size) (function) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_direct_open(host_scenario_direct_t *direct, const host_backend_t *backend) (function) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_direct_t (typedef) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_exchange_t)(void *ctx, const char *command, char *reply, size_t size) (typedef) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_free(host_scenario_list_t *list) (function) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_list_t (typedef) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_load(const char *path, const host_scenario_var_t *vars, int var_count, host_scenario_list_t *list) (function) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_run(const host_scenario_list_t *list, host_scenario_exchange_t exchange, void *ctx, const host_backend_t *table) (function) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_set_host(const char *host) (function) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_socket_exchange(void *ctx, const char *command, char *reply, size_t size) (function) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_socket_open(const char *host, int port) (function) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_t (typedef) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member host_scenario_var_t (typedef) of file host-scenario.h is not documented.
-include/host-scenario.h: warning: Member lines[HOST_SCENARIO_MAX_LINES] (variable) of struct HOST_SCENARIO_LIST_T is not documented.
-include/host-scenario.h: warning: Member name (variable) of struct HOST_SCENARIO_VAR_T is not documented.
-include/host-scenario.h: warning: Member reply (variable) of struct HOST_SCENARIO_T is not documented.
-include/host-scenario.h: warning: Member value (variable) of struct HOST_SCENARIO_VAR_T is not documented.
 include/mod-host.h: warning: Member BUNDLE_ADD (macro definition) of file mod-host.h is not documented.
 include/mod-host.h: warning: Member BUNDLE_REMOVE (macro definition) of file mod-host.h is not documented.
 include/mod-host.h: warning: Member CC_MAP (macro definition) of file mod-host.h is not documented.
