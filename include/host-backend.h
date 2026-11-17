@@ -37,18 +37,39 @@
 ************************************************************************************************************************
 */
 
-/* The plugin backend behind the socket protocol, or called directly by a host in the same process.
-   A NULL entry answers ERR_INVALID_OPERATION. Fields are only ever appended. */
+/** @brief the plugin backend behind the socket protocol, given to host_dispatch_register
+ *
+ * Each entry serves the verb of its name (doc/protocol.md), and a NULL entry answers ERR_INVALID_OPERATION. An entry
+ * returns SUCCESS or a negative code of host-errors.h, and the verb answers "resp" and that number. An instance and a
+ * bypass value are the line's words read with atoi, so an entry checks them. A string is a word of the line: it is
+ * valid during the call and is not to be kept or freed. The entries are called on the thread that calls
+ * protocol_parse.
+ */
 typedef struct HOST_BACKEND_T {
+    /** add: loads the plugin of uri as that instance; client_name is the word after the instance, or NULL when the
+     * line has none. A clap: uri whose path the line split at its spaces arrives joined again. */
     int (*add)(const char *uri, int instance, const char *client_name);
+    /** remove: ends the instance; a return of 0 or more also drops the curve bindings and the monitors the library
+     * keeps for it, all of them when instance is -1 */
     int (*remove)(int instance);
+    /** bypass: value is the line's second number */
     int (*bypass)(int instance, int value);
+    /** param_set: sets the parameter of that symbol; value is the line's word read with atof, unchecked, so a word
+     * that is no number arrives as 0. param_set_many calls it too, once a value, and again to set the ones before a
+     * refused one back. */
     int (*param_set)(int instance, const char *symbol, float value);
+    /** param_get: writes the parameter's value in value; a return of 0 or more answers that number and the value.
+     * param_get_many, param_set_many and the curve verbs read the parameters with it too. */
     int (*param_get)(int instance, const char *symbol, float *value);
+    /** preset_load: loads the preset of uri into the instance */
     int (*preset_load)(int instance, const char *uri);
+    /** state_save: dir is the line's word */
     int (*state_save)(const char *dir);
+    /** state_load: dir is the line's word */
     int (*state_load)(const char *dir);
+    /** connect: the two port names, in the order of the line */
     int (*connect)(const char *port_a, const char *port_b);
+    /** disconnect: the two port names, in the order of the line */
     int (*disconnect)(const char *port_a, const char *port_b);
 } host_backend_t;
 

@@ -1,15 +1,3 @@
-include/host-backend.h: warning: Compound HOST_BACKEND_T is not documented.
-include/host-backend.h: warning: Member add)(const char *uri, int instance, const char *client_name) (variable) of struct HOST_BACKEND_T is not documented.
-include/host-backend.h: warning: Member bypass)(int instance, int value) (variable) of struct HOST_BACKEND_T is not documented.
-include/host-backend.h: warning: Member connect)(const char *port_a, const char *port_b) (variable) of struct HOST_BACKEND_T is not documented.
-include/host-backend.h: warning: Member disconnect)(const char *port_a, const char *port_b) (variable) of struct HOST_BACKEND_T is not documented.
-include/host-backend.h: warning: Member host_backend_t (typedef) of file host-backend.h is not documented.
-include/host-backend.h: warning: Member param_get)(int instance, const char *symbol, float *value) (variable) of struct HOST_BACKEND_T is not documented.
-include/host-backend.h: warning: Member param_set)(int instance, const char *symbol, float value) (variable) of struct HOST_BACKEND_T is not documented.
-include/host-backend.h: warning: Member preset_load)(int instance, const char *uri) (variable) of struct HOST_BACKEND_T is not documented.
-include/host-backend.h: warning: Member remove)(int instance) (variable) of struct HOST_BACKEND_T is not documented.
-include/host-backend.h: warning: Member state_load)(const char *dir) (variable) of struct HOST_BACKEND_T is not documented.
-include/host-backend.h: warning: Member state_save)(const char *dir) (variable) of struct HOST_BACKEND_T is not documented.
 include/host-dispatch.h: warning: Member host_dispatch_register_unsupported(void) (function) of file host-dispatch.h is not documented.
 include/host-scenario.h: warning: Compound HOST_SCENARIO_DIRECT_T is not documented.
 include/host-scenario.h: warning: Compound HOST_SCENARIO_LIST_T is not documented.
