@@ -149,6 +149,16 @@ def main():
             cmd = line[2:].split(" ")[0]
         elif line.startswith("< resp 0") and cmd in validators:
             real[cmd] = real.get(cmd, 0) + (validate(cmd, line[2:], "a reply of the golden transcript") is not None)
+    # replies as the host writes them, beyond the samples: preset_get's name is the rest of the line, raw, so it may hold
+    # spaces and may be empty (a preset with no name answers "resp 0 <key> " with nothing after the key)
+    for v, line, want in (("preset_get", "resp 0 urn:p:1 Bright Mix", "Bright Mix"), ("preset_get", "resp 0 urn:p:1 ", ""),
+                          ("preset_get", "resp 0 urn:p:1", "")):
+        doc = validate(v, line, "a reply as the host writes it") if v in validators else None
+        if doc is not None and doc.get("name") != want:
+            failures.append("%s: the name of %r is %r, not %r" % (v, line, doc.get("name"), want))
+    for name in ("Bright Mix", ""):
+        if "preset_get" in validators and not validators["preset_get"].is_valid({"load_key": "urn:p:1", "name": name}):
+            failures.append("preset_get: the schema refuses the name %r" % name)
     served = {"hello", "curve_points", "param_get_many"}
     for v in sorted(served & set(verbs)):
         if real.get(v, 0) < 1:
