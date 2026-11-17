@@ -134,32 +134,6 @@ include/plugin-hostd/protocol.h: warning: Member PHD_HISTORY_RECORD (macro defin
 include/plugin-hostd/protocol.h: warning: Member PHD_PRESET_ALIAS_MAX (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member PHD_PRESET_FILE_MAX (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member X(id, name) (macro definition) of file protocol.h is not documented.
-include/plugin-hostd/search_paths.h: warning: Member PHD_DEFAULT_CLAP_PATH (macro definition) of file search_paths.h is not documented.
-include/plugin-hostd/search_paths.h: warning: Member PHD_DEFAULT_LV2_PATH (macro definition) of file search_paths.h is not documented.
-include/protocol.h: warning: Compound PROTO_T is not documented.
-include/protocol.h: warning: Member MESSAGE_COMMAND_NOT_FOUND (macro definition) of file protocol.h is not documented.
-include/protocol.h: warning: Member MESSAGE_FEW_ARGUMENTS (macro definition) of file protocol.h is not documented.
-include/protocol.h: warning: Member MESSAGE_INVALID_ARGUMENT (macro definition) of file protocol.h is not documented.
-include/protocol.h: warning: Member MESSAGE_MANY_ARGUMENTS (macro definition) of file protocol.h is not documented.
-include/protocol.h: warning: Member PROTOCOL_FEW_ARGUMENTS (macro definition) of file protocol.h is not documented.
-include/protocol.h: warning: Member PROTOCOL_HELLO (macro definition) of file protocol.h is not documented.
-include/protocol.h: warning: Member PROTOCOL_INVALID_ARGUMENT (macro definition) of file protocol.h is not documented.
-include/protocol.h: warning: Member PROTOCOL_MANY_ARGUMENTS (macro definition) of file protocol.h is not documented.
-include/protocol.h: warning: Member PROTOCOL_MAX_COMMANDS (macro definition) of file protocol.h is not documented.
-include/protocol.h: warning: Member PROTOCOL_NOT_FOUND (macro definition) of file protocol.h is not documented.
-include/protocol.h: warning: Member list (variable) of struct PROTO_T is not documented.
-include/protocol.h: warning: Member list_count (variable) of struct PROTO_T is not documented.
-include/protocol.h: warning: Member proto_t (typedef) of file protocol.h is not documented.
-include/protocol.h: warning: Member protocol_add_command(const char *command, void(*callback)(proto_t *proto)) (function) of file protocol.h is not documented.
-include/protocol.h: warning: Member protocol_add_hello(void) (function) of file protocol.h is not documented.
-include/protocol.h: warning: Member protocol_error_message(int code) (function) of file protocol.h is not documented.
-include/protocol.h: warning: Member protocol_parse(msg_t *msg) (function) of file protocol.h is not documented.
-include/protocol.h: warning: Member protocol_remove_commands(void) (function) of file protocol.h is not documented.
-include/protocol.h: warning: Member protocol_response(const char *response, proto_t *proto) (function) of file protocol.h is not documented.
-include/protocol.h: warning: Member protocol_response_int(int resp, proto_t *proto) (function) of file protocol.h is not documented.
-include/protocol.h: warning: Member protocol_verbose(int verbose) (function) of file protocol.h is not documented.
-include/protocol.h: warning: Member response (variable) of struct PROTO_T is not documented.
-include/protocol.h: warning: Member response_size (variable) of struct PROTO_T is not documented.
 include/socket.h: warning: Member SOCKET_HAS_ADOPT (macro definition) of file socket.h is not documented.
 include/socket.h: warning: Member SOCKET_MSG_MAX_SIZE (macro definition) of file socket.h is not documented.
 include/socket.h: warning: Member socket_adopt(int socket_fd, int feedback_fd, int buffer_size) (function) of file socket.h is not documented.

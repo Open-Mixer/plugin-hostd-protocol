@@ -40,6 +40,7 @@
  * by the folders distributions install plugins in: /usr/local/lib/clap (the Raspberry Pi image's), /usr/lib64/clap
  * (Fedora's) and /usr/local/lib64/clap. A first-use pin is learned only inside this path (plugin-hostd#82). */
 
+/** @brief the default lv2_path: the LV2 folders, ':' separated, in the order they are searched */
 #define PHD_DEFAULT_LV2_PATH \
     "/usr/lib/lv2" \
     ":/usr/lib/x86_64-linux-gnu/lv2:/usr/lib/aarch64-linux-gnu/lv2:/usr/lib/arm-linux-gnueabihf/lv2" \
@@ -47,7 +48,8 @@
     ":/usr/local/lib/x86_64-linux-gnu/lv2:/usr/local/lib/aarch64-linux-gnu/lv2:/usr/local/lib/arm-linux-gnueabihf/lv2" \
     ":/usr/lib64/lv2:/usr/local/lib64/lv2"
 
-/* a leading ~ is the home of whoever reads the list */
+/** @brief the default clap_path: the CLAP folders, ':' separated; a leading ~ is the home of whoever reads the list
+ */
 #define PHD_DEFAULT_CLAP_PATH "~/.clap:/usr/lib/clap:/usr/local/lib/clap:/usr/lib64/clap:/usr/local/lib64/clap"
 
 #endif
