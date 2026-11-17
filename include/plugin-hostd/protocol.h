@@ -408,11 +408,14 @@ static inline int phd_pool_name_valid(const char *name)
 
 /* ---------------------------------------------------------------- error codes */
 
-/* the codes the supervisor adds to mod-host's, the -5xx hundred; a reply is "resp <code>". Each number has one name in
- * the contract, rendered as OMX_REPLY_<GROUP>_<REASON>_RESP: the ones omx-clap-host answers too are omx-clap-core's
- * reply.host.* codes (its HOST_REPLY_CODES, omx_clap_core_vocabulary.h), the others plugin-hostd's
- * reply.plugin-hostd.* (data/verbs.json PLUGIN_HOSTD_REPLY_CODES, plugin_hostd_vocabulary.h); the header defines none */
-/* X(id, resp, meaning): resp is the rendered number of the code */
+/** @brief the codes the supervisor adds to mod-host's, the -5xx hundred; a reply is "resp \<code\>". Each number has
+ * one name in the contract, rendered as OMX_REPLY_\<GROUP\>_\<REASON\>_RESP: the ones omx-clap-host answers too are
+ * omx-clap-core's reply.host.* codes (its HOST_REPLY_CODES, omx_clap_core_vocabulary.h), the others plugin-hostd's
+ * reply.plugin-hostd.* (data/verbs.json PLUGIN_HOSTD_REPLY_CODES, plugin_hostd_vocabulary.h); the header defines none.
+ * A row is X(id, resp, meaning): resp is the rendered number of the code.
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_ERRORS(X) \
     X(PLACEMENT_INVALID, OMX_REPLY_PLUGIN_HOSTD_PLACEMENT_INVALID_RESP, "placement invalid: not a placement, or not valid here, as a " PHD_PLACE_POOL_PREFIX \
                          "<name> for a plugin of a format whose pin holds only in a world of the plugin's own, while require_pins is on") \
@@ -521,8 +524,9 @@ static inline int phd_pool_name_valid(const char *name)
 
 /* ---------------------------------------------------------------- verbs */
 
-/* mod-host's add, which the daemon extends with a placement; every verb of its own is OMX_VERB_<VERB> of
- * plugin_hostd_host_verbs.h, and pin_expect is omx-clap-core's, OMX_VERB_PIN_EXPECT */
+/** @brief mod-host's add, which the daemon extends with a placement; every verb of its own is OMX_VERB_\<VERB\> of
+ * plugin_hostd_host_verbs.h, and pin_expect is omx-clap-core's, OMX_VERB_PIN_EXPECT
+ */
 #define PHD_VERB_ADD              "add"
 
 /* The uri of an add, words[1] on, whole. A clap: uri is clap:<path>#<id>, its path percent-encoded or in quotation
@@ -530,6 +534,7 @@ static inline int phd_pool_name_valid(const char *name)
  * words after it up to the one that holds the '#', joined with one space each (a run of spaces is not told from one:
  * such a path is written encoded or quoted). Returns words[1], or joined (size bytes) for a uri so joined; *next is the
  * index of the word after the uri. A clap: word whose '#' no later word holds, or that does not fit, is its one word. */
+/** @brief the prefix of a CLAP plugin's uri: clap:\<path\>#\<id\> */
 #define PHD_CLAP_URI_PREFIX "clap:"
 static inline const char *phd_add_uri(char *const *words, unsigned count, char *joined, size_t size, unsigned *next)
 {
@@ -560,17 +565,22 @@ static inline const char *phd_add_uri(char *const *words, unsigned count, char *
 }
 
 /* the words of a pin: <path>=<sha256>, joined by ',', and <scheme>:<sha256> */
+/** @brief separates the \<path\>=\<sha256\> words of the files of a pin */
 #define PHD_PIN_FILE_SEPARATOR   ","
+/** @brief separates a file's path from its SHA-256 in a pin */
 #define PHD_PIN_DIGEST_SEPARATOR "="
+/** @brief separates the scheme from its SHA-256 in the layout word of a pin: \<scheme\>:\<sha256\> */
 #define PHD_PIN_SCHEME_SEPARATOR ":"
-/* what a path of a pin cannot hold as it is: the separators of pin_set's words, and whitespace */
+/** @brief what a path of a pin cannot hold as it is: the separators of pin_set's words, and whitespace
+ */
 #define PHD_PIN_PATH_EXCLUDED    PHD_PIN_FILE_SEPARATOR PHD_PIN_DIGEST_SEPARATOR " \t\r\n"
-/* A path of a pin, and the path of a clap: uri, is written percent-encoded: every byte of PHD_PIN_PATH_EXCLUDED, the
- * escape itself, a double quote, a backslash and every control byte is PHD_PIN_PATH_ESCAPE and two uppercase hex
- * digits, every other byte as it is. So any file name is one bare word ("Surge XT.clap" is "Surge%20XT.clap"), and a
- * reader decodes it before it opens or hashes the file. The escape is always one: a name holding '%' itself writes it
- * %25. A pin is keyed by its clap: uri's path decoded, so the uri written with the space as it is (quoted) and written
- * encoded name one pin (doc/protocol.md, Pins and qualification). */
+/** @brief A path of a pin, and the path of a clap: uri, is written percent-encoded: every byte of
+ * PHD_PIN_PATH_EXCLUDED, the escape itself, a double quote, a backslash and every control byte is PHD_PIN_PATH_ESCAPE
+ * and two uppercase hex digits, every other byte as it is. So any file name is one bare word ("Surge XT.clap" is
+ * "Surge%20XT.clap"), and a reader decodes it before it opens or hashes the file. The escape is always one: a name
+ * holding '%' itself writes it %25. A pin is keyed by its clap: uri's path decoded, so the uri written with the space
+ * as it is (quoted) and written encoded name one pin (doc/protocol.md, Pins and qualification).
+ */
 #define PHD_PIN_PATH_ESCAPE      "%"
 
 /* whether a byte of a path is written escaped */
@@ -648,60 +658,104 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     out[o] = '\0';
     return 0;
 }
-/* the layout word of a pin whose layout has not been learned yet: a pin of the store, of a pins file or learned by the
- * daemon may hold it, pin_set may not */
+/** @brief the layout word of a pin whose layout has not been learned yet: a pin of the store, of a pins file or
+ * learned by the daemon may hold it, pin_set may not
+ */
 #define PHD_PIN_LAYOUT_UNKNOWN   "-"
-/* the optional last word of a pin line: the qualification verdict of the pinned bytes. The words of a pin are
- * plugin-db's (data/pin.json), rendered beside this header */
+/** @brief the optional last word of a pin line: the qualification verdict of the pinned bytes. The words of a pin are
+ * plugin-db's (data/pin.json), rendered beside this header
+ */
 #define PHD_PIN_VERDICT_KEY      OMX_PLUGIN_DB_PIN_KEYS_VERDICT "="
 
 /* the verdicts: X(id, name, meaning); only in-process lets a plugin share a worker under pin_mode first-use */
+/** @brief the verdict of a plugin qualified to run in a worker that other plugins share; only this verdict lets a
+ * plugin share a worker under pin_mode first-use
+ */
 #define PHD_PIN_VERDICT_IN_PROCESS OMX_PLUGIN_DB_PIN_VERDICTS_IN_PROCESS
+/** @brief the verdict of a plugin qualified to run, in a worker of its own */
 #define PHD_PIN_VERDICT_ISOLATED   OMX_PLUGIN_DB_PIN_VERDICTS_ISOLATED
+/** @brief the verdict of a plugin that failed qualification: the pin records the bytes, a host should not load them */
 #define PHD_PIN_VERDICT_REFUSED    OMX_PLUGIN_DB_PIN_VERDICTS_REFUSED
+/** @brief the verdicts as rows X(id, name, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PIN_VERDICTS(X) \
     X(IN_PROCESS, PHD_PIN_VERDICT_IN_PROCESS, "qualified to run in a worker that other plugins share") \
     X(ISOLATED, PHD_PIN_VERDICT_ISOLATED, "qualified to run, in a worker of its own") \
     X(REFUSED, PHD_PIN_VERDICT_REFUSED, "failed qualification: the pin records the bytes, a host should not load them")
 
-/* the optional word after the verdict: whether the plugin's qualification measured the CLAP thread pool (docs/thread-pool.md of
- * omx-clap-core) real-time safe and faster at the quantum, X(id, name, meaning); a plugin with no word runs serial */
+/** @brief the optional word after the verdict: whether the plugin's qualification measured the CLAP thread pool
+ * (docs/thread-pool.md of omx-clap-core) real-time safe and faster at the quantum, X(id, name, meaning); a plugin
+ * with no word runs serial
+ */
 #define PHD_PIN_POOL_KEY   OMX_PLUGIN_DB_PIN_KEYS_POOL "="
+/** @brief the pool word of a plugin whose worker starts with the thread pool on, and no other plugin shares the
+ * worker
+ */
 #define PHD_PIN_POOL_CORES OMX_PLUGIN_DB_PIN_POOLS_CORES
+/** @brief the pool word of a plugin measured not faster or not safe with the pool: the worker keeps no option */
 #define PHD_PIN_POOL_OFF   OMX_PLUGIN_DB_PIN_POOLS_OFF
+/** @brief the pool words as rows X(id, name, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PIN_POOLS(X) \
     X(CORES, PHD_PIN_POOL_CORES, "its worker starts with the thread pool on, one helper per core of its cpu set but one, and " \
                                  "no other plugin shares the worker") \
     X(OFF, PHD_PIN_POOL_OFF, "measured, and not faster or not safe with the pool: the worker keeps no option")
 
 /* what pin_changed names as changed */
+/** @brief what pin_changed names when the plugin's files changed */
 #define PHD_PIN_CHANGED_FILES  OMX_PLUGIN_DB_PIN_CHANGES_FILES
+/** @brief what pin_changed names when the plugin's layout changed */
 #define PHD_PIN_CHANGED_LAYOUT OMX_PLUGIN_DB_PIN_CHANGES_LAYOUT
 
 /* the pin modes: X(id, name, meaning), read while require_pins is 1 */
+/** @brief the pin_mode in which add admits only a plugin that has a pin */
 #define PHD_PIN_MODE_STRICT    "strict"
+/** @brief the pin_mode in which add of a plugin with no pin records its pin */
 #define PHD_PIN_MODE_FIRST_USE "first-use"
+/** @brief the pin modes as rows X(id, name, meaning), read while require_pins is 1
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PIN_MODES(X) \
     X(STRICT, PHD_PIN_MODE_STRICT, "add admits only a plugin that has a pin; a pin comes from pin_set, pin_file or pins_dir") \
     X(FIRST_USE, PHD_PIN_MODE_FIRST_USE, "add of a plugin with no pin records its pin, keeps it in the pin store and places " \
                               "the instance " PHD_PLACE_OWN "; a later change is refused until pin_accept")
 
 /* the grouping modes: X(id, name, meaning) */
+/** @brief the grouping setting that makes plan answer the plan it would make and apply none */
 #define PHD_GROUPING_OFF "off"
+/** @brief the grouping setting that makes plan apply its plan */
 #define PHD_GROUPING_ON  "on"
+/** @brief the grouping modes as rows X(id, name, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_GROUPING_MODES(X) \
     X(OFF, PHD_GROUPING_OFF, OMX_VERB_PLAN " answers the plan it would make and applies none") \
     X(ON, PHD_GROUPING_ON, OMX_VERB_PLAN " applies its plan")
 
 /* the core placements (docs/placement.md): X(id, name, meaning) */
+/** @brief the placement setting that pins each new worker to the audio core that has the least load */
 #define PHD_CORE_PLACEMENT_SPREAD "spread"
+/** @brief the placement setting that pins nothing: the workers run where the daemon may */
 #define PHD_CORE_PLACEMENT_NONE   "none"
+/** @brief the core placements (docs/placement.md) as rows X(id, name, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_CORE_PLACEMENTS(X) \
     X(SPREAD, PHD_CORE_PLACEMENT_SPREAD, "each new worker is pinned to the audio core that has the least load, and the " \
       "daemon, its threads and the helpers it forks to the reserved cores") \
     X(NONE, PHD_CORE_PLACEMENT_NONE, "nothing is pinned: the workers run where the daemon may")
 
-/* what cannot be pinned, each a refusal and never a partial pin: X(id, meaning) */
+/** @brief what cannot be pinned, each a refusal and never a partial pin: X(id, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PIN_LIMITS(X) \
     X(PATH, "a path is pinned percent-encoded (" PHD_PIN_PATH_ESCAPE "XX): '" PHD_PIN_FILE_SEPARATOR "', '" \
             PHD_PIN_DIGEST_SEPARATOR "', whitespace, '" PHD_PIN_PATH_ESCAPE "', a quote, a backslash and a control byte " \
@@ -714,7 +768,10 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
                 "it, so it cannot know the file the host would load. A file the manifest names by a percent-encoded IRI is " \
                 "pinned as written, one word, and opened decoded; a name with a stray % is refused the same way")
 
-/* the verbs the daemon adds to mod-host's, or extends: X(id, name, arguments, reply, meaning) */
+/** @brief the verbs the daemon adds to mod-host's, or extends: X(id, name, arguments, reply, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_VERBS(X) \
     X(ADD, PHD_VERB_ADD, "<uri> <instance> [" PHD_PLACEMENT_SYNTAX "] [client_name]", "resp <instance>", \
       "mod-host's add with a placement; a token after the instance that is not a placement is the jack client name") \
