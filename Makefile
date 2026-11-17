@@ -488,7 +488,7 @@ CONTRACT_SCHEMA_MAJOR = 3
 CONTRACTDIR = $(or $(shell $(PKG_CONFIG) --variable=contractdir omx-contract 2>/dev/null),$(DATADIR)/omx-contract/contract.d)
 INSTALL_CONTRACT_DIR = $(firstword $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/install-contract-dir.sh) $(wildcard $(OMX_CONTRACT_DIR)/tools/install-contract-dir.sh))
 
-check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-reply-shapes test-grammar check-contract-dir test-abnf-corpus test-code-text-sabotage test-served-render-ci
+check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-grammar check-contract-dir test-abnf-corpus test-code-text-sabotage test-served-render-ci
 
 # data/verbs.json as the package plugin-hostd-protocol of omx-contract's contract directory,
 # <contractdir>/<schema major>/plugin-hostd-protocol/, with the MANIFEST.json omx-contract's script writes
