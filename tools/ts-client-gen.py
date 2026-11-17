@@ -82,8 +82,8 @@ def build(table_path):
                     continue
                 if a in CORE_TYPES:
                     types[a] = {"pattern": CORE_TYPES[a], "rest": False}
-                elif LITERAL.fullmatch(a):
-                    types[a] = {"pattern": a, "rest": False}  # literal words a|b: one of them (all)
+                elif a in t["words"].values() or ("|" in a and LITERAL.fullmatch(a)):
+                    types[a] = {"pattern": a, "rest": False}  # a word the table declares (all), or literal words a|b: one of them
                 else:
                     fail(f"{c['verb']}: the form type {a} is declared in no arg_types, no core type and is no literal word")
     codes = {str(r["resp"]): r["code"] for r in t["reply_codes"]}

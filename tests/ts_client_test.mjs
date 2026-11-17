@@ -223,16 +223,20 @@ test('every verb of the table encodes with a valid value per argument type and r
 });
 
 test('the generator refuses a form type that is declared nowhere, by its name', () => {
+  for (const bad of ['undeclared_type', 'flaot']) refused(bad);
+});
+
+function refused(bad) {
   const dir = mkdtempSync(join(tmpdir(), 'tsclient-'));
   try {
     const t = structuredClone(TABLE);
-    t.commands.find((c) => c.verb === 'curve_points').forms[0].args[0] = 'undeclared_type';
+    t.commands.find((c) => c.verb === 'curve_points').forms[0].args[0] = bad;
     writeFileSync(join(dir, 'table.json'), JSON.stringify(t));
     const r = gen(['--table', join(dir, 'table.json'), '--out', dir]);
     assert.notEqual(r.status, 0);
-    assert.match(r.stderr, /undeclared_type/);
+    assert.match(r.stderr, new RegExp(bad));
   } finally { rmSync(dir, { recursive: true }); }
-});
+}
 
 test('a word with a backslash, a quote or a space is read back by the daemon as it was written', () => {
   for (const v of ['gain', 'a b', 'a"b', 'a\\b', 'a b\\', 'a\\', '\\', 'x\\"y', 'a \\" b', '\\\\', '']) {
