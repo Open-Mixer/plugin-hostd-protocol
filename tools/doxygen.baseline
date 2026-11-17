@@ -54,17 +54,7 @@ include/mod-host.h: warning: Member TRANSPORT_SYNC (macro definition) of file mo
 include/plugin-hostd/protocol.h: warning: Member PHD_PRESET_ALIAS_MAX (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member PHD_PRESET_FILE_MAX (macro definition) of file protocol.h is not documented.
 include/socket.h: warning: Member SOCKET_HAS_ADOPT (macro definition) of file socket.h is not documented.
-include/socket.h: warning: Member SOCKET_MSG_MAX_SIZE (macro definition) of file socket.h is not documented.
 include/socket.h: warning: Member socket_adopt(int socket_fd, int feedback_fd, int buffer_size) (function) of file socket.h is not documented.
-include/socket.h: warning: Member socket_finish(void) (function) of file socket.h is not documented.
-include/socket.h: warning: Member socket_run(int exit_on_failure) (function) of file socket.h is not documented.
-include/socket.h: warning: Member socket_send(int destination, const char *buffer, int size) (function) of file socket.h is not documented.
-include/socket.h: warning: Member socket_send_feedback(const char *buffer) (function) of file socket.h is not documented.
-include/socket.h: warning: Member socket_set_bind_address(const char *address) (function) of file socket.h is not documented.
-include/socket.h: warning: Member socket_set_idle_cb(void(*idle_cb)(void)) (function) of file socket.h is not documented.
-include/socket.h: warning: Member socket_set_idle_interval(int interval_ms) (function) of file socket.h is not documented.
-include/socket.h: warning: Member socket_set_receive_cb(void(*receive_cb)(msg_t *msg)) (function) of file socket.h is not documented.
-include/socket.h: warning: Member socket_start(int socket_port, int feedback_port, int buffer_size) (function) of file socket.h is not documented.
 include/utils.h: warning: Compound MSG_T is not documented.
 include/utils.h: warning: Member ENABLE_QUOTATION_MARKS (macro definition) of file utils.h is not documented.
 include/utils.h: warning: Member FREE(pv) (macro definition) of file utils.h is not documented.
