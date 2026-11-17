@@ -123,7 +123,7 @@ TEST_CFLAGS = $(filter-out -O3,$(CFLAGS)) -O1 -g -Werror
 # the sources are compiled into the sanitized tests as they are; a distribution's _FORTIFY_SOURCE flags their unchecked
 # write() calls, which mod-host leaves unchecked too
 SAN = -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -Wno-error=unused-result
-TEST_PROGS = tests/feedback_lines tests/macro_compat tests/bounds_test tests/protocol_test tests/protocol_commands_test tests/host_scenarios tests/golden-run tests/fixes_test tests/forms_test \
+TEST_PROGS = tests/feedback_lines tests/macro_compat tests/bounds_test tests/number_test tests/protocol_test tests/protocol_commands_test tests/host_scenarios tests/golden-run tests/fixes_test tests/forms_test \
              tests/hello_test tests/curve_test tests/monitor_test tests/runner_test \
              tests/socket-test tests/bind-test tests/adopt-test tests/utils-test
 
@@ -149,7 +149,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds
+      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number
 
 # every omx-clap-core-contract range admits the next omx-clap-core minor (the chain releases this protocol first)
 test-clap-core-range:
@@ -401,6 +401,14 @@ tests/bounds_test: tests/bounds_test.c $(PROTOCOL_HEADERS)
 
 test-bounds: tests/bounds_test
 	./tests/bounds_test
+
+# phd_number_in's grammar, one named arm a spelling: one spelling a value, the caller's range and no other, a word past
+# the type refused (tests/number_test.c, #73); under the sanitizers, so an overflow in the reading is seen
+tests/number_test: tests/number_test.c $(PROTOCOL_HEADERS)
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -O1 -g $(SAN) -Iinclude -o $@ tests/number_test.c
+
+test-number: tests/number_test
+	./tests/number_test
 
 # every reply of this repository's verbs with a layout is typed and named in the table, and decodes (#19)
 test-reply-args:
