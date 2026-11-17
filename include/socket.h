@@ -109,13 +109,20 @@ int socket_set_bind_address(const char *address);
  *     stays open until socket_finish.
  */
 int socket_start(int socket_port, int feedback_port, int buffer_size);
-// serves sockets the caller already bound instead of binding its own, as socket_start serves the ports it binds: a
-// supervisor or a test harness binds the command port (and the feedback port, or -1 for none), keeps the address its
-// own while it starts the program, and hands it the fds, so no port is ever closed and bound again in between (the
-// bind 0, close, rebind a harness did let another process take the port). Each fd is a TCP socket bound to an IPv4
-// address and port; its options are the caller's (socket_start sets SO_REUSEPORT, this does not), and it is put to
-// listen. socket_finish closes them. Answers 0, or -1 for an fd that is no bound TCP socket, nothing served then
 #define SOCKET_HAS_ADOPT 1
+/** @brief serves listening sockets the caller already bound, in place of the ports socket_start binds
+ *
+ * A supervisor or a test harness binds the command port (and the feedback port, or -1 for none), keeps the address
+ * its own while it starts the program, and hands over the fds, so no port is closed and bound again in between. The
+ * caller's socket options stand (socket_start sets SO_REUSEADDR; this sets none of those); only the receive buffer is
+ * set, as socket_start sets it. Each socket is put to listen; listening again is no error. socket_finish closes them.
+ *
+ * @pre buffer_size is 1 or more (it is not checked; see socket_run).
+ * @param socket_fd a TCP socket bound to an IPv4 address and port.
+ * @param feedback_fd the same for the feedback port, or -1 for none.
+ * @param buffer_size the size of the receive buffer socket_run reads a message into.
+ * @return 0, or -1 when an fd is no bound IPv4 TCP socket (nothing served then) or when listen fails (perror says so).
+ */
 int socket_adopt(int socket_fd, int feedback_fd, int buffer_size);
 /** @brief stops serving: closes the listening sockets and shuts down the connections of the controller
  *
