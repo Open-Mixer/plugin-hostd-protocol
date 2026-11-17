@@ -44,20 +44,24 @@
 #include "plugin_hostd_protocol_vocabulary.h"
 #include "plugin_db_vocabulary.h"
 
-/* bumped when a name, a code or the shape of a verb or an event changes incompatibly */
+/** @brief bumped when a name, a code or the shape of a verb or an event changes incompatibly
+ */
 #define PLUGIN_HOSTD_PROTOCOL_VERSION 1
 
 /* ---------------------------------------------------------------- readiness */
 
-/* the daemon prints this line once both its ports accept */
+/** @brief the daemon prints this line once both its ports accept
+ */
 #define PHD_READY_LINE "plugin-hostd ready!"
-/* a worker prints a line ending with this once its socket accepts */
+/** @brief a worker prints a line ending with this once its socket accepts
+ */
 #define PHD_WORKER_READY_MARKER "ready!"
 
-/* A host that loads plugins with no display gives Qt one that needs none: a plugin that makes a QApplication as it is
- * instantiated (synthv1 and the other Qt-linked LV2 plugins) aborts when the platform plugin Qt picks cannot open a
- * display. With neither DISPLAY nor WAYLAND_DISPLAY set, QT_QPA_PLATFORM is set to this unless the user set it:
- * phd_headless_qt() of the library (utils.h), called before the host loads a plugin or starts a process that does */
+/** @brief A host that loads plugins with no display gives Qt one that needs none: a plugin that makes a QApplication
+ * as it is instantiated (synthv1 and the other Qt-linked LV2 plugins) aborts when the platform plugin Qt picks cannot
+ * open a display. With neither DISPLAY nor WAYLAND_DISPLAY set, QT_QPA_PLATFORM is set to this unless the user set
+ * it: phd_headless_qt() of the library (utils.h), called before the host loads a plugin or starts a process that does
+ */
 #define PHD_HEADLESS_QT_PLATFORM "offscreen"
 
 /* whether the process has a display session: DISPLAY or WAYLAND_DISPLAY set and not empty. A host with none gives Qt
@@ -70,19 +74,29 @@ static inline int phd_has_display(void)
     return (x && *x) || (wayland && *wayland);
 }
 
-/* the word after a window verb's -902 from a daemon with no display session: omx-clap-core's hosting.window code for
- * the same fact (data/hosting.json), the word its worker gives after -404 when no display answers */
+/** @brief the word after a window verb's -902 from a daemon with no display session: omx-clap-core's hosting.window
+ * code for the same fact (data/hosting.json), the word its worker gives after -404 when no display answers
+ */
 #define PHD_EXTERNAL_UI_NO_DISPLAY "hosting.window.no-display"
 
 /* ---------------------------------------------------------------- constants */
 
 /* X(name, value, unit, meaning) */
+/** @brief the command port without -p; the feedback port is the next one, unless -n is given */
 #define PHD_DEFAULT_COMMAND_PORT 5555
+/** @brief how long, in milliseconds, the idle tick asks again for a connect a respawned worker could not make yet */
 #define PHD_CONNECT_RETRY_MS     5000
+/** @brief the protocol socket's buffer in bytes: the longest pin_set line the daemon takes */
 #define PHD_LINE_MAX             4096
+/** @brief the words of one command line the daemon reads, the verb included; a word past them is not read */
 #define PHD_LINE_WORDS_MAX       64
+/** @brief the fewest members of a chain: a chain of one is valid */
 #define PHD_CHAIN_MEMBERS_MIN    1
 
+/** @brief the constants above as rows X(name, value, unit, meaning), for the generators of the docs
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_CONSTANTS(X) \
     X(protocol_version, PLUGIN_HOSTD_PROTOCOL_VERSION, "version", \
       "the protocol version hello sends and answers on the socket; the table's version key is the same number") \
@@ -98,60 +112,106 @@ static inline int phd_has_display(void)
 
 /* ---------------------------------------------------------------- placement */
 
+/** @brief the placement word for an instance in a worker of its own */
 #define PHD_PLACE_OWN           "own"
+/** @brief the placement word that takes the placement policy_set gives its format */
 #define PHD_PLACE_DEFAULT       "default"
+/** @brief the prefix of the placement of a pool: pool:\<name\> */
 #define PHD_PLACE_POOL_PREFIX   "pool:"
-/* the place of a chain's worker in worker_list, chain:<chain>; chain puts instances there, and an add naming it puts its
- * instance at the end of that chain, in the chain's worker (#348) */
+/** @brief the place of a chain's worker in worker_list, chain:\<chain\>; chain puts instances there, and an add
+ * naming it puts its instance at the end of that chain, in the chain's worker (#348)
+ */
 #define PHD_PLACE_CHAIN_PREFIX  "chain:"
-/* the place of the worker of segment k of a plan, chain:<plan>.<k>, k counting from 0 in the plan's order; only plan
- * puts instances there, and the plan's number is its own, apart from the numbers of the chains chain declares */
+/** @brief the place of the worker of segment k of a plan, chain:\<plan\>.\<k\>, k counting from 0 in the plan's
+ * order; only plan puts instances there, and the plan's number is its own, apart from the numbers of the chains chain
+ * declares
+ */
 #define PHD_PLACE_PLAN_SEPARATOR "."
-/* a full pool opens <name><separator><n>, n counting from 2 */
+/** @brief a full pool opens \<name\>\<separator\>\<n\>, n counting from 2
+ */
 #define PHD_POOL_SIBLING_SEPARATOR "#"
 
+/** @brief the fewest characters of a pool name */
 #define PHD_POOL_NAME_MIN 1
+/** @brief the most characters of a pool name */
 #define PHD_POOL_NAME_MAX 32
-/* the characters of a pool name: ranges written x-y, a '-' last or first is itself */
+/** @brief the characters of a pool name: ranges written x-y, a '-' last or first is itself
+ */
 #define PHD_POOL_NAME_CLASS "A-Za-z0-9_-"
 
+/** @brief the placements a verb takes, as text: own | pool:\<name\> | chain:\<chain\> | default */
 #define PHD_PLACEMENT_SYNTAX \
     PHD_PLACE_OWN " | " PHD_PLACE_POOL_PREFIX "<name> | " PHD_PLACE_CHAIN_PREFIX "<chain> | " PHD_PLACE_DEFAULT
 
+/** @brief turns its argument into a string literal without expanding it first; use PHD_STR
+ *
+ * @param x the tokens to turn into a string.
+ */
 #define PHD_STR_(x) #x
+/** @brief turns its argument, after macro expansion, into a string literal
+ *
+ * @param x the tokens to expand and turn into a string.
+ */
 #define PHD_STR(x)  PHD_STR_(x)
+/** @brief the regular expression a pool name matches whole, built from PHD_POOL_NAME_CLASS, PHD_POOL_NAME_MIN and
+ * PHD_POOL_NAME_MAX
+ */
 #define PHD_POOL_NAME_PATTERN \
     "^[" PHD_POOL_NAME_CLASS "]{" PHD_STR(PHD_POOL_NAME_MIN) "," PHD_STR(PHD_POOL_NAME_MAX) "}$"
 
 /* the formats a worker holds, and the words a verb takes for "every one", "all" and "none" */
+/** @brief the name of the LV2 format */
 #define PHD_FORMAT_LV2  "lv2"
+/** @brief the name of the CLAP format */
 #define PHD_FORMAT_CLAP "clap"
-/* LV2 plugins run by the CLAP worker through its LV2 adapter: a row of its own, reached by lv2_worker and never by a uri */
+/** @brief LV2 plugins run by the CLAP worker through its LV2 adapter: a row of its own, reached by lv2_worker and
+ * never by a uri
+ */
 #define PHD_FORMAT_LV2_CLAP "lv2-clap"
+/** @brief the format word that stands for every format */
 #define PHD_FORMAT_ANY  "*"
+/** @brief a format argument as the verb table writes it: \<format | *\> */
 #define PHD_FORMAT_ARGUMENT "<format | " PHD_FORMAT_ANY ">"
+/** @brief the word a verb takes for every one of its things */
 #define PHD_WORD_ALL    "all"
+/** @brief the word that stands for none, in a verb's argument and in a reply */
 #define PHD_WORD_NONE   "-"
+/** @brief the word history_get answers while the history file is blocked or history_window_s is 0 */
 #define PHD_WORD_UNAVAILABLE "unavailable"
-/* after an instance id in worker_list: the pins read again refuse its files, and it keeps running */
+/** @brief after an instance id in worker_list: the pins read again refuse its files, and it keeps running
+ */
 #define PHD_WORKER_PIN_REFUSED "!"
 
-/* the built-in formats, X(id, name) in the order of the daemon's table (src/formats.c): the rest of what a format is
- * (its prefix, its worker, the files its pin holds, whether its pin holds in a shared world, who answers its instance
- * verbs) is a field of its row there, and a format joins with a row */
+/** @brief the built-in formats, X(id, name) in the order of the daemon's table (src/formats.c): the rest of what a
+ * format is (its prefix, its worker, the files its pin holds, whether its pin holds in a shared world, who answers
+ * its instance verbs) is a field of its row there, and a format joins with a row
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_FORMATS(X) X(LV2, PHD_FORMAT_LV2) X(CLAP, PHD_FORMAT_CLAP) X(LV2_CLAP, PHD_FORMAT_LV2_CLAP)
 
 /* the programs that can run an LV2 plugin, the values of the lv2_worker setting and of lv2_worker_set: X(id, name, meaning).
  * The user chooses one; a plugin it refuses is answered with its code and never handed to the other. */
+/** @brief the lv2_worker value that makes mod-host run LV2 plugins */
 #define PHD_LV2_WORKER_MOD_HOST  "mod-host"
+/** @brief the lv2_worker value that makes omx-clap-host run LV2 plugins through its LV2 adapter */
 #define PHD_LV2_WORKER_CLAP_HOST "omx-clap-host"
+/** @brief the programs that can run an LV2 plugin, the values of the lv2_worker setting and of lv2_worker_set, as
+ * rows X(id, name, meaning). The user chooses one; a plugin it refuses is answered with its code and never handed to
+ * the other.
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_LV2_WORKERS(X) \
     X(MOD_HOST, PHD_LV2_WORKER_MOD_HOST, "the " PHD_FORMAT_LV2 " row: mod_host runs the plugin") \
     X(CLAP_HOST, PHD_LV2_WORKER_CLAP_HOST, "the " PHD_FORMAT_LV2_CLAP " row: clap_host runs the plugin through its LV2 adapter, " \
                                            "a plugin the adapter refuses is refused with a named code, and one it does not " \
                                            "find answers the worker's -101")
 
-/* X(id, name, meaning) in the order of the daemon's enum */
+/** @brief X(id, name, meaning) in the order of the daemon's enum
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_WORKER_STATES(X) \
     X(UP, "up", "accepting commands") \
     X(STARTING, "starting", "spawned, not yet accepting") \
@@ -164,18 +224,30 @@ static inline int phd_has_display(void)
  * (protocol/probe-output.schema.json) is generated from the lists below, so a code is declared here once. A code is
  * never reworded: a new one is a minor release of the format, a removed or changed one a major. */
 
+/** @brief the format name of the document plugin-hostd-probe writes */
 #define PHD_PROBE_FORMAT "plugin-hostd.probe-output"
+/** @brief the major version of the probe output format; a removed or changed code is a major release */
 #define PHD_PROBE_FORMAT_MAJOR 1
+/** @brief the minor version of the probe output format; a new code is a minor release */
 #define PHD_PROBE_FORMAT_MINOR 4
+/** @brief the name of the probe protocol the document records */
 #define PHD_PROBE_PROTOCOL_NAME "plugin-hostd.probe-protocol"
+/** @brief the version of the probe protocol */
 #define PHD_PROBE_PROTOCOL_VERSION 1
 /* version 1 of the probe protocol runs an LV2 plugin as plugin-qualify's LV2 hosting pass does today
  * (LV2_HOSTING_LIFECYCLES, LV2_HOSTING_REPEATS), so the verdicts from its documents equal today's: this many
  * instantiate/destroy cycles and swept rt-safety runs, at the highest rate asked for */
+/** @brief the instantiate/destroy cycles version 1 of the probe protocol runs for an LV2 plugin */
 #define PHD_PROBE_LV2_LIFECYCLES 30
+/** @brief the swept rt-safety runs version 1 of the probe protocol runs for an LV2 plugin, at the highest rate asked
+ * for
+ */
 #define PHD_PROBE_LV2_REPEATS 3
 
-/* how a step, a grid point or the whole run ended: X(id, code, meaning) */
+/** @brief how a step, a grid point or the whole run ended: X(id, code, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PROBE_OUTCOMES(X) \
     X(OK, "probe.ok", "the step ran to its end") \
     X(CRASHED, "probe.crashed", "the child died of a signal not caused by a limit") \
@@ -196,7 +268,10 @@ static inline int phd_has_display(void)
     X(CHILD_PROTOCOL, "probe.child-protocol", "the child wrote a record outside the step grammar") \
     X(ERROR, "probe.error", "anything else; detail keeps the words")
 
-/* why a run was made, the document's run.reason: X(id, name, meaning) */
+/** @brief why a run was made, the document's run.reason: X(id, name, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PROBE_REASONS(X) \
     X(ADD, "add", "a user added the plugin") \
     X(RESCAN, "rescan", "the plugin was offered for a rescan") \
@@ -206,7 +281,10 @@ static inline int phd_has_display(void)
     X(REFERENCE, "reference", "a reference run on the named rig") \
     X(CI, "ci", "a continuous integration run")
 
-/* the limits a set can ask for: X(id, name, meaning) */
+/** @brief the limits a set can ask for: X(id, name, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PROBE_LIMIT_NAMES(X) \
     X(WALL_CLOCK, "wall-clock", "the supervisor's deadline; the whole process tree is killed at it") \
     X(CPU_TIME, "cpu-time", "RLIMIT_CPU") \
@@ -225,7 +303,10 @@ static inline int phd_has_display(void)
     X(FILESYSTEM, "filesystem", "Landlock") \
     X(SYSCALLS, "syscalls", "a seccomp kill list")
 
-/* what enforced a limit: X(id, name, meaning) */
+/** @brief what enforced a limit: X(id, name, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PROBE_LIMIT_MECHANISMS(X) \
     X(SUPERVISOR, "supervisor", "the runner's own timer and tree kill") \
     X(RLIMIT, "rlimit", "setrlimit") \
@@ -237,7 +318,10 @@ static inline int phd_has_display(void)
     X(LANDLOCK, "landlock", "Landlock") \
     X(SECCOMP, "seccomp", "seccomp-bpf")
 
-/* a limit the set asked for and this machine could not apply: X(id, code, meaning) */
+/** @brief a limit the set asked for and this machine could not apply: X(id, code, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PROBE_LIMIT_CODES(X) \
     X(CGROUP_ABSENT, "probe.limit.cgroup-absent", "no cgroup v2 hierarchy to use") \
     X(CONTROLLER_NOT_DELEGATED, "probe.limit.controller-not-delegated", "the controller is not delegated to this user") \
@@ -246,7 +330,10 @@ static inline int phd_has_display(void)
     X(SECCOMP_ABSENT, "probe.limit.seccomp-absent", "the kernel offers no seccomp filter") \
     X(NOT_IMPLEMENTED, "probe.limit.not-implemented", "the runner of this version does not apply the limit")
 
-/* the machine profile read back and not meeting the protocol: X(id, code, meaning) */
+/** @brief the machine profile read back and not meeting the protocol: X(id, code, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PROBE_PROFILE_CODES(X) \
     X(GOVERNOR, "probe.profile.governor", "the cpu governor is not the one the protocol names") \
     X(DEEP_IDLE_ENTERED, "probe.profile.deep-idle-entered", "a deep idle state was entered during the run") \
@@ -254,15 +341,21 @@ static inline int phd_has_display(void)
     X(SMT_ON, "probe.profile.smt-on", "SMT siblings are on") \
     X(NOT_PINNED, "probe.profile.not-pinned", "the child was not pinned to cpus")
 
-/* who granted the measurement its real-time scheduling, the document's run.realtime.grantedBy: X(id, name, meaning).
- * The class itself (none, fifo) is omx-contract's RESOURCE_THREAD_SCHEDULING. */
+/** @brief who granted the measurement its real-time scheduling, the document's run.realtime.grantedBy: X(id, name,
+ * meaning). The class itself (none, fifo) is omx-contract's RESOURCE_THREAD_SCHEDULING.
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PROBE_RT_GRANTS(X) \
     X(CAP, "cap", "the runner holds CAP_SYS_NICE: the highest SCHED_FIFO priority") \
     X(RLIMIT, "rlimit", "the RLIMIT_RTPRIO hard limit the runner was started with: the highest priority it allows") \
     X(NONE, "none", "no grant, or the kernel refused it: the measurement ran SCHED_OTHER, and the reason says why")
 
-/* the scheduling policy the kernel reports for the measured child after its exec, run.realtime.observed.policy:
- * X(id, name, meaning), id the SCHED_<id> of sched_getscheduler */
+/** @brief the scheduling policy the kernel reports for the measured child after its exec,
+ * run.realtime.observed.policy: X(id, name, meaning), id the SCHED_\<id\> of sched_getscheduler
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PROBE_SCHED_POLICIES(X) \
     X(OTHER, "other", "SCHED_OTHER") \
     X(BATCH, "batch", "SCHED_BATCH") \
@@ -271,7 +364,10 @@ static inline int phd_has_display(void)
     X(RR, "rr", "SCHED_RR") \
     X(DEADLINE, "deadline", "SCHED_DEADLINE")
 
-/* the steps of the protocol, in the order they are run: X(id, name, meaning) */
+/** @brief the steps of the protocol, in the order they are run: X(id, name, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PROBE_STEPS(X) \
     X(HASH, "hash", "the files the host loads, pinned") \
     X(SCAN, "scan", "the plugin's descriptor read") \
