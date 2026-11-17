@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_chain_get.schema.json",
+  "title": "ChainGetReply",
+  "description": "The parsed form of a chain_get reply (a chain): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "worker": {
+      "type": "string",
+      "pattern": "^(?:-|w[0-9]+)$",
+      "description": "The worker the chain runs on, w<k>, or - when it has none."
+    },
+    "members": {
+      "type": "array",
+      "description": "The instances of the chain, in order.",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "One item: a whole number, not negative."
+      }
+    },
+    "running": {
+      "type": "array",
+      "description": "The members that are running now, in order.",
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "One item: a whole number, not negative."
+      }
+    }
+  },
+  "required": [
+    "worker",
+    "members",
+    "running"
+  ],
+  "additionalProperties": false
+}

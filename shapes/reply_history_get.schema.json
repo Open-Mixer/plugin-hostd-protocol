@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_history_get.schema.json",
+  "title": "HistoryGetReply",
+  "description": "The parsed form of a history_get reply (a plugin's history): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "history": {
+      "type": "array",
+      "description": "The history's key=value entries; empty when it is blocked (unavailable) or has no entry.",
+      "items": {
+        "type": "object",
+        "title": "HistoryEntry",
+        "description": "One key=value of a plugin's history.",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z_]+$",
+            "description": "The key."
+          },
+          "value": {
+            "type": "string",
+            "pattern": "^[^, ]*$",
+            "description": "The value."
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "history"
+  ],
+  "additionalProperties": false
+}

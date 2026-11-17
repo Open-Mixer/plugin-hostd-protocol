@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_property_info.schema.json",
+  "title": "PropertyInfoReply",
+  "description": "The parsed form of a property_info reply (a property's description): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "symbol": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The property's symbol."
+    },
+    "kind": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The property's kind word."
+    },
+    "access": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The property's access word."
+    },
+    "name": {
+      "type": "string",
+      "description": "The property's name, unquoted."
+    }
+  },
+  "required": [
+    "symbol",
+    "kind",
+    "access",
+    "name"
+  ],
+  "additionalProperties": false
+}

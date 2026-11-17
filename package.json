@@ -1,0 +1,28 @@
+{
+  "name": "@openmixer/plugin-hostd-protocol",
+  "version": "0.5.9",
+  "description": "The plugin-hostd protocol's reply shapes: a JSON Schema and a TypeScript type for each document a reply carries, rendered from the schemas by omx-contract's pinned generator",
+  "license": "GPL-3.0-or-later",
+  "author": "Pau Aliagas <linuxnow@gmail.com>",
+  "homepage": "https://www.openmixer.org/projects/plugin-hostd-protocol",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Open-Mixer/plugin-hostd-protocol.git"
+  },
+  "exports": {
+    "./shapes/*": {
+      "types": "./ts/shapes/*.d.ts"
+    },
+    "./schemas/*": "./shapes/*.schema.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "ts/shapes/",
+    "shapes/",
+    "COPYING"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

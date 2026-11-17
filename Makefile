@@ -3,8 +3,8 @@
 CC ?= gcc
 PKG_CONFIG ?= pkg-config
 
-# the one version of the library: VERSION holds it, and `make version-check` holds the spec's Version and the newest
-# debian/changelog entry to it
+# the one version of the library: VERSION holds it, and `make version-check` holds the spec's Version, the newest
+# debian/changelog entry and package.json's (the npm package of the reply shapes) to it
 VERSION := $(strip $(shell cat VERSION))
 
 # the library: soname libplugin-hostd-protocol.so.<major>, the file <major>.<minor>.<patch>. While the version is 0.x
@@ -33,7 +33,8 @@ endif
 OMXDSP_FLOOR = 0.32.1
 OMXDSP_CEILING = 0.33
 OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 'omxdsp < $(OMXDSP_CEILING)' 2>/dev/null)
-ifeq ($(filter clean version-check,$(MAKECMDGOALS)),)
+# the shapes' targets read JSON and a generator, no header
+ifeq ($(filter clean version-check test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
 $(error no omx-dsp >= $(OMXDSP_FLOOR) and < $(OMXDSP_CEILING) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
@@ -109,6 +110,8 @@ install: $(LIB_FILE)
 	install -m 644 grammar/plugin-hostd-protocol.abnf $(DESTDIR)$(DATADIR)/$(NAME)/plugin-hostd-protocol.abnf
 	install -m 644 protocol/plugin-hostd.json $(DESTDIR)$(DATADIR)/$(NAME)/plugin-hostd.json
 	install -m 644 protocol/plugin-hostd.schema.json $(DESTDIR)$(DATADIR)/$(NAME)/plugin-hostd.schema.json
+	install -d $(DESTDIR)$(DATADIR)/$(NAME)/shapes
+	install -m 644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/$(NAME)/shapes/
 	install -m 644 protocol/mod-host.json $(DESTDIR)$(DATADIR)/$(NAME)/mod-host.json
 	install -m 644 tools/protocol-gen.c $(DESTDIR)$(DATADIR)/$(NAME)/protocol-gen.c
 	install -m 644 clients/fixtures/codec.json $(DESTDIR)$(DATADIR)/$(NAME)/codec-fixtures.json
@@ -480,11 +483,12 @@ test-generated-sabotage:
 #   check-schema     protocol/plugin-hostd.json against its schema (python3-jsonschema)
 #   test-grammar     the grammar against the scenario corpus, the golden transcript and the table (python abnf)
 OMX_CONTRACT ?= omx-contract
+PYTHON ?= python3
 CONTRACT_SCHEMA_MAJOR = 3
 CONTRACTDIR = $(or $(shell $(PKG_CONFIG) --variable=contractdir omx-contract 2>/dev/null),$(DATADIR)/omx-contract/contract.d)
 INSTALL_CONTRACT_DIR = $(firstword $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/install-contract-dir.sh) $(wildcard $(OMX_CONTRACT_DIR)/tools/install-contract-dir.sh))
 
-check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-grammar check-contract-dir test-abnf-corpus test-code-text-sabotage test-served-render-ci
+check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-reply-shapes test-grammar check-contract-dir test-abnf-corpus test-code-text-sabotage test-served-render-ci
 
 # data/verbs.json as the package plugin-hostd-protocol of omx-contract's contract directory,
 # <contractdir>/<schema major>/plugin-hostd-protocol/, with the MANIFEST.json omx-contract's script writes
@@ -539,7 +543,30 @@ render-verbs check-rendered:
 check-schema:
 	python3 tests/protocol_schema.py protocol/plugin-hostd.json protocol/plugin-hostd.schema.json
 
-PYTHON ?= python3
+# The reply shapes (doc/reply-shapes.md): shapes/reply_<verb>.schema.json, one per typed reply of the table, held to the
+# table and to the replies themselves (test-reply-shapes, python3-jsonschema), and their TypeScript render, ts/shapes/,
+# the one omx-contract's `render --target ts --shapes` writes with its pinned json-schema-to-typescript, committed and
+# published as @openmixer/plugin-hostd-protocol. OMX_CONTRACT_DIR is a checkout of Open-Mixer/omx-contract with `npm ci`
+# run in it (the generator is a dev dependency there, never an installed command).
+#   test-reply-shapes     the schemas against the table, the golden transcript and a sample of every reply form
+#   render-shapes         writes ts/shapes/ from shapes/
+#   check-shapes-render   ts/shapes/ is what render-shapes writes, byte for byte
+#   test-shapes-sabotage  each of the above is red on the fault it guards
+#   test-ts-package       the packed npm package as a consumer imports it, compiled strict
+test-reply-shapes:
+	$(PYTHON) tests/reply_shapes.py protocol/plugin-hostd-protocol.json shapes tests/golden/plugin-hostd-protocol.txt
+
+render-shapes check-shapes-render:
+	@test -f "$(OMX_CONTRACT_DIR)/bin/omx-contract.mjs" || { echo "$@: set OMX_CONTRACT_DIR to a checkout of Open-Mixer/omx-contract with npm ci run in it" >&2; exit 1; }
+	node "$(OMX_CONTRACT_DIR)/bin/omx-contract.mjs" render --target ts --shapes --shapes-dir shapes --out ts $(if $(filter check-shapes-render,$@),--check)
+
+test-shapes-sabotage:
+	PYTHON=$(PYTHON) MAKE=$(MAKE) sh tests/shapes-sabotage.sh
+
+# npm pack, the tarball as a dependency, a strict TypeScript file importing the types by the package's exports
+test-ts-package:
+	sh tests/ts-package.sh
+
 test-grammar:
 	$(PYTHON) tests/grammar_test.py
 	PYTHON=$(PYTHON) sh tests/grammar-sabotage.sh
@@ -549,9 +576,10 @@ test-grammar:
 version-check:
 	@spec=$$(sed -n 's/^Version: *//p' packaging/$(NAME).spec); \
 	deb=$$(sed -n '1s/^[^(]*(\([0-9][0-9.]*\).*/\1/p' debian/changelog); \
-	test "$$spec" = "$(VERSION)" && test "$$deb" = "$(VERSION)" \
-	    || { echo "VERSION $(VERSION), spec $$spec, debian/changelog $$deb"; exit 1; }; \
-	echo "version $(VERSION) in VERSION, the spec and debian/changelog"
+	npm=$$(sed -n 's/^  "version": *"\([^"]*\)".*/\1/p' package.json); \
+	test "$$spec" = "$(VERSION)" && test "$$deb" = "$(VERSION)" && test "$$npm" = "$(VERSION)" \
+	    || { echo "VERSION $(VERSION), spec $$spec, debian/changelog $$deb, package.json $$npm"; exit 1; }; \
+	echo "version $(VERSION) in VERSION, the spec, debian/changelog and package.json"
 
 # ---------------------------------------------------------------------------------------------------------------------
 # libFuzzer harnesses (fuzz/README.md), built with clang: `make fuzz`, `make fuzz-run FUZZ_TIME=60`
@@ -629,7 +657,7 @@ clean:
 
 .PHONY: test-clap-core-range gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-property-rows test-mod-host-json test-generated-sabotage test-default-lv2-worker test-served-render-ci \
         check-protocol-tools install-contract check-contract-dir render-verbs check-rendered test-rendered-sabotage \
-        check-schema test-grammar test-code-text test-code-text-sabotage
+        check-schema test-grammar test-code-text test-code-text-sabotage test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package
 .PHONY: all install test test-protocol test-protocol-commands test-utils test-socket test-bind test-golden \
         test-golden-modhost golden-update golden-modhost test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-runner test-hello-sabotage test-bind-sabotage test-install test-abi \
         abi-symbols abi-stage abi-baseline abi-check version-check fuzz fuzz-run fuzz-corpus fuzz-corpus-check fuzz-abnf-corpus test-abnf-corpus fuzz-sabotage fuzz-records fuzz-coverage clean

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_preset_get.schema.json",
+  "title": "PresetGetReply",
+  "description": "The parsed form of a preset_get reply (a preset's key and name): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "load_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The key a preset_load of this preset takes."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The preset's name."
+    }
+  },
+  "required": [
+    "load_key",
+    "name"
+  ],
+  "additionalProperties": false
+}

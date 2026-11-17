@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_worker_list.schema.json",
+  "title": "WorkerListReply",
+  "description": "The parsed form of a worker_list reply (the daemon's workers): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "workers": {
+      "type": "array",
+      "description": "The workers, one record each.",
+      "items": {
+        "type": "object",
+        "title": "WorkerRecord",
+        "description": "One worker of a worker_list answer.",
+        "properties": {
+          "worker": {
+            "type": "string",
+            "pattern": "^w[0-9]+$",
+            "description": "The worker, w<k>."
+          },
+          "pid": {
+            "type": "integer",
+            "description": "The worker's process id."
+          },
+          "format": {
+            "type": "string",
+            "pattern": "^(?:lv2|clap|lv2-clap)$",
+            "description": "The format the worker hosts: lv2, clap or lv2-clap."
+          },
+          "state": {
+            "type": "string",
+            "pattern": "^(?:up|starting|backoff|given-up)$",
+            "description": "The worker's state, a name of the table's worker_states."
+          },
+          "core": {
+            "type": "string",
+            "pattern": "^-$",
+            "description": "The audio core, or - for a worker pinned to none."
+          },
+          "pool": {
+            "type": "string",
+            "pattern": "^(?:on|qualified)$",
+            "description": "on, or qualified."
+          },
+          "place": {
+            "type": "string",
+            "pattern": "^(?:own|default|pool:[A-Za-z0-9_-]{1,32}(?:#[0-9]+)?|chain:[0-9]+(?:\\.[0-9]+)?)$",
+            "description": "Where the worker runs: own, default, pool:<name>, a full pool's sibling <name>#<n>, or a plan's chain:<plan>.<k>."
+          },
+          "instances": {
+            "type": "array",
+            "description": "The instances the worker holds, in order, each followed by ! when the pins read again refuse its files.",
+            "items": {
+              "type": "string",
+              "pattern": "^[0-9]+!?$",
+              "description": "One item: an instance a worker holds, followed by ! when the pins read again refuse its files."
+            }
+          }
+        },
+        "required": [
+          "worker",
+          "pid",
+          "format",
+          "state",
+          "core",
+          "pool",
+          "place",
+          "instances"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "workers"
+  ],
+  "additionalProperties": false
+}

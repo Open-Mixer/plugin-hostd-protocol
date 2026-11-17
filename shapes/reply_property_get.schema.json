@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_property_get.schema.json",
+  "title": "PropertyGetReply",
+  "description": "The parsed form of a property_get reply (a property's value): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "value": {
+      "type": "string",
+      "description": "The property's value, unquoted."
+    }
+  },
+  "required": [
+    "value"
+  ],
+  "additionalProperties": false
+}
