@@ -25,7 +25,8 @@ One property per word of the reply, in the order of the longest reply form, and 
 daemon with them). A list is an array and a record an object whose keys are the table's names; `uint` and `int` are
 integers, `number` a number; a word in double quotes is unquoted (`\"` and `\\` undone). Where a word can be `-`
 (`amount`, `core`, `worker-or-none`) it stays a string, since a number does not say none. A count that only counts the
-records (`worker_list`) is not a property: the array's length is it. `preset_list` answers only a count and has no
+records (`worker_list`) is not a property: the array's length is it. `preset_get`'s `name` is the rest of the line, as the
+host wrote it (the table's `line` type): it may hold spaces and may be empty. `preset_list` answers only a count and has no
 document.
 
 `tests/reply_shapes.py` builds that form from the reply with `tests/reply_args.py`'s decoder and holds it to the schema.

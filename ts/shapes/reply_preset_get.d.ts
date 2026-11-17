@@ -11,7 +11,7 @@ export interface PresetGetReply {
    */
   load_key: string;
   /**
-   * The preset's name.
+   * The preset's name: the rest of the line, as the host wrote it, so it may hold spaces and may be empty.
    */
   name: string;
 }
