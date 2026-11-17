@@ -136,8 +136,12 @@ typedef struct PROTO_T {
  * With the tags extension granted by hello, a first word \@\<tag\> is the request's tag and the answer follows it. The
  * first form of a verb the arguments fit in number and in types is run; else the first that fits in number; else the
  * first form's refusal. A refusal is sent as the message of PROTOCOL_NOT_FOUND, PROTOCOL_MANY_ARGUMENTS or
- * PROTOCOL_FEW_ARGUMENTS. An empty line is not answered, unless it is tagged. A matching command with a NULL callback
- * is matched and nothing is sent.
+ * PROTOCOL_FEW_ARGUMENTS. A matching command with a NULL callback is matched and nothing is sent.
+ *
+ * An empty line: the contract is that it is ignored and gets no reply, as mod-host does, unless it is tagged, when the
+ * answer is PROTOCOL_NOT_FOUND so every tagged request has its answer. Today the code does not keep that: an untagged
+ * empty line is split into one empty word, matches no command, and is answered with the message of PROTOCOL_NOT_FOUND
+ * ("not found"). A follow-up code change brings the code in line with the contract.
  *
  * The answer goes to msg->sender_id: written to it when it is standard output (unless built with SKIP_READLINE), else
  * sent with socket_send.
