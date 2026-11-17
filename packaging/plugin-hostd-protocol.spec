@@ -143,6 +143,7 @@ make test
 %{_datadir}/plugin-hostd-protocol/host_scenarios.c
 %{_datadir}/plugin-hostd-protocol/protocol.md
 %{_datadir}/plugin-hostd-protocol/plugin-hostd.schema.json
+%{_datadir}/plugin-hostd-protocol/shapes/
 %{_datadir}/plugin-hostd-protocol/protocol-gen.c
 %{_datadir}/plugin-hostd-protocol/codec-fixtures.json
 

@@ -69,6 +69,12 @@ for v in table:plugin-hostd-protocol.json grammar:plugin-hostd-protocol.abnf pro
     [ -s "$got" ] || fail "${v#*:} is not installed"
     cmp -s "$got" "$(find protocol grammar tools -name "${v#*:}")" || fail "the installed ${v#*:} is not this tree's"
 done
+# the reply shapes: every schema of shapes/, installed where the shapesdir variable says, byte for byte
+[ "$(pkg-config --variable=shapesdir $name)" = "$prefix/share/$name/shapes" ] || fail "the shapesdir variable is wrong"
+for f in shapes/*.schema.json; do
+    cmp -s "$f" "$prefix/share/$name/shapes/$(basename "$f")" || fail "$(basename "$f") is not installed under shapesdir as this tree has it"
+done
+[ "$(ls "$prefix/share/$name/shapes" | wc -l)" = "$(ls shapes | wc -l)" ] || fail "shapesdir holds a file shapes/ does not"
 cat > "$work/declared.c" <<'C'
 #include <plugin-hostd/protocol.h>
 #include <stdio.h>
