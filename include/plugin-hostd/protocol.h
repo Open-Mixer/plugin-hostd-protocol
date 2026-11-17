@@ -1888,37 +1888,68 @@ static inline int phd_is_note_verb(const char *verb)
 
 #include <plugin-hostd/search_paths.h>
 
+/** @brief the default of the mod_host setting */
 #define PHD_DEFAULT_MOD_HOST          "mod-host"
+/** @brief the default of the clap_host setting */
 #define PHD_DEFAULT_CLAP_HOST         "omx-clap-host"
-/* the LV2 isolated tier is omx-clap-host's adapter; mod-host runs a plugin only when lv2_worker or lv2_worker_set names it */
+/** @brief the LV2 isolated tier is omx-clap-host's adapter; mod-host runs a plugin only when lv2_worker or
+ * lv2_worker_set names it
+ */
 #define PHD_DEFAULT_LV2_WORKER        PHD_LV2_WORKER_CLAP_HOST
+/** @brief the default of the state_root setting */
 #define PHD_DEFAULT_STATE_ROOT        "/tmp"
+/** @brief the default of the ready_timeout_ms setting */
 #define PHD_DEFAULT_READY_TIMEOUT_MS  5000
+/** @brief the default of the rpc_timeout_ms setting */
 #define PHD_DEFAULT_RPC_TIMEOUT_MS    5000
+/** @brief the default of the backoff_base_ms setting */
 #define PHD_DEFAULT_BACKOFF_BASE_MS   250
+/** @brief the default of the backoff_max_ms setting */
 #define PHD_DEFAULT_BACKOFF_MAX_MS    5000
+/** @brief the default of the storm_deaths setting */
 #define PHD_DEFAULT_STORM_DEATHS      5
+/** @brief the default of the storm_window_ms setting */
 #define PHD_DEFAULT_STORM_WINDOW_MS   60000
+/** @brief the default of the suspect_window_ms setting */
 #define PHD_DEFAULT_SUSPECT_WINDOW_MS 500
+/** @brief the default of the checkpoint_ms setting */
 #define PHD_DEFAULT_CHECKPOINT_MS     5000
+/** @brief the default of the chain_form_timeout_ms setting */
 #define PHD_DEFAULT_CHAIN_FORM_TIMEOUT_MS 10000
+/** @brief the default of the idle_ms setting */
 #define PHD_DEFAULT_IDLE_MS           25
+/** @brief the default of the pool_max setting */
 #define PHD_DEFAULT_POOL_MAX          8
+/** @brief the default of the grouping setting */
 #define PHD_DEFAULT_GROUPING          PHD_GROUPING_OFF
+/** @brief the default of the placement setting */
 #define PHD_DEFAULT_PLACEMENT         PHD_CORE_PLACEMENT_SPREAD
+/** @brief the default of the bind_address setting */
 #define PHD_DEFAULT_BIND_ADDRESS      "127.0.0.1"
 /* starting values of the planner's limits; the benchmark sets the ones a release ships (the design note, The benchmark) */
+/** @brief the default of the ram_budget_mb setting */
 #define PHD_DEFAULT_RAM_BUDGET_MB     0
+/** @brief the default of the group_max setting */
 #define PHD_DEFAULT_GROUP_MAX         8
+/** @brief the default of the group_cost_max setting */
 #define PHD_DEFAULT_GROUP_COST_MAX    60
+/** @brief the default of the group_rate setting */
 #define PHD_DEFAULT_GROUP_RATE        48000
+/** @brief the default of the group_quantum setting */
 #define PHD_DEFAULT_GROUP_QUANTUM     128
+/** @brief the default of the require_pins setting */
 #define PHD_DEFAULT_REQUIRE_PINS      1
+/** @brief the default of the pin_mode setting */
 #define PHD_DEFAULT_PIN_MODE          PHD_PIN_MODE_FIRST_USE
+/** @brief the default of the pins_dir setting */
 #define PHD_DEFAULT_PINS_DIR          "/usr/share/plugin-hostd/pins.d"
+/** @brief the default of the probe setting */
 #define PHD_DEFAULT_PROBE             "plugin-hostd-probe"
+/** @brief the default of the history_window_s setting */
 #define PHD_DEFAULT_HISTORY_WINDOW_S  60
+/** @brief the default of the history_save_s setting */
 #define PHD_DEFAULT_HISTORY_SAVE_S    300
+/** @brief the default of the history_regroup_s setting */
 #define PHD_DEFAULT_HISTORY_REGROUP_S 600
 
 /* The running history (the grouping-planner design note, The history record): what each plugin did on
@@ -1928,21 +1959,37 @@ static inline int phd_is_note_verb(const char *verb)
  * last_crash, and marks a plugin raises_xruns once it has PHD_HISTORY_MIN_WINDOWS grouped windows and its share of xrun
  * windows grouped exceeds its share solo by PHD_HISTORY_XRUN_MARGIN_PCT percentage points, or exceeds
  * PHD_HISTORY_XRUN_MARGIN_PCT percent when it never ran alone. */
+/** @brief the name of the history file under the state home, which the history_file setting defaults to */
 #define PHD_HISTORY_NAME              "plugin-hostd/history"
+/** @brief the first line of the history file */
 #define PHD_HISTORY_HEADER            "# plugin-hostd history/1"
 #define PHD_HISTORY_RECORD            "history"
+/** @brief the days after last_crash within which the summary history_get answers still reads a crash */
 #define PHD_HISTORY_KEEP_DAYS         30
+/** @brief the grouped windows a plugin needs before it can be marked raises_xruns */
 #define PHD_HISTORY_MIN_WINDOWS       30
+/** @brief the percentage points by which a plugin's share of xrun windows grouped must exceed its share solo to be
+ * marked raises_xruns; the percent it must exceed when it never ran alone
+ */
 #define PHD_HISTORY_XRUN_MARGIN_PCT   5
 
 /* The directories of what the scan of an add gathers: state, kept across a reboot. An empty setting is the default:
  * <state home>/<subdir>, where the state home is $XDG_STATE_HOME, else /var/lib for a daemon run as root (a system
  * service), else $HOME/.local/state. A missing directory is made, mode 0700; one that cannot be written stops the daemon with OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_RESP. */
+/** @brief the subdirectory of the state home that descriptor_dir defaults to */
 #define PHD_DIR_DESCRIPTORS_SUBDIR    "omx/descriptors"
+/** @brief the subdirectory of the state home that qualification_dir defaults to */
 #define PHD_DIR_QUALIFICATION_SUBDIR  "omx/qualification"
+/** @brief the state home of a daemon run as root, when XDG_STATE_HOME is not set */
 #define PHD_DIR_SYSTEM_STATE_HOME     "/var/lib"
+/** @brief the state home of any other daemon, relative to $HOME, when XDG_STATE_HOME is not set */
 #define PHD_DIR_USER_STATE_HOME       ".local/state"
+/** @brief the mode a missing directory is made with */
 #define PHD_DIR_MODE                  0700
+/** @brief the text of the default of a directory setting, for the subdirectory subdir
+ *
+ * @param subdir the subdirectory, a string literal.
+ */
 #define PHD_DIR_DEFAULT_TEXT(subdir) \
     "empty is $XDG_STATE_HOME/" subdir ", else " PHD_DIR_SYSTEM_STATE_HOME "/" subdir " run as root (a system " \
     "service), else $HOME/" PHD_DIR_USER_STATE_HOME "/" subdir
@@ -1953,14 +2000,20 @@ static inline int phd_is_note_verb(const char *verb)
  * PHD_DESCRIPTOR_SAFE_CHAR, one for each byte ("é" is "__"); the hash is the first PHD_DESCRIPTOR_HASH_LEN hex digits of the SHA-256 of the plugin's
  * binary (the .clap, or the file the LV2 bundle's manifest names with lv2:binary). Written once, atomically; a changed
  * binary gets a new name and the old file stays. */
+/** @brief the name of a scanned descriptor's file in descriptor_dir: \<id\>@\<version\>-\<hash\>.json */
 #define PHD_DESCRIPTOR_NAME_SYNTAX    "<id>@<version>-<hash>.json"
+/** @brief the version written in the name when the descriptor states none */
 #define PHD_DESCRIPTOR_NO_VERSION     "unversioned"
+/** @brief the character written for each byte of the id or the version outside [A-Za-z0-9._-] */
 #define PHD_DESCRIPTOR_SAFE_CHAR      '_'
+/** @brief the hex digits of the SHA-256 of the plugin's binary that the name holds */
 #define PHD_DESCRIPTOR_HASH_LEN       12
 
-/* A plugin's panel file: in PHD_PANEL_SUBDIR of descriptor_dir, under its descriptor's name, written by the same scan
- * after the descriptor, once and atomically (docs/panel.md) */
+/** @brief the subdirectory of descriptor_dir that holds the panel files, each under its descriptor's name, written by
+ * the same scan after the descriptor, once and atomically (docs/panel.md)
+ */
 #define PHD_PANEL_SUBDIR              "panels"
+/** @brief the path of a plugin's panel file in descriptor_dir: PHD_PANEL_SUBDIR and the name of its descriptor */
 #define PHD_PANEL_NAME_SYNTAX         PHD_PANEL_SUBDIR "/" PHD_DESCRIPTOR_NAME_SYNTAX
 
 /* The panel file's keys, one JSON object: X(key, required, since, meaning). A key that is not required is additive: a
@@ -1969,7 +2022,13 @@ static inline int phd_is_note_verb(const char *verb)
  * a row of the shape the descriptor's meters[] has (omx-contract docs/descriptors.md: id, symbol, kind, channels,
  * unit, min, max, scale), the same id and the same values descriptor_get's file gives it: every meter id a display
  * names is the id of one row, so the file resolves its own displays, and a reader reads one meter shape. */
+/** @brief the key of the panel file that holds the plugin's meters */
 #define PHD_PANEL_KEY_METERS          "meters"
+/** @brief the keys of the panel file, one JSON object, as rows X(key, required, since, meaning); a key that is not
+ * required is additive: a file written before its since has none
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PANEL_FILE_KEYS(X) \
     X("plugin", 1, "0.5.0", "the plugin, {\"format\": \"clap\" | \"lv2\", \"id\": <its id or URI>}") \
     X("panel", 1, "0.5.0", "the panel object (org.openmixer.panel-description/1) omx-clap-scan --json prints for the " \
@@ -1979,9 +2038,12 @@ static inline int phd_is_note_verb(const char *verb)
       "unit, min, max, scale}), with the id and the values " OMX_VERB_DESCRIPTOR_GET "'s file gives it; empty when " \
       "the panel is null or its displays index none. A display naming a meter id no row carries is never written")
 
-/* the settings file: one "key value" per line, '#' starts a comment.
- * A string setting: X(key, size, default, env, meaning); env names the variable that stands in for the default when
- * it is set and not empty, "" for none; size is path or pathlist, the storage class of the daemon's copy. */
+/** @brief the settings file: one "key value" per line, '#' starts a comment. A string setting: X(key, size, default,
+ * env, meaning); env names the variable that stands in for the default when it is set and not empty, "" for none;
+ * size is path or pathlist, the storage class of the daemon's copy.
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_CONF_STRINGS(X) \
     X(mod_host, path, PHD_DEFAULT_MOD_HOST, "", "worker for " PHD_FORMAT_LV2 " (a name on PATH or a path)") \
     X(clap_host, path, PHD_DEFAULT_CLAP_HOST, "", "worker for " PHD_FORMAT_CLAP) \
@@ -2031,7 +2093,10 @@ static inline int phd_is_note_verb(const char *verb)
     X(host_class, word, "", "", "the host class the history is kept under, as arch/cores/clock (x86_64/5-8/2.5-3.5GHz); " \
       "empty is the class of this machine, as the probe writes it; no white space")
 
-/* A whole-number setting: X(key, default, unit, meaning); 0 turns off where the meaning says so */
+/** @brief A whole-number setting: X(key, default, unit, meaning); 0 turns off where the meaning says so
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_CONF_INTS(X) \
     X(ready_timeout_ms, PHD_DEFAULT_READY_TIMEOUT_MS, "ms", "a worker that does not accept in this long is a failed spawn") \
     X(rpc_timeout_ms, PHD_DEFAULT_RPC_TIMEOUT_MS, "ms", "a worker that does not answer in this long is killed") \
