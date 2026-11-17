@@ -5,6 +5,9 @@ INPUT                  = include/host-backend.h include/host-dispatch.h include/
                          include/host-scenario.h include/protocol.h include/socket.h include/utils.h \
                          include/plugin-hostd/protocol.h include/plugin-hostd/search_paths.h
 FILE_PATTERNS          = *.h
+# X is the local list macro a function defines for one table expansion and undefines after it (phd_track_kind): not
+# API, so not documented
+EXCLUDE_SYMBOLS        = X
 EXTRACT_ALL            = NO
 EXTRACT_STATIC         = YES
 WARN_IF_UNDOCUMENTED   = YES

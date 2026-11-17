@@ -132,7 +132,6 @@ include/mod-host.h: warning: Member TRANSPORT (macro definition) of file mod-hos
 include/mod-host.h: warning: Member TRANSPORT_SYNC (macro definition) of file mod-host.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member PHD_PRESET_ALIAS_MAX (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member PHD_PRESET_FILE_MAX (macro definition) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member X(id, name) (macro definition) of file protocol.h is not documented.
 include/socket.h: warning: Member SOCKET_HAS_ADOPT (macro definition) of file socket.h is not documented.
 include/socket.h: warning: Member SOCKET_MSG_MAX_SIZE (macro definition) of file socket.h is not documented.
 include/socket.h: warning: Member socket_adopt(int socket_fd, int feedback_fd, int buffer_size) (function) of file socket.h is not documented.
