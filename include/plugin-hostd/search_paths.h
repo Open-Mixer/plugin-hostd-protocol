@@ -48,8 +48,7 @@
     ":/usr/local/lib/x86_64-linux-gnu/lv2:/usr/local/lib/aarch64-linux-gnu/lv2:/usr/local/lib/arm-linux-gnueabihf/lv2" \
     ":/usr/lib64/lv2:/usr/local/lib64/lv2"
 
-/** @brief the default clap_path: the CLAP folders, ':' separated; a leading ~ is the home of whoever reads the list
- */
+/** @brief the default clap_path: the CLAP folders, ':' separated; a leading ~ is the home of whoever reads the list */
 #define PHD_DEFAULT_CLAP_PATH "~/.clap:/usr/lib/clap:/usr/local/lib/clap:/usr/lib64/clap:/usr/local/lib64/clap"
 
 #endif

@@ -29,7 +29,9 @@
  * replies from there and add the prose of the README. */
 
 /** @file protocol.h
- * @brief The declarations of protocol.h.
+ * @brief The protocol surface plugin-hostd owns, declared once.
+ *
+ * The phd_* inline functions keep no state of their own.
  */
 
 #ifndef PLUGIN_HOSTD_PROTOCOL_H
@@ -44,30 +46,34 @@
 #include "plugin_hostd_protocol_vocabulary.h"
 #include "plugin_db_vocabulary.h"
 
-/** @brief bumped when a name, a code or the shape of a verb or an event changes incompatibly
+/** @brief the version of the protocol this header declares
+ *
+ * It is bumped when a name, a code or the shape of a verb or an event changes incompatibly.
  */
 #define PLUGIN_HOSTD_PROTOCOL_VERSION 1
 
 /* ---------------------------------------------------------------- readiness */
 
-/** @brief the daemon prints this line once both its ports accept
- */
+/** @brief the daemon prints this line once both its ports accept */
 #define PHD_READY_LINE "plugin-hostd ready!"
-/** @brief a worker prints a line ending with this once its socket accepts
- */
+/** @brief a worker prints a line ending with this once its socket accepts */
 #define PHD_WORKER_READY_MARKER "ready!"
 
-/** @brief A host that loads plugins with no display gives Qt one that needs none: a plugin that makes a QApplication
- * as it is instantiated (synthv1 and the other Qt-linked LV2 plugins) aborts when the platform plugin Qt picks cannot
- * open a display. With neither DISPLAY nor WAYLAND_DISPLAY set, QT_QPA_PLATFORM is set to this unless the user set
- * it: phd_headless_qt() of the library (utils.h), called before the host loads a plugin or starts a process that does
+/** @brief the QT_QPA_PLATFORM value that gives Qt a platform that needs no display
+ *
+ * A plugin that makes a QApplication as it is instantiated (synthv1 and the other Qt-linked LV2 plugins) aborts when
+ * the platform plugin Qt picks cannot open a display.
+ *
+ * With neither DISPLAY nor WAYLAND_DISPLAY set, QT_QPA_PLATFORM is set to this unless the user set it:
+ * phd_headless_qt() of the library (utils.h), called before the host loads a plugin or starts a process that does.
  */
 #define PHD_HEADLESS_QT_PLATFORM "offscreen"
 
-/** @brief whether the process has a display session: DISPLAY or WAYLAND_DISPLAY set and not empty. A host with none
- * gives Qt PHD_HEADLESS_QT_PLATFORM; a daemon with none refuses show_external_ui and hide_external_ui itself, with
- * PHD_EXTERNAL_UI_NO_DISPLAY after the -902, since the window would belong to its workers, which inherit its
- * environment
+/** @brief tells whether the process has a display session
+ *
+ * DISPLAY or WAYLAND_DISPLAY is set and not empty. A host with none gives Qt PHD_HEADLESS_QT_PLATFORM; a daemon with
+ * none refuses show_external_ui and hide_external_ui itself, with PHD_EXTERNAL_UI_NO_DISPLAY after the -902, since the
+ * window would belong to its workers, which inherit its environment.
  *
  * @return nonzero when DISPLAY or WAYLAND_DISPLAY is set and not empty, else 0.
  */
@@ -78,14 +84,15 @@ static inline int phd_has_display(void)
     return (x && *x) || (wayland && *wayland);
 }
 
-/** @brief the word after a window verb's -902 from a daemon with no display session: omx-clap-core's hosting.window
- * code for the same fact (data/hosting.json), the word its worker gives after -404 when no display answers
+/** @brief the word after a window verb's -902 from a daemon with no display session
+ *
+ * It is omx-clap-core's hosting.window code for the same fact (data/hosting.json), the word its worker gives after -404
+ * when no display answers.
  */
 #define PHD_EXTERNAL_UI_NO_DISPLAY "hosting.window.no-display"
 
 /* ---------------------------------------------------------------- constants */
 
-/* X(name, value, unit, meaning) */
 /** @brief the command port without -p; the feedback port is the next one, unless -n is given */
 #define PHD_DEFAULT_COMMAND_PORT 5555
 /** @brief how long, in milliseconds, the idle tick asks again for a connect a respawned worker could not make yet */
@@ -122,25 +129,26 @@ static inline int phd_has_display(void)
 #define PHD_PLACE_DEFAULT       "default"
 /** @brief the prefix of the placement of a pool: pool:\<name\> */
 #define PHD_PLACE_POOL_PREFIX   "pool:"
-/** @brief the place of a chain's worker in worker_list, chain:\<chain\>; chain puts instances there, and an add
- * naming it puts its instance at the end of that chain, in the chain's worker (#348)
+/** @brief the prefix of the place of a chain's worker in worker_list, chain:\<chain\>
+ *
+ * Chain puts instances there, and an add naming it puts its instance at the end of that chain, in the chain's worker
+ * (#348).
  */
 #define PHD_PLACE_CHAIN_PREFIX  "chain:"
-/** @brief the place of the worker of segment k of a plan, chain:\<plan\>.\<k\>, k counting from 0 in the plan's
- * order; only plan puts instances there, and the plan's number is its own, apart from the numbers of the chains chain
- * declares
+/** @brief the separator in the place of the worker of segment k of a plan, chain:\<plan\>.\<k\>
+ *
+ * k counts from 0 in the plan's order; only plan puts instances there, and the plan's number is its own, apart from the
+ * numbers of the chains chain declares.
  */
 #define PHD_PLACE_PLAN_SEPARATOR "."
-/** @brief a full pool opens \<name\>\<separator\>\<n\>, n counting from 2
- */
+/** @brief a full pool opens \<name\>\<separator\>\<n\>, n counting from 2 */
 #define PHD_POOL_SIBLING_SEPARATOR "#"
 
 /** @brief the fewest characters of a pool name */
 #define PHD_POOL_NAME_MIN 1
 /** @brief the most characters of a pool name */
 #define PHD_POOL_NAME_MAX 32
-/** @brief the characters of a pool name: ranges written x-y, a '-' last or first is itself
- */
+/** @brief the characters of a pool name: ranges written x-y, a '-' last or first is itself */
 #define PHD_POOL_NAME_CLASS "A-Za-z0-9_-"
 
 /** @brief the placements a verb takes, as text: own | pool:\<name\> | chain:\<chain\> | default */
@@ -157,8 +165,9 @@ static inline int phd_has_display(void)
  * @param x the tokens to expand and turn into a string.
  */
 #define PHD_STR(x)  PHD_STR_(x)
-/** @brief the regular expression a pool name matches whole, built from PHD_POOL_NAME_CLASS, PHD_POOL_NAME_MIN and
- * PHD_POOL_NAME_MAX
+/** @brief the regular expression a pool name matches whole
+ *
+ * It is built from PHD_POOL_NAME_CLASS, PHD_POOL_NAME_MIN and PHD_POOL_NAME_MAX.
  */
 #define PHD_POOL_NAME_PATTERN \
     "^[" PHD_POOL_NAME_CLASS "]{" PHD_STR(PHD_POOL_NAME_MIN) "," PHD_STR(PHD_POOL_NAME_MAX) "}$"
@@ -168,8 +177,9 @@ static inline int phd_has_display(void)
 #define PHD_FORMAT_LV2  "lv2"
 /** @brief the name of the CLAP format */
 #define PHD_FORMAT_CLAP "clap"
-/** @brief LV2 plugins run by the CLAP worker through its LV2 adapter: a row of its own, reached by lv2_worker and
- * never by a uri
+/** @brief the format name of the LV2 plugins the CLAP worker runs through its LV2 adapter
+ *
+ * A row of its own, reached by lv2_worker and never by a uri.
  */
 #define PHD_FORMAT_LV2_CLAP "lv2-clap"
 /** @brief the format word that stands for every format */
@@ -182,27 +192,26 @@ static inline int phd_has_display(void)
 #define PHD_WORD_NONE   "-"
 /** @brief the word history_get answers while the history file is blocked or history_window_s is 0 */
 #define PHD_WORD_UNAVAILABLE "unavailable"
-/** @brief after an instance id in worker_list: the pins read again refuse its files, and it keeps running
- */
+/** @brief after an instance id in worker_list: the pins read again refuse its files, and it keeps running */
 #define PHD_WORKER_PIN_REFUSED "!"
 
-/** @brief the built-in formats, X(id, name) in the order of the daemon's table (src/formats.c): the rest of what a
- * format is (its prefix, its worker, the files its pin holds, whether its pin holds in a shared world, who answers
- * its instance verbs) is a field of its row there, and a format joins with a row
+/** @brief the built-in formats, as rows X(id, name), in the order of the daemon's table (src/formats.c)
+ *
+ * The rest of what a format is (its prefix, its worker, the files its pin holds, whether its pin holds in a shared
+ * world, who answers its instance verbs) is a field of its row there, and a format joins with a row.
  *
  * @param X the macro each row is passed to.
  */
 #define PHD_FORMATS(X) X(LV2, PHD_FORMAT_LV2) X(CLAP, PHD_FORMAT_CLAP) X(LV2_CLAP, PHD_FORMAT_LV2_CLAP)
 
-/* the programs that can run an LV2 plugin, the values of the lv2_worker setting and of lv2_worker_set: X(id, name, meaning).
- * The user chooses one; a plugin it refuses is answered with its code and never handed to the other. */
 /** @brief the lv2_worker value that makes mod-host run LV2 plugins */
 #define PHD_LV2_WORKER_MOD_HOST  "mod-host"
 /** @brief the lv2_worker value that makes omx-clap-host run LV2 plugins through its LV2 adapter */
 #define PHD_LV2_WORKER_CLAP_HOST "omx-clap-host"
-/** @brief the programs that can run an LV2 plugin, the values of the lv2_worker setting and of lv2_worker_set, as
- * rows X(id, name, meaning). The user chooses one; a plugin it refuses is answered with its code and never handed to
- * the other.
+/** @brief the programs that can run an LV2 plugin, as rows X(id, name, meaning)
+ *
+ * They are the values of the lv2_worker setting and of lv2_worker_set. The user chooses one; a plugin it refuses is
+ * answered with its code and never handed to the other.
  *
  * @param X the macro each row is passed to.
  */
@@ -212,7 +221,7 @@ static inline int phd_has_display(void)
                                            "a plugin the adapter refuses is refused with a named code, and one it does not " \
                                            "find answers the worker's -101")
 
-/** @brief X(id, name, meaning) in the order of the daemon's enum
+/** @brief the states of a worker, as rows X(id, name, meaning), in the order of the daemon's enum
  *
  * @param X the macro each row is passed to.
  */
@@ -243,8 +252,9 @@ static inline int phd_has_display(void)
  * instantiate/destroy cycles and swept rt-safety runs, at the highest rate asked for */
 /** @brief the instantiate/destroy cycles version 1 of the probe protocol runs for an LV2 plugin */
 #define PHD_PROBE_LV2_LIFECYCLES 30
-/** @brief the swept rt-safety runs version 1 of the probe protocol runs for an LV2 plugin, at the highest rate asked
- * for
+/** @brief the swept rt-safety runs version 1 of the probe protocol makes for an LV2 plugin
+ *
+ * They are made at the highest rate asked for.
  */
 #define PHD_PROBE_LV2_REPEATS 3
 
@@ -345,8 +355,10 @@ static inline int phd_has_display(void)
     X(SMT_ON, "probe.profile.smt-on", "SMT siblings are on") \
     X(NOT_PINNED, "probe.profile.not-pinned", "the child was not pinned to cpus")
 
-/** @brief who granted the measurement its real-time scheduling, the document's run.realtime.grantedBy: X(id, name,
- * meaning). The class itself (none, fifo) is omx-contract's RESOURCE_THREAD_SCHEDULING.
+/** @brief who granted the measurement its real-time scheduling, as rows X(id, name, meaning)
+ *
+ * It is the document's run.realtime.grantedBy. The class itself (none, fifo) is omx-contract's
+ * RESOURCE_THREAD_SCHEDULING.
  *
  * @param X the macro each row is passed to.
  */
@@ -355,8 +367,9 @@ static inline int phd_has_display(void)
     X(RLIMIT, "rlimit", "the RLIMIT_RTPRIO hard limit the runner was started with: the highest priority it allows") \
     X(NONE, "none", "no grant, or the kernel refused it: the measurement ran SCHED_OTHER, and the reason says why")
 
-/** @brief the scheduling policy the kernel reports for the measured child after its exec,
- * run.realtime.observed.policy: X(id, name, meaning), id the SCHED_\<id\> of sched_getscheduler
+/** @brief the scheduling policy the kernel reports for the measured child after its exec, as rows X(id, name, meaning)
+ *
+ * It is the document's run.realtime.observed.policy; id is the SCHED_\<id\> of sched_getscheduler.
  *
  * @param X the macro each row is passed to.
  */
@@ -383,11 +396,13 @@ static inline int phd_has_display(void)
     X(NOTE_SWEEP, "note-sweep", "a note input played") \
     X(SOAK, "soak", "a long render")
 
-/** @brief whether name is a pool name, by PHD_POOL_NAME_CLASS and the limits above
+/** @brief tells whether a string is a pool name
  *
- * @param name a NUL-terminated string, not NULL.
- * @return nonzero when every character of name is in PHD_POOL_NAME_CLASS and its length is from PHD_POOL_NAME_MIN to
- *     PHD_POOL_NAME_MAX, else 0.
+ * Its characters are in PHD_POOL_NAME_CLASS and its length is from PHD_POOL_NAME_MIN to PHD_POOL_NAME_MAX.
+ *
+ * @pre name is not NULL.
+ * @param[in] name a NUL-terminated string.
+ * @return nonzero when name is a pool name, else 0.
  */
 static inline int phd_pool_name_valid(const char *name)
 {
@@ -417,11 +432,12 @@ static inline int phd_pool_name_valid(const char *name)
 
 /* ---------------------------------------------------------------- error codes */
 
-/** @brief the codes the supervisor adds to mod-host's, the -5xx hundred; a reply is "resp \<code\>". Each number has
+/** @brief the codes the supervisor adds to mod-host's, as rows X(id, resp, meaning)
+ *
+ * The codes are the -5xx hundred; a reply is "resp \<code\>". resp is the rendered number of the code. Each number has
  * one name in the contract, rendered as OMX_REPLY_\<GROUP\>_\<REASON\>_RESP: the ones omx-clap-host answers too are
  * omx-clap-core's reply.host.* codes (its HOST_REPLY_CODES, omx_clap_core_vocabulary.h), the others plugin-hostd's
  * reply.plugin-hostd.* (data/verbs.json PLUGIN_HOSTD_REPLY_CODES, plugin_hostd_vocabulary.h); the header defines none.
- * A row is X(id, resp, meaning): resp is the rendered number of the code.
  *
  * @param X the macro each row is passed to.
  */
@@ -533,26 +549,32 @@ static inline int phd_pool_name_valid(const char *name)
 
 /* ---------------------------------------------------------------- verbs */
 
-/** @brief mod-host's add, which the daemon extends with a placement; every verb of its own is OMX_VERB_\<VERB\> of
- * plugin_hostd_host_verbs.h, and pin_expect is omx-clap-core's, OMX_VERB_PIN_EXPECT
+/** @brief the word of mod-host's add verb, which the daemon extends with a placement
+ *
+ * Every verb of its own is OMX_VERB_\<VERB\> of plugin_hostd_host_verbs.h, and pin_expect is omx-clap-core's,
+ * OMX_VERB_PIN_EXPECT.
  */
 #define PHD_VERB_ADD              "add"
 
 /** @brief the prefix of a CLAP plugin's uri: clap:\<path\>#\<id\> */
 #define PHD_CLAP_URI_PREFIX "clap:"
-/** @brief the uri of an add, words[1] on, whole. A clap: uri is clap:\<path\>#\<id\>, its path percent-encoded or in
- * quotation marks when it holds a space; written bare, the line's words split it. So a clap: word with no '#' goes on
- * over the words after it up to the one that holds the '#', joined with one space each (a run of spaces is not told
- * from one: such a path is written encoded or quoted). A clap: word whose '#' no later word holds, or that does not
- * fit, is its one word.
+/** @brief reads the uri of an add, words[1] on, whole
  *
- * @param words the words of the line, the verb first; not modified.
+ * A clap: uri is clap:\<path\>#\<id\>, its path percent-encoded or in quotation marks when it holds a space; written
+ * bare, the line's words split it. So a clap: word with no '#' goes on over the words after it up to the one that holds
+ * the '#', joined with one space each (a run of spaces is not told from one: such a path is written encoded or quoted).
+ * A clap: word whose '#' no later word holds, or that does not fit, is its one word.
+ *
+ * joined is scratch: it may be written even when words[1] is returned, and holds the uri only when joined is returned.
+ *
+ * @pre words holds at least count words, count being 2 or more for a uri to be read.
+ * @pre joined and next are not NULL.
+ * @param[in] words the words of the line, the verb first.
  * @param count how many words there are.
- * @param joined the buffer a joined uri is written to, NUL-terminated; written only when words are joined.
+ * @param[out] joined the buffer a uri joined from several words is written to, NUL-terminated.
  * @param size the size of joined in bytes.
- * @param next set to the index of the word after the uri: 2, or past the last word joined. Always written, so not
- *     NULL.
- * @return NULL when count is less than 2; joined for a clap: uri joined from several words; otherwise words[1].
+ * @param[out] next always written: set to 2, or to the index of the word after the last one joined.
+ * @return NULL when count is less than 2; joined when the uri was joined from several words; otherwise words[1].
  */
 static inline const char *phd_add_uri(char *const *words, unsigned count, char *joined, size_t size, unsigned *next)
 {
@@ -582,30 +604,32 @@ static inline const char *phd_add_uri(char *const *words, unsigned count, char *
     return words[1];
 }
 
-/* the words of a pin: <path>=<sha256>, joined by ',', and <scheme>:<sha256> */
 /** @brief separates the \<path\>=\<sha256\> words of the files of a pin */
 #define PHD_PIN_FILE_SEPARATOR   ","
 /** @brief separates a file's path from its SHA-256 in a pin */
 #define PHD_PIN_DIGEST_SEPARATOR "="
 /** @brief separates the scheme from its SHA-256 in the layout word of a pin: \<scheme\>:\<sha256\> */
 #define PHD_PIN_SCHEME_SEPARATOR ":"
-/** @brief what a path of a pin cannot hold as it is: the separators of pin_set's words, and whitespace
- */
+/** @brief what a path of a pin cannot hold as it is: the separators of pin_set's words, and whitespace */
 #define PHD_PIN_PATH_EXCLUDED    PHD_PIN_FILE_SEPARATOR PHD_PIN_DIGEST_SEPARATOR " \t\r\n"
-/** @brief A path of a pin, and the path of a clap: uri, is written percent-encoded: every byte of
- * PHD_PIN_PATH_EXCLUDED, the escape itself, a double quote, a backslash and every control byte is PHD_PIN_PATH_ESCAPE
- * and two uppercase hex digits, every other byte as it is. So any file name is one bare word ("Surge XT.clap" is
- * "Surge%20XT.clap"), and a reader decodes it before it opens or hashes the file. The escape is always one: a name
- * holding '%' itself writes it %25. A pin is keyed by its clap: uri's path decoded, so the uri written with the space
- * as it is (quoted) and written encoded name one pin (doc/protocol.md, Pins and qualification).
+/** @brief the escape character of a percent-encoded path of a pin
+ *
+ * A path of a pin, and the path of a clap: uri, is written percent-encoded: every byte of PHD_PIN_PATH_EXCLUDED, the
+ * escape itself, a double quote, a backslash and every control byte is PHD_PIN_PATH_ESCAPE and two uppercase hex
+ * digits, every other byte as it is.
+ *
+ * So any file name is one bare word ("Surge XT.clap" is "Surge%20XT.clap"), and a reader decodes it before it opens or
+ * hashes the file. The escape is always one: a name holding '%' itself writes it %25. A pin is keyed by its clap: uri's
+ * path decoded, so the uri written with the space as it is (quoted) and written encoded name one pin (doc/protocol.md,
+ * Pins and qualification).
  */
 #define PHD_PIN_PATH_ESCAPE      "%"
 
-/** @brief whether a byte of a path is written escaped
+/** @brief tells whether a byte of a path is written escaped
  *
  * @param c the byte of a path.
- * @return nonzero when c is written escaped: a control byte, 0x7f, the escape, a double quote, a backslash or a byte
- *     of PHD_PIN_PATH_EXCLUDED; else 0.
+ * @return nonzero when c is written escaped: a control byte, 0x7f, the escape, a double quote, a backslash or a byte of
+ *     PHD_PIN_PATH_EXCLUDED; else 0.
  */
 static inline int phd_pin_path_escaped(unsigned char c)
 {
@@ -613,10 +637,11 @@ static inline int phd_pin_path_escaped(unsigned char c)
            (c && strchr(PHD_PIN_PATH_EXCLUDED, c) != NULL);
 }
 
-/** @brief a path as the word of a pin: 0, or -1 when out (size bytes) cannot hold it
+/** @brief writes a path as the word of a pin
  *
- * @param path the NUL-terminated path, not NULL.
- * @param out the buffer the encoded word is written to, NUL-terminated.
+ * @pre path and out are not NULL.
+ * @param[in] path the NUL-terminated path.
+ * @param[out] out the buffer the encoded word is written to, NUL-terminated.
  * @param size the size of out in bytes.
  * @return 0, or -1 when out cannot hold the word and its NUL; out is then partly written and not NUL-terminated.
  */
@@ -650,7 +675,7 @@ static inline int phd_pin_path_encode(const char *path, char *out, size_t size)
     return 0;
 }
 
-/** @brief the hex digit's value, or -1
+/** @brief gives the value of a hex digit
  *
  * @param c a character.
  * @return the value, 0 to 15, of the hex digit c in either case, or -1 for any other character.
@@ -666,14 +691,18 @@ static inline int phd_hex_value(char c)
     return -1;
 }
 
-/** @brief the path a word of a pin names: 0, or -1 for an escape not followed by two hex digits, an escaped NUL, or
- * an out that cannot hold it. Hex digits are read in either case; a byte written as it is stays as it is
+/** @brief reads the path a word of a pin names
  *
- * @param word the NUL-terminated pin word, not NULL.
- * @param out the buffer the path is written to, NUL-terminated.
+ * Hex digits are read in either case; a byte written as it is stays as it is.
+ *
+ * @pre word and out are not NULL.
+ * @pre size is 1 or more: with an empty word and a size of 0, out[0] is written and 0 is returned
+ *     (plugin-hostd-protocol#72).
+ * @param[in] word the NUL-terminated pin word.
+ * @param[out] out the buffer the path is written to, NUL-terminated.
  * @param size the size of out in bytes.
- * @return 0, or -1 when word holds an escape not followed by two hex digits or an escaped NUL, or when out cannot
- *     hold the path and its NUL; out is then partly written and not NUL-terminated.
+ * @return 0, or -1 when word holds an escape not followed by two hex digits or an escaped NUL, or when out cannot hold
+ *     the path and its NUL; out is then partly written and not NUL-terminated.
  */
 static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 {
@@ -698,18 +727,20 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     out[o] = '\0';
     return 0;
 }
-/** @brief the layout word of a pin whose layout has not been learned yet: a pin of the store, of a pins file or
- * learned by the daemon may hold it, pin_set may not
+/** @brief the layout word of a pin whose layout has not been learned yet
+ *
+ * A pin of the store, of a pins file or learned by the daemon may hold it, pin_set may not.
  */
 #define PHD_PIN_LAYOUT_UNKNOWN   "-"
-/** @brief the optional last word of a pin line: the qualification verdict of the pinned bytes. The words of a pin are
- * plugin-db's (data/pin.json), rendered beside this header
+/** @brief the optional last word of a pin line: the qualification verdict of the pinned bytes.
+ *
+ * The words of a pin are plugin-db's (data/pin.json), rendered beside this header
  */
 #define PHD_PIN_VERDICT_KEY      OMX_PLUGIN_DB_PIN_KEYS_VERDICT "="
 
-/* the verdicts: X(id, name, meaning); only in-process lets a plugin share a worker under pin_mode first-use */
-/** @brief the verdict of a plugin qualified to run in a worker that other plugins share; only this verdict lets a
- * plugin share a worker under pin_mode first-use
+/** @brief the verdict of a plugin qualified to run in a worker that other plugins share
+ *
+ * Only this verdict lets a plugin share a worker under pin_mode first-use.
  */
 #define PHD_PIN_VERDICT_IN_PROCESS OMX_PLUGIN_DB_PIN_VERDICTS_IN_PROCESS
 /** @brief the verdict of a plugin qualified to run, in a worker of its own */
@@ -725,13 +756,15 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(ISOLATED, PHD_PIN_VERDICT_ISOLATED, "qualified to run, in a worker of its own") \
     X(REFUSED, PHD_PIN_VERDICT_REFUSED, "failed qualification: the pin records the bytes, a host should not load them")
 
-/** @brief the optional word after the verdict: whether the plugin's qualification measured the CLAP thread pool
- * (docs/thread-pool.md of omx-clap-core) real-time safe and faster at the quantum, X(id, name, meaning); a plugin
- * with no word runs serial
+/** @brief the key of the optional pool word of a pin line, after the verdict
+ *
+ * The word tells whether the plugin's qualification measured the CLAP thread pool (docs/thread-pool.md of
+ * omx-clap-core) real-time safe and faster at the quantum; a plugin with no word runs serial.
  */
 #define PHD_PIN_POOL_KEY   OMX_PLUGIN_DB_PIN_KEYS_POOL "="
-/** @brief the pool word of a plugin whose worker starts with the thread pool on, and no other plugin shares the
- * worker
+/** @brief the pool word of a plugin whose worker starts with the thread pool on
+ *
+ * No other plugin shares the worker.
  */
 #define PHD_PIN_POOL_CORES OMX_PLUGIN_DB_PIN_POOLS_CORES
 /** @brief the pool word of a plugin measured not faster or not safe with the pool: the worker keeps no option */
@@ -745,13 +778,11 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
                                  "no other plugin shares the worker") \
     X(OFF, PHD_PIN_POOL_OFF, "measured, and not faster or not safe with the pool: the worker keeps no option")
 
-/* what pin_changed names as changed */
 /** @brief what pin_changed names when the plugin's files changed */
 #define PHD_PIN_CHANGED_FILES  OMX_PLUGIN_DB_PIN_CHANGES_FILES
 /** @brief what pin_changed names when the plugin's layout changed */
 #define PHD_PIN_CHANGED_LAYOUT OMX_PLUGIN_DB_PIN_CHANGES_LAYOUT
 
-/* the pin modes: X(id, name, meaning), read while require_pins is 1 */
 /** @brief the pin_mode in which add admits only a plugin that has a pin */
 #define PHD_PIN_MODE_STRICT    "strict"
 /** @brief the pin_mode in which add of a plugin with no pin records its pin */
@@ -765,7 +796,6 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(FIRST_USE, PHD_PIN_MODE_FIRST_USE, "add of a plugin with no pin records its pin, keeps it in the pin store and places " \
                               "the instance " PHD_PLACE_OWN "; a later change is refused until pin_accept")
 
-/* the grouping modes: X(id, name, meaning) */
 /** @brief the grouping setting that makes plan answer the plan it would make and apply none */
 #define PHD_GROUPING_OFF "off"
 /** @brief the grouping setting that makes plan apply its plan */
@@ -778,7 +808,6 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(OFF, PHD_GROUPING_OFF, OMX_VERB_PLAN " answers the plan it would make and applies none") \
     X(ON, PHD_GROUPING_ON, OMX_VERB_PLAN " applies its plan")
 
-/* the core placements (docs/placement.md): X(id, name, meaning) */
 /** @brief the placement setting that pins each new worker to the audio core that has the least load */
 #define PHD_CORE_PLACEMENT_SPREAD "spread"
 /** @brief the placement setting that pins nothing: the workers run where the daemon may */
@@ -965,19 +994,16 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 /* Notes, played on an instance by a controller that is not a jack client: the worker delivers each one as a MIDI
  * message at the start of its next cycle, on the plugin's note input. Nothing of them is kept: a note is an act, not a
  * setting, and a respawned instance starts silent. */
-/* the ranges of a note's words: MIDI's */
 /** @brief the highest MIDI channel a note verb takes; the lowest is 0 */
 #define PHD_NOTE_CHANNEL_MAX  15
 /** @brief the highest MIDI key a note verb takes; the lowest is 0 */
 #define PHD_NOTE_KEY_MAX      127
 /** @brief the highest MIDI velocity a note verb takes */
 #define PHD_NOTE_VELOCITY_MAX 127
-/** @brief the word note_input answers for a plugin that takes no notes
- */
+/** @brief the word note_input answers for a plugin that takes no notes */
 #define PHD_NO_NOTE_INPUT     PHD_WORD_NONE
 
-/** @brief the longest string word, in bytes: CLAP_NAME_SIZE - 1
- */
+/** @brief the longest string word, in bytes: CLAP_NAME_SIZE - 1 */
 #define PHD_STRING_MAX 255
 
 /* the user-preset file a worker writes for preset_save and reads for preset_load and preset_show (docs/presets.md,
@@ -988,13 +1014,11 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_PRESET_FORMAT_2   "org.openmixer.preset/2"
 #define PHD_PRESET_ALIAS_MAX  12
 #define PHD_PRESET_FILE_MAX   (64 * 1024 * 1024)
-/* the parameters on one remote page, and the word of an empty slot */
 /** @brief the parameters on one remote page */
 #define PHD_REMOTE_PAGE_SLOTS 8
 /** @brief the word of an empty slot of a remote page */
 #define PHD_EMPTY_SLOT        PHD_WORD_NONE
-/** @brief the colour of a strip that has none
- */
+/** @brief the colour of a strip that has none */
 #define PHD_NO_COLOR          PHD_WORD_NONE
 
 /** @brief the kind of strip, the fourth word of track_info; none for an input channel: X(id, name)
@@ -1017,16 +1041,18 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_NODE_METADATA_INSTANCE_KEY       "http://openmixer.org/ns/plugin-hostd#instance"
 /** @brief the printf format of the instance's value */
 #define PHD_NODE_METADATA_INSTANCE_FORMAT    "%d"
-/** @brief the JACK metadata key of the pretty name of a node a client has labelled; it is the key of the plain pretty
- * name
+/** @brief the JACK metadata key of the pretty name of a labelled node
+ *
+ * A node a client has labelled; it is the key of the plain pretty name.
  */
 #define PHD_NODE_METADATA_LABELLED_NAME_KEY    PHD_NODE_METADATA_PRETTY_NAME_KEY
 /** @brief the printf format of the labelled name's value: the label, the plugin name and the instance */
 #define PHD_NODE_METADATA_LABELLED_NAME_FORMAT "%s: %s (%d)"
-/** @brief the most bytes of a node_label label, its words joined by one space (plugin-hostd#35)
- */
+/** @brief the most bytes of a node_label label, its words joined by one space (plugin-hostd#35) */
 #define PHD_NODE_LABEL_MAX 64
-/** @brief X(id, name, args, meaning): args what fills the format, in order, separated by commas
+/** @brief the JACK metadata a worker sets on a hosted node, as rows X(id, name, args, meaning)
+ *
+ * args is what fills the format, in order, separated by commas.
  *
  * @param X the macro each row is passed to.
  */
@@ -1050,22 +1076,24 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 /* what the ledger keeps of a verb: nothing; the latest one per instance; or the latest one per instance and first argument
  * (replace-keyed, ruling of 2026-11-14 on omx-clap-core#15: a property is the daemon's state, so a respawned worker gets
  * back every symbol it was given, each the latest set of it, in the order they were first set). Replayed after the add. */
-/* show_external_ui: mod-host.h declares it as the format SHOW_EXTERNAL_UI, and omx-clap-core's verb table does not */
-/** @brief the word of the show_external_ui verb, which mod-host.h declares as the format SHOW_EXTERNAL_UI and
- * omx-clap-core's verb table does not
+/** @brief the word of the show_external_ui verb
+ *
+ * mod-host.h declares it as the format SHOW_EXTERNAL_UI, and omx-clap-core's verb table does not.
  */
 #define PHD_VERB_SHOW_EXTERNAL_UI "show_external_ui"
 /** @brief the ledger keeps nothing of the verb */
 #define PHD_LEDGER_NONE    0
 /** @brief the ledger keeps the latest line of the verb per instance */
 #define PHD_LEDGER_REPLACE 1
-/** @brief the ledger keeps the latest line of the verb per instance and first argument, replayed in the order they
- * were first set
+/** @brief the ledger keeps the latest line of the verb per instance and first argument
+ *
+ * They are replayed in the order they were first set.
  */
 #define PHD_LEDGER_REPLACE_KEYED 2
 
-/** @brief the verbs that name an instance, as rows X(id, name, arguments, reply, ledger, meaning); ledger is NONE,
- * REPLACE or REPLACE_KEYED, what the ledger keeps of the verb
+/** @brief the verbs that name an instance, as rows X(id, name, arguments, reply, ledger, meaning)
+ *
+ * ledger is NONE, REPLACE or REPLACE_KEYED, what the ledger keeps of the verb.
  *
  * @param X the macro each row is passed to.
  */
@@ -1135,11 +1163,13 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       PHD_VERB_SHOW_EXTERNAL_UI " is, resp 0 also when no window is shown; in the ledger it takes back the show, so a " \
       "respawn shows nothing")
 
-/** @brief whether s is a string word: valid UTF-8, at most PHD_STRING_MAX bytes, no byte below 0x20
+/** @brief tells whether a string is a string word
  *
- * @param s a NUL-terminated string, not NULL.
- * @return nonzero when s is valid UTF-8 as RFC 3629 spells it, has no byte below 0x20 and is at most PHD_STRING_MAX
- *     bytes, else 0.
+ * It is valid UTF-8 as RFC 3629 spells it, has no byte below 0x20 and is at most PHD_STRING_MAX bytes.
+ *
+ * @pre s is not NULL.
+ * @param[in] s a NUL-terminated string.
+ * @return nonzero when s is a string word, else 0.
  */
 static inline int phd_string_valid(const char *s)
 {
@@ -1179,9 +1209,10 @@ static inline int phd_string_valid(const char *s)
     return n <= PHD_STRING_MAX;
 }
 
-/** @brief whether c is a colour of track_info: \#RRGGBB, either case, or PHD_NO_COLOR
+/** @brief tells whether a string is a colour of track_info
  *
- * @param c a NUL-terminated string, not NULL.
+ * @pre c is not NULL.
+ * @param[in] c a NUL-terminated string.
  * @return nonzero when c is PHD_NO_COLOR or \#RRGGBB in either case, else 0.
  */
 static inline int phd_color_valid(const char *c)
@@ -1198,11 +1229,10 @@ static inline int phd_color_valid(const char *c)
     return c[7] == '\0';
 }
 
-/** @brief the kind of strip a fourth word of track_info names, 1 for the first row of PHD_TRACK_KINDS; 0 for NULL (an
- * input channel); -1 for a word that is not one
+/** @brief gives the kind of strip a fourth word of track_info names
  *
- * @param word the fourth word of a track_info line, or NULL for an input channel.
- * @return the 1-based row of word in PHD_TRACK_KINDS; 0 for NULL; -1 for a word that is not a kind.
+ * @param[in] word the fourth word of a track_info line, or NULL for an input channel.
+ * @return the 1-based row of word in PHD_TRACK_KINDS; 0 for NULL (an input channel); -1 for a word that is not a kind.
  */
 static inline int phd_track_kind(const char *word)
 {
@@ -1216,12 +1246,15 @@ static inline int phd_track_kind(const char *word)
     return -1;
 }
 
-/** @brief whether the words of a track_info line, the verb first, are its grammar
+/** @brief tells whether the words of a track_info line are its grammar
  *
- * @param word the words of the line, the verb first; at least count of them are read.
+ * The instance, word[1], is not checked.
+ *
+ * @pre word is an array of at least count words, the verb first.
+ * @param[in] word the words of the line.
  * @param count how many words there are.
- * @return nonzero when count is 4 or 5, the name is a string word, the colour is valid and the kind, when there is
- *     one, is a kind; else 0.
+ * @return nonzero when count is 4 or 5, the name is a string word, the colour is valid and the kind, when there is one,
+ *     is a kind; else 0.
  */
 static inline int phd_track_info_valid(char *const *word, int count)
 {
@@ -1229,13 +1262,17 @@ static inline int phd_track_info_valid(char *const *word, int count)
            phd_track_kind(count == 5 ? word[4] : NULL) >= 0;
 }
 
-/** @brief whether word is a whole number from lo to hi, in decimal with no sign but a leading '-' ('-0' is not a
- * number: zero has one spelling)
+/** @brief tells whether a word is a whole number from lo to hi
  *
- * @param word a NUL-terminated string, not NULL.
+ * It is in decimal with no sign but a leading '-'. Leading zeros are accepted (0, 00 and 000 are numbers); only '-0' is
+ * refused. A magnitude above 1000009 is refused whatever hi is, since a digit past a value of 100000 is refused: a
+ * caller that asks for more, as phd_note_valid does with 1 << 20, never gets it (plugin-hostd-protocol#73).
+ *
+ * @pre word is not NULL.
+ * @param[in] word a NUL-terminated string.
  * @param lo the least value accepted.
  * @param hi the greatest value accepted.
- * @return nonzero when word is a whole number from lo to hi, else 0.
+ * @return nonzero when word is such a number, else 0.
  */
 static inline int phd_number_in(const char *word, int lo, int hi)
 {
@@ -1259,9 +1296,12 @@ static inline int phd_number_in(const char *word, int lo, int hi)
     return v >= lo && v <= hi;
 }
 
-/** @brief whether the words of a note verb's line, the verb first, are its grammar; 0 for a line of another verb
+/** @brief tells whether the words of a note verb's line are its grammar
  *
- * @param word the words of the line, the verb first; at least count of them are read.
+ * The verb is read before count is looked at (plugin-hostd-protocol#71).
+ *
+ * @pre word is an array of at least count words, the verb first, and count is 1 or more.
+ * @param[in] word the words of the line.
  * @param count how many words there are.
  * @return nonzero when the line has the grammar of its note verb; 0 for a line that does not, and for the line of
  *     another verb.
@@ -1280,11 +1320,12 @@ static inline int phd_note_valid(char *const *word, int count)
     return 0;
 }
 
-/** @brief whether a verb is one of the note verbs
+/** @brief tells whether a verb is one of the note verbs
  *
- * @param verb a NUL-terminated string, not NULL.
- * @return nonzero when verb is OMX_VERB_NOTE_ON, OMX_VERB_NOTE_OFF, OMX_VERB_ALL_NOTES_OFF or OMX_VERB_NOTE_INPUT,
- *     else 0.
+ * @pre verb is not NULL.
+ * @param[in] verb a NUL-terminated string.
+ * @return nonzero when verb is OMX_VERB_NOTE_ON, OMX_VERB_NOTE_OFF, OMX_VERB_ALL_NOTES_OFF or OMX_VERB_NOTE_INPUT, else
+ *     0.
  */
 static inline int phd_is_note_verb(const char *verb)
 {
@@ -1331,13 +1372,16 @@ static inline int phd_is_note_verb(const char *verb)
 /** @brief the verb is one this daemon adds: it answers it itself, whatever the worker */
 #define PHD_HOST_VERB_SOURCE_DAEMON   "daemon"
 
-/** @brief X(name, source, lv2-worker, clap-worker, console, zynthian). The mod-ui rows are the decision of 2026-10-21
- * (FreeMixer/plugin-hostd#131), read from Zynthian's verbs.tsv, with the decisions of 2026-10-22: presets and bundles
- * are required of the CLAP worker and of Zynthian; MIDI learn and CV addressing are policy of the surfaces, so the
- * host answers them only as the mechanism and they stay optional for every profile (presets in the host,
- * docs/presets.md). The others are this tree's. The daemon relays a worker's verb (an instance verb to the worker
- * that holds the instance, any other to every worker) and passes its answer back, so a required verb answers -902
- * only while the worker does.
+/** @brief the table of what each host profile owes each verb
+ *
+ * A row is X(name, source, lv2-worker, clap-worker, console, zynthian).
+ *
+ * The mod-ui rows are the decision of 2026-10-21 (FreeMixer/plugin-hostd#131), read from Zynthian's verbs.tsv, with the
+ * decisions of 2026-10-22: presets and bundles are required of the CLAP worker and of Zynthian; MIDI learn and CV
+ * addressing are policy of the surfaces, so the host answers them only as the mechanism and they stay optional for
+ * every profile (presets in the host, docs/presets.md). The others are this tree's. The daemon relays a worker's verb
+ * (an instance verb to the worker that holds the instance, any other to every worker) and passes its answer back, so a
+ * required verb answers -902 only while the worker does.
  *
  * @param X the macro each row is passed to.
  */
@@ -1445,73 +1489,111 @@ static inline int phd_is_note_verb(const char *verb)
 /* ---------------------------------------------------------------- feedback events */
 
 /* one NUL-terminated line each on the feedback port; a worker is "w<k>" */
-/** @brief the name of the feedback event worker_died: a worker died */
+/** @brief the name of the feedback event worker_died
+ *
+ * A worker died.
+ */
 #define PHD_EVENT_WORKER_DIED             "worker_died"
-/** @brief the name of the feedback event instance_verb_dropped: a command is dropped from the ledger because the
- * worker died on it
+/** @brief the name of the feedback event instance_verb_dropped
+ *
+ * A command is dropped from the ledger because the worker died on it.
  */
 #define PHD_EVENT_INSTANCE_VERB_DROPPED   "instance_verb_dropped"
-/** @brief the name of the feedback event worker_backoff: the respawn of a worker waits this long */
+/** @brief the name of the feedback event worker_backoff
+ *
+ * The respawn of a worker waits this long.
+ */
 #define PHD_EVENT_WORKER_BACKOFF          "worker_backoff"
-/** @brief the name of the feedback event worker_respawned: a worker is back and its ledger replayed */
+/** @brief the name of the feedback event worker_respawned
+ *
+ * A worker is back and its ledger replayed.
+ */
 #define PHD_EVENT_WORKER_RESPAWNED        "worker_respawned"
-/** @brief the name of the feedback event instance_restored: an instance is back in a worker */
+/** @brief the name of the feedback event instance_restored
+ *
+ * An instance is back in a worker.
+ */
 #define PHD_EVENT_INSTANCE_RESTORED       "instance_restored"
-/** @brief the name of the feedback event instance_replay_refused: a replayed add was refused, by its pin or by the
- * worker
+/** @brief the name of the feedback event instance_replay_refused
+ *
+ * A replayed add was refused, by its pin or by the worker.
  */
 #define PHD_EVENT_INSTANCE_REPLAY_REFUSED "instance_replay_refused"
-/** @brief the name of the feedback event instance_quarantined: the culprit of a pool or chain death is placed own
- * until cleared
+/** @brief the name of the feedback event instance_quarantined
+ *
+ * The culprit of a pool or chain death is placed own until cleared.
  */
 #define PHD_EVENT_INSTANCE_QUARANTINED    "instance_quarantined"
-/** @brief the name of the feedback event supervisor_gave_up: the storm bound is spent; respawning ends */
+/** @brief the name of the feedback event supervisor_gave_up
+ *
+ * The storm bound is spent; respawning ends.
+ */
 #define PHD_EVENT_SUPERVISOR_GAVE_UP      "supervisor_gave_up"
-/** @brief the name of the feedback event pin_changed: an add or a replay of a plugin was refused because its files or
- * layout differ from its pin; it is also the word of the pin_changed verb
+/** @brief the name of the feedback event pin_changed
+ *
+ * An add or a replay of a plugin was refused because its files or layout differ from its pin; it is also the word of
+ * the pin_changed verb.
  */
 #define PHD_EVENT_PIN_CHANGED             OMX_VERB_PIN_CHANGED
-/** @brief the name of the feedback event lv2_adapter_refused: the LV2 adapter of the lv2-clap worker refused a plugin */
+/** @brief the name of the feedback event lv2_adapter_refused
+ *
+ * The LV2 adapter of the lv2-clap worker refused a plugin.
+ */
 #define PHD_EVENT_LV2_ADAPTER_REFUSED     "lv2_adapter_refused"
-/** @brief the name of the feedback event chain_formed: a chain's worker is up with its members */
+/** @brief the name of the feedback event chain_formed
+ *
+ * A chain's worker is up with its members.
+ */
 #define PHD_EVENT_CHAIN_FORMED            "chain_formed"
-/** @brief the name of the feedback event chain_refused: a chain's worker would not run the members as one chain */
+/** @brief the name of the feedback event chain_refused
+ *
+ * A chain's worker would not run the members as one chain.
+ */
 #define PHD_EVENT_CHAIN_REFUSED           "chain_refused"
-/** @brief the name of the feedback event chain_stalled: a chain, or a plan's segment, has not formed within
- * chain_form_timeout_ms of its declaration
+/** @brief the name of the feedback event chain_stalled
+ *
+ * A chain, or a plan's segment, has not formed within chain_form_timeout_ms of its declaration.
  */
 #define PHD_EVENT_CHAIN_STALLED           "chain_stalled"
-/** @brief the name of the feedback event plan_reason: a plan of the chain changed: the reasons plan_get answers now */
+/** @brief the name of the feedback event plan_reason
+ *
+ * A plan of the chain changed: the reasons plan_get answers now.
+ */
 #define PHD_EVENT_PLAN_REASON             "plan_reason"
 /* written by a worker, relayed as it wrote it */
-/** @brief the name of the feedback event remote_pages_changed: relayed from a worker: the plugin changed its remote
- * pages
+/** @brief the name of the feedback event remote_pages_changed
+ *
+ * Relayed from a worker: the plugin changed its remote pages.
  */
 #define PHD_EVENT_REMOTE_PAGES_CHANGED    "remote_pages_changed"
-/** @brief the name of the feedback event remote_page_suggest: relayed from a worker: the plugin suggests the remote
- * page of an id
+/** @brief the name of the feedback event remote_page_suggest
+ *
+ * Relayed from a worker: the plugin suggests the remote page of an id.
  */
 #define PHD_EVENT_REMOTE_PAGE_SUGGEST     "remote_page_suggest"
-/** @brief the name of the feedback event param_gesture: relayed from a worker: the user took hold of a control of the
- * plugin's own, or let it go
+/** @brief the name of the feedback event param_gesture
+ *
+ * Relayed from a worker: the user took hold of a control of the plugin's own, or let it go.
  */
 #define PHD_EVENT_PARAM_GESTURE           "param_gesture"
 /* a worker's own count, not an instance's: omx-clap-core's HOST_EVENTS word xruns (tests/verbs_declared.py holds this to it) */
-/** @brief the name of the feedback event xruns: relayed from a worker and read by the daemon: the JACK xruns the
- * worker has counted since it started
+/** @brief the name of the feedback event xruns
+ *
+ * Relayed from a worker and read by the daemon: the JACK xruns the worker has counted since it started.
  */
 #define PHD_EVENT_XRUNS                   "xruns"
-/** @brief the name of the feedback event abi_clobber: relayed from a worker and read by the daemon: the plugin
- * returned from a call with a callee-saved register changed
+/** @brief the name of the feedback event abi_clobber
+ *
+ * Relayed from a worker and read by the daemon: the plugin returned from a call with a callee-saved register changed.
  */
 #define PHD_EVENT_ABI_CLOBBER             "abi_clobber"
 /* mod-host's own feedback line for a parameter, the same word as its command */
-/** @brief the name of the feedback event param_set: relayed from a worker: parameter feedback, a value the plugin
- * moved by itself, as mod-host writes it
+/** @brief the name of the feedback event param_set
+ *
+ * Relayed from a worker: parameter feedback, a value the plugin moved by itself, as mod-host writes it.
  */
 #define PHD_EVENT_PARAM_SET               "param_set"
 
-/* the last word of a param_gesture line */
 /** @brief the last word of a param_gesture line when the user took hold of a control */
 #define PHD_GESTURE_BEGIN "begin"
 /** @brief the last word of a param_gesture line when the user let go of a control */
@@ -1519,10 +1601,9 @@ static inline int phd_is_note_verb(const char *verb)
 
 /** @brief the prefix of the suspect word of an instance_verb_dropped line: suspect:\<ms\> */
 #define PHD_EVENT_SUSPECT_PREFIX "suspect:"
-/* the state type's pattern, written from PHD_WORKER_STATES: each name an alternative, the last alternative (?!) one
- * that never matches, so the list needs no separator after its last name */
-/** @brief one alternative of PHD_STATE_PATTERN: the state's name and '|'; the last alternative of the pattern, (?!),
- * never matches, so the list needs no separator after its last name
+/** @brief one alternative of PHD_STATE_PATTERN, the state's name and '|'
+ *
+ * The last alternative of the pattern, (?!), never matches, so the list needs no separator after its last name.
  *
  * @param id the id of the row, unused.
  * @param name the name of the state.
@@ -1532,15 +1613,15 @@ static inline int phd_is_note_verb(const char *verb)
 /** @brief the pattern of the state type, written from PHD_WORKER_STATES: each name an alternative */
 #define PHD_STATE_PATTERN "(?:" PHD_WORKER_STATES(PHD_STATE_ALTERNATIVE) "(?!))"
 
-/** @brief how a worker ended, the third word of worker_died: exit:\<status\> or signal:\<number\>
- */
+/** @brief how a worker ended, the third word of worker_died: exit:\<status\> or signal:\<number\> */
 #define PHD_EVENT_EXIT_PREFIX   "exit:"
 /** @brief the prefix of the third word of worker_died when a signal ended the worker: signal:\<number\> */
 #define PHD_EVENT_SIGNAL_PREFIX "signal:"
 
-/** @brief The types of a feedback line's arguments (PHD_EVENTS), each a pattern its word matches whole; rest: 1 for
- * the type of the rest of the line, its words as they were sent. An argument whose type is not one of these is one of
- * the literal words its type spells, written a|b. X(id, name, pattern, rest, spelling)
+/** @brief the types of a feedback line's arguments (PHD_EVENTS), as rows X(id, name, pattern, rest, spelling)
+ *
+ * Each type is a pattern its word matches whole; rest is 1 for the type of the rest of the line, its words as they were
+ * sent. An argument whose type is not one of these is one of the literal words its type spells, written a|b.
  *
  * @param X the macro each row is passed to.
  */
@@ -1583,10 +1664,11 @@ static inline int phd_is_note_verb(const char *verb)
     X(VALUE, "value", "[^, ]*", 0, "a value of a key=value") \
     X(LINE, "line", ".*", 1, "the rest of the line, its words as they were sent")
 
-/** @brief The forms of a command whose words the verb table's one format does not name: each form its arguments
- * name:type, as PHD_EVENTS' args, a form per number of them. add is mod-host's \<uri\> \<instance\>, which the daemon
- * extends with a placement and a client name, each optional (a placement told from a name by its type);
- * supervisor_reset re-arms one worker or every one (plugin-hostd-protocol#17). X(verb, args)
+/** @brief the forms of a command whose words the verb table's one format does not name, as rows X(verb, args)
+ *
+ * Each form's arguments are name:type, as PHD_EVENTS' args, a form per number of them. add is mod-host's \<uri\>
+ * \<instance\>, which the daemon extends with a placement and a client name, each optional (a placement told from a
+ * name by its type); supervisor_reset re-arms one worker or every one (plugin-hostd-protocol#17).
  *
  * @param X the macro each row is passed to.
  */
@@ -1600,8 +1682,9 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_SUPERVISOR_RESET, "target:" PHD_WORD_ALL) \
     X(OMX_VERB_PROPERTY_SET, "instance:int symbol:word value:quoted-escaped")
 
-/** @brief An example word of each leaf type of PHD_ARG_TYPES, which a test writes sample lines and replies from
- * (#19). X(name, example)
+/** @brief an example word of each leaf type of PHD_ARG_TYPES, as rows X(name, example)
+ *
+ * A test writes sample lines and replies from them (#19).
  *
  * @param X the macro each row is passed to.
  */
@@ -1617,8 +1700,9 @@ static inline int phd_is_note_verb(const char *verb)
  * none); a record is named fields joined by a separator, its fields name:type as PHD_EVENT_ARGS writes them. The
  * table carries each with a pattern written from its parts, so a reader of patterns alone reads it as a word.
  * X(name, item, separator, none, spelling) and X(name, separator, fields, spelling) */
-/** @brief the list types of the table, each items of one type joined by a separator, or one of its none words, as
- * rows X(name, item, separator, none, spelling)
+/** @brief the list types of the table, as rows X(name, item, separator, none, spelling)
+ *
+ * A list is items of one type joined by a separator, or one of its none words.
  *
  * @param X the macro each row is passed to.
  */
@@ -1633,8 +1717,9 @@ static inline int phd_is_note_verb(const char *verb)
     X("history", "history-entry", ",", PHD_WORD_NONE "|" PHD_WORD_UNAVAILABLE, \
       "a plugin's history: digest, class, crashed, raises_xruns and the history keys; " PHD_WORD_UNAVAILABLE \
       " while the history file is blocked")
-/** @brief the record types of the table, each named fields joined by a separator, as rows X(name, separator, fields,
- * spelling)
+/** @brief the record types of the table, as rows X(name, separator, fields, spelling)
+ *
+ * A record is named fields joined by a separator.
  *
  * @param X the macro each row is passed to.
  */
@@ -1648,11 +1733,13 @@ static inline int phd_is_note_verb(const char *verb)
     X("point", ",", "x:number y:number", "a point of a curve") \
     X("history-entry", "=", "key:key value:value", "a key=value of a history")
 
-/** @brief The replies of this tree's verbs, typed and named (#19): X(verb, resp, args), resp 0, or count when the
- * reply's number counts (the words a last repeated argument gives, when it has one); args as PHD_EVENT_ARGS writes
- * them, a last one name:type... repeated over the rest of the line. A verb may have more than one row, a form each:
- * plan's and plan_get's without cores are the replies of a daemon from before plugin-hostd#226, estimate's six words
- * an older daemon's.
+/** @brief the replies of this tree's verbs, typed and named (#19), as rows X(verb, resp, args)
+ *
+ * resp is 0, or count when the reply's number counts (the words a last repeated argument gives, when it has one); args
+ * are written as PHD_EVENT_ARGS writes them, a last one name:type... repeated over the rest of the line.
+ *
+ * A verb may have more than one row, a form each: plan's and plan_get's without cores are the replies of a daemon from
+ * before plugin-hostd#226, estimate's six words an older daemon's.
  *
  * @param X the macro each row is passed to.
  */
@@ -1681,66 +1768,105 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_PARAM_GET_MANY, "0", "values:word...") \
     X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...")
 
-/* the same line, as the daemon formats it: name and format in one literal */
-/** @brief the printf format of the line of PHD_EVENT_WORKER_DIED: the event word and its arguments in one literal */
+/** @brief the printf format of the PHD_EVENT_WORKER_DIED line
+ *
+ * The event word and its arguments are in one literal.
+ */
 #define PHD_EVENT_WORKER_DIED_FMT           PHD_EVENT_WORKER_DIED " w%d %d %s %s"
-/** @brief the printf format of the line of PHD_EVENT_INSTANCE_VERB_DROPPED: the event word and its arguments in one
- * literal
+/** @brief the printf format of the PHD_EVENT_INSTANCE_VERB_DROPPED line
+ *
+ * The event word and its arguments are in one literal.
  */
 #define PHD_EVENT_VERB_DROPPED_FMT          PHD_EVENT_INSTANCE_VERB_DROPPED " %d %s"
-/** @brief the printf format of the line of PHD_EVENT_INSTANCE_VERB_DROPPED, with the suspect word: the event word and
- * its arguments in one literal
+/** @brief the printf format of the PHD_EVENT_INSTANCE_VERB_DROPPED line, with the suspect word
+ *
+ * The event word and its arguments are in one literal.
  */
 #define PHD_EVENT_VERB_DROPPED_SUSPECT_FMT  PHD_EVENT_INSTANCE_VERB_DROPPED " %d " PHD_EVENT_SUSPECT_PREFIX "%d %s"
-/** @brief the printf format of the line of PHD_EVENT_WORKER_BACKOFF: the event word and its arguments in one literal */
+/** @brief the printf format of the PHD_EVENT_WORKER_BACKOFF line
+ *
+ * The event word and its arguments are in one literal.
+ */
 #define PHD_EVENT_WORKER_BACKOFF_FMT        PHD_EVENT_WORKER_BACKOFF " w%d %d"
-/** @brief the printf format of the line of PHD_EVENT_WORKER_RESPAWNED: the event word and its arguments in one
- * literal
+/** @brief the printf format of the PHD_EVENT_WORKER_RESPAWNED line
+ *
+ * The event word and its arguments are in one literal.
  */
 #define PHD_EVENT_WORKER_RESPAWNED_FMT      PHD_EVENT_WORKER_RESPAWNED " w%d %d %d %d"
-/** @brief the printf format of the line of PHD_EVENT_INSTANCE_RESTORED: the event word and its arguments in one
- * literal
+/** @brief the printf format of the PHD_EVENT_INSTANCE_RESTORED line
+ *
+ * The event word and its arguments are in one literal.
  */
 #define PHD_EVENT_INSTANCE_RESTORED_FMT     PHD_EVENT_INSTANCE_RESTORED " %d w%d"
-/** @brief the printf format of the line of PHD_EVENT_INSTANCE_REPLAY_REFUSED: the event word and its arguments in one
- * literal
+/** @brief the printf format of the PHD_EVENT_INSTANCE_REPLAY_REFUSED line
+ *
+ * The event word and its arguments are in one literal.
  */
 #define PHD_EVENT_REPLAY_REFUSED_FMT        PHD_EVENT_INSTANCE_REPLAY_REFUSED " %d %d"
-/** @brief the printf format of the line of PHD_EVENT_INSTANCE_QUARANTINED: the event word and its arguments in one
- * literal
+/** @brief the printf format of the PHD_EVENT_INSTANCE_QUARANTINED line
+ *
+ * The event word and its arguments are in one literal.
  */
 #define PHD_EVENT_INSTANCE_QUARANTINED_FMT  PHD_EVENT_INSTANCE_QUARANTINED " %d w%d"
-/** @brief the printf format of the line of PHD_EVENT_SUPERVISOR_GAVE_UP: the event word and its arguments in one
- * literal
+/** @brief the printf format of the PHD_EVENT_SUPERVISOR_GAVE_UP line
+ *
+ * The event word and its arguments are in one literal.
  */
 #define PHD_EVENT_SUPERVISOR_GAVE_UP_FMT    PHD_EVENT_SUPERVISOR_GAVE_UP " w%d %d %d"
-/** @brief the printf format of the line of PHD_EVENT_REMOTE_PAGES_CHANGED: the event word and its arguments in one
- * literal
+/** @brief the printf format of the PHD_EVENT_REMOTE_PAGES_CHANGED line
+ *
+ * The event word and its arguments are in one literal.
  */
 #define PHD_EVENT_REMOTE_PAGES_CHANGED_FMT  PHD_EVENT_REMOTE_PAGES_CHANGED " %d"
-/** @brief the printf format of the line of PHD_EVENT_REMOTE_PAGE_SUGGEST: the event word and its arguments in one
- * literal
+/** @brief the printf format of the PHD_EVENT_REMOTE_PAGE_SUGGEST line
+ *
+ * The event word and its arguments are in one literal.
  */
 #define PHD_EVENT_REMOTE_PAGE_SUGGEST_FMT   PHD_EVENT_REMOTE_PAGE_SUGGEST " %d %u"
-/** @brief the printf format of the line of PHD_EVENT_PARAM_GESTURE: the event word and its arguments in one literal */
+/** @brief the printf format of the PHD_EVENT_PARAM_GESTURE line
+ *
+ * The event word and its arguments are in one literal.
+ */
 #define PHD_EVENT_PARAM_GESTURE_FMT         PHD_EVENT_PARAM_GESTURE " %d %s %s"
-/** @brief the printf format of the line of PHD_EVENT_XRUNS: the event word and its arguments in one literal */
+/** @brief the printf format of the PHD_EVENT_XRUNS line
+ *
+ * The event word and its arguments are in one literal.
+ */
 #define PHD_EVENT_XRUNS_FMT                 PHD_EVENT_XRUNS " %llu"
-/** @brief the printf format of the line of PHD_EVENT_PARAM_SET: the event word and its arguments in one literal */
+/** @brief the printf format of the PHD_EVENT_PARAM_SET line
+ *
+ * The event word and its arguments are in one literal.
+ */
 #define PHD_EVENT_PARAM_SET_FMT             PHD_EVENT_PARAM_SET " %d %s %s"
-/** @brief the printf format of the line of PHD_EVENT_PIN_CHANGED: the event word and its arguments in one literal */
+/** @brief the printf format of the PHD_EVENT_PIN_CHANGED line
+ *
+ * The event word and its arguments are in one literal.
+ */
 #define PHD_EVENT_PIN_CHANGED_FMT           PHD_EVENT_PIN_CHANGED " %s %s"
-/** @brief the printf format of the line of PHD_EVENT_LV2_ADAPTER_REFUSED: the event word and its arguments in one
- * literal
+/** @brief the printf format of the PHD_EVENT_LV2_ADAPTER_REFUSED line
+ *
+ * The event word and its arguments are in one literal.
  */
 #define PHD_EVENT_LV2_ADAPTER_REFUSED_FMT   PHD_EVENT_LV2_ADAPTER_REFUSED " %s %s %s"
-/** @brief the printf format of the line of PHD_EVENT_CHAIN_FORMED: the event word and its arguments in one literal */
+/** @brief the printf format of the PHD_EVENT_CHAIN_FORMED line
+ *
+ * The event word and its arguments are in one literal.
+ */
 #define PHD_EVENT_CHAIN_FORMED_FMT          PHD_EVENT_CHAIN_FORMED " %s w%d %s"
-/** @brief the printf format of the line of PHD_EVENT_CHAIN_REFUSED: the event word and its arguments in one literal */
+/** @brief the printf format of the PHD_EVENT_CHAIN_REFUSED line
+ *
+ * The event word and its arguments are in one literal.
+ */
 #define PHD_EVENT_CHAIN_REFUSED_FMT         PHD_EVENT_CHAIN_REFUSED " %s %d"
-/** @brief the printf format of the line of PHD_EVENT_CHAIN_STALLED: the event word and its arguments in one literal */
+/** @brief the printf format of the PHD_EVENT_CHAIN_STALLED line
+ *
+ * The event word and its arguments are in one literal.
+ */
 #define PHD_EVENT_CHAIN_STALLED_FMT         PHD_EVENT_CHAIN_STALLED " %s %s %s %d"
-/** @brief the printf format of the line of PHD_EVENT_PLAN_REASON: the event word and its arguments in one literal */
+/** @brief the printf format of the PHD_EVENT_PLAN_REASON line
+ *
+ * The event word and its arguments are in one literal.
+ */
 #define PHD_EVENT_PLAN_REASON_FMT           PHD_EVENT_PLAN_REASON " %d %s"
 
 /** @brief the table of the docs: X(name, fields, meaning), one row per shape of a line
@@ -1812,9 +1938,11 @@ static inline int phd_is_note_verb(const char *verb)
       "control to it. A worker never writes it for a value a controller's param_set gave it, and a worker that writes " \
       "none changes nothing: the daemon adds no line of its own")
 
-/** @brief the arguments of each row of PHD_EVENTS, in its order (plugin-hostd-protocol#17): X(name, args), args each
- * argument name:type, its type one of PHD_ARG_TYPES or the literal words it is, a|b. A table of its own, so
- * PHD_EVENTS keeps the arguments its consumers expand it with; the generator holds the two to the same rows.
+/** @brief the arguments of each row of PHD_EVENTS, in its order, as rows X(name, args)
+ *
+ * (plugin-hostd-protocol#17) args is each argument name:type, its type one of PHD_ARG_TYPES or the literal words it is,
+ * a|b. It is a table of its own, so PHD_EVENTS keeps the arguments its consumers expand it with; the generator holds
+ * the two to the same rows.
  *
  * @param X the macro each row is passed to.
  */
@@ -1843,18 +1971,22 @@ static inline int phd_is_note_verb(const char *verb)
 
 /* ---------------------------------------------------------------- worker feedback, relayed */
 
-/** @brief a worker is started with a command port and a feedback port of its own, both on loopback and private to it
+/** @brief the arguments a worker is started with
+ *
+ * A worker is started with a command port and a feedback port of its own, both on loopback and private to it.
  */
 #define PHD_WORKER_ARGUMENTS "-n -p <command port> -f <feedback port>"
-/** @brief the option a worker of a plugin whose pin carries pool=cores is started with, after those; every other
- * worker keeps no option, the worker's `qualified`, which grants the pool to no plugin. worker_list names which with
- * these words
+/** @brief the option a worker of a plugin whose pin carries pool=cores is started with, after those
+ *
+ * Every other worker keeps no option, the worker's qualified, which grants the pool to no plugin. worker_list names
+ * which with these words.
  */
 #define PHD_WORKER_THREAD_POOL_ON "--thread-pool=on"
 /** @brief the word worker_list gives for a worker started with the thread pool on */
 #define PHD_WORKER_POOL_ON        "on"
-/** @brief the word worker_list gives for a worker that keeps no pool option: it is started without the thread pool
- * option, and the pool is granted to none of its plugins
+/** @brief the word worker_list gives for a worker that keeps no pool option
+ *
+ * It is started without the thread pool option, and the pool is granted to none of its plugins.
  */
 #define PHD_WORKER_POOL_QUALIFIED "qualified"
 
@@ -1892,8 +2024,10 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_DEFAULT_MOD_HOST          "mod-host"
 /** @brief the default of the clap_host setting */
 #define PHD_DEFAULT_CLAP_HOST         "omx-clap-host"
-/** @brief the LV2 isolated tier is omx-clap-host's adapter; mod-host runs a plugin only when lv2_worker or
- * lv2_worker_set names it
+/** @brief the default of the lv2_worker setting, omx-clap-host
+ *
+ * The LV2 isolated tier is omx-clap-host's adapter; mod-host runs a plugin only when lv2_worker or lv2_worker_set names
+ * it.
  */
 #define PHD_DEFAULT_LV2_WORKER        PHD_LV2_WORKER_CLAP_HOST
 /** @brief the default of the state_root setting */
@@ -1963,16 +2097,20 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_HISTORY_NAME              "plugin-hostd/history"
 /** @brief the first line of the history file */
 #define PHD_HISTORY_HEADER            "# plugin-hostd history/1"
-/** @brief the word each record line of the history file starts with: "history \<uri> \<digest> \<class>", then
- * its keys; plugin-hostd writes the lines and reads back only lines that start with it
+/** @brief the word each record line of the history file starts with
+ *
+ * The line is "history \<uri\> \<digest\> \<class\>", then its keys; plugin-hostd writes the lines and reads back only
+ * lines that start with it.
  */
 #define PHD_HISTORY_RECORD            "history"
 /** @brief the days after last_crash within which the summary history_get answers still reads a crash */
 #define PHD_HISTORY_KEEP_DAYS         30
 /** @brief the grouped windows a plugin needs before it can be marked raises_xruns */
 #define PHD_HISTORY_MIN_WINDOWS       30
-/** @brief the percentage points by which a plugin's share of xrun windows grouped must exceed its share solo to be
- * marked raises_xruns; the percent it must exceed when it never ran alone
+/** @brief the percentage points of xrun windows grouped over solo that mark a plugin raises_xruns
+ *
+ * A plugin is marked when its share of xrun windows grouped exceeds its share solo by this many points, or exceeds this
+ * many percent when it never ran alone.
  */
 #define PHD_HISTORY_XRUN_MARGIN_PCT   5
 
@@ -2012,8 +2150,10 @@ static inline int phd_is_note_verb(const char *verb)
 /** @brief the hex digits of the SHA-256 of the plugin's binary that the name holds */
 #define PHD_DESCRIPTOR_HASH_LEN       12
 
-/** @brief the subdirectory of descriptor_dir that holds the panel files, each under its descriptor's name, written by
- * the same scan after the descriptor, once and atomically (docs/panel.md)
+/** @brief the subdirectory of descriptor_dir that holds the panel files
+ *
+ * Each is under its descriptor's name, written by the same scan after the descriptor, once and atomically
+ * (docs/panel.md).
  */
 #define PHD_PANEL_SUBDIR              "panels"
 /** @brief the path of a plugin's panel file in descriptor_dir: PHD_PANEL_SUBDIR and the name of its descriptor */
@@ -2027,8 +2167,9 @@ static inline int phd_is_note_verb(const char *verb)
  * names is the id of one row, so the file resolves its own displays, and a reader reads one meter shape. */
 /** @brief the key of the panel file that holds the plugin's meters */
 #define PHD_PANEL_KEY_METERS          "meters"
-/** @brief the keys of the panel file, one JSON object, as rows X(key, required, since, meaning); a key that is not
- * required is additive: a file written before its since has none
+/** @brief the keys of the panel file, one JSON object, as rows X(key, required, since, meaning)
+ *
+ * A key that is not required is additive: a file written before its since has none.
  *
  * @param X the macro each row is passed to.
  */
@@ -2041,9 +2182,12 @@ static inline int phd_is_note_verb(const char *verb)
       "unit, min, max, scale}), with the id and the values " OMX_VERB_DESCRIPTOR_GET "'s file gives it; empty when " \
       "the panel is null or its displays index none. A display naming a meter id no row carries is never written")
 
-/** @brief the settings file: one "key value" per line, '#' starts a comment. A string setting: X(key, size, default,
- * env, meaning); env names the variable that stands in for the default when it is set and not empty, "" for none;
- * size is path or pathlist, the storage class of the daemon's copy.
+/** @brief the string settings, as rows X(key, size, default, env, meaning)
+ *
+ * The settings file holds one "key value" per line, and '#' starts a comment.
+ *
+ * env names the variable that stands in for the default when it is set and not empty, "" for none; size is path or
+ * pathlist, the storage class of the daemon's copy.
  *
  * @param X the macro each row is passed to.
  */
@@ -2096,7 +2240,9 @@ static inline int phd_is_note_verb(const char *verb)
     X(host_class, word, "", "", "the host class the history is kept under, as arch/cores/clock (x86_64/5-8/2.5-3.5GHz); " \
       "empty is the class of this machine, as the probe writes it; no white space")
 
-/** @brief A whole-number setting: X(key, default, unit, meaning); 0 turns off where the meaning says so
+/** @brief the whole-number settings, as rows X(key, default, unit, meaning)
+ *
+ * 0 turns the setting off where the meaning says so.
  *
  * @param X the macro each row is passed to.
  */
