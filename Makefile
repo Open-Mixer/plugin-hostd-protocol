@@ -123,13 +123,13 @@ TEST_CFLAGS = $(filter-out -O3,$(CFLAGS)) -O1 -g -Werror
 # the sources are compiled into the sanitized tests as they are; a distribution's _FORTIFY_SOURCE flags their unchecked
 # write() calls, which mod-host leaves unchecked too
 SAN = -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -Wno-error=unused-result
-TEST_PROGS = tests/feedback_lines tests/macro_compat tests/protocol_test tests/protocol_commands_test tests/host_scenarios tests/golden-run tests/fixes_test tests/forms_test \
+TEST_PROGS = tests/feedback_lines tests/macro_compat tests/bounds_test tests/protocol_test tests/protocol_commands_test tests/host_scenarios tests/golden-run tests/fixes_test tests/forms_test \
              tests/hello_test tests/curve_test tests/monitor_test tests/runner_test \
              tests/socket-test tests/bind-test tests/adopt-test tests/utils-test
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range
+      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds
 
 # every omx-clap-core-contract range admits the next omx-clap-core minor (the chain releases this protocol first)
 test-clap-core-range:
@@ -373,6 +373,14 @@ tests/macro_compat: tests/macro_compat.c $(PROTOCOL_HEADERS)
 
 test-macro-compat: tests/macro_compat
 	./tests/macro_compat >/dev/null
+
+# protocol.h's inline functions read no word past their count and write no byte past their size (tests/bounds_test.c),
+# under AddressSanitizer: an array of exactly count words, a buffer of size 0 before a guard byte (#71, #72)
+tests/bounds_test: tests/bounds_test.c $(PROTOCOL_HEADERS)
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -O1 -g $(SAN) -Iinclude -o $@ tests/bounds_test.c
+
+test-bounds: tests/bounds_test
+	./tests/bounds_test
 
 # every reply of this repository's verbs with a layout is typed and named in the table, and decodes (#19)
 test-reply-args:
