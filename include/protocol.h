@@ -138,10 +138,8 @@ typedef struct PROTO_T {
  * first form's refusal. A refusal is sent as the message of PROTOCOL_NOT_FOUND, PROTOCOL_MANY_ARGUMENTS or
  * PROTOCOL_FEW_ARGUMENTS. A matching command with a NULL callback is matched and nothing is sent.
  *
- * An empty line: the contract is that it is ignored and gets no reply, as mod-host does, unless it is tagged, when the
- * answer is PROTOCOL_NOT_FOUND so every tagged request has its answer. Today the code does not keep that: an untagged
- * empty line is split into one empty word, matches no command, and is answered with the message of PROTOCOL_NOT_FOUND
- * ("not found"). A follow-up code change brings the code in line with the contract.
+ * An empty or whitespace-only line is ignored and gets no reply, as mod-host does, and changes nothing, unless it is
+ * tagged, when the answer is PROTOCOL_NOT_FOUND so every tagged request has its answer.
  *
  * The answer goes to msg->sender_id: written to it when it is standard output (unless built with SKIP_READLINE), else
  * sent with socket_send.
