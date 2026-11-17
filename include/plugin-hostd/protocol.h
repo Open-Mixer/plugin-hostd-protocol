@@ -1001,10 +1001,11 @@ static inline int phd_number_in(const char *word, int lo, int hi)
 /* whether the words of a note verb's line, the verb first, are its grammar; 0 for a line of another verb */
 static inline int phd_note_valid(char *const *word, int count)
 {
-    int on = !strcmp(word[0], OMX_VERB_NOTE_ON);
+    int on;
 
     if (count < 2 || !phd_number_in(word[1], 0, 1 << 20))
         return 0;
+    on = !strcmp(word[0], OMX_VERB_NOTE_ON);
     if (on || !strcmp(word[0], OMX_VERB_NOTE_OFF))
         return count == 5 && phd_number_in(word[2], 0, PHD_NOTE_CHANNEL_MAX) && phd_number_in(word[3], 0, PHD_NOTE_KEY_MAX) &&
                phd_number_in(word[4], on ? 1 : 0, PHD_NOTE_VELOCITY_MAX);
