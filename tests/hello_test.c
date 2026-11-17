@@ -228,6 +228,28 @@ int main(void)
             printf("ok   no hello '%s' -> '%s' with and without hello registered\n", g_plain[i], with[i]);
     }
 
+    /* -- an untagged empty line is ignored with no reply: the next reply read is the next command's own */
+    c = open_session();
+    send(c.cmd, "", 1, MSG_NOSIGNAL);
+    expect(&c, "after an untagged empty line", "param_get 3 gain", "resp 0 0.2500");
+    send(c.cmd, "", 1, MSG_NOSIGNAL);
+    send(c.cmd, "", 1, MSG_NOSIGNAL);
+    expect(&c, "after two untagged empty lines", "param_get 3 gain", "resp 0 0.2500");
+    expect(&c, "hello", "hello 1 tags", "resp 0 1 tags");
+    send(c.cmd, "", 1, MSG_NOSIGNAL);
+    expect(&c, "after an untagged empty line, tags granted", "param_get 3 gain", "resp 0 0.2500");
+    /* a tagged empty line keeps its answer, so every tagged request has one */
+    expect(&c, "a tagged empty line", "@e0", "@e0 not found");
+    /* a whitespace-only untagged line is an empty line: ignored, no reply */
+    send(c.cmd, " ", 2, MSG_NOSIGNAL);
+    expect(&c, "after an untagged blank line", "param_get 3 gain", "resp 0 0.2500");
+    send(c.cmd, "\t ", 3, MSG_NOSIGNAL);
+    expect(&c, "after an untagged tab and blank line", "param_get 3 gain", "resp 0 0.2500");
+    /* a tagged whitespace-only line keeps its answer, as a tagged empty line does */
+    expect(&c, "a tagged blank line", "@e1 ", "@e1 not found");
+    expect(&c, "a tagged tab and blank line", "@e2 \t ", "@e2 not found");
+    close_session(&c);
+
     /* -- hello grants what it knows */
     c = open_session();
     expect(&c, "hello", "hello 1", "resp 0 1");

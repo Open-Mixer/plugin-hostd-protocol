@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-# Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+# Copyright (C) 2026 Pau Aliagas
 #
 # The dependency FLOORS of this repository, written here and nowhere else. No ceilings: our own packages carry none
-# (a breaking release declares its own Breaks/Conflicts). The RPM spec and debian/control are generated from this file
+# The RPM spec and debian/control are generated from this file
 # and refused when they differ (deps-render in Open-Mixer/.github: render.sh --write, render.sh --check, or make deps
 # and make deps-check DOTGITHUB=<checkout>). The Makefile reads omx-dsp's floor from the spec; the workflows install
 # from the spec and control (dnf builddep, apt-get build-dep) and name no version.

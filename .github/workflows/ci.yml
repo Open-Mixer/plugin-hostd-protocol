@@ -155,6 +155,45 @@ jobs:
           moved: ca:0.5.6
           gate: make check-catalogs
 
+  # The reply shapes (doc/reply-shapes.md): shapes/ held to the table and to the replies, ts/shapes/ the render omx-contract
+  # writes with its pinned json-schema-to-typescript, and the npm package as a consumer imports it. Each guard is broken
+  # in a scratch copy and must go red (test-shapes-sabotage). omx-contract is read from its source at the commit that
+  # merged the shapes facility (omx-contract#69), not from the channel: the generator is a dev dependency there (npm ci)
+  # and no served package carries it. Move OMX_CONTRACT_REF with the render when a newer generator is wanted.
+  shapes:
+    name: reply shapes (schemas, TypeScript render, npm package)
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OMX_CONTRACT_REF: 608ce65cb73aa9d7fe0ed4a39363c237200305f1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-jsonschema
+      - name: omx-contract at its pinned commit, with its generator
+        run: |
+          set -euo pipefail
+          src=$RUNNER_TEMP/omx-contract
+          git init -q "$src"
+          git -C "$src" fetch -q --depth 1 https://github.com/Open-Mixer/omx-contract "$OMX_CONTRACT_REF"
+          git -C "$src" checkout -q FETCH_HEAD
+          test "$(git -C "$src" rev-parse HEAD)" = "$OMX_CONTRACT_REF"
+          (cd "$src" && npm ci --no-audit --no-fund)
+          echo "OMX_CONTRACT_DIR=$src" >> "$GITHUB_ENV"
+      - name: The schemas against the table and the replies
+        run: make test-reply-shapes
+      - name: The TypeScript render is what the schemas render
+        run: make check-shapes-render
+      - name: The package, as a consumer imports it
+        run: make test-ts-package
+      - name: The TypeScript client, its generated vocabulary and curvePoints
+        run: make test-ts-client
+      - name: Each guard goes red on its fault
+        run: make test-shapes-sabotage
+      - name: The version of package.json
+        run: make version-check
+
   abi:
     name: ABI check (abidiff against abi/)
     # the schedule is the render check alone (#27)

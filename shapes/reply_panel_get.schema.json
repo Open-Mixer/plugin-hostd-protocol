@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_panel_get.schema.json",
+  "title": "PanelGetReply",
+  "description": "The parsed form of a panel_get reply (a panel description's file): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "path": {
+      "type": "string",
+      "description": "The panel description file's path, unquoted."
+    }
+  },
+  "required": [
+    "path"
+  ],
+  "additionalProperties": false
+}

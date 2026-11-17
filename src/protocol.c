@@ -337,8 +337,11 @@ void protocol_parse(msg_t *msg)
 
     // TODO: check invalid argumets (wildcards)
 
-    // an empty line is not answered; an empty tagged one is answered, so every tagged request has its answer
-    if (proto.list_count == 0)
+    // an empty or whitespace-only line is not answered; a tagged one is answered, so every tagged request has its
+    // answer. strarr_split reads an empty line as one empty word, so the line itself is tested. The test holds for a
+    // whitespace-only line because strarr_split trims data in place (trailing space, tab, CR, LF) before it: keep this
+    // test after the split
+    if (proto.list_count == 0 || data[0] == '\0')
     {
         if (tag)
         {

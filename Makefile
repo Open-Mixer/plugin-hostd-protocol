@@ -3,8 +3,8 @@
 CC ?= gcc
 PKG_CONFIG ?= pkg-config
 
-# the one version of the library: VERSION holds it, and `make version-check` holds the spec's Version and the newest
-# debian/changelog entry to it
+# the one version of the library: VERSION holds it, and `make version-check` holds the spec's Version, the newest
+# debian/changelog entry and package.json's (the npm package of the reply shapes) to it
 VERSION := $(strip $(shell cat VERSION))
 
 # the library: soname libplugin-hostd-protocol.so.<major>, the file <major>.<minor>.<patch>. While the version is 0.x
@@ -32,7 +32,8 @@ endif
 # declares it: the floor packaging/deps.txt declares, read back from the spec generated from it
 OMXDSP_FLOOR := $(shell sed -n 's/^BuildRequires: *omx-dsp-devel *>= *\([0-9][0-9.]*\) *$$/\1/p' packaging/plugin-hostd-protocol.spec)
 OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 2>/dev/null)
-ifeq ($(filter clean version-check deps deps-check,$(MAKECMDGOALS)),)
+# the shapes' targets read JSON and a generator, no header
+ifeq ($(filter clean version-check deps deps-check test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
 $(error no omx-dsp >= $(OMXDSP_FLOOR) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
@@ -108,6 +109,8 @@ install: $(LIB_FILE)
 	install -m 644 grammar/plugin-hostd-protocol.abnf $(DESTDIR)$(DATADIR)/$(NAME)/plugin-hostd-protocol.abnf
 	install -m 644 protocol/plugin-hostd.json $(DESTDIR)$(DATADIR)/$(NAME)/plugin-hostd.json
 	install -m 644 protocol/plugin-hostd.schema.json $(DESTDIR)$(DATADIR)/$(NAME)/plugin-hostd.schema.json
+	install -d $(DESTDIR)$(DATADIR)/$(NAME)/shapes
+	install -m 644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/$(NAME)/shapes/
 	install -m 644 protocol/mod-host.json $(DESTDIR)$(DATADIR)/$(NAME)/mod-host.json
 	install -m 644 tools/protocol-gen.c $(DESTDIR)$(DATADIR)/$(NAME)/protocol-gen.c
 	install -m 644 clients/fixtures/codec.json $(DESTDIR)$(DATADIR)/$(NAME)/codec-fixtures.json
@@ -122,13 +125,37 @@ TEST_CFLAGS = $(filter-out -O3,$(CFLAGS)) -O1 -g -Werror
 # the sources are compiled into the sanitized tests as they are; a distribution's _FORTIFY_SOURCE flags their unchecked
 # write() calls, which mod-host leaves unchecked too
 SAN = -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -Wno-error=unused-result
-TEST_PROGS = tests/feedback_lines tests/macro_compat tests/protocol_test tests/protocol_commands_test tests/host_scenarios tests/golden-run tests/fixes_test tests/forms_test \
+TEST_PROGS = tests/feedback_lines tests/macro_compat tests/bounds_test tests/number_test tests/protocol_test tests/protocol_commands_test tests/host_scenarios tests/golden-run tests/fixes_test tests/forms_test \
              tests/hello_test tests/curve_test tests/monitor_test tests/runner_test \
              tests/socket-test tests/bind-test tests/adopt-test tests/utils-test
 
+# the C documentation gate is doxygen (tools/Doxyfile over the headers): a warning that tools/doxygen.baseline does not
+# list fails, and so does a listed one that is gone; the baseline only shrinks. Needs doxygen.
+.PHONY: check-doxygen
+check-doxygen:
+	sh tools/doxygen_gate.sh
+
+# ruff's own ratchet on the Python clients: D and the default rules (ruff.toml), today's findings carried by `# noqa`
+# comments, so a new one is a plain ruff failure and fixing one deletes its noqa. Needs ruff.
+.PHONY: check-ruff
+check-ruff:
+	ruff check clients/python
+
+# the two gates only shrink, by mechanism (tools/doc_shrink.sh against the base branch: DOC_GATE_BASE, origin/main by
+# default); tests/doc_gate_test.sh proves it, and that doxygen_gate.sh --update only lowers the baseline
+.PHONY: check-doc-shrink test-doc-gates
+check-doc-shrink:
+	sh tools/doc_shrink.sh
+test-doc-gates:
+	sh tests/doc_gate_test.sh
+
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec
+      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number
+
+# every omx-clap-core-contract range admits the next omx-clap-core minor (the chain releases this protocol first)
+test-clap-core-range:
+	python3 tests/clap_core_range.py .
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
 test-protocol: tests/protocol_test
@@ -327,6 +354,7 @@ gen: $(GEN)
 	python3 tools/abnf-gen.py > grammar/plugin-hostd-protocol.abnf.new && \
 	    mv grammar/plugin-hostd-protocol.abnf.new grammar/plugin-hostd-protocol.abnf
 	python3 tools/reply-words.py > src/reply-words.h.new && mv src/reply-words.h.new src/reply-words.h
+	python3 tools/ts-client-gen.py
 	$(GEN) splice doc/overview.md > doc/overview.md.new && mv doc/overview.md.new doc/overview.md
 	$(MAKE) --no-print-directory protocol-doc
 
@@ -337,6 +365,7 @@ check-generated: $(GEN)
 	python3 tools/protocol-table.py --check; \
 	python3 tools/abnf-gen.py --check; \
 	python3 tools/reply-words.py --check; \
+	python3 tools/ts-client-gen.py --check; \
 	$(GEN) splice doc/overview.md > $$tmp/readme; cmp $$tmp/readme doc/overview.md; \
 	sha256sum -c --quiet $(ABNF_CORPUS)/GRAMMAR.sha256 || { echo "$(ABNF_CORPUS) is not written from this grammar: run make fuzz-abnf-corpus"; exit 1; }; \
 	$(GEN) regions > $$tmp/regions; test -s $$tmp/regions; \
@@ -368,6 +397,22 @@ tests/macro_compat: tests/macro_compat.c $(PROTOCOL_HEADERS)
 
 test-macro-compat: tests/macro_compat
 	./tests/macro_compat >/dev/null
+
+# protocol.h's inline functions read no word past their count and write no byte past their size (tests/bounds_test.c),
+# under AddressSanitizer: an array of exactly count words, a buffer of size 0 before a guard byte (#71, #72)
+tests/bounds_test: tests/bounds_test.c $(PROTOCOL_HEADERS)
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -O1 -g $(SAN) -Iinclude -o $@ tests/bounds_test.c
+
+test-bounds: tests/bounds_test
+	./tests/bounds_test
+
+# phd_number_in's grammar, one named arm a spelling: one spelling a value, the caller's range and no other, a word past
+# the type refused (tests/number_test.c, #73); under the sanitizers, so an overflow in the reading is seen
+tests/number_test: tests/number_test.c $(PROTOCOL_HEADERS)
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -O1 -g $(SAN) -Iinclude -o $@ tests/number_test.c
+
+test-number: tests/number_test
+	./tests/number_test
 
 # every reply of this repository's verbs with a layout is typed and named in the table, and decodes (#19)
 test-reply-args:
@@ -439,6 +484,7 @@ test-generated-sabotage:
 #   check-schema     protocol/plugin-hostd.json against its schema (python3-jsonschema)
 #   test-grammar     the grammar against the scenario corpus, the golden transcript and the table (python abnf)
 OMX_CONTRACT ?= omx-contract
+PYTHON ?= python3
 CONTRACT_SCHEMA_MAJOR = 3
 CONTRACTDIR = $(or $(shell $(PKG_CONFIG) --variable=contractdir omx-contract 2>/dev/null),$(DATADIR)/omx-contract/contract.d)
 INSTALL_CONTRACT_DIR = $(firstword $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/install-contract-dir.sh) $(wildcard $(OMX_CONTRACT_DIR)/tools/install-contract-dir.sh))
@@ -498,7 +544,34 @@ render-verbs check-rendered:
 check-schema:
 	python3 tests/protocol_schema.py protocol/plugin-hostd.json protocol/plugin-hostd.schema.json
 
-PYTHON ?= python3
+# The reply shapes (doc/reply-shapes.md): shapes/reply_<verb>.schema.json, one per typed reply of the table, held to the
+# table and to the replies themselves (test-reply-shapes, python3-jsonschema), and their TypeScript render, ts/shapes/,
+# the one omx-contract's `render --target ts --shapes` writes with its pinned json-schema-to-typescript, committed and
+# published as @openmixer/plugin-hostd-protocol. OMX_CONTRACT_DIR is a checkout of Open-Mixer/omx-contract with `npm ci`
+# run in it (the generator is a dev dependency there, never an installed command).
+#   test-reply-shapes     the schemas against the table, the golden transcript and a sample of every reply form
+#   render-shapes         writes ts/shapes/ from shapes/
+#   check-shapes-render   ts/shapes/ is what render-shapes writes, byte for byte
+#   test-shapes-sabotage  each of the above is red on the fault it guards
+#   test-ts-package       the packed npm package as a consumer imports it, compiled strict
+test-reply-shapes:
+	$(PYTHON) tests/reply_shapes.py protocol/plugin-hostd-protocol.json shapes tests/golden/plugin-hostd-protocol.txt
+
+render-shapes check-shapes-render:
+	@test -f "$(OMX_CONTRACT_DIR)/bin/omx-contract.mjs" || { echo "$@: set OMX_CONTRACT_DIR to a checkout of Open-Mixer/omx-contract with npm ci run in it" >&2; exit 1; }
+	node "$(OMX_CONTRACT_DIR)/bin/omx-contract.mjs" render --target ts --shapes --shapes-dir shapes --out ts $(if $(filter check-shapes-render,$@),--check)
+
+test-shapes-sabotage:
+	PYTHON=$(PYTHON) MAKE=$(MAKE) sh tests/shapes-sabotage.sh
+
+# npm pack, the tarball as a dependency, a strict TypeScript file importing the types by the package's exports
+test-ts-package:
+	sh tests/ts-package.sh
+
+# the TypeScript client (doc/ts-client.md): the transport, the generated vocabulary, curvePoints; node, no dependency
+test-ts-client:
+	node --test tests/ts_client_test.mjs
+
 test-grammar:
 	$(PYTHON) tests/grammar_test.py
 	PYTHON=$(PYTHON) sh tests/grammar-sabotage.sh
@@ -508,9 +581,10 @@ test-grammar:
 version-check:
 	@spec=$$(sed -n 's/^Version: *//p' packaging/$(NAME).spec); \
 	deb=$$(sed -n '1s/^[^(]*(\([0-9][0-9.]*\).*/\1/p' debian/changelog); \
-	test "$$spec" = "$(VERSION)" && test "$$deb" = "$(VERSION)" \
-	    || { echo "VERSION $(VERSION), spec $$spec, debian/changelog $$deb"; exit 1; }; \
-	echo "version $(VERSION) in VERSION, the spec and debian/changelog"
+	npm=$$(sed -n 's/^  "version": *"\([^"]*\)".*/\1/p' package.json); \
+	test "$$spec" = "$(VERSION)" && test "$$deb" = "$(VERSION)" && test "$$npm" = "$(VERSION)" \
+	    || { echo "VERSION $(VERSION), spec $$spec, debian/changelog $$deb, package.json $$npm"; exit 1; }; \
+	echo "version $(VERSION) in VERSION, the spec, debian/changelog and package.json"
 
 # ---------------------------------------------------------------------------------------------------------------------
 # libFuzzer harnesses (fuzz/README.md), built with clang: `make fuzz`, `make fuzz-run FUZZ_TIME=60`
@@ -588,7 +662,7 @@ clean:
 
 .PHONY: gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-property-rows test-mod-host-json test-generated-sabotage test-default-lv2-worker test-served-render-ci \
         check-protocol-tools install-contract check-contract-dir render-verbs check-rendered test-rendered-sabotage \
-        check-schema test-grammar test-code-text test-code-text-sabotage
+        check-schema test-grammar test-code-text test-code-text-sabotage test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client
 .PHONY: all install test test-protocol test-protocol-commands test-utils test-socket test-bind test-golden \
         test-golden-modhost golden-update golden-modhost test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-runner test-hello-sabotage test-bind-sabotage test-install test-abi \
         abi-symbols abi-stage abi-baseline abi-check version-check fuzz fuzz-run fuzz-corpus fuzz-corpus-check fuzz-abnf-corpus test-abnf-corpus fuzz-sabotage fuzz-records fuzz-coverage clean

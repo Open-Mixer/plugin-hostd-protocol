@@ -53,8 +53,9 @@ def decode_reply(verb, line, table):
 
 
 def decode_form(form, line, types):
-    words = line.split(" ")
-    if words[0] != "resp" or len(words) < 2 or not re.fullmatch(r"-?[0-9]+", words[1]):
+    # a word in double quotes may hold spaces (a property's name, a path), \" and \\ inside it
+    words = re.findall(r'"(?:[^"\\]|\\["\\])*"(?= |$)|[^ ]+', line)
+    if not words or words[0] != "resp" or len(words) < 2 or not re.fullmatch(r"-?[0-9]+", words[1]):
         return None
     words = words[2:]
     args, names = form["args"], form["names"]

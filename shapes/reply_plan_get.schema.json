@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_plan_get.schema.json",
+  "title": "PlanGetReply",
+  "description": "The parsed form of a plan_get reply (a plan and why members were left out): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "segments": {
+      "type": "array",
+      "description": "The plan's segments, each its instances in order.",
+      "items": {
+        "type": "array",
+        "description": "One item: instance numbers, in order.",
+        "items": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "One item: a whole number, not negative."
+        }
+      }
+    },
+    "reasons": {
+      "type": "array",
+      "description": "The members left out, each with its reason.",
+      "items": {
+        "type": "object",
+        "title": "Reason",
+        "description": "A member and the reason it was left out of a plan.",
+        "properties": {
+          "instance": {
+            "type": "integer",
+            "description": "The member's instance number."
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The reason word."
+          }
+        },
+        "required": [
+          "instance",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "cores": {
+      "type": "array",
+      "description": "Each segment's cores, member by member, - for a worker pinned to none; a daemon from before the cores leaves it out.",
+      "items": {
+        "type": "array",
+        "description": "One item: each member's core, in the segment's order.",
+        "items": {
+          "type": "string",
+          "pattern": "^(?:-|[0-9]+)$",
+          "description": "One item: an audio core, or - for a worker pinned to none."
+        }
+      }
+    }
+  },
+  "required": [
+    "segments",
+    "reasons"
+  ],
+  "additionalProperties": false
+}
