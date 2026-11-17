@@ -59,14 +59,17 @@
 
 /** @brief what host_plugin_info_t.param_info answers about one parameter
  *
- * The param_info verb zeroes it, calls param_info, and on SUCCESS writes "resp 0" and then unit, scale, min, max, def,
- * step and stable_symbol, each as it is: the library checks none of them. A number is written as the shortest decimal
- * that reads back to the same double.
+ * The param_info verb zeroes it, calls param_info, and when it returns 0 or more (SUCCESS is 0, but any value >= 0 is
+ * accepted, not only SUCCESS) writes "resp 0" and then unit, scale, min, max, def, step and stable_symbol, each as it
+ * is: the library checks none of them. A number is written as the shortest decimal that reads back to the same
+ * double.
  */
 typedef struct HOST_PARAM_INFO_T {
-    /** the unit, one word: an LV2 unit name ("db", "hz", ...) or "none"; not NULL on SUCCESS, and not freed */
+    /** the unit, one word: an LV2 unit name ("db", "hz", ...) or "none"; not NULL when param_info
+     * returns 0 or more, and not freed */
     const char *unit;
-    /** the scale, one word: "linear", "log" or "stepped"; not NULL on SUCCESS, and not freed */
+    /** the scale, one word: "linear", "log" or "stepped"; not NULL when param_info
+     * returns 0 or more, and not freed */
     const char *scale;
     /** the lowest value */
     double min, max, def, step;
@@ -76,14 +79,16 @@ typedef struct HOST_PARAM_INFO_T {
      * the default value */
     /** @var HOST_PARAM_INFO_T::step
      * the step between two values, 0 for a continuous parameter */
-    /** the name the parameter keeps across hosts, one word; not NULL on SUCCESS, and not freed */
+    /** the name the parameter keeps across hosts, one word; not NULL when param_info returns 0 or more, and not
+     * freed */
     const char *stable_symbol;
 } host_param_info_t;
 
 /** @brief one page of remote controls, as host_plugin_info_t.remote_page_get answers it
  *
- * The remote_page_get verb zeroes it, calls remote_page_get, and on SUCCESS writes "resp 0", the id, the section and
- * the name in quotes, and the HOST_REMOTE_PAGE_SLOTS slots. Every string is NUL-terminated.
+ * The remote_page_get verb zeroes it, calls remote_page_get, and when it returns 0 or more (SUCCESS is 0, but any value
+ * >= 0 is accepted, not only SUCCESS) writes "resp 0", the id, the section and the name in quotes, and the
+ * HOST_REMOTE_PAGE_SLOTS slots. Every string is NUL-terminated.
  */
 typedef struct HOST_REMOTE_PAGE_T {
     /** the id of the page */
@@ -210,7 +215,6 @@ typedef struct HOST_CURVE_T {
  * before host_dispatch_register(), or with a backend whose param_get is NULL, curve_bind binds nothing and answers it
  * too. A host that does not call this answers both ERR_INVALID_OPERATION once it calls
  * host_dispatch_register_unsupported(); call it before that one, which registers the same verbs.
-
  *
  * The table is not copied: the pointer is kept and read at every line. Not thread-safe: it sets an unlocked global and
  * uses the table of commands.

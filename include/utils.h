@@ -61,7 +61,6 @@
 /** @brief turns on the double quotes and their escapes in strarr_split
  *
  * The library is built with it defined; without it strarr_split knows no quote and cuts at the spaces alone.
-
  */
 #define ENABLE_QUOTATION_MARKS
 

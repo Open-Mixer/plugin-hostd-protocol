@@ -148,7 +148,6 @@ typedef struct HOST_SCENARIO_DIRECT_T {
  *
  * The list is zeroed first, so one that holds lines is freed with host_scenario_free before it is loaded again. The
  * allocations are not checked: with no memory a command, a reply or a guard is left NULL.
-
  *
  * @pre path and list are not NULL; vars holds var_count variables, their names and values not NULL, and may be NULL
  *     when var_count is 0.

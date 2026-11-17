@@ -192,7 +192,6 @@ int socket_send_feedback(const char *buffer);
  * What a controller set for its connection starts and ends here: once protocol_add_hello was called, the grants of
  * hello are dropped as it connects; once host_dispatch_register_monitor_output_off was called, the monitors left are
  * ended as it disconnects. One thread calls it: it uses unlocked globals.
-
  *
  * @pre socket_start or socket_adopt returned 0.
  * @param exit_on_failure what a failure does (no memory for the buffer, a connection not accepted, a read that
