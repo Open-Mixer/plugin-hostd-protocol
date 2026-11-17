@@ -69,6 +69,7 @@
  */
 #define SOCKET_MSG_BUFFER_SIZE  1024
 
+/* Protocol commands definition (tools/mod-host-json.py reads the command forms from here) */
 /** @brief the form of add: the uri of the plugin, the instance and, optional, a client name
  *
  * The "..." lets the line end after the instance or go on: host_dispatch_register gives the word after the instance to
@@ -185,6 +186,7 @@
 /** @brief the form of quit, which takes no argument */
 #define QUIT                 "quit"
 
+/* Feedback messages definition (tools/mod-host-json.py: the feedback formats start here) */
 /** @brief the printf format of the feedback line output_set: the instance, the symbol of the output and its value
  *
  * host_dispatch_output_set sends it.
