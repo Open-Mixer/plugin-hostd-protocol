@@ -64,9 +64,13 @@
  */
 #define PHD_HEADLESS_QT_PLATFORM "offscreen"
 
-/* whether the process has a display session: DISPLAY or WAYLAND_DISPLAY set and not empty. A host with none gives Qt
- * PHD_HEADLESS_QT_PLATFORM; a daemon with none refuses show_external_ui and hide_external_ui itself, with
- * PHD_EXTERNAL_UI_NO_DISPLAY after the -902, since the window would belong to its workers, which inherit its environment */
+/** @brief whether the process has a display session: DISPLAY or WAYLAND_DISPLAY set and not empty. A host with none
+ * gives Qt PHD_HEADLESS_QT_PLATFORM; a daemon with none refuses show_external_ui and hide_external_ui itself, with
+ * PHD_EXTERNAL_UI_NO_DISPLAY after the -902, since the window would belong to its workers, which inherit its
+ * environment
+ *
+ * @return nonzero when DISPLAY or WAYLAND_DISPLAY is set and not empty, else 0.
+ */
 static inline int phd_has_display(void)
 {
     const char *x = getenv("DISPLAY"), *wayland = getenv("WAYLAND_DISPLAY");
@@ -379,7 +383,12 @@ static inline int phd_has_display(void)
     X(NOTE_SWEEP, "note-sweep", "a note input played") \
     X(SOAK, "soak", "a long render")
 
-/* whether name is a pool name, by PHD_POOL_NAME_CLASS and the limits above */
+/** @brief whether name is a pool name, by PHD_POOL_NAME_CLASS and the limits above
+ *
+ * @param name a NUL-terminated string, not NULL.
+ * @return nonzero when every character of name is in PHD_POOL_NAME_CLASS and its length is from PHD_POOL_NAME_MIN to
+ *     PHD_POOL_NAME_MAX, else 0.
+ */
 static inline int phd_pool_name_valid(const char *name)
 {
     int n = 0;
@@ -529,13 +538,22 @@ static inline int phd_pool_name_valid(const char *name)
  */
 #define PHD_VERB_ADD              "add"
 
-/* The uri of an add, words[1] on, whole. A clap: uri is clap:<path>#<id>, its path percent-encoded or in quotation
- * marks when it holds a space; written bare, the line's words split it. So a clap: word with no '#' goes on over the
- * words after it up to the one that holds the '#', joined with one space each (a run of spaces is not told from one:
- * such a path is written encoded or quoted). Returns words[1], or joined (size bytes) for a uri so joined; *next is the
- * index of the word after the uri. A clap: word whose '#' no later word holds, or that does not fit, is its one word. */
 /** @brief the prefix of a CLAP plugin's uri: clap:\<path\>#\<id\> */
 #define PHD_CLAP_URI_PREFIX "clap:"
+/** @brief the uri of an add, words[1] on, whole. A clap: uri is clap:\<path\>#\<id\>, its path percent-encoded or in
+ * quotation marks when it holds a space; written bare, the line's words split it. So a clap: word with no '#' goes on
+ * over the words after it up to the one that holds the '#', joined with one space each (a run of spaces is not told
+ * from one: such a path is written encoded or quoted). A clap: word whose '#' no later word holds, or that does not
+ * fit, is its one word.
+ *
+ * @param words the words of the line, the verb first; not modified.
+ * @param count how many words there are.
+ * @param joined the buffer a joined uri is written to, NUL-terminated; written only when words are joined.
+ * @param size the size of joined in bytes.
+ * @param next set to the index of the word after the uri: 2, or past the last word joined. Always written, so not
+ *     NULL.
+ * @return NULL when count is less than 2; joined for a clap: uri joined from several words; otherwise words[1].
+ */
 static inline const char *phd_add_uri(char *const *words, unsigned count, char *joined, size_t size, unsigned *next)
 {
     unsigned i;
@@ -583,14 +601,25 @@ static inline const char *phd_add_uri(char *const *words, unsigned count, char *
  */
 #define PHD_PIN_PATH_ESCAPE      "%"
 
-/* whether a byte of a path is written escaped */
+/** @brief whether a byte of a path is written escaped
+ *
+ * @param c the byte of a path.
+ * @return nonzero when c is written escaped: a control byte, 0x7f, the escape, a double quote, a backslash or a byte
+ *     of PHD_PIN_PATH_EXCLUDED; else 0.
+ */
 static inline int phd_pin_path_escaped(unsigned char c)
 {
     return c < 0x20 || c == 0x7f || c == PHD_PIN_PATH_ESCAPE[0] || c == '"' || c == '\\' ||
            (c && strchr(PHD_PIN_PATH_EXCLUDED, c) != NULL);
 }
 
-/* a path as the word of a pin: 0, or -1 when out (size bytes) cannot hold it */
+/** @brief a path as the word of a pin: 0, or -1 when out (size bytes) cannot hold it
+ *
+ * @param path the NUL-terminated path, not NULL.
+ * @param out the buffer the encoded word is written to, NUL-terminated.
+ * @param size the size of out in bytes.
+ * @return 0, or -1 when out cannot hold the word and its NUL; out is then partly written and not NUL-terminated.
+ */
 static inline int phd_pin_path_encode(const char *path, char *out, size_t size)
 {
     static const char hex[] = "0123456789ABCDEF";
@@ -621,7 +650,11 @@ static inline int phd_pin_path_encode(const char *path, char *out, size_t size)
     return 0;
 }
 
-/* the hex digit's value, or -1 */
+/** @brief the hex digit's value, or -1
+ *
+ * @param c a character.
+ * @return the value, 0 to 15, of the hex digit c in either case, or -1 for any other character.
+ */
 static inline int phd_hex_value(char c)
 {
     if (c >= '0' && c <= '9')
@@ -633,8 +666,15 @@ static inline int phd_hex_value(char c)
     return -1;
 }
 
-/* the path a word of a pin names: 0, or -1 for an escape not followed by two hex digits, an escaped NUL, or an out that
- * cannot hold it. Hex digits are read in either case; a byte written as it is stays as it is */
+/** @brief the path a word of a pin names: 0, or -1 for an escape not followed by two hex digits, an escaped NUL, or
+ * an out that cannot hold it. Hex digits are read in either case; a byte written as it is stays as it is
+ *
+ * @param word the NUL-terminated pin word, not NULL.
+ * @param out the buffer the path is written to, NUL-terminated.
+ * @param size the size of out in bytes.
+ * @return 0, or -1 when word holds an escape not followed by two hex digits or an escaped NUL, or when out cannot
+ *     hold the path and its NUL; out is then partly written and not NUL-terminated.
+ */
 static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 {
     size_t o = 0;
@@ -1095,7 +1135,12 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       PHD_VERB_SHOW_EXTERNAL_UI " is, resp 0 also when no window is shown; in the ledger it takes back the show, so a " \
       "respawn shows nothing")
 
-/* whether s is a string word: valid UTF-8, at most PHD_STRING_MAX bytes, no byte below 0x20 */
+/** @brief whether s is a string word: valid UTF-8, at most PHD_STRING_MAX bytes, no byte below 0x20
+ *
+ * @param s a NUL-terminated string, not NULL.
+ * @return nonzero when s is valid UTF-8 as RFC 3629 spells it, has no byte below 0x20 and is at most PHD_STRING_MAX
+ *     bytes, else 0.
+ */
 static inline int phd_string_valid(const char *s)
 {
     const unsigned char *p = (const unsigned char *)s;
@@ -1134,7 +1179,11 @@ static inline int phd_string_valid(const char *s)
     return n <= PHD_STRING_MAX;
 }
 
-/* whether c is a colour of track_info: #RRGGBB, either case, or PHD_NO_COLOR */
+/** @brief whether c is a colour of track_info: \#RRGGBB, either case, or PHD_NO_COLOR
+ *
+ * @param c a NUL-terminated string, not NULL.
+ * @return nonzero when c is PHD_NO_COLOR or \#RRGGBB in either case, else 0.
+ */
 static inline int phd_color_valid(const char *c)
 {
     int n;
@@ -1149,8 +1198,12 @@ static inline int phd_color_valid(const char *c)
     return c[7] == '\0';
 }
 
-/* the kind of strip a fourth word of track_info names, 1 for the first row of PHD_TRACK_KINDS; 0 for NULL (an
- * input channel); -1 for a word that is not one */
+/** @brief the kind of strip a fourth word of track_info names, 1 for the first row of PHD_TRACK_KINDS; 0 for NULL (an
+ * input channel); -1 for a word that is not one
+ *
+ * @param word the fourth word of a track_info line, or NULL for an input channel.
+ * @return the 1-based row of word in PHD_TRACK_KINDS; 0 for NULL; -1 for a word that is not a kind.
+ */
 static inline int phd_track_kind(const char *word)
 {
     int n = 0;
@@ -1163,14 +1216,27 @@ static inline int phd_track_kind(const char *word)
     return -1;
 }
 
-/* whether the words of a track_info line, the verb first, are its grammar */
+/** @brief whether the words of a track_info line, the verb first, are its grammar
+ *
+ * @param word the words of the line, the verb first; at least count of them are read.
+ * @param count how many words there are.
+ * @return nonzero when count is 4 or 5, the name is a string word, the colour is valid and the kind, when there is
+ *     one, is a kind; else 0.
+ */
 static inline int phd_track_info_valid(char *const *word, int count)
 {
     return (count == 4 || count == 5) && phd_string_valid(word[2]) && phd_color_valid(word[3]) &&
            phd_track_kind(count == 5 ? word[4] : NULL) >= 0;
 }
 
-/* whether word is a whole number from lo to hi, in decimal with no sign but a leading '-' ('-0' is not a number: zero has one spelling) */
+/** @brief whether word is a whole number from lo to hi, in decimal with no sign but a leading '-' ('-0' is not a
+ * number: zero has one spelling)
+ *
+ * @param word a NUL-terminated string, not NULL.
+ * @param lo the least value accepted.
+ * @param hi the greatest value accepted.
+ * @return nonzero when word is a whole number from lo to hi, else 0.
+ */
 static inline int phd_number_in(const char *word, int lo, int hi)
 {
     long v = 0;
@@ -1193,7 +1259,13 @@ static inline int phd_number_in(const char *word, int lo, int hi)
     return v >= lo && v <= hi;
 }
 
-/* whether the words of a note verb's line, the verb first, are its grammar; 0 for a line of another verb */
+/** @brief whether the words of a note verb's line, the verb first, are its grammar; 0 for a line of another verb
+ *
+ * @param word the words of the line, the verb first; at least count of them are read.
+ * @param count how many words there are.
+ * @return nonzero when the line has the grammar of its note verb; 0 for a line that does not, and for the line of
+ *     another verb.
+ */
 static inline int phd_note_valid(char *const *word, int count)
 {
     int on = !strcmp(word[0], OMX_VERB_NOTE_ON);
@@ -1208,7 +1280,12 @@ static inline int phd_note_valid(char *const *word, int count)
     return 0;
 }
 
-/* whether a verb is one of the note verbs */
+/** @brief whether a verb is one of the note verbs
+ *
+ * @param verb a NUL-terminated string, not NULL.
+ * @return nonzero when verb is OMX_VERB_NOTE_ON, OMX_VERB_NOTE_OFF, OMX_VERB_ALL_NOTES_OFF or OMX_VERB_NOTE_INPUT,
+ *     else 0.
+ */
 static inline int phd_is_note_verb(const char *verb)
 {
     return !strcmp(verb, OMX_VERB_NOTE_ON) || !strcmp(verb, OMX_VERB_NOTE_OFF) || !strcmp(verb, OMX_VERB_ALL_NOTES_OFF) ||

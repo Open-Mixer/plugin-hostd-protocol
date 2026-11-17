@@ -245,20 +245,6 @@ include/plugin-hostd/protocol.h: warning: Member PHD_WORKER_POOL_ON (macro defin
 include/plugin-hostd/protocol.h: warning: Member PHD_WORKER_POOL_QUALIFIED (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member PHD_WORKER_THREAD_POOL_ON (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member X(id, name) (macro definition) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_add_uri(char *const *words, unsigned count, char *joined, size_t size, unsigned *next) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_color_valid(const char *c) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_has_display(void) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_hex_value(char c) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_is_note_verb(const char *verb) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_note_valid(char *const *word, int count) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_number_in(const char *word, int lo, int hi) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_pin_path_decode(const char *word, char *out, size_t size) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_pin_path_encode(const char *path, char *out, size_t size) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_pin_path_escaped(unsigned char c) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_pool_name_valid(const char *name) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_string_valid(const char *s) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_track_info_valid(char *const *word, int count) (function) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member phd_track_kind(const char *word) (function) of file protocol.h is not documented.
 include/plugin-hostd/search_paths.h: warning: Member PHD_DEFAULT_CLAP_PATH (macro definition) of file search_paths.h is not documented.
 include/plugin-hostd/search_paths.h: warning: Member PHD_DEFAULT_LV2_PATH (macro definition) of file search_paths.h is not documented.
 include/protocol.h: warning: Compound PROTO_T is not documented.
