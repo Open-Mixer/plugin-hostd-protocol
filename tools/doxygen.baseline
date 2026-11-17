@@ -55,20 +55,8 @@ include/plugin-hostd/protocol.h: warning: Member PHD_PRESET_ALIAS_MAX (macro def
 include/plugin-hostd/protocol.h: warning: Member PHD_PRESET_FILE_MAX (macro definition) of file protocol.h is not documented.
 include/socket.h: warning: Member SOCKET_HAS_ADOPT (macro definition) of file socket.h is not documented.
 include/socket.h: warning: Member socket_adopt(int socket_fd, int feedback_fd, int buffer_size) (function) of file socket.h is not documented.
-include/utils.h: warning: Compound MSG_T is not documented.
-include/utils.h: warning: Member ENABLE_QUOTATION_MARKS (macro definition) of file utils.h is not documented.
-include/utils.h: warning: Member FREE(pv) (macro definition) of file utils.h is not documented.
-include/utils.h: warning: Member MALLOC(n) (macro definition) of file utils.h is not documented.
 include/utils.h: warning: Member clamp(int value, int min, int max) (function) of file utils.h is not documented.
 include/utils.h: warning: Member clampf(float value, float min, float max) (function) of file utils.h is not documented.
-include/utils.h: warning: Member data (variable) of struct MSG_T is not documented.
-include/utils.h: warning: Member data_size (variable) of struct MSG_T is not documented.
 include/utils.h: warning: Member doubles_differ_enough(double a, double b) (function) of file utils.h is not documented.
 include/utils.h: warning: Member floats_differ_enough(float a, float b) (function) of file utils.h is not documented.
-include/utils.h: warning: Member msg_t (typedef) of file utils.h is not documented.
-include/utils.h: warning: Member phd_headless_qt(void) (function) of file utils.h is not documented.
-include/utils.h: warning: Member sender_id (variable) of struct MSG_T is not documented.
-include/utils.h: warning: Member str_duplicate(const char *str) (function) of file utils.h is not documented.
 include/utils.h: warning: Member strarr_join(char **const str_array) (function) of file utils.h is not documented.
-include/utils.h: warning: Member strarr_length(char **str_array) (function) of file utils.h is not documented.
-include/utils.h: warning: Member strarr_split(char *str) (function) of file utils.h is not documented.
