@@ -15,8 +15,8 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { connect, HostdError } = await import(join(ROOT, 'clients/typescript/client.mjs'));
-const { encodeWord } = await import(join(ROOT, 'clients/typescript/lines.mjs'));
-const { VERBS, REPLY_CODES } = await import(join(ROOT, 'clients/typescript/vocabulary.mjs'));
+const { encode, encodeWord } = await import(join(ROOT, 'clients/typescript/lines.mjs'));
+const { VERBS, REPLY_CODES, MESSAGE_MAX } = await import(join(ROOT, 'clients/typescript/vocabulary.mjs'));
 
 // line -> reply: the daemon's own answers, from tests/golden/plugin-hostd-protocol.txt and doc/protocol.md (Curves)
 const SCRIPT = new Map([
@@ -36,6 +36,7 @@ test.after(() => { for (const p of peers) p.stop(); });
 /** a peer: the feedback port first or no command is read, as plugin-hostd does; `seen` collects the lines it was sent */
 async function peer(opts = {}) {
   const seen = [];
+  const p = { closed: false };
   let feedback = null;
   const sockets = [];
   const cmd = net.createServer((s) => {
@@ -50,12 +51,14 @@ async function peer(opts = {}) {
         if (!feedback && !opts.noFeedback) { seen.push('BEFORE-FEEDBACK ' + line); continue; }
         seen.push(line);
         if (opts.mute) continue;
+        if (opts.big) { s.write(Buffer.alloc(MESSAGE_MAX + 1, 97)); continue; }
         if (opts.close) { s.destroy(); continue; }
         const reply = Buffer.from((SCRIPT.get(line) ?? 'not found') + '\0');
         s.write(reply.subarray(0, 4));
         setTimeout(() => s.write(reply.subarray(4)), 5);
       }
     });
+    s.on('close', () => { p.closed = true; });
     s.on('error', () => {});
   });
   const fb = net.createServer((s) => { feedback = s; sockets.push(s); s.on('error', () => {}); });
@@ -64,8 +67,8 @@ async function peer(opts = {}) {
     const port = cmd.address().port;
     try {
       await new Promise((res, rej) => { fb.once('error', rej); fb.listen(port + 1, '127.0.0.1', res); });
-      const p = { port, seen, push: (l) => feedback.write(l + '\0'),
-        stop: () => { for (const s of sockets) s.destroy(); cmd.close(); fb.close(); } };
+      Object.assign(p, { port, seen, push: (l) => feedback.write(l + '\0'),
+        stop: () => { for (const s of sockets) s.destroy(); cmd.close(); fb.close(); } });
       peers.push(p);
       return p;
     } catch { await new Promise((r) => cmd.close(r)); }
@@ -169,4 +172,110 @@ test('a word is bare, quoted, or refused as the grammar says', () => {
   assert.equal(encodeWord(''), '""');
   assert.throws(() => encodeWord('a\nb'), TypeError);
   assert.throws(() => encodeWord('x'.repeat(256)), TypeError);
+});
+
+// ---- review fixes
+
+const TABLE = JSON.parse(readFileSync(join(ROOT, 'protocol/plugin-hostd-protocol.json'), 'utf8'));
+
+/** The daemon's tokenizer (src/utils.c, strarr_split with ENABLE_QUOTATION_MARKS, and parse_quote), read back in a test:
+ * words split at spaces outside quotes; \" is a quote anywhere; inside quotes \\ is a backslash and "" a quote; the
+ * quotes are not part of the value. */
+function cSplit(line) {
+  const out = [''];
+  let quote = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    const n = line[i + 1];
+    if (c === ' ' && !quote) { while (line[i + 1] === ' ') i++; out.push(''); }
+    else if (c === '\\' && n === '"') { out[out.length - 1] += '"'; i++; }
+    else if (quote && c === '\\' && n === '\\') { out[out.length - 1] += '\\'; i++; }
+    else if (c === '"') {
+      if (!quote) quote = true;
+      else if (n === '"') { out[out.length - 1] += '"'; i++; }
+      else quote = false;
+    } else out[out.length - 1] += c;
+  }
+  return out;
+}
+
+/** a value valid for a form's argument type: the table's own example, a literal word, or a float */
+function sample(type) {
+  if (TABLE.arg_types[type]) return TABLE.arg_types[type].example;
+  if (type === 'float') return '0.5';
+  return type.split('|')[0];
+}
+
+test('every verb of the table encodes with a valid value per argument type and reads back as it was written', () => {
+  let n = 0;
+  for (const c of TABLE.commands) {
+    for (const f of c.forms) {
+      const args = f.args.map(sample);
+      if (f.tail) args.push('tail');
+      const rest = TABLE.arg_types[f.args.at(-1)]?.rest;
+      const line = encode(c.verb, ...args);
+      const want = [c.verb, ...args.flatMap((a, i) => (rest && i === f.args.length - 1 ? a.split(' ') : [a]))];
+      assert.deepEqual(cSplit(line), want, `${c.verb} ${f.args.join(' ')}`);
+      n++;
+    }
+  }
+  assert.ok(n >= 97);
+});
+
+test('the generator refuses a form type that is declared nowhere, by its name', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'tsclient-'));
+  try {
+    const t = structuredClone(TABLE);
+    t.commands.find((c) => c.verb === 'curve_points').forms[0].args[0] = 'undeclared_type';
+    writeFileSync(join(dir, 'table.json'), JSON.stringify(t));
+    const r = gen(['--table', join(dir, 'table.json'), '--out', dir]);
+    assert.notEqual(r.status, 0);
+    assert.match(r.stderr, /undeclared_type/);
+  } finally { rmSync(dir, { recursive: true }); }
+});
+
+test('a word with a backslash, a quote or a space is read back by the daemon as it was written', () => {
+  for (const v of ['gain', 'a b', 'a"b', 'a\\b', 'a b\\', 'a\\', '\\', 'x\\"y', 'a \\" b', '\\\\', '']) {
+    assert.deepEqual(cSplit(encode('param_get', 3, v)), ['param_get', '3', v], JSON.stringify(v));
+  }
+});
+
+test('a control character is refused in every argument of every verb, quoted or not', () => {
+  for (const c of TABLE.commands) {
+    for (const f of c.forms) {
+      f.args.forEach((_, k) => {
+        for (const bad of ['a\nb', 'a b\r', '\t', 'a\u007f']) {
+          const args = f.args.map(sample);
+          args[k] = bad;
+          assert.throws(() => encode(c.verb, ...args), (e) => e instanceof TypeError && /control character/.test(e.message), `${c.verb} argument ${k + 1} ${JSON.stringify(bad)}`);
+        }
+      });
+    }
+  }
+});
+
+test('a reply past the cap closes the socket with a typed error', async () => {
+  const p = await peer({ big: true });
+  const c = await connect({ port: p.port, timeout: 5000 });
+  await assert.rejects(c.send('ping'), (e) => e instanceof HostdError && e.kind === 'oversize');
+  await new Promise((r) => setTimeout(r, 100));
+  assert.ok(p.closed, 'the peer saw the connection close');
+  await assert.rejects(c.send('ping'), (e) => e instanceof HostdError && e.kind === 'oversize');
+  c.close(); p.stop();
+});
+
+test('transport errors are HostdError kinds: connect, closed, timeout', async () => {
+  const srv = net.createServer();
+  await new Promise((r) => srv.listen(0, '127.0.0.1', r));
+  const dead = srv.address().port;
+  await new Promise((r) => srv.close(r));
+  await assert.rejects(connect({ port: dead }), (e) => e instanceof HostdError && e.kind === 'connect');
+  let p = await peer({ close: true });
+  let c = await connect({ port: p.port, timeout: 2000 });
+  await assert.rejects(c.send('ping'), (e) => e instanceof HostdError && e.kind === 'closed');
+  p.stop();
+  p = await peer({ mute: true });
+  c = await connect({ port: p.port, timeout: 100 });
+  await assert.rejects(c.send('ping'), (e) => e instanceof HostdError && e.kind === 'timeout');
+  p.stop();
 });
