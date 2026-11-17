@@ -8,11 +8,11 @@
 # from the spec and control (dnf builddep, apt-get build-dep) and name no version.
 #
 # <rpm name>                    <deb name>                    <floor>
-omx-contract-devel              libomx-contract-dev           3.18.0
-omx-contract                    omx-contract                  3.18.0
+omx-contract-devel              libomx-contract-dev           3.19.0
+omx-contract                    omx-contract                  3.19.0
 omx-contract-data               omx-contract-data             3.16.0
 omx-clap-core-contract          omx-clap-core-contract        0.32.3
 omx-dsp-devel                   libomxdsp-dev                 0.32.1
 plugin-hostd-protocol           libplugin-hostd-protocol0     0.5.8
 plugin-hostd-protocol-contract  plugin-hostd-protocol-contract 0.5.8
-plugin-db-contract              plugin-db-contract            0.4.4
+plugin-db-contract              plugin-db-contract            0.4.5

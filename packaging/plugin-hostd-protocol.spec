@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.9
+Version: 0.5.10
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -22,12 +22,12 @@ BuildRequires: python3-devel
 # packaging/deps.txt by Open-Mixer/.github deps-render (render.sh --write); edit that file, not these lines.
 # the declared protocol: tools/protocol-gen holds protocol.h's parameter scales to omx-contract's C headers, and
 # install-contract writes the contract directory's package with omx-contract's script
-BuildRequires: omx-contract-devel >= 3.18.0
+BuildRequires: omx-contract-devel >= 3.19.0
 # the codec's tests (make test-codec) read omx-clap-core's sentences and omx-contract's catalog reader
 BuildRequires: omx-clap-core-contract >= 0.32.3
 BuildRequires: omx-contract-data >= 3.16.0
 # plugin-db's package of the contract directory, which the vocabulary header is rendered from (make check-rendered)
-BuildRequires: plugin-db-contract >= 0.4.4
+BuildRequires: plugin-db-contract >= 0.4.5
 # omx_curve.h, the curve function the curve verbs draw with (header only)
 BuildRequires: omx-dsp-devel >= 0.32.1
 
@@ -80,7 +80,7 @@ Requires: python3
 Requires: plugin-hostd-protocol >= 0.5.8
 Requires: plugin-hostd-protocol-contract >= 0.5.8
 Requires: omx-clap-core-contract >= 0.32.3
-Requires: omx-contract >= 3.18.0
+Requires: omx-contract >= 3.19.0
 # omx-contract's catalog reader, omx_contract_catalog.py, which reads a catalog entry whatever its shape
 Requires: omx-contract-data >= 3.16.0
 
@@ -97,7 +97,7 @@ Its documentation is on openmixer.org.
 %package contract
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
-Requires: omx-contract >= 3.18.0
+Requires: omx-contract >= 3.19.0
 # plugin-hostd before 0.16.0 declared the same items in its own package of the contract directory
 Conflicts: plugin-hostd-contract < 0.16.0
 
@@ -252,6 +252,32 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Tue Nov 17 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.10-1
+- Floors only, no ceilings, declared once in packaging/deps.txt; the spec and
+  debian/control are generated from it and the floors check refuses drift (#64):
+  omx-contract >= 3.19.0 (the -devel and the runtime package), plugin-db >= 0.4.5;
+  every other floor stays what 0.5.9 declared.
+- python3-plugin-hostd-client, a new noarch package: the protocol's Python
+  client ships from here (#47, #45).
+- python3-plugin-hostd-protocol, the Python codec, ships from here with epoch 1,
+  above the package plugin-hostd built before (#48, #46).
+- The grammar's quoted-escaped form, a quoted value that is text, for the
+  property verbs (#39, omx-clap-core#15).
+- The panel file declares its keys, meters among them (#51).
+- The typed replies have a JSON Schema each, installed under shapesdir, and the
+  TypeScript render is published as an npm package (#82, #81); the TypeScript
+  client of the protocol, its transport, the generated vocabulary and
+  curvePoints, ships in the same package (#87).
+- An untagged empty line, and a whitespace-only one, gets no reply and changes
+  no state; a tagged one keeps its answer (#79, #83).
+- phd_note_valid reads no word past count, phd_pin_path_decode writes nothing
+  into a size of 0 (#74), and phd_number_in reads one spelling per number, in the
+  caller's lo and hi only (#75).
+- The command and feedback markers of mod-host.h that the generator reads are
+  back (#80).
+- The installed C headers document their public API with Doxygen (#69, #76).
+- The debian changelog keeps its history again.
+
 * Sat Nov 14 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.9-1
 - Built against plugin-db >= 0.4.4 and below 0.5 and omx-dsp >= 0.32.1 and below
   0.33, the 3.18.0 pass's newest of each, with their ceilings (D30).
