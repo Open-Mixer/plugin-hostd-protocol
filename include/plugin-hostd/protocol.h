@@ -31,6 +31,7 @@
 #ifndef PLUGIN_HOSTD_PROTOCOL_H
 #define PLUGIN_HOSTD_PROTOCOL_H
 
+#include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -978,23 +979,21 @@ static inline int phd_track_info_valid(char *const *word, int count)
 /* whether word is a whole number from lo to hi, in decimal with no sign but a leading '-' ('-0' is not a number: zero has one spelling) */
 static inline int phd_number_in(const char *word, int lo, int hi)
 {
-    long v = 0;
-    int n = word[0] == '-' ? 1 : 0;
+    long long v = 0;
+    int negative = word[0] == '-', n = negative;
 
-    if (!word[n])
+    if (!word[n] || (word[n] == '0' && (negative || word[n + 1])))
         return 0;
     for (; word[n]; n++)
     {
-        if (word[n] < '0' || word[n] > '9' || v > 100000)
+        int digit = word[n] - '0';
+
+        if (digit < 0 || digit > 9 || v > (LLONG_MAX - digit) / 10)
             return 0;
-        v = v * 10 + (word[n] - '0');
+        v = v * 10 + digit;
     }
-    if (word[0] == '-')
-    {
-        if (v == 0)
-            return 0;
+    if (negative)
         v = -v;
-    }
     return v >= lo && v <= hi;
 }
 
