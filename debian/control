@@ -1,18 +1,9 @@
+# The dependency floors in this file are GENERATED from packaging/deps.txt by Open-Mixer/.github deps-render (render.sh --write).
 Source: plugin-hostd-protocol
 Section: libs
 Priority: optional
 Maintainer: Pau Aliagas <linuxnow@gmail.com>
-Build-Depends: debhelper-compat (= 13),
-               libomx-contract-dev (>= 3.18.0~),
-               libomx-contract-dev (<< 4~),
-               omx-clap-core-contract (>= 0.32.3~),
-               omx-clap-core-contract (<< 0.34~),
-               omx-contract-data (>= 3.16.0~),
-               omx-contract-data (<< 4~),
-               libomxdsp-dev (>= 0.32.1~),
-               libomxdsp-dev (<< 0.33~),
-               pkgconf,
-               python3
+Build-Depends: debhelper-compat (= 13), libomx-contract-dev (>= 3.18.0~), omx-clap-core-contract (>= 0.32.3~), omx-contract-data (>= 3.16.0~), plugin-db-contract (>= 0.4.4~), libomxdsp-dev (>= 0.32.1~), pkgconf, python3
 Standards-Version: 4.6.2
 Homepage: https://github.com/Open-Mixer/plugin-hostd-protocol
 Vcs-Git: https://github.com/Open-Mixer/plugin-hostd-protocol.git
@@ -67,11 +58,7 @@ Package: python3-plugin-hostd-protocol
 Architecture: all
 Multi-Arch: foreign
 Section: python
-Depends: python3, libplugin-hostd-protocol0 (>= 0.5.8~), libplugin-hostd-protocol0 (<< 0.6~),
-         plugin-hostd-protocol-contract (>= 0.5.8~), plugin-hostd-protocol-contract (<< 0.6~),
-         omx-clap-core-contract (>= 0.32.3~), omx-clap-core-contract (<< 0.34~),
-         omx-contract (>= 3.12.0~), omx-contract (<< 4~),
-         omx-contract-data (>= 3.16.0~), omx-contract-data (<< 4~), ${misc:Depends}
+Depends: python3, libplugin-hostd-protocol0 (>= 0.5.8~), plugin-hostd-protocol-contract (>= 0.5.8~), omx-clap-core-contract (>= 0.32.3~), omx-contract (>= 3.18.0~), omx-contract-data (>= 3.16.0~), ${misc:Depends}
 Description: plugin-hostd protocol, its Python codec
  plugin_hostd_protocol: one codec over the files plugin-hostd-protocol
  installs, which encodes and decodes every command the protocol declares,
@@ -87,7 +74,7 @@ Description: plugin-hostd protocol, its Python codec
 Package: plugin-hostd-protocol-contract
 Architecture: all
 Multi-Arch: foreign
-Depends: omx-contract (>= 3.18.0~), omx-contract (<< 4~), ${misc:Depends}
+Depends: omx-contract (>= 3.18.0~), ${misc:Depends}
 Breaks: plugin-hostd-contract (<< 0.16.0~)
 Description: plugin-hostd protocol, its verbs in omx-contract's contract directory
  data/verbs.json of plugin-hostd-protocol, the verbs and reply codes
