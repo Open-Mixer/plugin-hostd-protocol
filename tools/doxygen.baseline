@@ -364,7 +364,6 @@ include/plugin-hostd/protocol.h: warning: Member PHD_WORKER_READY_MARKER (macro 
 include/plugin-hostd/protocol.h: warning: Member PHD_WORKER_STATES(X) (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member PHD_WORKER_THREAD_POOL_ON (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member PLUGIN_HOSTD_PROTOCOL_VERSION (macro definition) of file protocol.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member X(id, name) (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member phd_add_uri(char *const *words, unsigned count, char *joined, size_t size, unsigned *next) (function) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member phd_color_valid(const char *c) (function) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member phd_has_display(void) (function) of file protocol.h is not documented.
