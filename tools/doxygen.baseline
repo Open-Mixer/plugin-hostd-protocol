@@ -130,7 +130,6 @@ include/mod-host.h: warning: Member STATE_TMPDIR (macro definition) of file mod-
 include/mod-host.h: warning: Member TRACK_INFO (macro definition) of file mod-host.h is not documented.
 include/mod-host.h: warning: Member TRANSPORT (macro definition) of file mod-host.h is not documented.
 include/mod-host.h: warning: Member TRANSPORT_SYNC (macro definition) of file mod-host.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member PHD_HISTORY_RECORD (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member PHD_PRESET_ALIAS_MAX (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member PHD_PRESET_FILE_MAX (macro definition) of file protocol.h is not documented.
 include/plugin-hostd/protocol.h: warning: Member X(id, name) (macro definition) of file protocol.h is not documented.

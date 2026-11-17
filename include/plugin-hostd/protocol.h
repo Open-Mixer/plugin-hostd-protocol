@@ -1963,6 +1963,9 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_HISTORY_NAME              "plugin-hostd/history"
 /** @brief the first line of the history file */
 #define PHD_HISTORY_HEADER            "# plugin-hostd history/1"
+/** @brief the word each record line of the history file starts with: "history \<uri> \<digest> \<class>", then
+ * its keys; plugin-hostd writes the lines and reads back only lines that start with it
+ */
 #define PHD_HISTORY_RECORD            "history"
 /** @brief the days after last_crash within which the summary history_get answers still reads a crash */
 #define PHD_HISTORY_KEEP_DAYS         30
