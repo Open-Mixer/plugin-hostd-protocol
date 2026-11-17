@@ -529,6 +529,8 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 {
     size_t o = 0;
 
+    if (size == 0)
+        return -1;
     for (; *word; word++)
     {
         if (o + 2 > size)
