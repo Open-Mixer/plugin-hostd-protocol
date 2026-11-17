@@ -1,7 +1,7 @@
-preset_show -692 Ǡ! => resp 0 !!Χ !
-preset_show "ư" => resp 0  !w!
-preset_show -993 Ν => resp 0
-preset_show 0 ! => resp 0
+preset_show ư˛ => resp 0
+preset_show !w! => resp 0 ȅ͋
+preset_show < => resp 0
+preset_show ! => resp 0
 preset_show P| => resp 0
 preset_show ú => resp 0 ""
 preset_show -1 1у => resp 0 !s

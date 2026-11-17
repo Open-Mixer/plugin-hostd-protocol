@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_curve_points.schema.json",
+  "title": "CurvePointsReply",
+  "description": "The parsed form of a curve_points reply (the points of a bound display): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The number of points that follow."
+    },
+    "points": {
+      "type": "array",
+      "description": "The curve's points, ascending in x.",
+      "items": {
+        "type": "object",
+        "title": "Point",
+        "description": "One point of a curve.",
+        "properties": {
+          "x": {
+            "type": "number",
+            "description": "The x of the point."
+          },
+          "y": {
+            "type": "number",
+            "description": "The y of the point."
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "count",
+    "points"
+  ],
+  "additionalProperties": false
+}

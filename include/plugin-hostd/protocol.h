@@ -1754,7 +1754,7 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_DESCRIPTOR_GET, "0", "path:quoted") \
     X(OMX_VERB_PANEL_GET, "0", "path:quoted") \
     X(OMX_VERB_PRESET_LIST, "count", "") \
-    X(OMX_VERB_PRESET_GET, "0", "load_key:word name:word") \
+    X(OMX_VERB_PRESET_GET, "0", "load_key:word name:line") \
     X(OMX_VERB_PROPERTY_INFO, "0", "symbol:word kind:word access:word name:quoted-escaped") \
     X(OMX_VERB_PROPERTY_GET, "0", "value:quoted-escaped") \
     X(OMX_VERB_PRESET_SHOW, "0", "json:line") \

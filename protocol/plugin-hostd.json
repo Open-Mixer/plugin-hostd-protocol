@@ -375,7 +375,7 @@
     {"verb": "descriptor_get", "resp": "0", "args": "path:quoted"},
     {"verb": "panel_get", "resp": "0", "args": "path:quoted"},
     {"verb": "preset_list", "resp": "count", "args": ""},
-    {"verb": "preset_get", "resp": "0", "args": "load_key:word name:word"},
+    {"verb": "preset_get", "resp": "0", "args": "load_key:word name:line"},
     {"verb": "property_info", "resp": "0", "args": "symbol:word kind:word access:word name:quoted-escaped"},
     {"verb": "property_get", "resp": "0", "args": "value:quoted-escaped"},
     {"verb": "preset_show", "resp": "0", "args": "json:line"},

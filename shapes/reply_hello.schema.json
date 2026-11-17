@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_hello.schema.json",
+  "title": "HelloReply",
+  "description": "The parsed form of a hello reply (the session's answer to hello): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "integer",
+      "description": "The protocol version the daemon answers on."
+    },
+    "extensions": {
+      "type": "array",
+      "description": "The extensions granted to the session, in the order the daemon lists them.",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "description": "One item: one word."
+      }
+    }
+  },
+  "required": [
+    "version",
+    "extensions"
+  ],
+  "additionalProperties": false
+}
