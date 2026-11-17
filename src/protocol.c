@@ -337,8 +337,9 @@ void protocol_parse(msg_t *msg)
 
     // TODO: check invalid argumets (wildcards)
 
-    // an empty line is not answered; an empty tagged one is answered, so every tagged request has its answer
-    if (proto.list_count == 0)
+    // an empty line is not answered (strarr_split reads it as one empty word, so the line itself is tested); an empty
+    // tagged one is answered, so every tagged request has its answer
+    if (proto.list_count == 0 || data[0] == '\0')
     {
         if (tag)
         {
