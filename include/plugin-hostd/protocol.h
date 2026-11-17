@@ -1445,47 +1445,105 @@ static inline int phd_is_note_verb(const char *verb)
 /* ---------------------------------------------------------------- feedback events */
 
 /* one NUL-terminated line each on the feedback port; a worker is "w<k>" */
+/** @brief the name of the feedback event worker_died: a worker died */
 #define PHD_EVENT_WORKER_DIED             "worker_died"
+/** @brief the name of the feedback event instance_verb_dropped: a command is dropped from the ledger because the
+ * worker died on it
+ */
 #define PHD_EVENT_INSTANCE_VERB_DROPPED   "instance_verb_dropped"
+/** @brief the name of the feedback event worker_backoff: the respawn of a worker waits this long */
 #define PHD_EVENT_WORKER_BACKOFF          "worker_backoff"
+/** @brief the name of the feedback event worker_respawned: a worker is back and its ledger replayed */
 #define PHD_EVENT_WORKER_RESPAWNED        "worker_respawned"
+/** @brief the name of the feedback event instance_restored: an instance is back in a worker */
 #define PHD_EVENT_INSTANCE_RESTORED       "instance_restored"
+/** @brief the name of the feedback event instance_replay_refused: a replayed add was refused, by its pin or by the
+ * worker
+ */
 #define PHD_EVENT_INSTANCE_REPLAY_REFUSED "instance_replay_refused"
+/** @brief the name of the feedback event instance_quarantined: the culprit of a pool or chain death is placed own
+ * until cleared
+ */
 #define PHD_EVENT_INSTANCE_QUARANTINED    "instance_quarantined"
+/** @brief the name of the feedback event supervisor_gave_up: the storm bound is spent; respawning ends */
 #define PHD_EVENT_SUPERVISOR_GAVE_UP      "supervisor_gave_up"
+/** @brief the name of the feedback event pin_changed: an add or a replay of a plugin was refused because its files or
+ * layout differ from its pin; it is also the word of the pin_changed verb
+ */
 #define PHD_EVENT_PIN_CHANGED             OMX_VERB_PIN_CHANGED
+/** @brief the name of the feedback event lv2_adapter_refused: the LV2 adapter of the lv2-clap worker refused a plugin */
 #define PHD_EVENT_LV2_ADAPTER_REFUSED     "lv2_adapter_refused"
+/** @brief the name of the feedback event chain_formed: a chain's worker is up with its members */
 #define PHD_EVENT_CHAIN_FORMED            "chain_formed"
+/** @brief the name of the feedback event chain_refused: a chain's worker would not run the members as one chain */
 #define PHD_EVENT_CHAIN_REFUSED           "chain_refused"
+/** @brief the name of the feedback event chain_stalled: a chain, or a plan's segment, has not formed within
+ * chain_form_timeout_ms of its declaration
+ */
 #define PHD_EVENT_CHAIN_STALLED           "chain_stalled"
+/** @brief the name of the feedback event plan_reason: a plan of the chain changed: the reasons plan_get answers now */
 #define PHD_EVENT_PLAN_REASON             "plan_reason"
 /* written by a worker, relayed as it wrote it */
+/** @brief the name of the feedback event remote_pages_changed: relayed from a worker: the plugin changed its remote
+ * pages
+ */
 #define PHD_EVENT_REMOTE_PAGES_CHANGED    "remote_pages_changed"
+/** @brief the name of the feedback event remote_page_suggest: relayed from a worker: the plugin suggests the remote
+ * page of an id
+ */
 #define PHD_EVENT_REMOTE_PAGE_SUGGEST     "remote_page_suggest"
+/** @brief the name of the feedback event param_gesture: relayed from a worker: the user took hold of a control of the
+ * plugin's own, or let it go
+ */
 #define PHD_EVENT_PARAM_GESTURE           "param_gesture"
 /* a worker's own count, not an instance's: omx-clap-core's HOST_EVENTS word xruns (tests/verbs_declared.py holds this to it) */
+/** @brief the name of the feedback event xruns: relayed from a worker and read by the daemon: the JACK xruns the
+ * worker has counted since it started
+ */
 #define PHD_EVENT_XRUNS                   "xruns"
+/** @brief the name of the feedback event abi_clobber: relayed from a worker and read by the daemon: the plugin
+ * returned from a call with a callee-saved register changed
+ */
 #define PHD_EVENT_ABI_CLOBBER             "abi_clobber"
 /* mod-host's own feedback line for a parameter, the same word as its command */
+/** @brief the name of the feedback event param_set: relayed from a worker: parameter feedback, a value the plugin
+ * moved by itself, as mod-host writes it
+ */
 #define PHD_EVENT_PARAM_SET               "param_set"
 
 /* the last word of a param_gesture line */
+/** @brief the last word of a param_gesture line when the user took hold of a control */
 #define PHD_GESTURE_BEGIN "begin"
+/** @brief the last word of a param_gesture line when the user let go of a control */
 #define PHD_GESTURE_END   "end"
 
+/** @brief the prefix of the suspect word of an instance_verb_dropped line: suspect:\<ms\> */
 #define PHD_EVENT_SUSPECT_PREFIX "suspect:"
 /* the state type's pattern, written from PHD_WORKER_STATES: each name an alternative, the last alternative (?!) one
  * that never matches, so the list needs no separator after its last name */
+/** @brief one alternative of PHD_STATE_PATTERN: the state's name and '|'; the last alternative of the pattern, (?!),
+ * never matches, so the list needs no separator after its last name
+ *
+ * @param id the id of the row, unused.
+ * @param name the name of the state.
+ * @param meaning the meaning of the row, unused.
+ */
 #define PHD_STATE_ALTERNATIVE(id, name, meaning) name "|"
+/** @brief the pattern of the state type, written from PHD_WORKER_STATES: each name an alternative */
 #define PHD_STATE_PATTERN "(?:" PHD_WORKER_STATES(PHD_STATE_ALTERNATIVE) "(?!))"
 
-/* how a worker ended, the third word of worker_died: exit:<status> or signal:<number> */
+/** @brief how a worker ended, the third word of worker_died: exit:\<status\> or signal:\<number\>
+ */
 #define PHD_EVENT_EXIT_PREFIX   "exit:"
+/** @brief the prefix of the third word of worker_died when a signal ended the worker: signal:\<number\> */
 #define PHD_EVENT_SIGNAL_PREFIX "signal:"
 
-/* The types of a feedback line's arguments (PHD_EVENTS), each a pattern its word matches whole; rest: 1 for the type
- * of the rest of the line, its words as they were sent. An argument whose type is not one of these is one of the
- * literal words its type spells, written a|b. X(id, name, pattern, rest, spelling) */
+/** @brief The types of a feedback line's arguments (PHD_EVENTS), each a pattern its word matches whole; rest: 1 for
+ * the type of the rest of the line, its words as they were sent. An argument whose type is not one of these is one of
+ * the literal words its type spells, written a|b. X(id, name, pattern, rest, spelling)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_ARG_TYPES(X) \
     X(INT, "int", "-?[0-9]+", 0, "a whole number") \
     X(UINT, "uint", "[0-9]+", 0, "a whole number, not negative") \
@@ -1525,10 +1583,13 @@ static inline int phd_is_note_verb(const char *verb)
     X(VALUE, "value", "[^, ]*", 0, "a value of a key=value") \
     X(LINE, "line", ".*", 1, "the rest of the line, its words as they were sent")
 
-/* The forms of a command whose words the verb table's one format does not name: each form its arguments name:type, as
- * PHD_EVENTS' args, a form per number of them. add is mod-host's <uri> <instance>, which the daemon extends with a
- * placement and a client name, each optional (a placement told from a name by its type); supervisor_reset re-arms one
- * worker or every one (plugin-hostd-protocol#17). X(verb, args) */
+/** @brief The forms of a command whose words the verb table's one format does not name: each form its arguments
+ * name:type, as PHD_EVENTS' args, a form per number of them. add is mod-host's \<uri\> \<instance\>, which the daemon
+ * extends with a placement and a client name, each optional (a placement told from a name by its type);
+ * supervisor_reset re-arms one worker or every one (plugin-hostd-protocol#17). X(verb, args)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_COMMAND_FORMS(X) \
     X(PHD_VERB_ADD, "uri:word instance:int") \
     X(PHD_VERB_ADD, "uri:word instance:int placement:placement") \
@@ -1539,8 +1600,11 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_SUPERVISOR_RESET, "target:" PHD_WORD_ALL) \
     X(OMX_VERB_PROPERTY_SET, "instance:int symbol:word value:quoted-escaped")
 
-/* An example word of each leaf type of PHD_ARG_TYPES, which a test writes sample lines and replies from (#19).
- * X(name, example) */
+/** @brief An example word of each leaf type of PHD_ARG_TYPES, which a test writes sample lines and replies from
+ * (#19). X(name, example)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_ARG_EXAMPLES(X) \
     X("int", "3") X("uint", "2") X("hex", "0x28") X("word", "gain") X("worker", "w3") X("instances", "3,4") \
     X("instance-or-none", "8") X("status", "signal:11") X("suspect", "suspect:12") X("chain", "4.1") \
@@ -1553,6 +1617,11 @@ static inline int phd_is_note_verb(const char *verb)
  * none); a record is named fields joined by a separator, its fields name:type as PHD_EVENT_ARGS writes them. The
  * table carries each with a pattern written from its parts, so a reader of patterns alone reads it as a word.
  * X(name, item, separator, none, spelling) and X(name, separator, fields, spelling) */
+/** @brief the list types of the table, each items of one type joined by a separator, or one of its none words, as
+ * rows X(name, item, separator, none, spelling)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_LIST_TYPES(X) \
     X("members", "member", ",", PHD_WORD_NONE, "the instances a worker holds, in order") \
     X("instance-list", "uint", ",", PHD_WORD_NONE, "instance numbers, in order") \
@@ -1564,6 +1633,11 @@ static inline int phd_is_note_verb(const char *verb)
     X("history", "history-entry", ",", PHD_WORD_NONE "|" PHD_WORD_UNAVAILABLE, \
       "a plugin's history: digest, class, crashed, raises_xruns and the history keys; " PHD_WORD_UNAVAILABLE \
       " while the history file is blocked")
+/** @brief the record types of the table, each named fields joined by a separator, as rows X(name, separator, fields,
+ * spelling)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_RECORD_TYPES(X) \
     X("worker-record", ":", "worker:worker pid:int format:" PHD_FORMAT_LV2 "|" PHD_FORMAT_CLAP "|" PHD_FORMAT_LV2_CLAP \
       " state:state core:" PHD_WORD_NONE " pool:" PHD_WORKER_POOL_ON "|" PHD_WORKER_POOL_QUALIFIED \
@@ -1574,11 +1648,14 @@ static inline int phd_is_note_verb(const char *verb)
     X("point", ",", "x:number y:number", "a point of a curve") \
     X("history-entry", "=", "key:key value:value", "a key=value of a history")
 
-/* The replies of this tree's verbs, typed and named (#19): X(verb, resp, args), resp 0, or count when the reply's
- * number counts (the words a last repeated argument gives, when it has one); args as PHD_EVENT_ARGS writes them, a
- * last one name:type... repeated over the rest of the line. A verb may have more than one row, a form each: plan's and
- * plan_get's without cores are the replies of a daemon from before plugin-hostd#226, estimate's six words an older
- * daemon's. */
+/** @brief The replies of this tree's verbs, typed and named (#19): X(verb, resp, args), resp 0, or count when the
+ * reply's number counts (the words a last repeated argument gives, when it has one); args as PHD_EVENT_ARGS writes
+ * them, a last one name:type... repeated over the rest of the line. A verb may have more than one row, a form each:
+ * plan's and plan_get's without cores are the replies of a daemon from before plugin-hostd#226, estimate's six words
+ * an older daemon's.
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_REPLY_ARGS(X) \
     X(OMX_VERB_WORKER_LIST, "count", "workers:worker-record...") \
     X(OMX_VERB_INSTANCE_INFO, "0", "worker:worker pid:int state:state crashes:uint quarantined:uint") \
@@ -1605,28 +1682,71 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...")
 
 /* the same line, as the daemon formats it: name and format in one literal */
+/** @brief the printf format of the line of PHD_EVENT_WORKER_DIED: the event word and its arguments in one literal */
 #define PHD_EVENT_WORKER_DIED_FMT           PHD_EVENT_WORKER_DIED " w%d %d %s %s"
+/** @brief the printf format of the line of PHD_EVENT_INSTANCE_VERB_DROPPED: the event word and its arguments in one
+ * literal
+ */
 #define PHD_EVENT_VERB_DROPPED_FMT          PHD_EVENT_INSTANCE_VERB_DROPPED " %d %s"
+/** @brief the printf format of the line of PHD_EVENT_INSTANCE_VERB_DROPPED, with the suspect word: the event word and
+ * its arguments in one literal
+ */
 #define PHD_EVENT_VERB_DROPPED_SUSPECT_FMT  PHD_EVENT_INSTANCE_VERB_DROPPED " %d " PHD_EVENT_SUSPECT_PREFIX "%d %s"
+/** @brief the printf format of the line of PHD_EVENT_WORKER_BACKOFF: the event word and its arguments in one literal */
 #define PHD_EVENT_WORKER_BACKOFF_FMT        PHD_EVENT_WORKER_BACKOFF " w%d %d"
+/** @brief the printf format of the line of PHD_EVENT_WORKER_RESPAWNED: the event word and its arguments in one
+ * literal
+ */
 #define PHD_EVENT_WORKER_RESPAWNED_FMT      PHD_EVENT_WORKER_RESPAWNED " w%d %d %d %d"
+/** @brief the printf format of the line of PHD_EVENT_INSTANCE_RESTORED: the event word and its arguments in one
+ * literal
+ */
 #define PHD_EVENT_INSTANCE_RESTORED_FMT     PHD_EVENT_INSTANCE_RESTORED " %d w%d"
+/** @brief the printf format of the line of PHD_EVENT_INSTANCE_REPLAY_REFUSED: the event word and its arguments in one
+ * literal
+ */
 #define PHD_EVENT_REPLAY_REFUSED_FMT        PHD_EVENT_INSTANCE_REPLAY_REFUSED " %d %d"
+/** @brief the printf format of the line of PHD_EVENT_INSTANCE_QUARANTINED: the event word and its arguments in one
+ * literal
+ */
 #define PHD_EVENT_INSTANCE_QUARANTINED_FMT  PHD_EVENT_INSTANCE_QUARANTINED " %d w%d"
+/** @brief the printf format of the line of PHD_EVENT_SUPERVISOR_GAVE_UP: the event word and its arguments in one
+ * literal
+ */
 #define PHD_EVENT_SUPERVISOR_GAVE_UP_FMT    PHD_EVENT_SUPERVISOR_GAVE_UP " w%d %d %d"
+/** @brief the printf format of the line of PHD_EVENT_REMOTE_PAGES_CHANGED: the event word and its arguments in one
+ * literal
+ */
 #define PHD_EVENT_REMOTE_PAGES_CHANGED_FMT  PHD_EVENT_REMOTE_PAGES_CHANGED " %d"
+/** @brief the printf format of the line of PHD_EVENT_REMOTE_PAGE_SUGGEST: the event word and its arguments in one
+ * literal
+ */
 #define PHD_EVENT_REMOTE_PAGE_SUGGEST_FMT   PHD_EVENT_REMOTE_PAGE_SUGGEST " %d %u"
+/** @brief the printf format of the line of PHD_EVENT_PARAM_GESTURE: the event word and its arguments in one literal */
 #define PHD_EVENT_PARAM_GESTURE_FMT         PHD_EVENT_PARAM_GESTURE " %d %s %s"
+/** @brief the printf format of the line of PHD_EVENT_XRUNS: the event word and its arguments in one literal */
 #define PHD_EVENT_XRUNS_FMT                 PHD_EVENT_XRUNS " %llu"
+/** @brief the printf format of the line of PHD_EVENT_PARAM_SET: the event word and its arguments in one literal */
 #define PHD_EVENT_PARAM_SET_FMT             PHD_EVENT_PARAM_SET " %d %s %s"
+/** @brief the printf format of the line of PHD_EVENT_PIN_CHANGED: the event word and its arguments in one literal */
 #define PHD_EVENT_PIN_CHANGED_FMT           PHD_EVENT_PIN_CHANGED " %s %s"
+/** @brief the printf format of the line of PHD_EVENT_LV2_ADAPTER_REFUSED: the event word and its arguments in one
+ * literal
+ */
 #define PHD_EVENT_LV2_ADAPTER_REFUSED_FMT   PHD_EVENT_LV2_ADAPTER_REFUSED " %s %s %s"
+/** @brief the printf format of the line of PHD_EVENT_CHAIN_FORMED: the event word and its arguments in one literal */
 #define PHD_EVENT_CHAIN_FORMED_FMT          PHD_EVENT_CHAIN_FORMED " %s w%d %s"
+/** @brief the printf format of the line of PHD_EVENT_CHAIN_REFUSED: the event word and its arguments in one literal */
 #define PHD_EVENT_CHAIN_REFUSED_FMT         PHD_EVENT_CHAIN_REFUSED " %s %d"
+/** @brief the printf format of the line of PHD_EVENT_CHAIN_STALLED: the event word and its arguments in one literal */
 #define PHD_EVENT_CHAIN_STALLED_FMT         PHD_EVENT_CHAIN_STALLED " %s %s %s %d"
+/** @brief the printf format of the line of PHD_EVENT_PLAN_REASON: the event word and its arguments in one literal */
 #define PHD_EVENT_PLAN_REASON_FMT           PHD_EVENT_PLAN_REASON " %d %s"
 
-/* the table of the docs: X(name, fields, meaning), one row per shape of a line */
+/** @brief the table of the docs: X(name, fields, meaning), one row per shape of a line
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_EVENTS(X) \
     X(PHD_EVENT_WORKER_DIED, "<worker> <pid> <exit:N | signal:N> <instance>,...", \
       "a worker died; the instances it held, or - for none") \
@@ -1692,9 +1812,12 @@ static inline int phd_is_note_verb(const char *verb)
       "control to it. A worker never writes it for a value a controller's param_set gave it, and a worker that writes " \
       "none changes nothing: the daemon adds no line of its own")
 
-/* the arguments of each row of PHD_EVENTS, in its order (plugin-hostd-protocol#17): X(name, args), args each
+/** @brief the arguments of each row of PHD_EVENTS, in its order (plugin-hostd-protocol#17): X(name, args), args each
  * argument name:type, its type one of PHD_ARG_TYPES or the literal words it is, a|b. A table of its own, so
- * PHD_EVENTS keeps the arguments its consumers expand it with; the generator holds the two to the same rows. */
+ * PHD_EVENTS keeps the arguments its consumers expand it with; the generator holds the two to the same rows.
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_EVENT_ARGS(X) \
     X(PHD_EVENT_WORKER_DIED, "worker:worker pid:int status:status instances:instances") \
     X(PHD_EVENT_INSTANCE_VERB_DROPPED, "instance:int command:line") \
@@ -1720,15 +1843,25 @@ static inline int phd_is_note_verb(const char *verb)
 
 /* ---------------------------------------------------------------- worker feedback, relayed */
 
-/* a worker is started with a command port and a feedback port of its own, both on loopback and private to it */
+/** @brief a worker is started with a command port and a feedback port of its own, both on loopback and private to it
+ */
 #define PHD_WORKER_ARGUMENTS "-n -p <command port> -f <feedback port>"
-/* the option a worker of a plugin whose pin carries pool=cores is started with, after those; every other worker keeps no
- * option, the worker's `qualified`, which grants the pool to no plugin. worker_list names which with these words */
+/** @brief the option a worker of a plugin whose pin carries pool=cores is started with, after those; every other
+ * worker keeps no option, the worker's `qualified`, which grants the pool to no plugin. worker_list names which with
+ * these words
+ */
 #define PHD_WORKER_THREAD_POOL_ON "--thread-pool=on"
+/** @brief the word worker_list gives for a worker started with the thread pool on */
 #define PHD_WORKER_POOL_ON        "on"
+/** @brief the word worker_list gives for a worker that keeps no pool option: it is started without the thread pool
+ * option, and the pool is granted to none of its plugins
+ */
 #define PHD_WORKER_POOL_QUALIFIED "qualified"
 
-/* what the daemon does with the lines a worker writes on its feedback port: X(id, meaning) */
+/** @brief what the daemon does with the lines a worker writes on its feedback port: X(id, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_RELAY(X) \
     X(VERBATIM, "every line a worker writes on its feedback port goes out on the daemon's feedback port as the worker " \
                 "wrote it: output_set, param_set, data_finish and the rest of mod-host's feedback, and a line the daemon " \
