@@ -23,6 +23,10 @@
 ************************************************************************************************************************
 */
 
+/** @file host-errors.h
+ * @brief The declarations of host-errors.h.
+ */
+
 #ifndef HOST_ERRORS_H
 #define HOST_ERRORS_H
 

@@ -28,6 +28,10 @@
  * its reply OMX_VERB_<VERB>_REPLY and its refusals OMX_VERB_<VERB>_CODES_INIT. The tables below take the words and the
  * replies from there and add the prose of the README. */
 
+/** @file protocol.h
+ * @brief The declarations of protocol.h.
+ */
+
 #ifndef PLUGIN_HOSTD_PROTOCOL_H
 #define PLUGIN_HOSTD_PROTOCOL_H
 

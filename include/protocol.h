@@ -23,6 +23,10 @@
 ************************************************************************************************************************
 */
 
+/** @file protocol.h
+ * @brief The declarations of protocol.h.
+ */
+
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 

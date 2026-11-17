@@ -23,6 +23,10 @@
 ************************************************************************************************************************
 */
 
+/** @file host-scenario.h
+ * @brief The declarations of host-scenario.h.
+ */
+
 #ifndef HOST_SCENARIO_H
 #define HOST_SCENARIO_H
 

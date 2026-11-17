@@ -23,6 +23,10 @@
 ************************************************************************************************************************
 */
 
+/** @file host-dispatch.h
+ * @brief The declarations of host-dispatch.h.
+ */
+
 #ifndef HOST_DISPATCH_H
 #define HOST_DISPATCH_H
 
