@@ -187,6 +187,8 @@ jobs:
         run: make check-shapes-render
       - name: The package, as a consumer imports it
         run: make test-ts-package
+      - name: The TypeScript client, its generated vocabulary and curvePoints
+        run: make test-ts-client
       - name: Each guard goes red on its fault
         run: make test-shapes-sabotage
       - name: The version of package.json

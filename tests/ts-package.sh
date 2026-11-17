@@ -23,7 +23,7 @@ s=$(find "$dep/shapes" -name 'reply_*.schema.json' | wc -l)
 [ "$n" -ge 1 ] && [ "$n" = "$s" ] || fail "the tarball holds $n renders and $s schemas"
 find "$root/shapes" -name 'reply_*.schema.json' | wc -l | grep -qx "$s" || fail "the tarball does not hold every schema of shapes/"
 for f in client.mjs client.d.mts lines.mjs lines.d.mts vocabulary.mjs vocabulary.d.mts; do
-    [ -f "$dep/ts/client/$f" ] || fail "the tarball holds no ts/client/$f"
+    [ -f "$dep/clients/typescript/$f" ] || fail "the tarball holds no clients/typescript/$f"
 done
 
 cat > "$work/app/good.ts" <<'T'

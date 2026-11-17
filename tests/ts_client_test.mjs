@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// The TypeScript client (doc/ts-client.md, ts/client/) against a scripted peer, and its generator against a table with a
+// The TypeScript client (doc/ts-client.md, clients/typescript/) against a scripted peer, and its generator against a table with a
 // verb added and a vocabulary edited by hand. The peer answers as the daemon does, NUL-ended, in the replies the golden
 // transcript and doc/protocol.md hold for these lines; no daemon is built here, since the library needs omx-dsp's header.
 //
@@ -14,9 +14,9 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
-const { connect, HostdError } = await import(join(ROOT, 'ts/client/client.mjs'));
-const { encodeWord } = await import(join(ROOT, 'ts/client/lines.mjs'));
-const { VERBS, REPLY_CODES } = await import(join(ROOT, 'ts/client/vocabulary.mjs'));
+const { connect, HostdError } = await import(join(ROOT, 'clients/typescript/client.mjs'));
+const { encodeWord } = await import(join(ROOT, 'clients/typescript/lines.mjs'));
+const { VERBS, REPLY_CODES } = await import(join(ROOT, 'clients/typescript/vocabulary.mjs'));
 
 // line -> reply: the daemon's own answers, from tests/golden/plugin-hostd-protocol.txt and doc/protocol.md (Curves)
 const SCRIPT = new Map([
@@ -116,7 +116,7 @@ test('a verb added to the table shows up in the vocabulary after the generator r
     assert.equal(r.status, 0, r.stderr);
     assert.match(readFileSync(join(dir, 'vocabulary.mjs'), 'utf8'), /curve_added_by_a_test/);
     assert.match(readFileSync(join(dir, 'vocabulary.d.mts'), 'utf8'), /'curve_added_by_a_test'/);
-    assert.doesNotMatch(readFileSync(join(ROOT, 'ts/client/vocabulary.mjs'), 'utf8'), /curve_added_by_a_test/);
+    assert.doesNotMatch(readFileSync(join(ROOT, 'clients/typescript/vocabulary.mjs'), 'utf8'), /curve_added_by_a_test/);
   } finally { rmSync(dir, { recursive: true }); }
 });
 
@@ -124,7 +124,7 @@ test('the committed vocabulary is what the generator writes, and a hand edit is 
   assert.equal(gen(['--check']).status, 0, gen(['--check']).stderr);
   const dir = mkdtempSync(join(tmpdir(), 'tsclient-'));
   try {
-    for (const f of ['vocabulary.mjs', 'vocabulary.d.mts']) copyFileSync(join(ROOT, 'ts/client', f), join(dir, f));
+    for (const f of ['vocabulary.mjs', 'vocabulary.d.mts']) copyFileSync(join(ROOT, 'clients/typescript', f), join(dir, f));
     const f = join(dir, 'vocabulary.mjs');
     writeFileSync(f, readFileSync(f, 'utf8').replace("'curve_points'", "'curve_pointz'"));
     const r = gen(['--check', '--out', dir]);

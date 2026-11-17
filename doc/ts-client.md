@@ -11,13 +11,13 @@ Three things and no more.
 
 | Piece | File | What |
 |---|---|---|
-| the transport | `ts/client/client.mjs` | `connect`, then `send(line)`: one command line out, its one reply line back, as the Python client does |
-| the generated vocabulary | `ts/client/vocabulary.mjs`, `vocabulary.d.mts` | every verb with its forms (argument types, names, tail), its refusal codes and its reply; the argument types; the reply codes and their words; the parse refusals. Written by `tools/ts-client-gen.py` from `protocol/plugin-hostd-protocol.json`, the table `make gen` writes from the headers; never typed by hand |
+| the transport | `clients/typescript/client.mjs` | `connect`, then `send(line)`: one command line out, its one reply line back, as the Python client does |
+| the generated vocabulary | `clients/typescript/vocabulary.mjs`, `vocabulary.d.mts` | every verb with its forms (argument types, names, tail), its refusal codes and its reply; the argument types; the reply codes and their words; the parse refusals. Written by `tools/ts-client-gen.py` from `protocol/plugin-hostd-protocol.json`, the table `make gen` writes from the headers; never typed by hand |
 | one call | `curvePoints(instance, display, n)` | sends `curve_points <instance> <display> <n>` and answers the points, `[{ x, y }]`, which plugin-hostd drew with omx-dsp's `omx_curve_points` |
 
 The words of a line come from the vocabulary: `call(verb, ...args)` finds the verb's form by the number of arguments,
 refuses an argument that is not of its declared type, and writes the line; `curvePoints` is `call('curve_points', ...)`
-and a parse of the count and the points. The line is encoded and the reply parsed by `ts/client/lines.mjs`, which opens
+and a parse of the count and the points. The line is encoded and the reply parsed by `clients/typescript/lines.mjs`, which opens
 no socket, so a surface without TCP imports the vocabulary, the encoder and the parsers from the package alone
 (`@openmixer/plugin-hostd-protocol/lines`).
 
@@ -60,6 +60,6 @@ same commit, and a package version is the vocabulary of that protocol version.
 - `make test-ts-client` (Node 20 or later, no dependency): the transport against a scripted peer that answers the way the
   daemon does, in the replies of `tests/golden/plugin-hostd-protocol.txt`; the vocabulary written again from a table with
   one verb more shows it; `curvePoints` sends the words the table declares and parses the reply; each error is typed.
-- `make check-generated` holds `ts/client/vocabulary.mjs` and `vocabulary.d.mts` to what `tools/ts-client-gen.py` writes,
+- `make check-generated` holds `clients/typescript/vocabulary.mjs` and `vocabulary.d.mts` to what `tools/ts-client-gen.py` writes,
   byte for byte; `make gen` writes them.
 - `make test-ts-package` packs the package and imports the client from the tarball.

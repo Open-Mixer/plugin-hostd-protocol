@@ -355,6 +355,7 @@ gen: $(GEN)
 	python3 tools/abnf-gen.py > grammar/plugin-hostd-protocol.abnf.new && \
 	    mv grammar/plugin-hostd-protocol.abnf.new grammar/plugin-hostd-protocol.abnf
 	python3 tools/reply-words.py > src/reply-words.h.new && mv src/reply-words.h.new src/reply-words.h
+	python3 tools/ts-client-gen.py
 	$(GEN) splice doc/overview.md > doc/overview.md.new && mv doc/overview.md.new doc/overview.md
 	$(MAKE) --no-print-directory protocol-doc
 
@@ -365,6 +366,7 @@ check-generated: $(GEN)
 	python3 tools/protocol-table.py --check; \
 	python3 tools/abnf-gen.py --check; \
 	python3 tools/reply-words.py --check; \
+	python3 tools/ts-client-gen.py --check; \
 	$(GEN) splice doc/overview.md > $$tmp/readme; cmp $$tmp/readme doc/overview.md; \
 	sha256sum -c --quiet $(ABNF_CORPUS)/GRAMMAR.sha256 || { echo "$(ABNF_CORPUS) is not written from this grammar: run make fuzz-abnf-corpus"; exit 1; }; \
 	$(GEN) regions > $$tmp/regions; test -s $$tmp/regions; \
