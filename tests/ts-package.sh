@@ -21,7 +21,7 @@ tar -xzf "$work"/openmixer-plugin-hostd-protocol-*.tgz -C "$dep" --strip-compone
 n=$(find "$dep/ts/shapes" -name 'reply_*.d.ts' | wc -l)
 s=$(find "$dep/shapes" -name 'reply_*.schema.json' | wc -l)
 [ "$n" -ge 1 ] && [ "$n" = "$s" ] || fail "the tarball holds $n renders and $s schemas"
-ls "$root"/shapes/reply_*.schema.json | wc -l | grep -qx "$s" || fail "the tarball does not hold every schema of shapes/"
+find "$root/shapes" -name 'reply_*.schema.json' | wc -l | grep -qx "$s" || fail "the tarball does not hold every schema of shapes/"
 
 cat > "$work/app/good.ts" <<'T'
 import type { InstanceInfoReply } from '@openmixer/plugin-hostd-protocol/shapes/reply_instance_info';

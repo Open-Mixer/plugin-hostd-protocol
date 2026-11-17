@@ -53,4 +53,4 @@ if run test-reply-shapes; then echo "FAIL a schema deleted: test-reply-shapes pa
 fresh; echo '// extra' > "$work/tree/ts/shapes/reply_extra.d.ts"
 if run check-shapes-render; then echo "FAIL an extra render: check-shapes-render passes"; failed=1; else echo "ok   an extra render: red"; fi
 
-[ "$failed" = 0 ] && echo "shapes sabotage ok" || { echo "shapes sabotage FAILED"; exit 1; }
+if [ "$failed" = 0 ]; then echo "shapes sabotage ok"; else echo "shapes sabotage FAILED"; exit 1; fi

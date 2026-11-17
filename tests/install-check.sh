@@ -74,7 +74,7 @@ done
 for f in shapes/*.schema.json; do
     cmp -s "$f" "$prefix/share/$name/shapes/$(basename "$f")" || fail "$(basename "$f") is not installed under shapesdir as this tree has it"
 done
-[ "$(ls "$prefix/share/$name/shapes" | wc -l)" = "$(ls shapes | wc -l)" ] || fail "shapesdir holds a file shapes/ does not"
+[ "$(find "$prefix/share/$name/shapes" -type f | wc -l)" = "$(find shapes -type f | wc -l)" ] || fail "shapesdir holds a file shapes/ does not"
 cat > "$work/declared.c" <<'C'
 #include <plugin-hostd/protocol.h>
 #include <stdio.h>
