@@ -22,7 +22,7 @@ BuildRequires: python3-devel
 # packaging/deps.txt by Open-Mixer/.github deps-render (render.sh --write); edit that file, not these lines.
 # the declared protocol: tools/protocol-gen holds protocol.h's parameter scales to omx-contract's C headers, and
 # install-contract writes the contract directory's package with omx-contract's script
-BuildRequires: omx-contract-devel >= 3.18.0
+BuildRequires: (omx-contract-devel >= 3.18.0 with omx-contract-devel < 4)
 # the codec's tests (make test-codec) read omx-clap-core's sentences and omx-contract's catalog reader
 BuildRequires: omx-clap-core-contract >= 0.32.3
 BuildRequires: omx-contract-data >= 3.16.0
