@@ -29,10 +29,12 @@ jobs:
     uses: Open-Mixer/.github/.github/workflows/public-sources-check.yml@openmixer-v1
   # the documentation gates, both standard tools: ruff (D and the default rules, today's findings carried by noqa comments)
   # on the Python clients, and doxygen over the installed headers against tools/doxygen.baseline (a ratchet that only
-  # falls); the Makefile reads omx-dsp at parse time, so the job runs the two commands without make
+  # falls); the Makefile reads omx-dsp at parse time, so the job runs the commands without make.
+  # ubuntu-24.04, not ubuntu-latest: its doxygen is the 1.9.8 tools/doxygen.version pins, and another doxygen version
+  # gives other warning rows, which the gate refuses
   doc-gates:
     name: documentation gates (ruff, doxygen)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
