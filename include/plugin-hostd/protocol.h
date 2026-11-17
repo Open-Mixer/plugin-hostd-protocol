@@ -926,28 +926,41 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * message at the start of its next cycle, on the plugin's note input. Nothing of them is kept: a note is an act, not a
  * setting, and a respawned instance starts silent. */
 /* the ranges of a note's words: MIDI's */
+/** @brief the highest MIDI channel a note verb takes; the lowest is 0 */
 #define PHD_NOTE_CHANNEL_MAX  15
+/** @brief the highest MIDI key a note verb takes; the lowest is 0 */
 #define PHD_NOTE_KEY_MAX      127
+/** @brief the highest MIDI velocity a note verb takes */
 #define PHD_NOTE_VELOCITY_MAX 127
-/* the word note_input answers for a plugin that takes no notes */
+/** @brief the word note_input answers for a plugin that takes no notes
+ */
 #define PHD_NO_NOTE_INPUT     PHD_WORD_NONE
 
-/* the longest string word, in bytes: CLAP_NAME_SIZE - 1 */
+/** @brief the longest string word, in bytes: CLAP_NAME_SIZE - 1
+ */
 #define PHD_STRING_MAX 255
 
 /* the user-preset file a worker writes for preset_save and reads for preset_load and preset_show (docs/presets.md,
  * protocol/preset.schema.json): /1 is params-only, /2 adds the state body */
+/** @brief the format word of a user-preset file that holds the parameters only */
 #define PHD_PRESET_FORMAT_1   "org.openmixer.preset/1"
+/** @brief the format word of a user-preset file that adds the state body */
 #define PHD_PRESET_FORMAT_2   "org.openmixer.preset/2"
 #define PHD_PRESET_ALIAS_MAX  12
 #define PHD_PRESET_FILE_MAX   (64 * 1024 * 1024)
 /* the parameters on one remote page, and the word of an empty slot */
+/** @brief the parameters on one remote page */
 #define PHD_REMOTE_PAGE_SLOTS 8
+/** @brief the word of an empty slot of a remote page */
 #define PHD_EMPTY_SLOT        PHD_WORD_NONE
-/* the colour of a strip that has none */
+/** @brief the colour of a strip that has none
+ */
 #define PHD_NO_COLOR          PHD_WORD_NONE
 
-/* the kind of strip, the fourth word of track_info; none for an input channel: X(id, name) */
+/** @brief the kind of strip, the fourth word of track_info; none for an input channel: X(id, name)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_TRACK_KINDS(X) \
     X(BUS, OMX_HOST_TRACK_KINDS_BUS) X(RETURN, OMX_HOST_TRACK_KINDS_RETURN) X(MASTER, OMX_HOST_TRACK_KINDS_MASTER)
 
@@ -956,15 +969,27 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * on the instance key, never on the effect_ prefix of its name (plugin-hostd#33). A server that keeps no metadata (a
  * PipeWire with no session manager) takes none, and the node keeps its name. Each row's key and the printf format of
  * its value are PHD_NODE_METADATA_<ID>_KEY and _FORMAT. */
+/** @brief the JACK metadata key of the pretty name of a hosted node */
 #define PHD_NODE_METADATA_PRETTY_NAME_KEY    "http://jackaudio.org/metadata/pretty-name"
+/** @brief the printf format of the pretty name's value: the plugin name and the instance */
 #define PHD_NODE_METADATA_PRETTY_NAME_FORMAT "%s (%d)"
+/** @brief the JACK metadata key of the instance a node hosts */
 #define PHD_NODE_METADATA_INSTANCE_KEY       "http://openmixer.org/ns/plugin-hostd#instance"
+/** @brief the printf format of the instance's value */
 #define PHD_NODE_METADATA_INSTANCE_FORMAT    "%d"
+/** @brief the JACK metadata key of the pretty name of a node a client has labelled; it is the key of the plain pretty
+ * name
+ */
 #define PHD_NODE_METADATA_LABELLED_NAME_KEY    PHD_NODE_METADATA_PRETTY_NAME_KEY
+/** @brief the printf format of the labelled name's value: the label, the plugin name and the instance */
 #define PHD_NODE_METADATA_LABELLED_NAME_FORMAT "%s: %s (%d)"
-/* the most bytes of a node_label label, its words joined by one space (plugin-hostd#35) */
+/** @brief the most bytes of a node_label label, its words joined by one space (plugin-hostd#35)
+ */
 #define PHD_NODE_LABEL_MAX 64
-/* X(id, name, args, meaning): args what fills the format, in order, separated by commas */
+/** @brief X(id, name, args, meaning): args what fills the format, in order, separated by commas
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_NODE_METADATA(X) \
     X(PRETTY_NAME, "pretty_name", "plugin name,instance", \
       "the name a graph client shows for the node: the plugin's name from its descriptor and the instance") \
@@ -973,7 +998,10 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "the pretty-name of a node a client has labelled (node_label): the label, the plugin's name and the instance, " \
       "in place of pretty_name until the label is cleared")
 
-/* how a parameter's plain value maps to a control's travel: X(id, name, meaning) */
+/** @brief how a parameter's plain value maps to a control's travel: X(id, name, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PARAM_SCALES(X) \
     X(LINEAR, "linear", "the value is linear in position") \
     X(LOG, "log", "the value is geometric in position; both bounds are positive") \
@@ -983,12 +1011,24 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * (replace-keyed, ruling of 2026-11-14 on omx-clap-core#15: a property is the daemon's state, so a respawned worker gets
  * back every symbol it was given, each the latest set of it, in the order they were first set). Replayed after the add. */
 /* show_external_ui: mod-host.h declares it as the format SHOW_EXTERNAL_UI, and omx-clap-core's verb table does not */
+/** @brief the word of the show_external_ui verb, which mod-host.h declares as the format SHOW_EXTERNAL_UI and
+ * omx-clap-core's verb table does not
+ */
 #define PHD_VERB_SHOW_EXTERNAL_UI "show_external_ui"
+/** @brief the ledger keeps nothing of the verb */
 #define PHD_LEDGER_NONE    0
+/** @brief the ledger keeps the latest line of the verb per instance */
 #define PHD_LEDGER_REPLACE 1
+/** @brief the ledger keeps the latest line of the verb per instance and first argument, replayed in the order they
+ * were first set
+ */
 #define PHD_LEDGER_REPLACE_KEYED 2
 
-/* X(id, name, arguments, reply, ledger, meaning) */
+/** @brief the verbs that name an instance, as rows X(id, name, arguments, reply, ledger, meaning); ledger is NONE,
+ * REPLACE or REPLACE_KEYED, what the ledger keeps of the verb
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_INSTANCE_VERBS(X) \
     X(TRACK_INFO, OMX_VERB_TRACK_INFO, "<instance> <name> <#RRGGBB | " PHD_NO_COLOR "> [bus | return | master]", \
       "resp 0", REPLACE, \
@@ -1183,12 +1223,22 @@ static inline int phd_is_note_verb(const char *verb)
  *
  * required: answered as its grammar says. optional: answered, or refused with -902; never misread. absent: refused on
  * purpose, and no client of the profile may need it. */
+/** @brief a host profile owes the verb an answer as its grammar says */
 #define PHD_LEVEL_REQUIRED "required"
+/** @brief a host profile answers the verb, or refuses it with -902, and never misreads it */
 #define PHD_LEVEL_OPTIONAL "optional"
+/** @brief the verb is refused on purpose, and no client of the profile may need it */
 #define PHD_LEVEL_ABSENT   "absent"
+/** @brief the levels as rows X(id, name)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_LEVELS(X) X(REQUIRED, PHD_LEVEL_REQUIRED) X(OPTIONAL, PHD_LEVEL_OPTIONAL) X(ABSENT, PHD_LEVEL_ABSENT)
 
-/* the profiles, a column each: X(id, name, meaning) */
+/** @brief the profiles, a column each: X(id, name, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_HOST_PROFILES(X) \
     X(LV2, "lv2-worker", "an LV2 plugin's worker: mod-host, or omx-clap-host's LV2 adapter") \
     X(CLAP, "clap-worker", "a CLAP plugin's worker, omx-clap-host") \
@@ -1197,17 +1247,23 @@ static inline int phd_is_note_verb(const char *verb)
 
 /* who sends the verb: mod-ui (Zynthian's mod-ui sends it to its host), mod-host (a command of mod-host.h that mod-ui
  * does not send), daemon (a verb this daemon adds: it answers it itself, whatever the worker) */
+/** @brief the verb is sent by Zynthian's mod-ui to its host */
 #define PHD_HOST_VERB_SOURCE_MOD_UI   "mod-ui"
+/** @brief the verb is a command of mod-host.h that mod-ui does not send */
 #define PHD_HOST_VERB_SOURCE_MOD_HOST "mod-host"
+/** @brief the verb is one this daemon adds: it answers it itself, whatever the worker */
 #define PHD_HOST_VERB_SOURCE_DAEMON   "daemon"
 
-/* X(name, source, lv2-worker, clap-worker, console, zynthian). The mod-ui rows are the decision of
- * 2026-10-21 (FreeMixer/plugin-hostd#131), read from Zynthian's verbs.tsv, with the decisions of 2026-10-22: presets
- * and bundles are required of the CLAP worker and of Zynthian; MIDI learn and CV addressing are policy of the surfaces,
- * so the host answers them only as the mechanism and they stay optional for every profile (presets in the host,
- * docs/presets.md). The others are this tree's.
- * The daemon relays a worker's verb (an instance verb to the worker that holds the instance, any other to every worker)
- * and passes its answer back, so a required verb answers -902 only while the worker does. */
+/** @brief X(name, source, lv2-worker, clap-worker, console, zynthian). The mod-ui rows are the decision of 2026-10-21
+ * (FreeMixer/plugin-hostd#131), read from Zynthian's verbs.tsv, with the decisions of 2026-10-22: presets and bundles
+ * are required of the CLAP worker and of Zynthian; MIDI learn and CV addressing are policy of the surfaces, so the
+ * host answers them only as the mechanism and they stay optional for every profile (presets in the host,
+ * docs/presets.md). The others are this tree's. The daemon relays a worker's verb (an instance verb to the worker
+ * that holds the instance, any other to every worker) and passes its answer back, so a required verb answers -902
+ * only while the worker does.
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_HOST_VERBS(X) \
     X("add", MOD_UI, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
     X("remove", MOD_UI, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
@@ -1298,7 +1354,10 @@ static inline int phd_is_note_verb(const char *verb)
 
 /* ---------------------------------------------------------------- host settings */
 
-/* what the daemon keeps of a command that names no instance and is broadcast to every worker: X(id, meaning) */
+/** @brief what the daemon keeps of a command that names no instance and is broadcast to every worker: X(id, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_HOST_SETTINGS(X) \
     X(TEMPO, "the tempo, the metre and the transport a controller sets (mod-host's set_bpm, set_bpb, transport and " \
              "transport_sync) are kept, the latest line of each as it was sent, in the order they were last sent") \
