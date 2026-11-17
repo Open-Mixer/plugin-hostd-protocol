@@ -58,10 +58,10 @@ jobs:
       # and the codec's tests read the sentences of omx-clap-core's package and omx-contract's catalog reader (issue 46)
       - name: omx-contract's headers, and omx-dsp's curve function
         run: |
-          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.19.0' 'omx-dsp-devel >= 0.32.2' omx-clap-core-contract omx-contract-data; else
+          if command -v dnf >/dev/null; then dnf -y install 'omx-contract-devel >= 3.20.0' 'omx-dsp-devel >= 0.32.2' omx-clap-core-contract omx-contract-data; else
             apt-get -y install --no-install-recommends libomx-contract-dev libomxdsp-dev omx-clap-core-contract omx-contract-data
             v=$(dpkg-query -W -f='${Version}' libomx-contract-dev)
-            dpkg --compare-versions "$v" ge 3.19.0~
+            dpkg --compare-versions "$v" ge 3.20.0~
             v=$(dpkg-query -W -f='${Version}' libomxdsp-dev)
             dpkg --compare-versions "$v" ge 0.32.2~
           fi
@@ -100,7 +100,7 @@ jobs:
       - name: omx-contract and plugin-db's package of the contract directory
         run: |
           set -euo pipefail
-          dnf -y install 'omx-contract >= 3.19.0' 'omx-contract-devel >= 3.19.0' 'plugin-db-contract >= 0.4.5' 'omx-dsp-devel >= 0.32.2'
+          dnf -y install 'omx-contract >= 3.20.0' 'omx-contract-devel >= 3.20.0' 'plugin-db-contract >= 0.4.5' 'omx-dsp-devel >= 0.32.2'
           if rpm -q plugin-hostd-contract; then echo "plugin-hostd-contract is installed: it declares the same items"; exit 1; fi
       # an ordinary run renders and builds against what consumers get, the channel: name where each omx package came
       # from, and refuse one from the staging channel (#27: a stale staged contract package outranked the channel)
