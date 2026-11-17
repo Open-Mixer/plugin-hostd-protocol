@@ -1264,9 +1264,10 @@ static inline int phd_track_info_valid(char *const *word, int count)
 
 /** @brief tells whether a word is a whole number from lo to hi
  *
- * It is in decimal with no sign but a leading '-'. Leading zeros are accepted (0, 00 and 000 are numbers); only '-0' is
- * refused. A magnitude above 1000009 is refused whatever hi is, since a digit past a value of 100000 is refused: a
- * caller that asks for more, as phd_note_valid does with 1 << 20, never gets it (plugin-hostd-protocol#73).
+ * It is in decimal with no sign but a leading '-'. Leading zeros are accepted (0, 00 and 000 are numbers); a negative
+ * zero, a '-' followed only by zeros ('-0', '-00', '-000'), is refused, whatever lo is. A magnitude above 1000009 is
+ * refused whatever hi is, since a digit past a value of 100000 is refused: a caller that asks for more, as
+ * phd_note_valid does with 1 << 20, never gets it (plugin-hostd-protocol#73).
  *
  * @pre word is not NULL.
  * @param[in] word a NUL-terminated string.
