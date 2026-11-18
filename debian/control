@@ -67,9 +67,7 @@ Description: plugin-hostd protocol, its Python codec
  nothing; the npm package @openmixer/plugin-hostd-client is the same codec in
  TypeScript. The transport is plugin_hostd_client.
  .
- This is the one package of the source with an epoch (1:): plugin-hostd 0.20.6
- and before built a package of this name at its own version, 0.20.x, which
- sorts above 0.5.x. Its documentation is on openmixer.org.
+ Its documentation is on openmixer.org.
 
 Package: plugin-hostd-protocol-contract
 Architecture: all
