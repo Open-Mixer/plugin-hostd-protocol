@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_curve_points.schema.json",
+  "$id": "https://openmixer.org/schema/plugin-hostd-protocol/reply_curve_points.schema.json",
   "title": "CurvePointsReply",
   "description": "The parsed form of a curve_points reply (the points of a bound display): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
   "type": "object",
