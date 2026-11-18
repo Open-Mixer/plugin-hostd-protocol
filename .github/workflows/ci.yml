@@ -51,9 +51,8 @@ jobs:
   test:
     name: build + test (${{ matrix.cell.image }})
     needs: checks
-    if: needs.checks.outputs.count != '0'
     # the schedule is the render check alone (#27)
-    if: github.event_name != 'schedule'
+    if: github.event_name != 'schedule' && needs.checks.outputs.count != '0'
     runs-on: ubuntu-latest
     # A backstop only.
     timeout-minutes: 20
