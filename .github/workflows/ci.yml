@@ -236,13 +236,13 @@ jobs:
   abi:
     # the baseline abi/ was written by fc44's libabigail: fc45's abidiff refuses it ("incompatible format version"),
     # so the comparison runs on fc44 alone, the cell that wrote it
-    name: "ABI: types against the baseline (fc44, the baseline writer)"
+    name: "ABI: types against the baseline (the baseline writer's libabigail)"
     # the schedule is the render check alone (#27)
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     container:
-      image: fedora:44
+      image: fedora:44  # tool image: the libabigail that wrote the abi/ baseline: a tool artefact, not a release cell
     steps:
       - name: Toolchain
         run: dnf -y install gcc make git pkgconf-pkg-config diffutils binutils gawk libabigail
