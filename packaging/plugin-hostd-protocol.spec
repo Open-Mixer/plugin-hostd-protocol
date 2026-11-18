@@ -22,7 +22,7 @@ BuildRequires: python3-devel
 # packaging/deps.txt by Open-Mixer/.github deps-render (render.sh --write); edit that file, not these lines.
 # the declared protocol: tools/protocol-gen holds protocol.h's parameter scales to omx-contract's C headers, and
 # install-contract writes the contract directory's package with omx-contract's script
-BuildRequires: omx-contract-devel >= 3.18.0
+BuildRequires: omx-contract-devel >= 3.19.1
 # the codec's tests (make test-codec) read omx-clap-core's sentences and omx-contract's catalog reader
 BuildRequires: omx-clap-core-contract >= 0.32.3
 BuildRequires: omx-contract-data >= 3.16.0
@@ -77,7 +77,7 @@ Requires: python3
 Requires: plugin-hostd-protocol >= 0.5.8
 Requires: plugin-hostd-protocol-contract >= 0.5.8
 Requires: omx-clap-core-contract >= 0.32.3
-Requires: omx-contract >= 3.18.0
+Requires: omx-contract >= 3.19.1
 # omx-contract's catalog reader, omx_contract_catalog.py, which reads a catalog entry whatever its shape
 Requires: omx-contract-data >= 3.16.0
 
@@ -94,7 +94,7 @@ Its documentation is on openmixer.org.
 %package contract
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
-Requires: omx-contract >= 3.18.0
+Requires: omx-contract >= 3.19.1
 # plugin-hostd before 0.16.0 declared the same items in its own package of the contract directory
 Conflicts: plugin-hostd-contract < 0.16.0
 
@@ -252,12 +252,11 @@ shows the English source sentence.
 * Wed Nov 18 2026 Pau Aliagas <linuxnow@gmail.com> - 0.6.0-1
 - Floors only, no ceilings, declared once in packaging/deps.txt; the spec and
   debian/control are generated from it and the floors check refuses drift (#64):
-  omx-dsp-devel >= 0.32.4 (0.5.9 declared 0.32.1), omx-contract 3.18.0 and
-  plugin-db 0.4.4 as before.
+  omx-dsp-devel >= 0.32.4 (0.5.9 declared 0.32.1), floors omx-contract 3.19.1
+  and plugin-db 0.4.4 as before.
 - python3-plugin-hostd-client, a new noarch package: the protocol's Python
   client ships from here (#47, #45).
-- python3-plugin-hostd-protocol, the Python codec, ships from here with epoch 1,
-  above the package plugin-hostd built before (#48, #46).
+- python3-plugin-hostd-protocol ships from here (#48, #46).
 - The grammar's quoted-escaped form, a quoted value that is text, for the
   property verbs (#39, omx-clap-core#15).
 - The panel file declares its keys, meters among them (#51).

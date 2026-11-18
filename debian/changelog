@@ -3,11 +3,10 @@ plugin-hostd-protocol (0.6.0) unstable; urgency=medium
   * Floors only, no ceilings, declared once in packaging/deps.txt; the spec
     and debian/control are generated from it and the floors check refuses
     drift (#64): omx-dsp-devel >= 0.32.4 (0.5.9 declared 0.32.1),
-    omx-contract 3.18.0 and plugin-db 0.4.4 as before.
+    floors omx-contract 3.19.1 and plugin-db 0.4.4 as before.
   * python3-plugin-hostd-client, a new noarch package: the protocol's Python
     client ships from here (#47, #45).
-  * python3-plugin-hostd-protocol, the Python codec, ships from here with
-    epoch 1, above the package plugin-hostd built before (#48, #46).
+  * python3-plugin-hostd-protocol ships from here (#48, #46).
   * The grammar's quoted-escaped form, a quoted value that is text, for the
     property verbs (#39, omx-clap-core#15).
   * The panel file declares its keys, meters among them (#51).
