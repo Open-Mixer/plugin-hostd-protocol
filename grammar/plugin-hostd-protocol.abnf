@@ -62,13 +62,16 @@ tail             = *(SP word)
 ; and shape words are omx-dsp's CURVE_ROLES and CURVE_SHAPES (omx_curve.h), held equal by tests/grammar_test.py; a
 ; family or a unit is a word, refused by its code when it has no closed form or its role does not take it
 curve-binding    = %s"clear" / (curve-kind SP curve-family 1*(SP curve-term))
-curve-kind       = %s"eq_response" / %s"transfer_curve"
+curve-kind       = %s"eq_response" / %s"transfer_curve" / %s"time_response"
 curve-family     = 1*(%x61-7A / "_")
 curve-term       = curve-role ["." curve-index] "=" curve-symbol [":" curve-unit] ["@" (curve-shapes / curve-slopes)]
 curve-index      = 1*9DIGIT
 curve-role       = %s"band_type" / %s"band_freq" / %s"band_gain" / %s"band_q" / %s"band_on" / %s"hpf_freq" /
                    %s"hpf_slope" / %s"hpf_on" / %s"lpf_freq" / %s"lpf_slope" / %s"lpf_on" / %s"threshold" /
-                   %s"ratio" / %s"knee" / %s"makeup" / %s"range" / %s"knee_start" / %s"knee_end"
+                   %s"ratio" / %s"knee" / %s"makeup" / %s"range" / %s"knee_start" / %s"knee_end" /
+                   %s"drive" / %s"tone" / %s"model" / %s"mix" / %s"output" / %s"time" / %s"feedback" / %s"pingpong" /
+                   %s"sync" / %s"division" / %s"size" / %s"decay" / %s"algorithm" / %s"predelay" / %s"damping" /
+                   %s"width" / %s"low_cut" / %s"high_cut"
 ; a parameter's symbol; a host's own control starts with ":" (:bypass)
 curve-symbol     = [":"] 1*(ALPHA / DIGIT / "_" / "-" / ".")
 curve-unit       = 1*(%x61-7A)
@@ -78,8 +81,13 @@ curve-shape      = %s"off" / %s"bell" / %s"lowshelf" / %s"highshelf" / %s"highpa
 ; a head filter's slope, dB per octave of each choice value from 0: the role's declared enumeration
 curve-slopes     = curve-db *("|" curve-db)
 curve-db         = %x31-39 *2DIGIT
-; curve_points' reply: the count and each point, x to four significant digits and y to 0.01 dB
-curve-points-reply = %s"resp" SP %s"0" SP 1*DIGIT 1*(SP curve-point)
+; curve_points' reply: the count and each point, x to four significant digits and y to 0.01 dB; a reverb at mix 0 draws
+; none, and a delay's time_response has no point but taps, which follow as stems: the tap's time in ms (four significant
+; digits), its level in dB, its brightness 0..1 to three decimals, and the leg it lands on (omx-dsp's CURVE_LEGS)
+curve-points-reply = %s"resp" SP %s"0" SP 1*DIGIT *(SP curve-point) [SP %s"stems" SP 1*DIGIT 1*(SP curve-stem)]
+curve-stem       = curve-x "," curve-y "," curve-shade "," curve-leg
+curve-shade      = ("0." 3DIGIT) / "1.000"
+curve-leg        = %s"both" / %s"left" / %s"right"
 curve-point      = curve-x "," curve-y
 curve-x          = ["-"] 1*DIGIT ["." 1*DIGIT]
 curve-y          = ["-"] 1*DIGIT "." 2DIGIT
