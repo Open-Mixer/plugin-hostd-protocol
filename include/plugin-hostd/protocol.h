@@ -2251,7 +2251,7 @@ static inline int phd_is_note_verb(const char *verb)
  */
 #define PHD_CONF_INTS(X) \
     X(ready_timeout_ms, PHD_DEFAULT_READY_TIMEOUT_MS, "ms", "a worker that does not accept in this long is a failed spawn") \
-    X(rpc_timeout_ms, PHD_DEFAULT_RPC_TIMEOUT_MS, "ms", "a worker that does not answer in this long is killed") \
+    X(rpc_timeout_ms, PHD_DEFAULT_RPC_TIMEOUT_MS, "ms", "a silent worker gets SIGTERM after this long, SIGKILL 2 s later") \
     X(backoff_base_ms, PHD_DEFAULT_BACKOFF_BASE_MS, "ms", "respawn backoff, doubling per death in the window") \
     X(backoff_max_ms, PHD_DEFAULT_BACKOFF_MAX_MS, "ms", "the most a respawn backoff grows to") \
     X(storm_deaths, PHD_DEFAULT_STORM_DEATHS, "deaths", "deaths inside the window that end respawning of a placement") \
