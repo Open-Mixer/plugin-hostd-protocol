@@ -72,10 +72,7 @@ Its documentation is on openmixer.org.
 %package -n python3-plugin-hostd-protocol
 Summary: The Python codec of the plugin-hostd protocol
 BuildArch: noarch
-# The one package with an epoch: plugin-hostd 0.20.6 and before built a package of this name at plugin-hostd's own
-# version (0.20.x), which sorts above any 0.5.x; epoch 1 makes this one the upgrade. Its source is this repository since
-# 0.5.10, and plugin-hostd's first release without it floors on it.
-Epoch: 1
+# Its source is this repository since 0.5.10, and plugin-hostd's first release without it floors on it.
 Requires: python3
 Requires: plugin-hostd-protocol >= 0.5.8
 Requires: plugin-hostd-protocol-contract >= 0.5.8
