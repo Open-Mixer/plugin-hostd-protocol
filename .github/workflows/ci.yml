@@ -31,10 +31,9 @@ jobs:
           sparse-checkout: .github/workflows
       - uses: Open-Mixer/.github/.github/actions/fedora-cells@openmixer-v1
 
-  # the cells the jobs run on: check-matrix's answer (fc45 beside fc44; the quick set while a release wave is open)
+  # the cells the jobs run on: check-matrix's answer (fc45 beside fc44; the quick set while a release wave is open).
+  # It runs on the schedule too: the render reads its cells from here (served_render_ci's one exception, #27)
   checks:
-    # the schedule is the render check alone (#27); protocol reads the cells here off the schedule
-    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -118,14 +117,13 @@ jobs:
   protocol:
     name: declared protocol (render, contract directory, schema, grammar) (${{ matrix.cell.image }})
     needs: checks
-    # on the schedule checks is skipped, so the render check runs alone on fc44 (#27); off it, the check-matrix cells
-    if: ${{ always() && (github.event_name == 'schedule' || (needs.checks.result == 'success' && needs.checks.outputs.rpm-count != '0')) }}
+    if: needs.checks.outputs.rpm-count != '0'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        cell: ${{ fromJSON(github.event_name == 'schedule' && '[{"image":"fedora:44"}]' || needs.checks.outputs.rpm) }}
+        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
     container:
       image: ${{ matrix.cell.image }}
     env:

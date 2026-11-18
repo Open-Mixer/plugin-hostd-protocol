@@ -16,6 +16,10 @@ import yaml
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RENDER_JOB = "protocol"
 SKIP = "github.event_name != 'schedule'"
+# the one exception to "the render check alone": the render reads its cells from check-matrix, which runs in the cheap
+# checks job, so on the schedule that job runs too (ruling B, plugin-hostd-protocol#37). Nothing else runs on it.
+MATRIX_SOURCE = "checks"
+SCHEDULE_ALLOWED = {RENDER_JOB, MATRIX_SOURCE}
 
 
 def triggers(doc):
@@ -36,9 +40,13 @@ def problems(doc):
         return out
     if SKIP in str(jobs[RENDER_JOB].get("if", "")):
         out.append("the %s job, the render check, is skipped on the schedule" % RENDER_JOB)
+    if MATRIX_SOURCE not in jobs:
+        out.append("ci.yml has no %s job: the render has no matrix source" % MATRIX_SOURCE)
+    elif SKIP in str(jobs[MATRIX_SOURCE].get("if", "")):
+        out.append("the %s job, the render's matrix source, is skipped on the schedule: the render has no cells" % MATRIX_SOURCE)
     for name, job in jobs.items():
-        if name != RENDER_JOB and SKIP not in str(job.get("if", "")):
-            out.append("the %s job runs on the schedule: the nightly run is the render check alone" % name)
+        if name not in SCHEDULE_ALLOWED and SKIP not in str(job.get("if", "")):
+            out.append("the %s job runs on the schedule: the nightly run is the render check and its matrix source alone" % name)
     named = [s for s in jobs[RENDER_JOB].get("steps") or []
              if "failure()" in str(s.get("if", "")) and "/tmp/from-repo" in str(s.get("run", ""))]
     if not named:
@@ -67,19 +75,23 @@ def main(argv):
     def skip_render(d):
         d["jobs"][RENDER_JOB]["if"] = SKIP
 
+    def skip_source(d):
+        d["jobs"][MATRIX_SOURCE]["if"] = SKIP
+
     def run_other(d):
-        other = next(n for n in d["jobs"] if n != RENDER_JOB)
+        other = next(n for n in d["jobs"] if n not in SCHEDULE_ALLOWED)
         d["jobs"][other].pop("if", None)
 
     def drop_naming(d):
         d["jobs"][RENDER_JOB]["steps"] = [s for s in d["jobs"][RENDER_JOB]["steps"] if "failure()" not in str(s.get("if", ""))]
 
     for name, edit in (("no schedule", drop_schedule), ("the render job skipped", skip_render),
+                       ("the matrix source skipped", skip_source),
                        ("another job on the schedule", run_other), ("no step naming the versions", drop_naming)):
         if not planted(edit):
             print("FAIL the check does not see %s" % name)
             return 1
-    print("served render ci: ok (scheduled, the render job alone, the versions named on failure; 4 planted faults seen)")
+    print("served render ci: ok (scheduled, the render job and its matrix source, the versions named on failure; 5 planted faults seen)")
     return 0
 
 
