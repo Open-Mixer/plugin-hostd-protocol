@@ -861,7 +861,7 @@ The codes the daemon adds. A transient one says nothing about the plugin or the 
 
 | schema | installed as | $id | title | format | description |
 |---|---|---|---|---|---|
-| `protocol/plugin-hostd.schema.json` | `/usr/share/plugin-hostd-protocol/plugin-hostd.schema.json` | `https://github.com/Open-Mixer/plugin-hostd-protocol/protocol/plugin-hostd.schema.json` | The protocol surface plugin-hostd owns | - | Generated from include/plugin-hostd/protocol.h, which is the declaration; this file says the shape of the JSON. |
+| `protocol/plugin-hostd.schema.json` | `/usr/share/plugin-hostd-protocol/plugin-hostd.schema.json` | `https://openmixer.org/schema/plugin-hostd-protocol/plugin-hostd.schema.json` | The protocol surface plugin-hostd owns | - | Generated from include/plugin-hostd/protocol.h, which is the declaration; this file says the shape of the JSON. |
 
 Counts: 48 mod-host commands, 34 same, 9 differs, 5 refused; 38 verbs mod-host does not have.
 

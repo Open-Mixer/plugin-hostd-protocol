@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Open-Mixer/plugin-hostd-protocol/shapes/reply_descriptor_get.schema.json",
+  "$id": "https://openmixer.org/schema/plugin-hostd-protocol/reply_descriptor_get.schema.json",
   "title": "DescriptorGetReply",
   "description": "The parsed form of a descriptor_get reply (a descriptor's file): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
   "type": "object",
