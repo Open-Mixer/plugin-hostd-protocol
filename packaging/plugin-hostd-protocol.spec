@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.5.9
+Version: 0.6.0
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -252,6 +252,37 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Wed Nov 18 2026 Pau Aliagas <linuxnow@gmail.com> - 0.6.0-1
+- Floors only, no ceilings, declared once in packaging/deps.txt; the spec and
+  debian/control are generated from it and the floors check refuses drift (#64):
+  omx-dsp-devel >= 0.32.4 (0.5.9 declared 0.32.1), omx-contract 3.18.0 and
+  plugin-db 0.4.4 as before.
+- python3-plugin-hostd-client, a new noarch package: the protocol's Python
+  client ships from here (#47, #45).
+- python3-plugin-hostd-protocol, the Python codec, ships from here with epoch 1,
+  above the package plugin-hostd built before (#48, #46).
+- The grammar's quoted-escaped form, a quoted value that is text, for the
+  property verbs (#39, omx-clap-core#15).
+- The panel file declares its keys, meters among them (#51).
+- The typed replies have a JSON Schema each, installed under shapesdir, and the
+  TypeScript render is published as an npm package (#82, #81); the TypeScript
+  client of the protocol, its transport, the generated vocabulary and
+  curvePoints, ships in the same package (#87).
+- An untagged empty line, and a whitespace-only one, gets no reply and changes
+  no state; a tagged one keeps its answer (#79, #83).
+- phd_note_valid reads no word past count, phd_pin_path_decode writes nothing
+  into a size of 0 (#74), and phd_number_in reads one spelling per number, in
+  the caller's lo and hi only (#75).
+- The command and feedback markers of mod-host.h that the generator reads are
+  back (#80).
+- The installed C headers document their public API with Doxygen (#69, #76).
+- The curve families of omx-dsp 0.32.4: the delay and reverb curve families and
+  the 37 roles curve_bind takes, with time_response, which a curve verb draws as
+  omx-dsp does (#93). The omx-dsp floor is 0.32.4: the curve verbs use what
+  omx_curve.h declares from there.
+- rpc_timeout_ms: a silent worker gets SIGTERM first, so it closes its JACK
+  client, and SIGKILL only if it has not left two seconds later (#89).
+
 * Sat Nov 14 2026 Pau Aliagas <linuxnow@gmail.com> - 0.5.9-1
 - Built against plugin-db >= 0.4.4 and below 0.5 and omx-dsp >= 0.32.1 and below
   0.33, the 3.18.0 pass's newest of each, with their ceilings (D30).
