@@ -21,6 +21,8 @@ concurrency:
 jobs:
   # no Fedora release written into a job: the cells come from check-matrix (rule 11-10, ruling D25)
   fedora-cells:
+    # the schedule is the render check alone (#27)
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -31,6 +33,8 @@ jobs:
 
   # the cells the jobs run on: check-matrix's answer (fc45 beside fc44; the quick set while a release wave is open)
   checks:
+    # the schedule is the render check alone (#27); protocol reads the cells here off the schedule
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -114,13 +118,14 @@ jobs:
   protocol:
     name: declared protocol (render, contract directory, schema, grammar) (${{ matrix.cell.image }})
     needs: checks
-    if: needs.checks.outputs.rpm-count != '0'
+    # on the schedule checks is skipped, so the render check runs alone on fc44 (#27); off it, the check-matrix cells
+    if: ${{ always() && (github.event_name == 'schedule' || (needs.checks.result == 'success' && needs.checks.outputs.rpm-count != '0')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
+        cell: ${{ fromJSON(github.event_name == 'schedule' && '[{"image":"fedora:44"}]' || needs.checks.outputs.rpm) }}
     container:
       image: ${{ matrix.cell.image }}
     env:
@@ -229,18 +234,15 @@ jobs:
         run: make version-check
 
   abi:
-    name: ABI check (abidiff against abi/) (${{ matrix.cell.image }})
-    needs: checks
+    # the baseline abi/ was written by fc44's libabigail: fc45's abidiff refuses it ("incompatible format version"),
+    # so the comparison runs on fc44 alone, the cell that wrote it
+    name: "ABI: types against the baseline (fc44, the baseline writer)"
     # the schedule is the render check alone (#27)
-    if: github.event_name != 'schedule' && needs.checks.outputs.rpm-count != '0'
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
     container:
-      image: ${{ matrix.cell.image }}
+      image: fedora:44
     steps:
       - name: Toolchain
         run: dnf -y install gcc make git pkgconf-pkg-config diffutils binutils gawk libabigail
