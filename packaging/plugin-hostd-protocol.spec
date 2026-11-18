@@ -29,7 +29,7 @@ BuildRequires: omx-contract-data >= 3.16.0
 # plugin-db's package of the contract directory, which the vocabulary header is rendered from (make check-rendered)
 BuildRequires: plugin-db-contract >= 0.4.4
 # omx_curve.h, the curve function the curve verbs draw with (header only)
-BuildRequires: omx-dsp-devel >= 0.32.1
+BuildRequires: omx-dsp-devel >= 0.32.4
 
 %description
 libplugin-hostd-protocol is the socket server, line protocol and command

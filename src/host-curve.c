@@ -115,6 +115,19 @@ static int word_in(const char *const *words, uint32_t n, const char *s, const ch
     return omx_curve_word(words, n, buf);
 }
 
+/* the families each display kind is drawn for, as omx_curve_points() takes them: an EQ's response is the eq family's, a
+   time_response the delay's or the reverb's, and a transfer_curve every other */
+static int curve_takes(int kind, int family)
+{
+    const int time_family = family == OMX_CURVE_FAMILIES_DELAY || family == OMX_CURVE_FAMILIES_REVERB;
+
+    if (kind == OMX_CURVE_DISPLAYS_EQ_RESPONSE)
+        return family == OMX_CURVE_FAMILIES_EQ;
+    if (kind == OMX_CURVE_DISPLAYS_TIME_RESPONSE)
+        return time_family;
+    return family != OMX_CURVE_FAMILIES_EQ && !time_family;
+}
+
 static int symbol_char(char c)
 {
     return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.';
@@ -270,7 +283,7 @@ static void curve_bind_cb(proto_t *proto)
         return;
     }
     family = omx_curve_word(OMX_CURVE_FAMILY_WORDS, OMX_CURVE_FAMILIES_COUNT, proto->list[4]);
-    if (family < 0 || (kind == OMX_CURVE_DISPLAYS_EQ_RESPONSE) != (family == OMX_CURVE_FAMILIES_EQ))
+    if (family < 0 || !curve_takes(kind, family))
     {
         protocol_response_int(OMX_REPLY_PLUGIN_HOSTD_CURVE_KIND_UNKNOWN_RESP, proto);
         return;
@@ -360,12 +373,15 @@ int host_curve_code(int omx_code)
     }
 }
 
-/* curve_points <instance> <display> <points> */
+/* curve_points <instance> <display> <points>. A reply is the count and each point, `resp 0 <count> <x>,<y> ...`; a delay's
+   time_response has no point but taps, which follow as `stems <count> <t>,<dB>,<shade>,<leg> ...` (doc/protocol.md) */
 static void curve_points_cb(proto_t *proto)
 {
     int instance, display, points;
     struct omx_curve_term rqt[CURVE_TERMS_MAX];
     struct omx_curve_request rq;
+    struct omx_curve_stem stems[OMX_CURVE_TAPS_MAX];
+    struct omx_curve_extra ex;
     double rate, x[OMX_CURVE_POINTS_MAX], y[OMX_CURVE_POINTS_MAX];
     char buffer[SOCKET_MSG_BUFFER_SIZE * 4], xs[32];
     curve_binding_t *b;
@@ -442,7 +458,10 @@ static void curve_points_cb(proto_t *proto)
     rq.points = (uint32_t)points;
     rq.terms = rqt;
     rq.nterms = b->nterms;
-    n = omx_curve_points(&rq, x, y, OMX_CURVE_POINTS_MAX, &code);
+    memset(&ex, 0, sizeof(ex));
+    ex.stems = stems;
+    ex.stem_room = OMX_CURVE_TAPS_MAX;
+    n = omx_curve_points_marked(&rq, x, y, OMX_CURVE_POINTS_MAX, &ex, &code);
     if (code != OMX_CURVE_OK)
     {
         protocol_response_int(host_curve_code(code), proto);
@@ -454,6 +473,15 @@ static void curve_points_cb(proto_t *proto)
         format_x(xs, sizeof(xs), x[i]);
         /* -0.00 is written 0.00: the sign of a zero is no part of the curve */
         pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, " %s,%.2f", xs, fabs(y[i]) < 0.005 ? 0.0 : y[i]);
+    }
+    if (ex.nstems)
+        pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, " stems %u", ex.nstems);
+    for (i = 0; i < ex.nstems && pos < sizeof(buffer); i++)
+    {
+        format_x(xs, sizeof(xs), stems[i].t_ms);
+        pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, " %s,%.2f,%.3f,%s", xs,
+                                fabs(stems[i].level_db) < 0.005 ? 0.0 : stems[i].level_db, stems[i].shade,
+                                OMX_CURVE_LEG_WORDS[stems[i].leg]);
     }
     if (pos >= sizeof(buffer))
         protocol_response_int(ERR_MEMORY_ALLOCATION, proto);

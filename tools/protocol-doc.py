@@ -584,7 +584,7 @@ def curves(w):
     w("Curves")
     w("------")
     w("")
-    w("A panel description's display (an EQ's response, a dynamics stage's transfer curve) is drawn from the instance "
+    w("A panel description's display (an EQ's response, a dynamics stage's transfer curve, a delay's taps or a reverb's decay) is drawn from the instance "
       "itself. The controller binds the display once, when the panel opens: `curve_bind` names, for each role the "
       "description gives the display, the parameter that plays it, its unit and, for a band's type, the band shape of "
       "each choice value. A binding may take more than one line, as a line is at most 64 words and a 32-band EQ's "
@@ -604,7 +604,8 @@ def curves(w):
       "description gives them, the parameter's symbol (a host's own control starts with `:`), the unit token, and the "
       "shapes (`off`, `bell`, `lowshelf`, `highshelf`, `highpass`, `lowpass`, `notch`, or `-` for a choice value with "
       "no closed form). The words are omx-dsp's `CURVE_ROLES`, `CURVE_UNITS` and `CURVE_SHAPES`; the grammar spells "
-      "them as `curve-term`. A reply carries at most omx-dsp's `CURVE_POINTS_MAX` points, 256, an EQ's three anchors "
+      "them as `curve-term`; since omx-dsp 0.32 there are 37 roles, the delay's and the reverb's among them, and a "
+      "display of the `time_response` kind. A reply carries at most omx-dsp's `CURVE_POINTS_MAX` points, 256, an EQ's three anchors "
       "a drawn band among them, so a caller asks for 256 less three times the drawn bands at most.")
     w("")
     w("```")
@@ -620,6 +621,16 @@ def curves(w):
     w("< resp -539")
     w("> curve_points 4 1 64")
     w("< resp -537     (display 1 has no binding)")
+    w("> curve_bind 4 2 time_response reverb size=size:coef mix=mix:coef algorithm=algo:none predelay=pre:ms")
+    w("< resp 0")
+    w("> curve_points 4 2 64")
+    w("< resp 0 64 0,0.00 ...")
+    w("> curve_bind 4 3 time_response delay time=time:ms feedback=fb:coef tone=tone:coef mix=mix:coef pingpong=pp:none sync=sync:none")
+    w("< resp 0")
+    w("> curve_points 4 3 64")
+    w("< resp 0 0 stems 4 0,-4.44,1.000,both 250.0,-7.96,1.000,left 500.0,-13.98,0.538,right 750.0,-20.00,0.290,left")
+    w("> curve_bind 4 4 transfer_curve reverb mix=mix:coef")
+    w("< resp -536     (a reverb is drawn as a time_response)")
     w("```")
     w("")
 

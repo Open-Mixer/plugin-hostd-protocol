@@ -13,7 +13,7 @@ MAKE=${MAKE:-make}
 fresh() {
     rm -rf "$work/tree"
     mkdir -p "$work/tree"
-    cp -r Makefile VERSION include data "$work/tree/"
+    cp -r Makefile VERSION include data packaging "$work/tree/"
 }
 
 check() {
