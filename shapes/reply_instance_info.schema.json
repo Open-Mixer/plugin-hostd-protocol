@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/schema/plugin-hostd-protocol/reply_instance_info.schema.json",
+  "title": "InstanceInfoReply",
+  "description": "The parsed form of a instance_info reply (where an instance lives and what it has cost): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "worker": {
+      "type": "string",
+      "pattern": "^w[0-9]+$",
+      "description": "The worker the instance lives on, w<k>."
+    },
+    "pid": {
+      "type": "integer",
+      "description": "The worker's process id."
+    },
+    "state": {
+      "type": "string",
+      "pattern": "^(?:up|starting|backoff|given-up)$",
+      "description": "The worker's state, a name of the table's worker_states."
+    },
+    "crashes": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "How many times the worker has crashed on the instance."
+    },
+    "quarantined": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "1 when the instance is quarantined, else 0."
+    }
+  },
+  "required": [
+    "worker",
+    "pid",
+    "state",
+    "crashes",
+    "quarantined"
+  ],
+  "additionalProperties": false
+}

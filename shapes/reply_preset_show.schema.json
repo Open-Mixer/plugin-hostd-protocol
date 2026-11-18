@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/schema/plugin-hostd-protocol/reply_preset_show.schema.json",
+  "title": "PresetShowReply",
+  "description": "The parsed form of a preset_show reply (the preset's JSON document): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "json": {
+      "type": "string",
+      "description": "The preset's JSON document, the rest of the reply line as the host wrote it."
+    }
+  },
+  "required": [
+    "json"
+  ],
+  "additionalProperties": false
+}

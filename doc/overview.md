@@ -39,6 +39,8 @@ What plugin-hostd declares of the protocol is installed with the development pac
 - the grammar of a line, in ABNF, generated from that table (`--variable=grammar`);
 - `plugin-hostd.json`, what `protocol.h` declares as JSON, and its schema (`--variable=protocoljson`,
   `--variable=protocolschema`), and `mod-host.json`, mod-host's commands and codes (`--variable=modhostjson`);
+- the reply shapes, a JSON Schema per typed reply (`--variable=shapesdir`), and the TypeScript types of them as the npm
+  package `@openmixer/plugin-hostd-protocol` ([reply-shapes.md](reply-shapes.md));
 - the source of the generator of `plugin-hostd.json` (`--variable=protocolgen`), for a consumer that checks its own
   pages against a changed copy of the headers;
 - `data/verbs.json`, as the package plugin-hostd-protocol of omx-contract's contract directory

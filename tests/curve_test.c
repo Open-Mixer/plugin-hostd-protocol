@@ -116,14 +116,35 @@ static void expect(conn_t *c, const char *what, const char *command, const char 
     printf("ok   %s '%.80s' -> '%.80s'\n", what, command, got);
 }
 
-/* the reply curve_points must give: omx_curve_points over the request, written as the verb writes it */
+/* x to four significant digits, the way the verb writes it */
+static void write_x(char *xs, size_t size, double x)
+{
+    int decimals = x == 0.0 ? -1 : 3 - (int)floor(log10(fabs(x)));
+    double xv = x;
+
+    if (decimals < 0 && x != 0.0)
+        xv = round(x / pow(10.0, -decimals)) * pow(10.0, -decimals), decimals = 0;
+    if (x == 0.0)
+        snprintf(xs, size, "0");
+    else
+        snprintf(xs, size, "%.*f", decimals, xv);
+}
+
+/* the reply curve_points must give: omx_curve_points_marked over the request, written as the verb writes it: the count
+   and each point, then, when the request is a delay's, `stems <count> <t>,<level>,<shade>,<leg> ...` */
 static void reply_of(const struct omx_curve_request *rq, char *out, size_t size)
 {
     double x[OMX_CURVE_POINTS_MAX], y[OMX_CURVE_POINTS_MAX];
+    struct omx_curve_stem stems[OMX_CURVE_TAPS_MAX];
+    struct omx_curve_extra ex;
     int code = -1;
-    uint32_t n = omx_curve_points(rq, x, y, OMX_CURVE_POINTS_MAX, &code);
+    uint32_t n;
     size_t pos;
 
+    memset(&ex, 0, sizeof(ex));
+    ex.stems = stems;
+    ex.stem_room = OMX_CURVE_TAPS_MAX;
+    n = omx_curve_points_marked(rq, x, y, OMX_CURVE_POINTS_MAX, &ex, &code);
     if (code != OMX_CURVE_OK)
     {
         snprintf(out, size, "omx_curve_points code %d", code);
@@ -133,15 +154,22 @@ static void reply_of(const struct omx_curve_request *rq, char *out, size_t size)
     for (uint32_t i = 0; i < n; i++)
     {
         char xs[32];
-        int decimals = x[i] == 0.0 ? -1 : 3 - (int)floor(log10(fabs(x[i])));
-        double xv = x[i];
-        if (decimals < 0 && x[i] != 0.0)
-            xv = round(x[i] / pow(10.0, -decimals)) * pow(10.0, -decimals), decimals = 0;
-        if (x[i] == 0.0)
-            snprintf(xs, sizeof(xs), "0");
-        else
-            snprintf(xs, sizeof(xs), "%.*f", decimals, xv);
+
+        write_x(xs, sizeof(xs), x[i]);
         pos += (size_t)snprintf(out + pos, size - pos, " %s,%.2f", xs, fabs(y[i]) < 0.005 ? 0.0 : y[i]);
+    }
+    if (ex.nstems)
+    {
+        pos += (size_t)snprintf(out + pos, size - pos, " stems %u", ex.nstems);
+        for (uint32_t i = 0; i < ex.nstems; i++)
+        {
+            char xs[32];
+
+            write_x(xs, sizeof(xs), stems[i].t_ms);
+            pos += (size_t)snprintf(out + pos, size - pos, " %s,%.2f,%.3f,%s", xs,
+                                    fabs(stems[i].level_db) < 0.005 ? 0.0 : stems[i].level_db, stems[i].shade,
+                                    OMX_CURVE_LEG_WORDS[stems[i].leg]);
+        }
     }
 }
 
@@ -203,7 +231,7 @@ int main(void)
             {OMX_CURVE_ROLES_KNEE, 0, 6.0f, OMX_CURVE_UNITS_DB, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
             {OMX_CURVE_ROLES_MAKEUP, 0, 2.5f, OMX_CURVE_UNITS_DB, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
         };
-        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_TRANSFER_CURVE, OMX_CURVE_FAMILIES_DYNAMICS, CURVE_RATE, 41u, 0, 0, 0, t, 4u, 0};
+        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_TRANSFER_CURVE, OMX_CURVE_FAMILIES_DYNAMICS, CURVE_RATE, 41u, 0, 0, 0, t, 4u, 0, 0.0};
         expect_curve(&c, "compressor points", "curve_points 3 0 41", &rq);
         /* a value changed on the instance is the one the next curve_points reads */
         set(3, 1, 2.0f);
@@ -236,7 +264,7 @@ int main(void)
             {OMX_CURVE_ROLES_HPF_FREQ, 0, 0.12f, OMX_CURVE_UNITS_KHZ, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
             {OMX_CURVE_ROLES_HPF_SLOPE, 0, 24.0f, OMX_CURVE_UNITS_DB, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
         };
-        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_EQ_RESPONSE, OMX_CURVE_FAMILIES_EQ, 48000.0, 64u, 0, 0, 0, t, 7u, 0};
+        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_EQ_RESPONSE, OMX_CURVE_FAMILIES_EQ, 48000.0, 64u, 0, 0, 0, t, 7u, 0, 0.0};
         expect_curve(&c, "EQ points", "curve_points 4 1 64", &rq);
         set(4, 0, 1.0f);
         t[0].value = 1.0f;
@@ -278,7 +306,7 @@ int main(void)
             {OMX_CURVE_ROLES_HPF_FREQ, 0, 100.0f, OMX_CURVE_UNITS_HZ, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
             {OMX_CURVE_ROLES_HPF_SLOPE, 0, 24.0, OMX_CURVE_UNITS_DB, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
         };
-        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_EQ_RESPONSE, OMX_CURVE_FAMILIES_EQ, 48000.0, 40u, 0, 0, 0, t, 5u, 0};
+        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_EQ_RESPONSE, OMX_CURVE_FAMILIES_EQ, 48000.0, 40u, 0, 0, 0, t, 5u, 0, 0.0};
         expect_curve(&c, "choice 1 of 12|24 is 24 dB per octave", "curve_points 4 2 40", &rq);
         set(4, 22, 0.0f);
         t[4].value = 12.0;
@@ -295,7 +323,7 @@ int main(void)
     /* -- a 32-band binding in three lines answers as the one request it makes */
     {
         static struct omx_curve_term t[160];
-        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_EQ_RESPONSE, OMX_CURVE_FAMILIES_EQ, CURVE_RATE, 32u, 0, 0, 0, t, 0u, 0};
+        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_EQ_RESPONSE, OMX_CURVE_FAMILIES_EQ, CURVE_RATE, 32u, 0, 0, 0, t, 0u, 0, 0.0};
         for (b = 0; b < 32; b++)
         {
             set(3, 10 + 4 * b, 25.0f * powf(2.0f, (float)b / 3.2f));
@@ -353,16 +381,57 @@ int main(void)
             {OMX_CURVE_ROLES_THRESHOLD, 0, -10.0f, OMX_CURVE_UNITS_DB, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
             {OMX_CURVE_ROLES_RATIO, 0, 4.0f, OMX_CURVE_UNITS_RATIO, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
         };
-        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_TRANSFER_CURVE, OMX_CURVE_FAMILIES_DYNAMICS, CURVE_RATE, 5u, 0, 0, 0, t, 2u, 0};
+        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_TRANSFER_CURVE, OMX_CURVE_FAMILIES_DYNAMICS, CURVE_RATE, 5u, 0, 0, 0, t, 2u, 0, 0.0};
         expect_curve(&c, "the refused line kept nothing: p0 is still the threshold", "curve_points 3 0 5", &rq);
     }
+
+    /* -- a time_response (omx-dsp 0.32): a reverb's decay envelope as points, a delay's taps as stems */
+    set(4, 0, 0.5f), set(4, 1, 0.3f), set(4, 2, 1.0f), set(4, 3, 20.0f);
+    expect(&c, "bind a reverb", "curve_bind 4 0 time_response reverb size=p0:coef mix=p1:coef algorithm=p2:none predelay=p3:ms", "resp 0");
+    {
+        struct omx_curve_term t[] = {
+            {OMX_CURVE_ROLES_SIZE, 0, 0.5f, OMX_CURVE_UNITS_COEF, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+            {OMX_CURVE_ROLES_MIX, 0, 0.3f, OMX_CURVE_UNITS_COEF, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+            {OMX_CURVE_ROLES_ALGORITHM, 0, 1.0f, OMX_CURVE_UNITS_NONE, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+            {OMX_CURVE_ROLES_PREDELAY, 0, 20.0f, OMX_CURVE_UNITS_MS, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+        };
+        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_TIME_RESPONSE, OMX_CURVE_FAMILIES_REVERB, 48000.0, 32u, 0, 0, 0, t, 4u, 0, 0.0};
+        expect_curve(&c, "the reverb's decay envelope", "curve_points 4 0 32", &rq);
+        set(4, 1, 0.0f);
+        t[1].value = 0.0f;
+        expect_curve(&c, "a reverb at mix 0 draws nothing", "curve_points 4 0 32", &rq);
+        expect(&c, "a reverb at mix 0", "curve_points 4 0 32", "resp 0 0");
+    }
+    set(3, 10, 250.0f), set(3, 11, 0.5f), set(3, 12, 0.3f), set(3, 13, 0.4f), set(3, 14, 1.0f), set(3, 15, 0.0f);
+    expect(&c, "bind a delay", "curve_bind 3 1 time_response delay time=p10:ms feedback=p11:coef tone=p12:coef mix=p13:coef pingpong=p14:none sync=p15:none", "resp 0");
+    {
+        struct omx_curve_term t[] = {
+            {OMX_CURVE_ROLES_TIME, 0, 250.0f, OMX_CURVE_UNITS_MS, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+            {OMX_CURVE_ROLES_FEEDBACK, 0, 0.5f, OMX_CURVE_UNITS_COEF, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+            {OMX_CURVE_ROLES_TONE, 0, 0.3f, OMX_CURVE_UNITS_COEF, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+            {OMX_CURVE_ROLES_MIX, 0, 0.4f, OMX_CURVE_UNITS_COEF, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+            {OMX_CURVE_ROLES_PINGPONG, 0, 1.0f, OMX_CURVE_UNITS_NONE, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+            {OMX_CURVE_ROLES_SYNC, 0, 0.0f, OMX_CURVE_UNITS_NONE, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
+        };
+        struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_TIME_RESPONSE, OMX_CURVE_FAMILIES_DELAY, CURVE_RATE, 8u, 0, 0, 0, t, 6u, 0, 0.0};
+        expect_curve(&c, "the delay's taps, ping-pong across the legs", "curve_points 3 1 8", &rq);
+        set(3, 15, 1.0f);
+        /* a synced delay needs the host's tempo, which this library is not given: a tempo is never guessed */
+        expect(&c, "a synced delay has no tempo", "curve_points 3 1 8", "resp -537");
+    }
+    /* each display kind takes the families its model draws, and no other */
+    expect(&c, "a time response of an EQ", "curve_bind 3 2 time_response eq band_freq.0=p0:hz", "resp -536");
+    expect(&c, "a time response of a compressor", "curve_bind 3 2 time_response dynamics threshold=p0:db", "resp -536");
+    expect(&c, "a transfer curve of a delay", "curve_bind 3 2 transfer_curve delay time=p10:ms", "resp -536");
+    expect(&c, "an EQ response of a reverb", "curve_bind 3 2 eq_response reverb size=p0:coef", "resp -536");
+    expect(&c, "a time role in a unit it does not take", "curve_bind 3 2 time_response delay time=p10:hz", "resp -538");
 
     /* -- each refusal by its code */
     expect(&c, "no such instance", "curve_bind 9 0 transfer_curve dynamics threshold=p0:db", "resp -3");
     expect(&c, "no such instance", "curve_points 9 0 9", "resp -3");
     expect(&c, "no such instance", "curve_bind 9 0 clear", "resp -3");
     expect(&c, "no such symbol", "curve_bind 3 0 transfer_curve dynamics threshold=nope:db", "resp -103");
-    expect(&c, "a family with no closed form", "curve_bind 3 0 transfer_curve reverb threshold=p0:db", "resp -536");
+    expect(&c, "a time family on a transfer curve", "curve_bind 3 0 transfer_curve reverb threshold=p0:db", "resp -536");
     expect(&c, "an EQ family on a transfer curve", "curve_bind 3 0 transfer_curve eq threshold=p0:db", "resp -536");
     expect(&c, "a dynamics family on an EQ response", "curve_bind 3 0 eq_response dynamics band_freq=p0:hz", "resp -536");
     expect(&c, "a unit the role does not take", "curve_bind 3 0 transfer_curve dynamics threshold=p0:hz", "resp -538");
