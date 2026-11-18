@@ -50,6 +50,14 @@ def problems(spec, control, rules, changelog):
     return out
 
 
+def plant_top_epoch(changelog):
+    """the changelog with an epoch planted into its FIRST version, whatever that version is (no-op if none)"""
+    m = re.search(r"^(\S+ \()([^)\s]+)(\))", changelog, re.M)
+    if not m:
+        return changelog
+    return changelog[:m.start()] + m.group(1) + "1:" + m.group(2) + m.group(3) + changelog[m.end():]
+
+
 def read(*parts):
     with open(os.path.join(ROOT, *parts), encoding="utf-8") as f:
         return f.read()
@@ -60,6 +68,10 @@ control = read("debian", "control")
 rules = read("debian", "rules")
 changelog = read("debian", "changelog")
 
+# the changelog plant goes into the FIRST version, whatever it is: a release commit's top is not always 0.5.9
+planted = plant_top_epoch(changelog)
+check(planted != changelog, "the changelog plant changed the text (a no-op plant would test nothing)")
+
 # the check sees each fault: an Epoch line, an epoch macro, a relation with N:, a control relation, rules and changelog
 seen = all(problems(*f) for f in (
     (spec + "Epoch: 1\n", control, rules, changelog),
@@ -67,7 +79,7 @@ seen = all(problems(*f) for f in (
     (spec + "Requires: plugin-hostd-protocol >= 1:0.5.8\n", control, rules, changelog),
     (spec, control + "Depends: libx (= 1:0.5~)\n", rules, changelog),
     (spec, control, rules + "\tdh_gencontrol -ppython3-x -- -v1:$(DEB_VERSION)\n", changelog),
-    (spec, control, rules, changelog.replace("(0.5.9)", "(1:0.5.9)", 1)),
+    (spec, control, rules, planted),
 ))
 check(seen, "the epoch check sees an epoch in each file and in each form")
 
