@@ -1,0 +1,17 @@
+#!/bin/sh
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
+#
+# tests/no-backcompat.sh: the protocol carries no backward-compatibility machinery while it is developed. Each arm names
+# one mechanism and fails, naming it, while it exists. Usage: no-backcompat.sh [root]. (#109)
+root=${1:-.}
+cd "$root" || exit 2
+bad=0
+gone() { echo "FAIL still there: $1" >&2; bad=1; }
+
+# a verb has ONE reply form: no short form of an older daemon's reply
+[ "$(sed -n '/^#define PHD_REPLY_ARGS(X)/,/^$/p' include/plugin-hostd/protocol.h | grep -cE '^[[:space:]]*X\(OMX_VERB_(PLAN|PLAN_GET|ESTIMATE),')" = 3 ] \
+    || gone "plan, plan_get or estimate has more than one reply form (include/plugin-hostd/protocol.h PHD_REPLY_ARGS)"
+
+[ "$bad" = 0 ] && echo "ok   no backward-compatibility path is left"
+exit "$bad"

@@ -4,7 +4,7 @@
 """tests/reply_args.py <table>: every reply of this repository's verbs (origin plugin-hostd or plugin-hostd-protocol)
 whose layout has a placeholder declares it typed and named (plugin-hostd-protocol#19), as the table's reply_forms: resp
 0 or a count, then each word's name and type, a last one repeated over the rest of the line (a count then counts those
-repeated words). A verb may have forms of different lengths (estimate's six words of older daemons and its ten). A type is one of
+repeated words). A verb has one reply form. A type is one of
 arg_types, which may be a list (items of a type joined by a separator, or a none word) or a record (named fields joined
 by a separator), or literal words a|b. One sample reply per form, written from its types, decodes into its names, and
 the prose layout names as many words as the form does. Planted faults must not decode: a record a field short, a list
@@ -162,10 +162,11 @@ def main():
     nested = decode_reply("plan_get", "resp 0 7,8;9 7:budget,9:plan-refused -,-;-", table)
     if not nested or nested.get("segments") != [["7", "8"], ["9"]] or nested.get("cores") != [["-", "-"], ["-"]]:
         failures.append("plan_get: 7,8;9 and -,-;- are not read as lists of lists: %r" % (nested,))
-    # a daemon from before the cores (plugin-hostd#226) answers plan with its segments alone, plan_get without cores
-    for verb, line in (("plan", "resp 0 1,2;3"), ("plan_get", "resp 0 1,2 -")):
-        if decode_reply(verb, line, table) is None:
-            failures.append("%s: the reply of a daemon from before the cores, %r, has no form" % (verb, line))
+    # one reply form each: plan and plan_get without their cores, estimate without its memory figures, are refused
+    for verb, line in (("plan", "resp 0 1,2;3"), ("plan_get", "resp 0 1,2 -"),
+                       ("estimate", "resp 0 192 24.00 - 2 1 -")):
+        if decode_reply(verb, line, table) is not None:
+            failures.append("%s: the short reply %r still decodes" % (verb, line))
     # estimate's figures as the daemon writes them: whole frames, a finite percent, whole bytes or -, counts
     for line in ("resp 0 192 24.00 1.5 2 1 -", "resp 0 - 24.00 - 2 1 -", "resp 0 192 nan - 2 1 -",
                  "resp 0 192 24.00 - 2 1 -1:-544", "resp 0 192 24.00 - 2 1 1:x"):

@@ -33,7 +33,7 @@ endif
 OMXDSP_FLOOR := $(shell sed -n 's/^BuildRequires: *omx-dsp-devel *>= *\([0-9][0-9.]*\) *$$/\1/p' packaging/plugin-hostd-protocol.spec)
 OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 2>/dev/null)
 # the shapes' targets read JSON and a generator, no header
-ifeq ($(filter clean version-check deps deps-check test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch,$(MAKECMDGOALS)),)
+ifeq ($(filter clean version-check deps deps-check test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-no-backcompat,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
 $(error no omx-dsp >= $(OMXDSP_FLOOR) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
@@ -151,11 +151,15 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-same-pass
+      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-same-pass
 
 # no package of this source carries an epoch (the owner's ruling, 2026-11-18): tests/epoch_test.py
 test-no-epoch:
 	python3 tests/epoch_test.py .
+
+# no backward-compatibility path is left in the tree (#109): tests/no-backcompat.sh
+test-no-backcompat:
+	sh tests/no-backcompat.sh .
 
 # the release workflow reads the same-pass list as plugin-hostd does (.github/release-same-pass at the built commit)
 test-same-pass:
