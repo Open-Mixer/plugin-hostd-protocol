@@ -26,11 +26,13 @@
       "types": "./clients/typescript/vocabulary.d.mts",
       "default": "./clients/typescript/vocabulary.mjs"
     },
+    "./codec-vectors": "./clients/fixtures/codec.json",
     "./package.json": "./package.json"
   },
   "files": [
     "ts/shapes/",
     "clients/typescript/",
+    "clients/fixtures/codec.json",
     "shapes/",
     "COPYING"
   ],
