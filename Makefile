@@ -696,3 +696,14 @@ deps:
 deps-check:
 	@test -n "$(DOTGITHUB)" || { echo "$@: name a checkout of Open-Mixer/.github: make $@ DOTGITHUB=<dir>" >&2; exit 2; }
 	$(DOTGITHUB)/.github/actions/deps-render/render.sh --check .
+
+# the conf keys declare no qualification directory: the daemon reads qualifications through libplugin-qualification-db
+TEST_PROGS += tests/conf_keys_test
+tests/conf_keys_test: tests/conf_keys_test.c $(PROTOCOL_HEADERS)
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -Iinclude -o $@ tests/conf_keys_test.c
+
+test-conf-keys: tests/conf_keys_test
+	./tests/conf_keys_test
+
+test: test-conf-keys
+.PHONY: test-conf-keys

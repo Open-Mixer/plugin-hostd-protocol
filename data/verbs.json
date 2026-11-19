@@ -222,7 +222,7 @@
       "dirNotWritable": {
         "code": "reply.plugin-hostd.dir-not-writable",
         "resp": -528,
-        "doc": "descriptor_dir or qualification_dir cannot be made or written",
+        "doc": "descriptor_dir cannot be made or written",
         "text": {
           "en": "A folder the plugins need cannot be created or written to; check its location and permissions."
         },
