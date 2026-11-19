@@ -34,8 +34,8 @@ static int answer(int instance)
 {
     static const int codes[] = {
         SUCCESS, ERR_INSTANCE_INVALID, ERR_INSTANCE_ALREADY_EXISTS, ERR_INSTANCE_NON_EXISTS,
-        ERR_INSTANCE_UNLICENSED, ERR_LV2_INVALID_URI, ERR_INVALID_OPERATION, ERR_JACK_PORT_CONNECTION,
-        ERR_LV2_CANT_LOAD_STATE,
+        ERR_INSTANCE_UNLICENSED, ERR_HOST_INVALID_URI, ERR_INVALID_OPERATION, ERR_JACK_PORT_CONNECTION,
+        ERR_HOST_CANT_LOAD_STATE,
     };
     return codes[((unsigned)instance + g_salt) % (sizeof(codes) / sizeof(codes[0]))];
 }

@@ -13,5 +13,11 @@ gone() { echo "FAIL still there: $1" >&2; bad=1; }
 [ "$(sed -n '/^#define PHD_REPLY_ARGS(X)/,/^$/p' include/plugin-hostd/protocol.h | grep -cE '^[[:space:]]*X\(OMX_VERB_(PLAN|PLAN_GET|ESTIMATE),')" = 3 ] \
     || gone "plan, plan_get or estimate has more than one reply form (include/plugin-hostd/protocol.h PHD_REPLY_ARGS)"
 
+# one name for a host error: no ERR_LV2_* alias of an ERR_HOST_* code in the header, its JSON, the fuzzer or the tests
+P='include/host-errors.h protocol/mod-host.json fuzz tests'
+if git grep -lE 'ERR_LV2_' -- $P ':!tests/no-backcompat.sh' >/dev/null 2>&1; then
+    gone "an ERR_LV2_* alias of an ERR_HOST_* code ($(git grep -lE 'ERR_LV2_' -- $P ':!tests/no-backcompat.sh' | tr '\n' ' '))"
+fi
+
 [ "$bad" = 0 ] && echo "ok   no backward-compatibility path is left"
 exit "$bad"
