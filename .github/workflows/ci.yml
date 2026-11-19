@@ -31,8 +31,9 @@ jobs:
           sparse-checkout: .github/workflows
       - uses: Open-Mixer/.github/.github/actions/fedora-cells@openmixer-v1
 
-  # the cells the jobs run on: check-matrix's answer (fc45 beside fc44; the quick set while a release wave is open).
-  # It runs on the schedule too: the render reads its cells from here (served_render_ci's one exception, #27)
+  # the cells the jobs run on: check-matrix's answer (fc45 x86_64 rpm, trixie arm64 deb; the quick set while a release
+  # wave is open), each with the runner of its own architecture: an amd64 container cannot install the arm64-only -dev
+  # debs. It runs on the schedule too: the render reads its cells from here (served_render_ci's one exception, #27)
   checks:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -46,17 +47,18 @@ jobs:
         uses: Open-Mixer/.github/.github/actions/check-matrix@openmixer-v1
         with:
           wave: ${{ vars.OMX_RELEASE_MATRIX }}
-          rpm-releases: '["44", "45"]'
+          rpm-releases: '["45"]'
           rpm-arches: '["x86_64"]'
           deb-releases: '["bookworm", "trixie"]'
-          deb-arches: '["amd64"]'
+          deb-arches: '["arm64"]'
+          x86-runner: ${{ vars.OMX_RUNNER || 'ubuntu-latest' }}
 
   test:
     name: build + test (${{ matrix.cell.image }})
     needs: checks
     # the schedule is the render check alone (#27)
     if: github.event_name != 'schedule' && needs.checks.outputs.count != '0'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.cell.runner }}
     # A backstop only.
     timeout-minutes: 20
     strategy:
@@ -136,7 +138,7 @@ jobs:
     name: declared protocol (render, contract directory, schema, grammar) (${{ matrix.cell.image }})
     needs: checks
     if: needs.checks.outputs.rpm-count != '0'
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.cell.runner }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
@@ -249,15 +251,15 @@ jobs:
         run: make version-check
 
   abi:
-    # the baseline abi/ was written by fc44's libabigail: fc45's abidiff refuses it ("incompatible format version"),
-    # so the comparison runs on fc44 alone, the cell that wrote it
+    # the baseline abi/ is written by fc45's libabigail (make abi-baseline there): an abidiff refuses a baseline of
+    # another libabigail format version, so the comparison runs on the image that wrote it
     name: "ABI: types against the baseline (the baseline writer's libabigail)"
     # the schedule is the render check alone (#27)
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     container:
-      image: fedora:44  # tool image: the libabigail that wrote the abi/ baseline: a tool artefact, not a release cell
+      image: fedora:45  # tool image: the libabigail that wrote the abi/ baseline: a tool artefact, not a release cell
     steps:
       - name: Toolchain
         run: dnf -y install gcc make git pkgconf-pkg-config diffutils binutils gawk libabigail

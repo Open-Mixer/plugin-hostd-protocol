@@ -30,7 +30,7 @@ on:
         type: boolean
         default: false
       staged:
-        description: 'Build fc44 x86_64 and trixie amd64 only and publish them to the staging channel, never to the real one'
+        description: 'Build fc45 x86_64 and trixie arm64 only and publish them to the staging channel, never to the real one'
         type: boolean
         default: false
       same_pass:
