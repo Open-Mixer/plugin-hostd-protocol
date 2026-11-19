@@ -86,8 +86,6 @@ Package: plugin-hostd-protocol-l10n-ca
 Section: localization
 Architecture: all
 Depends: plugin-hostd-protocol-contract (= ${source:Version}), ${misc:Depends}
-Breaks: plugin-hostd-protocol-contract (<< 0.5.6~)
-Replaces: plugin-hostd-protocol-contract (<< 0.5.6~)
 Description: ca catalog of plugin-hostd-protocol's codes
  The sentences of plugin-hostd-protocol's codes in the language ca, read by
  every surface that shows them on a host in that locale; without it a surface

@@ -1,1 +1,1 @@
-omx-clap-host plugin-hostd omx-panel
+omx-clap-host plugin-hostd plugin-hostd-full plugin-qualify omx-panel

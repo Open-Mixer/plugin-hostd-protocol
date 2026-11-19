@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.6.0
+Version: 0.7.0
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -247,6 +247,32 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Fri Nov 20 2026 Pau Aliagas <linuxnow@gmail.com> - 0.7.0-1
+- The backward-compatibility removal: the ERR_LV2_* spellings of the error
+  words are gone from host-errors.h, and plan, plan_get and estimate answer
+  with their one reply form only; their reply schemas require every word of it
+  (#110). This removes API, hence a new minor.
+- The qualify_requested event and the qualify spool: a plugin with no verdict
+  added under require_pins with pin_mode first-use says qualify_requested with
+  its uri, and one request for its quick qualification is written in the spool
+  (#107).
+- The qualification_dir conf key, its OMX_QUALIFICATION_DIR default and the
+  subdirectory constant are dropped: plugin-hostd reads qualifications through
+  libplugin-qualification-db, so the key has no reader (#112).
+- The plugin-db words of the rendered vocabulary come from plugin-db 0.4.7's
+  domain (#111); the plugin-db-contract floor stays 0.4.4.
+- The table-constants check joins verb_table.py (#108).
+- The Debian packages build on arm64 runners and Fedora 45 is the newest cell,
+  Fedora 44 dropped; the ABI baseline carries the types, not only the symbols
+  (#113).
+- The commit identity check is on for pull requests (#115).
+- The Breaks and Replaces of the ca language pack against plugin-hostd-
+  protocol-contract (<< 0.5.6) are gone: floors only, no Breaks, Replaces or
+  Conflicts between our packages.
+- The soname stays libplugin-hostd-protocol.so.0: the exported symbols and the
+  layout of every type are as in 0.6.0, the removed names were enumerators and
+  macros that a consumer resolves when it compiles.
+
 * Thu Nov 19 2026 Pau Aliagas <linuxnow@gmail.com> - 0.6.0-1
 - Floors only, no ceilings, declared once in packaging/deps.txt; the spec and
   debian/control are generated from it and the floors check refuses drift

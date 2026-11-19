@@ -1,6 +1,6 @@
 {
   "name": "@openmixer/plugin-hostd-protocol",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "The plugin-hostd protocol's reply shapes (a JSON Schema and a TypeScript type for each document a reply carries, rendered from the schemas by omx-contract's pinned generator) and its thin TypeScript client: the transport, the generated vocabulary and curvePoints",
   "license": "GPL-3.0-or-later",
   "author": "Pau Aliagas <linuxnow@gmail.com>",
