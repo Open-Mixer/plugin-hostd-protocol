@@ -115,7 +115,9 @@ jobs:
           PLUGIN_HOSTD_REF: 240e39b228321ab7a1bde31ed0d14af4c66c249c
         run: |
           set -euo pipefail
-          dnf -y install nodejs npm
+          # the builddeps may already carry node 22 (a second nodejs conflicts with it): add only what is missing
+          command -v node >/dev/null || dnf -y install nodejs
+          command -v npm >/dev/null || dnf -y install npm
           src=$RUNNER_TEMP/plugin-hostd
           git init -q "$src"
           git -C "$src" fetch -q --depth 1 https://github.com/Open-Mixer/plugin-hostd "$PLUGIN_HOSTD_REF"
