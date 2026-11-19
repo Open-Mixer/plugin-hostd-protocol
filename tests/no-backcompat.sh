@@ -25,5 +25,10 @@ if grep -rnE 'plugin-hostd-contract' $P >/dev/null 2>&1; then
     gone "a relation to plugin-hostd-contract, the package this one replaced ($(grep -rlE 'plugin-hostd-contract' $P | tr '\n' ' '))"
 fi
 
+# no build-compatibility check kept for consumers of older X-macro shapes
+if [ -e tests/macro_compat.c ] || grep -qE 'macro[_-]compat' Makefile .gitignore; then
+    gone "tests/macro_compat.c and its Makefile targets"
+fi
+
 [ "$bad" = 0 ] && echo "ok   no backward-compatibility path is left"
 exit "$bad"
