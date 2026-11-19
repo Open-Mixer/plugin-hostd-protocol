@@ -1494,9 +1494,13 @@ static inline int phd_is_note_verb(const char *verb)
  * alone writes the verdict. The directory is beside the pin store; a request is one file, written whole by a temporary
  * file in the same directory renamed over its name, its lines "uri <uri>" then one "file <path> <sha256>" per file the
  * daemon hashed. The daemon runs no probe, queue or judge and loads no plugin code. */
+/** @brief the name of the spool directory, beside the pin store */
 #define PHD_QUALIFY_SPOOL_DIR      "qualify"
+/** @brief the suffix of a request file */
 #define PHD_QUALIFY_REQUEST_SUFFIX ".request"
+/** @brief the first word of a request's uri line */
 #define PHD_QUALIFY_REQUEST_URI    "uri"
+/** @brief the first word of a request's file lines */
 #define PHD_QUALIFY_REQUEST_FILE   "file"
 
 /* ---------------------------------------------------------------- feedback events */
@@ -1573,6 +1577,7 @@ static inline int phd_is_note_verb(const char *verb)
  * A plan of the chain changed: the reasons plan_get answers now.
  */
 #define PHD_EVENT_PLAN_REASON             "plan_reason"
+/** @brief the name of the feedback event qualify_requested: a plugin with no verdict has a request in the spool */
 #define PHD_EVENT_QUALIFY_REQUESTED       "qualify_requested"
 /* written by a worker, relayed as it wrote it */
 /** @brief the name of the feedback event remote_pages_changed
@@ -1882,6 +1887,7 @@ static inline int phd_is_note_verb(const char *verb)
  * The event word and its arguments are in one literal.
  */
 #define PHD_EVENT_PLAN_REASON_FMT           PHD_EVENT_PLAN_REASON " %d %s"
+/** @brief the format of the feedback line of qualify_requested, its one word the plugin's uri */
 #define PHD_EVENT_QUALIFY_REQUESTED_FMT     PHD_EVENT_QUALIFY_REQUESTED " %s"
 
 /** @brief the table of the docs: X(name, fields, meaning), one row per shape of a line
