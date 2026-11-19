@@ -30,6 +30,7 @@ int main(void)
     printf(PHD_EVENT_CHAIN_STALLED_FMT "\n", "2", "8", "add", -903);
     printf(PHD_EVENT_CHAIN_STALLED_FMT "\n", "2", PHD_WORD_NONE, "spawn", -903);
     printf(PHD_EVENT_PLAN_REASON_FMT "\n", 4, "7:budget,8:sidechain");
+    printf(PHD_EVENT_QUALIFY_REQUESTED_FMT "\n", "urn:example:plugin");
     printf(PHD_EVENT_REMOTE_PAGES_CHANGED_FMT "\n", 7);
     printf(PHD_EVENT_REMOTE_PAGE_SUGGEST_FMT "\n", 7, 2u);
     printf(PHD_EVENT_PARAM_GESTURE_FMT "\n", 7, "gain", PHD_GESTURE_BEGIN);
