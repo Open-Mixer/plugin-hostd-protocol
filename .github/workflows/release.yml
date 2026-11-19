@@ -2,7 +2,8 @@
 name: release
 
 # Packages through the shared release workflows of Open-Mixer/.github. A tag v<version> builds signed
-# RPMs (Fedora 44, x86_64 and aarch64) and DEBs (Debian bookworm and trixie, amd64 and arm64),
+# RPMs (Fedora 45, x86_64) and DEBs (Debian trixie, arm64) while the release matrix is quick (OMX_RELEASE_MATRIX=quick;
+# the full set returns with OMX_RELEASE_MATRIX=full),
 # publishes them to the OpenMixer channel and attaches them to the GitHub release. A dispatched run
 # (workflow_dispatch) is a dry run: it builds and lints everything and publishes nothing, unless it names a
 # tag in source-ref and sets publish: then it releases that tag's sources with this workflow (a tag whose own
@@ -30,7 +31,7 @@ on:
         type: boolean
         default: false
       staged:
-        description: 'Build fc44 x86_64 and trixie amd64 only and publish them to the staging channel, never to the real one'
+        description: 'Build fc45 x86_64 and trixie arm64 only and publish them to the staging channel, never to the real one'
         type: boolean
         default: false
       same_pass:
