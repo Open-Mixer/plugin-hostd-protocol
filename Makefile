@@ -580,6 +580,18 @@ test-ts-package:
 test-ts-client:
 	node --test tests/ts_client_test.mjs tests/ts_codec_vectors_test.mjs
 
+# the table-driven TypeScript codec (clients/typescript/codec, the package's `.` export, moved from plugin-hostd's clients/ts):
+# built with its locked toolchain, then run on clients/fixtures/codec.json, the file the Python codec runs on, reading the
+# table of this tree and the vocabulary and catalogs this tree stages, as test-codec does. PLUGIN_HOSTD_GROUPING_JSON, when
+# set (CI sets it), also holds GroupingReason to plugin-hostd's data/grouping.json until plugin-hostd#175
+.PHONY: test-ts-codec
+test-ts-codec:
+	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
+	$(MAKE) --no-print-directory install-contract DESTDIR=$$tmp >/dev/null; \
+	npm --prefix clients/typescript/codec ci --no-audit --no-fund; npm --prefix clients/typescript/codec run build; \
+	PLUGIN_HOSTD_PROTOCOL_TABLE=$(abspath protocol/plugin-hostd-protocol.json) PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) \
+	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) npm --prefix clients/typescript/codec test
+
 test-grammar:
 	$(PYTHON) tests/grammar_test.py
 	PYTHON=$(PYTHON) sh tests/grammar-sabotage.sh

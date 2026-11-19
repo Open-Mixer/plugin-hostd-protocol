@@ -81,3 +81,21 @@ same commit, and a package version is the vocabulary of that protocol version.
   byte for byte; `make gen` writes them.
 - `tests/ts_codec_vectors_test.mjs` (also `make test-ts-client`) runs the encode and parse cases this client speaks on `clients/fixtures/codec.json`, the one file the Python codec is tested on too; it is shipped in the npm package as `@openmixer/plugin-hostd-protocol/codec-vectors`, for a client elsewhere to run the same cases.
 - `make test-ts-package` packs the package and imports the client from the tarball.
+
+## The table-driven codec (the package's `.` export)
+
+`@openmixer/plugin-hostd-protocol` also exports the codec plugin-hostd carried as its own TypeScript client
+(`clients/typescript/codec`, moved here: this repository owns the protocol and its codecs, issue 46). `Protocol` reads the
+installed table (`PLUGIN_HOSTD_PROTOCOL_TABLE`, else pkg-config's `table`), the vocabulary of omx-contract's contract
+directory and the catalogs, and encodes, decodes and parses every command and feedback line, reads the typed replies (plan,
+plan_get, estimate, worker_list, instance_info, hello...) and gives each reply code's sentence in a language. It has no
+transport; the `./client` export above opens the socket. `plugin-hostd-codec` (`dist/cli.js`) answers a batch of cases from
+stdin, as `python3 -m plugin_hostd_protocol` does.
+
+It runs `clients/fixtures/codec.json`, the one set of vectors the Python codec runs on (`make test-ts-codec`), so the two
+codecs are held to the same expected lines. `GroupingReason` is the list plugin-hostd declares in its
+`data/grouping.json`, copied by hand until plugin-hostd#175 publishes it as a domain item both codecs read; CI sets
+`PLUGIN_HOSTD_GROUPING_JSON` so the copy is held to the file meanwhile. The library reads no environment variable and runs no
+program: it takes options (`table`, `contractDirs`, `datadir`) and its installed default (`INSTALLED`); the command line
+and the tests take theirs from `PLUGIN_HOSTD_PROTOCOL_TABLE`, `OMX_CONTRACT_PATH` and pkg-config (`src/environment.ts`).
+Until the `./client` transport is folded onto this codec (#106) the package has two TypeScript encoders.
