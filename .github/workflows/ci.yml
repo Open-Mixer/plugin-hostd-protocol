@@ -226,6 +226,8 @@ jobs:
         run: make test-ts-package
       - name: The TypeScript client, its generated vocabulary and curvePoints
         run: make test-ts-client
+      - name: The table-driven TypeScript codec on the shared vectors
+        run: make test-ts-codec
       - name: Each guard goes red on its fault
         run: make test-shapes-sabotage
       - name: The version of package.json

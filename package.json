@@ -10,6 +10,10 @@
     "url": "git+https://github.com/Open-Mixer/plugin-hostd-protocol.git"
   },
   "exports": {
+    ".": {
+      "types": "./clients/typescript/codec/dist/index.d.ts",
+      "default": "./clients/typescript/codec/dist/index.js"
+    },
     "./shapes/*": {
       "types": "./ts/shapes/*.d.ts"
     },
@@ -32,10 +36,27 @@
     "ts/shapes/",
     "clients/typescript/",
     "shapes/",
-    "COPYING"
+    "COPYING",
+    "clients/typescript/codec/package.json",
+    "clients/typescript/codec/dist/index.js",
+    "clients/typescript/codec/dist/index.d.ts",
+    "clients/typescript/codec/dist/cli.js",
+    "clients/typescript/codec/dist/cli.d.ts"
   ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
+  },
+  "bin": {
+    "plugin-hostd-codec": "clients/typescript/codec/dist/cli.js"
+  },
+  "dependencies": {
+    "@openmixer/omx-contract": "^3.18.0"
+  },
+  "scripts": {
+    "prepack": "npm --prefix clients/typescript/codec ci --no-audit --no-fund && npm --prefix clients/typescript/codec run build"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

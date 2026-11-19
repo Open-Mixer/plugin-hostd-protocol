@@ -20,3 +20,5 @@
 /tests/macro_compat
 /tests/bounds_test
 /tests/number_test
+/clients/typescript/codec/node_modules/
+/clients/typescript/codec/dist/

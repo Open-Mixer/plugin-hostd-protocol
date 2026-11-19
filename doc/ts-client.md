@@ -80,3 +80,17 @@ same commit, and a package version is the vocabulary of that protocol version.
 - `make check-generated` holds `clients/typescript/vocabulary.mjs` and `vocabulary.d.mts` to what `tools/ts-client-gen.py` writes,
   byte for byte; `make gen` writes them.
 - `make test-ts-package` packs the package and imports the client from the tarball.
+
+## The table-driven codec (the package's `.` export)
+
+`@openmixer/plugin-hostd-protocol` also exports the codec plugin-hostd carried as its own TypeScript client
+(`clients/typescript/codec`, moved here: this repository owns the protocol and its codecs, issue 46). `Protocol` reads the
+installed table (`PLUGIN_HOSTD_PROTOCOL_TABLE`, else pkg-config's `table`), the vocabulary of omx-contract's contract
+directory and the catalogs, and encodes, decodes and parses every command and feedback line, reads the typed replies (plan,
+plan_get, estimate, worker_list, instance_info, hello...) and gives each reply code's sentence in a language. It has no
+transport; the `./client` export above opens the socket. `plugin-hostd-codec` (`dist/cli.js`) answers a batch of cases from
+stdin, as `python3 -m plugin_hostd_protocol` does.
+
+It runs `clients/fixtures/codec.json`, the one set of vectors the Python codec runs on (`make test-ts-codec`), so the two
+codecs are held to the same expected lines. `GroupingReason` is the list plugin-hostd declares in its
+`data/grouping.json`; plugin-hostd's tests hold it there (`PLUGIN_HOSTD_GROUPING_JSON` runs the same arms here).
