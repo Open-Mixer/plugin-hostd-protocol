@@ -79,4 +79,5 @@ same commit, and a package version is the vocabulary of that protocol version.
   one verb more shows it; `curvePoints` sends the words the table declares and parses the reply; each error is typed.
 - `make check-generated` holds `clients/typescript/vocabulary.mjs` and `vocabulary.d.mts` to what `tools/ts-client-gen.py` writes,
   byte for byte; `make gen` writes them.
+- `tests/ts_codec_vectors_test.mjs` (also `make test-ts-client`) runs the encode and parse cases this client speaks on `clients/fixtures/codec.json`, the one file the Python codec is tested on too; it is shipped in the npm package as `@openmixer/plugin-hostd-protocol/codec-vectors`, for a client elsewhere to run the same cases.
 - `make test-ts-package` packs the package and imports the client from the tarball.

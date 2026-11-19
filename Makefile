@@ -578,7 +578,7 @@ test-ts-package:
 
 # the TypeScript client (doc/ts-client.md): the transport, the generated vocabulary, curvePoints; node, no dependency
 test-ts-client:
-	node --test tests/ts_client_test.mjs
+	node --test tests/ts_client_test.mjs tests/ts_codec_vectors_test.mjs
 
 test-grammar:
 	$(PYTHON) tests/grammar_test.py
