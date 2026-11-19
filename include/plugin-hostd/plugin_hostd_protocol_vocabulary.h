@@ -110,7 +110,7 @@
 #define OMX_REPLY_PLUGIN_HOSTD_LABEL_INVALID_RESP (-545)
 /** The source sentence (English) of OMX_REPLY_PLUGIN_HOSTD_LABEL_INVALID. */
 #define OMX_REPLY_PLUGIN_HOSTD_LABEL_INVALID_TEXT_EN "That label is too long or not valid text, so the node keeps its previous name; use at most 64 bytes of UTF-8 text."
-#define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE "reply.plugin-hostd.dir-not-writable" ///< descriptor_dir or qualification_dir cannot be made or written
+#define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE "reply.plugin-hostd.dir-not-writable" ///< descriptor_dir cannot be made or written
 #define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_RESP (-528)
 /** The source sentence (English) of OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE. */
 #define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_TEXT_EN "A folder the plugins need cannot be created or written to; check its location and permissions."

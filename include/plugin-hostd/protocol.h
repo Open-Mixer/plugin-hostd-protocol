@@ -501,7 +501,7 @@ static inline int phd_pool_name_valid(const char *name)
                              "nothing of it is applied") \
     X(LOAD_REFUSED, OMX_REPLY_PLUGIN_HOSTD_LOAD_REFUSED_RESP, "the worker: the plugin refused the preset or the state its file carries") \
     X(PRESET_NOT_APPLIED, OMX_REPLY_PLUGIN_HOSTD_PRESET_NOT_APPLIED_RESP, "the worker: the plugin took the preset and had not run once since when the host's wait for that ran out") \
-    X(DIR_NOT_WRITABLE, OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_RESP, "descriptor_dir or qualification_dir cannot be made or written: the daemon does not start, and " \
+    X(DIR_NOT_WRITABLE, OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_RESP, "descriptor_dir cannot be made or written: the daemon does not start, and " \
                         "says which key and which path on stderr with this code; a directory that turns read-only " \
                         "later makes the scan of an add write nothing, and " OMX_VERB_DESCRIPTOR_GET " and " \
                         OMX_VERB_PANEL_GET " of that plugin answer this code") \
@@ -515,8 +515,8 @@ static inline int phd_pool_name_valid(const char *name)
                               "installed; the add it ran for stands, and stderr and the scan's log say why. The next add " \
                               "scans again") \
     X(NO_SUCH_PLAN, OMX_REPLY_PLUGIN_HOSTD_NO_SUCH_PLAN_RESP, OMX_VERB_PLAN_GET " or " OMX_VERB_PLAN_CLEAR " of a chain no " OMX_VERB_PLAN " planned") \
-    X(NO_RECORD, OMX_REPLY_PLUGIN_HOSTD_NO_RECORD_RESP, "a member of " OMX_VERB_ESTIMATE " that no qualification record in " \
-                 "qualification_dir names: never a reply, the code of the member in the reply's list") \
+    X(NO_RECORD, OMX_REPLY_PLUGIN_HOSTD_NO_RECORD_RESP, "a member of " OMX_VERB_ESTIMATE " that no qualification record " \
+                 "names: never a reply, the code of the member in the reply's list") \
     X(NO_CELL, OMX_REPLY_PLUGIN_HOSTD_NO_CELL_RESP, "a member of " OMX_VERB_ESTIMATE " whose qualification records hold no " \
                "point of the grid at that rate and quantum with a cost and a latency: never a reply, the code of the " \
                "member in the reply's list") \
@@ -971,7 +971,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "file at once; -902 while the history is blocked or off, or for a line that is not one word") \
     X(ESTIMATE, OMX_VERB_ESTIMATE, "<rate> <quantum> <uri> [<uri> ...]", OMX_VERB_ESTIMATE_REPLY, \
       "what a chain of these plugins, in signal order and named as " PHD_VERB_ADD " names them, would cost at that rate " \
-      "and quantum, read from the qualification records of qualification_dir; no plugin is loaded and nothing moves. " \
+      "and quantum, read from the qualification records; no plugin is loaded and nothing moves. " \
       "latency_frames adds up each member's measured latency of the grid point, else its declared one; cpu_percent " \
       "adds up each member's median nanoseconds per sample times the rate, percent of one core's cycle (a member's " \
       "cost per block over the block's duration); ram_bytes adds up the Pss of the worker each member ran alone in, " \
@@ -2145,8 +2145,6 @@ static inline int phd_is_note_verb(const char *verb)
  * service), else $HOME/.local/state. A missing directory is made, mode 0700; one that cannot be written stops the daemon with OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_RESP. */
 /** @brief the subdirectory of the state home that descriptor_dir defaults to */
 #define PHD_DIR_DESCRIPTORS_SUBDIR    "omx/descriptors"
-/** @brief the subdirectory of the state home that qualification_dir defaults to */
-#define PHD_DIR_QUALIFICATION_SUBDIR  "omx/qualification"
 /** @brief the state home of a daemon run as root, when XDG_STATE_HOME is not set */
 #define PHD_DIR_SYSTEM_STATE_HOME     "/var/lib"
 /** @brief the state home of any other daemon, relative to $HOME, when XDG_STATE_HOME is not set */
@@ -2255,9 +2253,6 @@ static inline int phd_is_note_verb(const char *verb)
     X(descriptor_dir, path, "", "OMX_DESCRIPTOR_DIR", "the scanned descriptors, one file per plugin binary (" \
       PHD_DESCRIPTOR_NAME_SYNTAX ", the hash the binary's SHA-256), written by the scan of an add and read by " OMX_VERB_DESCRIPTOR_GET "; " \
       PHD_DIR_DEFAULT_TEXT(PHD_DIR_DESCRIPTORS_SUBDIR) "; its variable is for tests only") \
-    X(qualification_dir, path, "", "OMX_QUALIFICATION_DIR", "plugin-qualify's qualification records (verdict, cost, " \
-      "version tested), kept apart from the descriptors; " PHD_DIR_DEFAULT_TEXT(PHD_DIR_QUALIFICATION_SUBDIR) \
-      "; its variable is for tests only") \
     X(probe, path, PHD_DEFAULT_PROBE, "", "the scanner an add runs, as <probe> describe <target>, in a child of its " \
       "own once per plugin binary; its stdout is the descriptor") \
     X(history_file, path, "", "", "the running history: what each plugin did on this machine, kept per plugin, binary and " \
