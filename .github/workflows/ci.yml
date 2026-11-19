@@ -208,7 +208,6 @@ jobs:
           base: plugin-hostd-protocol-contract
           owner: plugin-hostd-protocol
           spec: packaging/plugin-hostd-protocol.spec
-          moved: ca:0.5.6
           gate: make check-catalogs
 
   # The reply shapes (doc/reply-shapes.md): shapes/ held to the table and to the replies, ts/shapes/ the render omx-contract
