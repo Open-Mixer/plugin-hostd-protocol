@@ -26,7 +26,7 @@ BuildRequires: omx-contract-devel >= 3.19.1
 # the codec's tests (make test-codec) read omx-clap-core's sentences and omx-contract's catalog reader
 BuildRequires: omx-clap-core-contract >= 0.32.3
 BuildRequires: omx-contract-data >= 3.16.0
-# plugin-db's package of the contract directory, which the vocabulary header is rendered from (make check-rendered)
+# plugin-db's package of the contract directory. The committed vocabulary header is the render of plugin-db 0.4.7, checked by ci's declared-protocol job against the served contract; the package build (make test: %check, debian/rules) reads none of its words, so the floor stays 0.4.4
 BuildRequires: plugin-db-contract >= 0.4.4
 # omx_curve.h, the curve function the curve verbs draw with (header only)
 BuildRequires: omx-dsp-devel >= 0.32.4

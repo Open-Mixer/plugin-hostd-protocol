@@ -14,17 +14,6 @@
  * @brief The vocabulary of plugin-db: every code and every word as a string define, with its sentence
  * where it carries one. */
 
-/* PLUGIN_DB_ADDRESS_FORMATS (data/db.json) */
-#define OMX_PLUGIN_DB_ADDRESS_FORMATS_CLAP "clap" ///< a CLAP plugin: the id is the plugin descriptor's id
-#define OMX_PLUGIN_DB_ADDRESS_FORMATS_LV2 "lv2" ///< an LV2 plugin: the id is the plugin's URI
-/** The number of words of PLUGIN_DB_ADDRESS_FORMATS. */
-#define OMX_PLUGIN_DB_ADDRESS_FORMATS_COUNT 2u
-/** The words of PLUGIN_DB_ADDRESS_FORMATS in their declared order, as a C initializer list. */
-#define OMX_PLUGIN_DB_ADDRESS_FORMATS_INIT { "clap", "lv2" }
-/** Expands `X(code, "word", NAME)` once per word of PLUGIN_DB_ADDRESS_FORMATS, in order, the code being its place in the order. The one address form of a plugin: \<format\>:\<id\>, or clap\@\<sha256\>:\<id\> when several files share one CLAP id, the sha256 that of the .clap file. An LV2 address carries no sha256: the bundle rule makes one bundle the plugin. A path is never part of an address, so a session keeps its plugins on another machine. The format is one of these words; an id is the plugin's own, its CLAP id or its LV2 URI, and a CLAP id that begins with '/' is a path and no address. */
-#define OMX_PLUGIN_DB_ADDRESS_FORMATS(X) \
-    X(0u, "clap", CLAP) X(1u, "lv2", LV2)
-
 /* PLUGIN_DB_BUNDLE_RULES (data/db.json) */
 #define OMX_PLUGIN_DB_BUNDLE_RULES_NEWEST_VERSION "newest-version" ///< of the candidates, the one whose manifest gives the plugin the highest lv2:minorVersion, then the highest lv2:microVersion, a version not stated counting as 0; of equal versions the first in the search path, its directories in order and the bundles of one directory in byte order of their names. This is lilv's rule, so the host loads the bundle plugin-db pins.
 /** The number of words of PLUGIN_DB_BUNDLE_RULES. */
