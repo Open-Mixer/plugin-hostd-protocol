@@ -15,4 +15,4 @@ omx-clap-core-contract          omx-clap-core-contract        0.32.3
 omx-dsp-devel                   libomxdsp-dev                 0.32.4
 plugin-hostd-protocol           libplugin-hostd-protocol0     0.5.8
 plugin-hostd-protocol-contract  plugin-hostd-protocol-contract 0.5.8
-plugin-db-contract              plugin-db-contract            0.4.7
+plugin-db-contract              plugin-db-contract            0.4.4
