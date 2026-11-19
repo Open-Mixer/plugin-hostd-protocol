@@ -129,7 +129,6 @@ jobs:
   # omx-contract renders from data/verbs.json and from omx-clap-core's package (and a header changed by hand is red), the
   # staged contract package validates, protocol/plugin-hostd.json satisfies its schema, and the grammar holds the
   # scenario corpus, the golden transcript and the table, read by python's abnf parser (and a broken rule is red).
-  # plugin-hostd-contract before 0.16.0 declares the same items, so it is not installed here.
   # omx-clap-core's contract (data/verbs.json, the shared verbs protocol/plugin-hostd-protocol.json imports) is read from
   # its source at CLAP_CORE_REF, not from the channel: a protocol release comes before the omx-clap-core release that
   # needs it, so the package of the verbs it declares is not served yet when this job runs.
@@ -160,7 +159,6 @@ jobs:
           set -euo pipefail
           dnf -y install omx-contract plugin-db-contract
           dnf builddep -y --setopt=install_weak_deps=False packaging/plugin-hostd-protocol.spec
-          if rpm -q plugin-hostd-contract; then echo "plugin-hostd-contract is installed: it declares the same items"; exit 1; fi
       # an ordinary run renders and builds against what consumers get, the channel: name where each omx package came
       # from, and refuse one from the staging channel (#27: a stale staged contract package outranked the channel)
       - name: Every contract package comes from the channel

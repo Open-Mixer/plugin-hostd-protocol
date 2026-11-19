@@ -562,10 +562,8 @@ class Protocol:
     # ---- the replies with a shape of their own
 
     def _cores_of(self, segments, cores):
-        """a plan's cores in its segments' shape: each member's core, None for one that is not pinned, and for every
-        member when the daemon answers no cores; ProtocolError when the shapes differ"""  # noqa: D205, D209, D403, D415
-        if cores is None:
-            return [[None] * len(seg) for seg in segments]
+        """a plan's cores in its segments' shape: each member's core, None for one that is not pinned; ProtocolError
+        when the shapes differ"""  # noqa: D205, D209, D403, D415
         if [len(c) for c in cores] != [len(seg) for seg in segments]:
             raise ProtocolError("the cores %r are not the shape of the segments %r" % (cores, segments))
         return cores
@@ -573,9 +571,9 @@ class Protocol:
     def read_plan(self, data):
         """What plan answers after resp 0, as words, read by the table's reply_forms: the segments in signal order, each
         the instances that share a worker, and the cores, the same shape with the audio core of each member's worker
-        (None for one that is not pinned, and for every member when the daemon answers no cores)."""  # noqa: D205, D209
+        (None for one that is not pinned)."""  # noqa: D205, D209
         r = self.read_reply("plan", data)
-        return {"segments": r["segments"], "cores": self._cores_of(r["segments"], r.get("cores"))}
+        return {"segments": r["segments"], "cores": self._cores_of(r["segments"], r["cores"])}
 
     def read_plan_get(self, data):
         """What plan_get answers after resp 0, as words, read by the table's reply_forms: the plan as read_plan gives it
@@ -589,15 +587,14 @@ class Protocol:
             code = int(detail) if _INT.match(detail) else None
             reasons.append({"instance": item["instance"], "reason": item["reason"], "word": word, "code": code,
                             "name": None if code is None else self.names.get(code), "retry": word in RETRY_REASONS})
-        return {"segments": r["segments"], "reasons": reasons, "cores": self._cores_of(r["segments"], r.get("cores"))}
+        return {"segments": r["segments"], "reasons": reasons, "cores": self._cores_of(r["segments"], r["cores"])}
 
     def read_estimate(self, data):
         """What estimate answers after resp 0, as words, read by the table's reply_forms, each figure by the name the
-        protocol gives it; None for one the daemon has no figure for (-), and for the four memory figures a daemon that
-        answers six words leaves out. members: the members no figure could be read for, counted from 0 in the order
+        protocol gives it; None for one the daemon has no figure for (-). members: the members no figure could be read for, counted from 0 in the order
         they were asked, each with the reply code that says why and its name."""  # noqa: D205, D209
         r = self.read_reply("estimate", data)
-        out = {k: r.get(k) for k in ("latency_frames", "cpu_percent", "ram_bytes", "workers", "unknown_count",
+        out = {k: r[k] for k in ("latency_frames", "cpu_percent", "ram_bytes", "workers", "unknown_count",
                                     "ram_used_bytes", "ram_added_bytes", "ram_budget_bytes", "ram_unknown_count")}
         out["members"] = [{"member": u["position"], "code": u["code"], "name": self.names.get(u["code"])}
                           for u in r["unknown"]]

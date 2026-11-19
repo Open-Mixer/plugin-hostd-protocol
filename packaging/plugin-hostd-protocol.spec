@@ -95,8 +95,6 @@ Its documentation is on openmixer.org.
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
 Requires: omx-contract >= 3.19.1
-# plugin-hostd before 0.16.0 declared the same items in its own package of the contract directory
-Conflicts: plugin-hostd-contract < 0.16.0
 
 %description contract
 data/verbs.json of plugin-hostd-protocol, the verbs and reply codes

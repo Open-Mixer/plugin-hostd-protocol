@@ -1757,8 +1757,7 @@ static inline int phd_is_note_verb(const char *verb)
  * resp is 0, or count when the reply's number counts (the words a last repeated argument gives, when it has one); args
  * are written as PHD_EVENT_ARGS writes them, a last one name:type... repeated over the rest of the line.
  *
- * A verb may have more than one row, a form each: plan's and plan_get's without cores are the replies of a daemon from
- * before plugin-hostd#226, estimate's six words an older daemon's.
+ * A verb has one row: one reply form.
  *
  * @param X the macro each row is passed to.
  */
@@ -1775,12 +1774,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_PROPERTY_GET, "0", "value:quoted-escaped") \
     X(OMX_VERB_PRESET_SHOW, "0", "json:line") \
     X(OMX_VERB_HISTORY_GET, "0", "history:history") \
-    X(OMX_VERB_PLAN, "0", "segments:segments") \
     X(OMX_VERB_PLAN, "0", "segments:segments cores:core-segments") \
-    X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list") \
     X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list cores:core-segments") \
-    X(OMX_VERB_ESTIMATE, "0", "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint " \
-      "unknown:member-codes") \
     X(OMX_VERB_ESTIMATE, "0", "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint " \
       "unknown:member-codes ram_used_bytes:amount ram_added_bytes:amount ram_budget_bytes:amount ram_unknown_count:uint") \
     X(OMX_VERB_HELLO, "0", "version:int extensions:word...") \

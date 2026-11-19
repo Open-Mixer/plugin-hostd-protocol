@@ -15,9 +15,9 @@ export interface PlanGetReply {
    */
   reasons: Reason[];
   /**
-   * Each segment's cores, member by member, - for a worker pinned to none; a daemon from before the cores leaves it out.
+   * Each segment's cores, member by member, - for a worker pinned to none.
    */
-  cores?: string[][];
+  cores: string[][];
 }
 /**
  * A member and the reason it was left out of a plan.

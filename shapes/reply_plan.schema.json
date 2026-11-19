@@ -20,7 +20,7 @@
     },
     "cores": {
       "type": "array",
-      "description": "Each segment's cores, member by member, - for a worker pinned to none; a daemon from before the cores leaves it out.",
+      "description": "Each segment's cores, member by member, - for a worker pinned to none.",
       "items": {
         "type": "array",
         "description": "One item: each member's core, in the segment's order.",
@@ -33,7 +33,8 @@
     }
   },
   "required": [
-    "segments"
+    "segments",
+    "cores"
   ],
   "additionalProperties": false
 }

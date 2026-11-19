@@ -105,7 +105,7 @@ static int fake_preset_load(int instance, const char *uri)
     char buf[128];
     snprintf(buf, sizeof(buf), "preset_load(%i,%s) ", instance, uri);
     record(buf);
-    return ERR_LV2_INVALID_PRESET_URI;
+    return ERR_HOST_INVALID_PRESET_URI;
 }
 
 static int fake_state_save(const char *dir)
@@ -121,7 +121,7 @@ static int fake_state_load(const char *dir)
     char buf[128];
     snprintf(buf, sizeof(buf), "state_load(%s) ", dir);
     record(buf);
-    return ERR_LV2_CANT_LOAD_STATE;
+    return ERR_HOST_CANT_LOAD_STATE;
 }
 
 static int fake_connect(const char *port_a, const char *port_b)

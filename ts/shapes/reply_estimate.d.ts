@@ -31,21 +31,21 @@ export interface EstimateReply {
    */
   unknown: MemberCode[];
   /**
-   * The memory in use in bytes, or -; a daemon with the memory budget writes it.
+   * The memory in use in bytes, or -.
    */
-  ram_used_bytes?: string;
+  ram_used_bytes: string;
   /**
    * The memory the chain adds in bytes, or -.
    */
-  ram_added_bytes?: string;
+  ram_added_bytes: string;
   /**
    * The memory budget in bytes, or -.
    */
-  ram_budget_bytes?: string;
+  ram_budget_bytes: string;
   /**
    * How many members have no memory figure.
    */
-  ram_unknown_count?: number;
+  ram_unknown_count: number;
 }
 /**
  * A member with no figure.

@@ -359,11 +359,10 @@ function escapeRegExp(s: string): string {
 const NONE = '-';
 
 /**
- * A plan's cores in its segments' shape: each member's core, null for one that is not pinned, and for every member
- * when the daemon answers no cores; ProtocolError when the shapes differ.
+ * A plan's cores in its segments' shape: each member's core, null for one that is not pinned; ProtocolError when the
+ * shapes differ.
  */
-function coresOf(cores: Value | undefined, segments: number[][]): (number | null)[][] {
-  if (cores === undefined) return segments.map((s) => s.map(() => null));
+function coresOf(cores: Value, segments: number[][]): (number | null)[][] {
   const c = cores as (number | null)[][];
   if (c.length !== segments.length || c.some((x, i) => x.length !== segments[i]!.length)) {
     throw new ProtocolError(`the cores ${JSON.stringify(cores)} are not the shape of the segments`);
@@ -678,12 +677,12 @@ export class Protocol {
   /**
    * What plan answers after resp 0, as words, read by the table's reply_forms: the segments in signal order, each the
    * instances that share a worker, and the cores, the same shape with the audio core of each member's worker (null for
-   * one that is not pinned, and for every member when the daemon answers no cores).
+   * one that is not pinned).
    */
   readPlan(data: readonly string[]): Plan {
     const r = this.readReply('plan', data);
     const segments = r['segments'] as number[][];
-    return { segments, cores: coresOf(r['cores'], segments) };
+    return { segments, cores: coresOf(r['cores']!, segments) };
   }
 
   /**
@@ -705,18 +704,18 @@ export class Protocol {
         retry: RETRY_REASONS.includes(word),
       };
     });
-    return { segments, reasons, cores: coresOf(r['cores'], segments) };
+    return { segments, reasons, cores: coresOf(r['cores']!, segments) };
   }
 
   /**
    * What estimate answers after resp 0, as words, read by the table's reply_forms; null for a figure the daemon does
-   * not have (-), and for the four memory figures a daemon that answers six words leaves out. members: the members no
+   * not have (-). members: the members no
    * figure could be read for, counted from 0 in the order they were asked, each with the reply code that says why and
    * its name.
    */
   readEstimate(data: readonly string[]): Estimate {
     const r = this.readReply('estimate', data);
-    const n = (k: string): number | null => (r[k] === undefined ? null : (r[k] as number | null));
+    const n = (k: string): number | null => r[k] as number | null;
     const members = (r['unknown'] as { position: number; code: number }[]).map((u) => ({
       member: u.position, code: u.code, name: this.names.get(u.code) ?? null,
     }));
