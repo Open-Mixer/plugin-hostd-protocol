@@ -19,5 +19,11 @@ if git grep -lE 'ERR_LV2_' -- $P ':!tests/no-backcompat.sh' >/dev/null 2>&1; the
     gone "an ERR_LV2_* alias of an ERR_HOST_* code ($(git grep -lE 'ERR_LV2_' -- $P ':!tests/no-backcompat.sh' | tr '\n' ' '))"
 fi
 
+# no package relation to the package this one replaced (plugin-hostd-contract, before 0.16.0)
+P='packaging/plugin-hostd-protocol.spec debian/control .github/workflows'
+if grep -rnE 'plugin-hostd-contract' $P >/dev/null 2>&1; then
+    gone "a relation to plugin-hostd-contract, the package this one replaced ($(grep -rlE 'plugin-hostd-contract' $P | tr '\n' ' '))"
+fi
+
 [ "$bad" = 0 ] && echo "ok   no backward-compatibility path is left"
 exit "$bad"
