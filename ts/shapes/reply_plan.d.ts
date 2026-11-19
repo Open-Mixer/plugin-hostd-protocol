@@ -11,7 +11,7 @@ export interface PlanReply {
    */
   segments: number[][];
   /**
-   * Each segment's cores, member by member, - for a worker pinned to none; a daemon from before the cores leaves it out.
+   * Each segment's cores, member by member, - for a worker pinned to none.
    */
-  cores?: string[][];
+  cores: string[][];
 }

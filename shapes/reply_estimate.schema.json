@@ -57,7 +57,7 @@
     "ram_used_bytes": {
       "type": "string",
       "pattern": "^(?:-|[0-9]+)$",
-      "description": "The memory in use in bytes, or -; a daemon with the memory budget writes it."
+      "description": "The memory in use in bytes, or -."
     },
     "ram_added_bytes": {
       "type": "string",
@@ -81,7 +81,11 @@
     "ram_bytes",
     "workers",
     "unknown_count",
-    "unknown"
+    "unknown",
+    "ram_used_bytes",
+    "ram_added_bytes",
+    "ram_budget_bytes",
+    "ram_unknown_count"
   ],
   "additionalProperties": false
 }
