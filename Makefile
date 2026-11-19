@@ -583,7 +583,7 @@ test-ts-client:
 # the table-driven TypeScript codec (clients/typescript/codec, the package's `.` export, moved from plugin-hostd's clients/ts):
 # built with its locked toolchain, then run on clients/fixtures/codec.json, the file the Python codec runs on, reading the
 # table of this tree and the vocabulary and catalogs this tree stages, as test-codec does. PLUGIN_HOSTD_GROUPING_JSON, when
-# set, also holds GroupingReason to plugin-hostd's data/grouping.json
+# set (CI sets it), also holds GroupingReason to plugin-hostd's data/grouping.json until plugin-hostd#175
 .PHONY: test-ts-codec
 test-ts-codec:
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \

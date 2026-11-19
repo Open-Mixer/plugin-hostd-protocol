@@ -11,11 +11,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 import { answer } from '../cli.js';
+import { optionsFromEnvironment } from '../environment.js';
 import { formatNumber, GroupingReason, Protocol, ProtocolError, RETRY_REASONS } from '../index.js';
 
 const FIXTURES = new URL('../../../../fixtures/codec.json', import.meta.url);
-// plugin-hostd declares the grouping reasons (its data/grouping.json); its CI names that file here, and the arms that hold
-// GroupingReason and RETRY_REASONS to it run. With no file they are skipped by name, never silently.
+// plugin-hostd declares the grouping reasons (its data/grouping.json); this repository's CI names that file here (a pinned
+// plugin-hostd commit), and the arms that hold GroupingReason and RETRY_REASONS to it run, until plugin-hostd#175
+// publishes the reasons as a domain item both codecs read. Without the file they are skipped by name, never silently.
 const GROUPING = process.env['PLUGIN_HOSTD_GROUPING_JSON'] ?? '';
 const skipGrouping = GROUPING ? false : 'PLUGIN_HOSTD_GROUPING_JSON is not set';
 const { cases } = JSON.parse(readFileSync(FIXTURES, 'utf8')) as { cases: { op: string; in: unknown; expect?: unknown; error?: boolean }[] };
@@ -29,7 +31,7 @@ function clean(value: unknown): unknown {
 }
 
 describe('the TypeScript client on the fixtures', () => {
-  const protocol = new Protocol();
+  const protocol = new Protocol(optionsFromEnvironment());
 
   it('meets every fixture', () => {
     assert.ok(cases.length > 40);
@@ -65,7 +67,7 @@ describe('the TypeScript client on the fixtures', () => {
           [other]: { text: 'Etiqueta antiga', by: 'machine', model: 'm', source: createHash('sha256').update('not its sentence').digest('hex') },
         },
       }));
-      const p = new Protocol({ datadir: dir });
+      const p = new Protocol({ ...optionsFromEnvironment(), datadir: dir });
       assert.equal(p.sentence(p.code(name), 'ca'), "No s'ha aplicat");
       assert.equal(p.sentence(p.code(other), 'ca'), p.sentence(p.code(other), 'en'));
       assert.equal(typeof p.sentence(p.code(other), 'ca'), 'string');
@@ -76,7 +78,7 @@ describe('the TypeScript client on the fixtures', () => {
 });
 
 describe('the replies with a shape of their own', () => {
-  const protocol = new Protocol();
+  const protocol = new Protocol(optionsFromEnvironment());
   const data = (line: string): string[] => {
     const reply = protocol.parse(line);
     assert.equal(reply.kind, 'resp');
@@ -147,7 +149,7 @@ describe('the grouping reasons are constants of the reader, held to plugin-hostd
 
 describe('numbers', () => {
   it('refuses a number that is not finite, and a boolean', () => {
-    const p = new Protocol();
+    const p = new Protocol(optionsFromEnvironment());
     for (const bad of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, true]) {
       assert.throws(() => p.encode('param_set_many', [3, 'gain', bad as unknown as number]), ProtocolError, String(bad));
     }
@@ -175,7 +177,7 @@ describe('the installed files', () => {
 // plugin-hostd-protocol#24 and #23 (D22, D23): a client compares what it decoded against the owner's names, never a
 // literal it writes, and asks a refusal's transient of the code, never a list of names it keeps.
 describe('the verbs and the reply codes as constants, and a code transient by its declaration', () => {
-  const protocol = new Protocol();
+  const protocol = new Protocol(optionsFromEnvironment());
   const table = JSON.parse(readFileSync(protocol.tablePath, 'utf8')) as {
     commands: { verb: string }[];
     feedback: { line: string }[];

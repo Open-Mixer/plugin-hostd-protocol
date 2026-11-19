@@ -10,9 +10,8 @@
  * (clients/python) is the same codec, held to this one on clients/fixtures/codec.json.
  */
 import { loadCatalog, sentenceOf, type Catalog } from '@openmixer/omx-contract/catalog';
-import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { join } from 'node:path';
 
 /** A line the table does not declare, an argument no form takes, a reply that is no reply. */
 export class ProtocolError extends Error {
@@ -49,7 +48,9 @@ export interface Plan {
   readonly cores: (number | null)[][];
 }
 
-// the reasons plugin-hostd declares (PLUGIN_HOSTD_GROUPING_REASONS in its data/grouping.json); plugin-hostd's tests hold this block to that file
+// the reasons plugin-hostd declares (PLUGIN_HOSTD_GROUPING_REASONS in its data/grouping.json), copied by hand until
+// Open-Mixer/plugin-hostd#175 publishes them as a domain item both codecs read; until then this repository's CI sets
+// PLUGIN_HOSTD_GROUPING_JSON (that file at a pinned plugin-hostd commit) and the tests hold this block to it
 /** The reasons a plan gives (PLUGIN_HOSTD_GROUPING_REASONS), by the key the file gives each: a controller compares
  * against these and writes no reason word of its own. A plan-refused is followed by a colon and the refusal's number. */
 export const GroupingReason = {
@@ -240,14 +241,17 @@ const FLOAT = /^-?(?:[0-9]+\.?[0-9]*|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$/;
 
 // ---- the installed files
 
-function pkgConfig(...args: string[]): string | undefined {
-  try {
-    const out = execFileSync(process.env['PKG_CONFIG'] ?? 'pkg-config', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-    return out || undefined;
-  } catch {
-    return undefined;
-  }
-}
+/**
+ * Where the installed files are when the caller names none: the packages' own locations under /usr/share
+ * (plugin-hostd-protocol's table, omx-contract's contract directory, and the data directory holding each package's
+ * catalogs/<lang>.json). The library reads no environment variable and runs no program: a caller that keeps them elsewhere
+ * passes them as options (cli.ts reads the environment and pkg-config for its own run).
+ */
+export const INSTALLED = {
+  table: '/usr/share/plugin-hostd-protocol/plugin-hostd-protocol.json',
+  contractDirs: ['/usr/share/omx-contract/contract.d'],
+  datadir: '/usr/share',
+} as const;
 
 function read(path: string, what: string): unknown {
   try {
@@ -339,11 +343,11 @@ function shortName(code: string): string {
 }
 
 export interface ProtocolOptions {
-  /** The protocol table: PLUGIN_HOSTD_PROTOCOL_TABLE, else pkg-config's table variable of plugin-hostd-protocol. */
+  /** The protocol table; INSTALLED.table when absent. */
   readonly table?: string;
-  /** omx-contract's contract directories, read for the sentences: OMX_CONTRACT_PATH, else its contractdir variable. */
+  /** omx-contract's contract directories, read for the sentences; INSTALLED.contractDirs when absent. */
   readonly contractDirs?: readonly string[];
-  /** Where each package's catalogs/<lang>.json is: pkg-config's datadir of plugin-hostd-protocol. */
+  /** Where each package's catalogs/<lang>.json is; INSTALLED.datadir when absent. */
   readonly datadir?: string;
 }
 
@@ -394,10 +398,7 @@ export class Protocol {
   private readonly datadir: string;
 
   constructor(options: ProtocolOptions = {}) {
-    const table = options.table ?? process.env['PLUGIN_HOSTD_PROTOCOL_TABLE'] ?? pkgConfig('--variable=table', 'plugin-hostd-protocol');
-    if (!table) {
-      throw new ProtocolError('no protocol table: plugin-hostd-protocol-devel is not installed and PLUGIN_HOSTD_PROTOCOL_TABLE is not set');
-    }
+    const table = options.table ?? INSTALLED.table;
     this.tablePath = table;
     const t = read(table, 'the protocol table') as Table;
     this.commands = new Map(t.commands.map((c) => [c.verb, c]));
@@ -417,10 +418,8 @@ export class Protocol {
       short.set(shortName(code), code);
     }
     this.code = namesOf('code', short, (name) => this.codeOf(name));
-    const env = process.env['OMX_CONTRACT_PATH'];
-    const contractDirs = options.contractDirs ??
-      (env ? env.split(':').filter(Boolean) : [pkgConfig('--variable=contractdir', 'omx-contract')].filter((d): d is string => !!d));
-    this.datadir = options.datadir ?? pkgConfig('--variable=datadir', 'plugin-hostd-protocol') ?? dirname(dirname(resolve(table)));
+    const contractDirs = options.contractDirs ?? INSTALLED.contractDirs;
+    this.datadir = options.datadir ?? INSTALLED.datadir;
     for (const d of contractDirs) {
       const root = join(d, '3');
       const packages = existsSync(root) ? readdirSync(root).sort() : [];

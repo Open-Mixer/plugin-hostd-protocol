@@ -93,4 +93,8 @@ stdin, as `python3 -m plugin_hostd_protocol` does.
 
 It runs `clients/fixtures/codec.json`, the one set of vectors the Python codec runs on (`make test-ts-codec`), so the two
 codecs are held to the same expected lines. `GroupingReason` is the list plugin-hostd declares in its
-`data/grouping.json`; plugin-hostd's tests hold it there (`PLUGIN_HOSTD_GROUPING_JSON` runs the same arms here).
+`data/grouping.json`, copied by hand until plugin-hostd#175 publishes it as a domain item both codecs read; CI sets
+`PLUGIN_HOSTD_GROUPING_JSON` so the copy is held to the file meanwhile. The library reads no environment variable and runs no
+program: it takes options (`table`, `contractDirs`, `datadir`) and its installed default (`INSTALLED`); the command line
+and the tests take theirs from `PLUGIN_HOSTD_PROTOCOL_TABLE`, `OMX_CONTRACT_PATH` and pkg-config (`src/environment.ts`).
+Until the `./client` transport is folded onto this codec (#106) the package has two TypeScript encoders.

@@ -7,6 +7,7 @@
  * the shared vectors beside the Python client's python3 -m plugin_hostd_protocol).
  */
 import { readFileSync } from 'node:fs';
+import { optionsFromEnvironment } from './environment.js';
 import { decodePath, encodePath, pinKey, Protocol, ProtocolError, quote, uriWord, words, type Arg } from './index.js';
 
 export function answer(protocol: Protocol, op: string, arg: unknown): unknown {
@@ -54,7 +55,7 @@ export function answer(protocol: Protocol, op: string, arg: unknown): unknown {
 }
 
 function main(): void {
-  const protocol = new Protocol();
+  const protocol = new Protocol(optionsFromEnvironment());
   const { cases } = JSON.parse(readFileSync(0, 'utf8')) as { cases: { op: string; in: unknown }[] };
   const out = cases.map((c) => {
     try {
