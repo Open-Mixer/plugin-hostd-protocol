@@ -408,6 +408,7 @@ feedback         = fb-output-set
                  / fb-param-set
                  / fb-pin-changed
                  / fb-plan-reason
+                 / fb-qualify-requested
                  / fb-remote-page-suggest
                  / fb-supervisor-gave-up
                  / fb-worker-backoff
@@ -445,6 +446,8 @@ fb-param-set               = %s"param_set" SP int SP word SP word
 fb-pin-changed             = %s"pin_changed" SP word SP (%s"files" / %s"layout")
 ; plugin-hostd: <chain> <instance>:<reason>,...
 fb-plan-reason             = %s"plan_reason" SP int SP word
+; plugin-hostd: <uri>
+fb-qualify-requested       = %s"qualify_requested" SP word
 ; plugin-hostd: <instance> <page_id>
 fb-remote-page-suggest     = %s"remote_page_suggest" SP int SP word
 ; plugin-hostd: <worker> <deaths> <window_ms>

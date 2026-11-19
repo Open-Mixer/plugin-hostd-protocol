@@ -4,7 +4,10 @@
 # PHD_VERBS a controller sends, and every one of PHD_INSTANCE_VERBS. A row for a verb that none of them declares is a
 # verb of Zynthian's mod-ui that mod-host never had, and it is absent from every profile. A verb the daemon answers
 # itself is required of every profile, since no worker can take it away. The table is read as the compiler sees it: a
-# small program built against the header prints it.
+# small program built against the header prints it. The installed table (protocol/plugin-hostd-protocol.json) carries
+# the wire's constants, the pin's words, the formats and the LV2 workers as protocol.h declares them (protocol/
+# plugin-hostd.json, which protocol-gen writes compiled against protocol.h), so a client keeps no copy; three planted
+# faults (a constant dropped, the digest separator changed, a format renamed) must be seen (plugin-hostd-protocol#18).
 #
 #   python3 tests/verb_table.py [<tree>]     the tree whose include/ is read (default: this one)
 import json, os, subprocess, sys, tempfile
@@ -108,6 +111,34 @@ for verb in ("show_external_ui", "hide_external_ui"):
         fail("%s is optional of every profile, not %s" % (verb, by_name[verb][2]))
     if verb not in instance:
         fail("%s goes to the worker that holds the instance, so it is one of PHD_INSTANCE_VERBS" % verb)
+
+
+def table_problems(table, phd):
+    out = []
+    consts = {c["name"]: c for c in table.get("constants") or []}
+    for c in phd["constants"]:
+        if consts.get(c["name"], {}).get("value") != c["value"]:
+            out.append("constants: %s is not %r" % (c["name"], c["value"]))
+    if consts.get("protocol_version", {}).get("value") != phd["version"]:
+        out.append("constants: protocol_version is not the version hello answers, %r" % phd["version"])
+    if table.get("pin") != phd["pin"]:
+        out.append("pin: %r is not protocol.h's %r" % (table.get("pin"), phd["pin"]))
+    if table.get("formats") != phd["formats"] or not phd["formats"]:
+        out.append("formats: %r is not protocol.h's %r" % (table.get("formats"), phd["formats"]))
+    if table.get("lv2_workers") != phd["lv2_workers"] or not phd["lv2_workers"]:
+        out.append("lv2_workers: %r is not protocol.h's %r" % (table.get("lv2_workers"), phd["lv2_workers"]))
+    return out
+
+
+table_json = json.load(open(os.path.join(ROOT, "protocol", "plugin-hostd-protocol.json")))
+phd_json = json.load(open(os.path.join(ROOT, "protocol", "plugin-hostd.json")))
+for b in table_problems(table_json, phd_json):
+    fail("table: " + b)
+planted = (dict(table_json, constants=[c for c in table_json.get("constants") or [] if c["name"] != "line_max"]),
+           dict(table_json, pin=dict(table_json.get("pin") or {}, digest_separator="#")),
+           dict(table_json, formats=[f.upper() for f in table_json.get("formats") or []]))
+if not all(table_problems(p, phd_json) for p in planted):
+    fail("table: a planted fault (line_max dropped, the digest separator changed, a format renamed) was not seen")
 
 if failed:
     sys.exit(1)

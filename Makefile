@@ -151,7 +151,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-same-pass
+      check-generated check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-same-pass
 
 # no package of this source carries an epoch (the owner's ruling, 2026-11-18): tests/epoch_test.py
 test-no-epoch:
@@ -422,7 +422,6 @@ test-number: tests/number_test
 test-reply-args:
 	python3 tests/reply_args.py protocol/plugin-hostd-protocol.json
 
-# the wire's constants, the pin's words and the LV2 workers, in the installed table as protocol.h declares them
 # the protocol's Python client (clients/python/plugin_hostd_client, python3-plugin-hostd-client): NUL framing, split replies,
 # timeout, close, and its newline sabotage (plugin-hostd-protocol issue 45: the owner ships the client)
 .PHONY: test-client
@@ -437,9 +436,6 @@ test-codec:
 	$(MAKE) --no-print-directory install-contract DESTDIR=$$tmp >/dev/null; \
 	PLUGIN_HOSTD_PROTOCOL_TABLE=protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) \
 	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) python3 tests/codec_test.py
-
-test-table-constants:
-	python3 tests/table_constants.py protocol/plugin-hostd-protocol.json protocol/plugin-hostd.json
 
 # which refusals are transient: a property of the code in data/verbs.json, in the table and the rendered header (#23)
 test-transient-codes:
