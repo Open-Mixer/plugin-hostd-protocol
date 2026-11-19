@@ -22,6 +22,8 @@ INCLUDEDIR = $(PREFIX)/include
 DATADIR = $(PREFIX)/share
 
 # the flags mod-host builds this code with, so the library behaves as libmod-host-protocol does
+# -g: the library carries debug info, which abidw reads the types of abi/*.abi from (abi-check compares them)
+CFLAGS += -g
 CFLAGS += -O3 -Wall -Wextra -std=gnu99 -fPIC -D_GNU_SOURCE -pthread
 CFLAGS += -Wno-deprecated-declarations
 CFLAGS += -Werror=implicit-function-declaration -Werror=return-type
