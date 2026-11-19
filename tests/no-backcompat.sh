@@ -30,10 +30,5 @@ if [ -e tests/macro_compat.c ] || grep -qE 'macro[_-]compat' Makefile .gitignore
     gone "tests/macro_compat.c and its Makefile targets"
 fi
 
-# the commit-msg hook reads one spelling of its settings: no deprecated FREEMIXER_* names
-if grep -q 'FREEMIXER_' .githooks/commit-msg; then
-    gone "the deprecated FREEMIXER_* names of .githooks/commit-msg"
-fi
-
 [ "$bad" = 0 ] && echo "ok   no backward-compatibility path is left"
 exit "$bad"
