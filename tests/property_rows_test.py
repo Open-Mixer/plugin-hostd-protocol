@@ -4,7 +4,7 @@
 """tests/property_rows_test.py: the property verbs (omx-clap-core#15, lane 2) in the daemon's tables and the grammar.
 
 omx-clap-core declares property_list, property_info, property_get and property_set and renders them here
-(omx_clap_core_host_verbs.h); this repository makes them instance verbs the daemon relays to the worker that holds the
+(omx_clap_host_verbs.h); this repository makes them instance verbs the daemon relays to the worker that holds the
 instance, with a level per host profile, and the words a sender writes: a value is a quoted-escaped word (\\" a quote,
 \\\\ a backslash), never a bare one, so a property's text round-trips byte for byte.
 """
@@ -25,7 +25,7 @@ def check(ok, what):
 
 table = json.load(open(os.path.join(ROOT, "protocol", "plugin-hostd.json")))
 grammar = open(os.path.join(ROOT, "grammar", "plugin-hostd-protocol.abnf")).read()
-header = open(os.path.join(ROOT, "include", "plugin-hostd", "omx_clap_core_host_verbs.h")).read()
+header = open(os.path.join(ROOT, "include", "plugin-hostd", "omx_clap_host_verbs.h")).read()
 
 VERBS = ["property_list", "property_info", "property_get", "property_set"]
 for v in VERBS:

@@ -10,7 +10,7 @@
 #   protocol/plugin-hostd.json    what include/plugin-hostd/protocol.h declares (check-generated)
 #   data/verbs.json               the verbs plugin-hostd adds, the protocol's own (hello) and the extensions hello
 #                                 grants, as omx-contract declares them (check-rendered)
-#   include/plugin-hostd/omx_clap_core_host_verbs.h   omx-clap-core's verbs, as omx-contract renders them
+#   include/plugin-hostd/omx_clap_host_verbs.h   omx-clap-core's verbs, as omx-contract renders them
 #
 # A word of ours never shadows or changes a mod-host word. A verb of another origin that has a mod-host word either
 # extends mod-host's command (takes mod-host's arguments, in its types, as its own first arguments, and more only where
@@ -28,7 +28,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = "protocol/plugin-hostd-protocol.json"
-SHARED_H = "include/plugin-hostd/omx_clap_core_host_verbs.h"
+SHARED_H = "include/plugin-hostd/omx_clap_host_verbs.h"
 
 TYPES = {"%i": "int", "%s": "word", "%f": "float"}
 
@@ -114,7 +114,7 @@ def table():
     verbs = load("data/verbs.json")
     shared = shared_verbs()
 
-    vocab = read("include/plugin-hostd/omx_clap_core_vocabulary.h")
+    vocab = read("include/plugin-hostd/omx_clap_vocabulary.h")
     host_codes, words = {}, {}
     for m in re.finditer(r'#define OMX_REPLY_HOST_([A-Z0-9_]+) "([^"]+)"(?: ///< .*)?\n#define OMX_REPLY_HOST_\1_RESP \((-?\d+)\)',
                          vocab):

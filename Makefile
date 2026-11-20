@@ -55,7 +55,7 @@ HEADERS = include/host-backend.h include/host-dispatch.h include/host-errors.h i
 # <includedir>/plugin-hostd-protocol/plugin-hostd/, so a consumer includes <plugin-hostd/protocol.h> with this package's
 # Cflags. src/protocol.c reads the protocol version, hello's line and the extensions hello grants from them.
 RENDERED = include/plugin-hostd/plugin_hostd_protocol_host_verbs.h include/plugin-hostd/plugin_hostd_protocol_vocabulary.h \
-           include/plugin-hostd/omx_clap_core_host_verbs.h include/plugin-hostd/omx_clap_core_vocabulary.h \
+           include/plugin-hostd/omx_clap_host_verbs.h include/plugin-hostd/omx_clap_vocabulary.h \
            include/plugin-hostd/plugin_db_vocabulary.h
 # the probe domain's codes header (the render of the items of contract.d/probe marked x-c-codes), committed
 PROBE_CODES = include/plugin-hostd/probe_codes.h
@@ -175,7 +175,7 @@ test-no-backcompat:
 test-same-pass:
 	python3 tests/same_pass_test.py .
 
-# every omx-clap-core-contract range admits the next omx-clap-core minor (the chain releases this protocol first)
+# every omx-clap-contract range admits the next omx-clap-core minor (the chain releases this protocol first)
 test-clap-core-range:
 	python3 tests/clap_core_range.py .
 
@@ -560,8 +560,8 @@ render-verbs check-rendered:
 	  $(OMX_CONTRACT) render --target c --package $(NAME) --installed --out include/plugin-hostd $(if $(filter check-rendered,$@),--check)
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
 	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
-	  $(OMX_CONTRACT) render --target c --package omx-clap-core --installed --out $$tmp; \
-	for f in omx_clap_core_host_verbs.h omx_clap_core_vocabulary.h; do \
+	  $(OMX_CONTRACT) render --target c --package omx-clap --installed --out $$tmp; \
+	for f in omx_clap_host_verbs.h omx_clap_vocabulary.h; do \
 	  $(if $(filter check-rendered,$@),diff -u include/plugin-hostd/$$f $$tmp/$$f >&2 || { echo "include/plugin-hostd/$$f is not the render of omx-clap-core's package" >&2; exit 1; },cp $$tmp/$$f include/plugin-hostd/$$f); \
 	done
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \

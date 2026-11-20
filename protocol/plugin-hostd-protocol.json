@@ -2,7 +2,7 @@
   "protocol": "plugin-hostd-protocol",
   "version": 1,
   "superset_of": "mod-host",
-  "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "data/verbs.json", "include/plugin-hostd/omx_clap_core_host_verbs.h"],
+  "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "data/verbs.json", "include/plugin-hostd/omx_clap_host_verbs.h"],
   "commands": [
     {"verb": "add", "origin": "mod-host", "declared": "include/mod-host.h EFFECT_ADD", "forms": [{"args": ["word", "int"], "tail": true, "origin": "mod-host"}, {"args": ["word", "int"], "names": ["uri", "instance"], "tail": false, "origin": "plugin-hostd"}, {"args": ["word", "int", "placement"], "names": ["uri", "instance", "placement"], "tail": false, "origin": "plugin-hostd"}, {"args": ["word", "int", "word"], "names": ["uri", "instance", "client"], "tail": false, "origin": "plugin-hostd"}, {"args": ["word", "int", "placement", "word"], "names": ["uri", "instance", "placement", "client"], "tail": false, "origin": "plugin-hostd"}], "reply": null, "codes": [], "sent_by": "controller", "extended_by": ["plugin-hostd"], "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
     {"verb": "bundle_add", "origin": "mod-host", "declared": "include/mod-host.h BUNDLE_ADD", "forms": [{"args": ["word"], "tail": false, "origin": "mod-host"}], "reply": null, "codes": [], "sent_by": "controller", "extended_by": [], "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},

@@ -11,7 +11,7 @@
 omx-contract-devel              libomx-contract-dev           3.20.0
 omx-contract                    omx-contract                  3.20.0
 omx-contract-data               omx-contract-data             3.21.0
-omx-clap-core-contract          omx-clap-core-contract        0.32.3
+omx-clap-contract          omx-clap-contract        0.34.0
 omx-dsp-devel                   libomxdsp-dev                 0.32.4
 plugin-hostd-protocol           libplugin-hostd-protocol0     0.5.8
 plugin-hostd-protocol-contract  plugin-hostd-protocol-contract 0.5.8

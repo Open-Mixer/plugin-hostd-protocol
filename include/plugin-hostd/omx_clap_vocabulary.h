@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-#ifndef OMX_CLAP_CORE_VOCABULARY_H
-#define OMX_CLAP_CORE_VOCABULARY_H
+#ifndef OMX_CLAP_VOCABULARY_H
+#define OMX_CLAP_VOCABULARY_H
 /*
  * GENERATED: DO NOT EDIT BY HAND.
- * Produced by `omx-contract render --target c` from Open-Mixer/omx-clap-core's data/: the vocabulary
+ * Produced by `omx-contract render --target c` from Open-Mixer/omx-clap's data/: the vocabulary
  * (docs/data-layout.md). A code is OMX_ and the code in upper snake case, and a reply code that carries a resp has it as that name and _RESP; a word is OMX_<ITEM>_<NAME>, each words
  * item with its _COUNT and an _INIT of its words in their order. A consumer writes and compares these, never a
  * literal of its own.
  */
 
 /** @file
- * @brief The vocabulary of omx-clap-core: every code and every word as a string define, with its sentence
+ * @brief The vocabulary of omx-clap: every code and every word as a string define, with its sentence
  * where it carries one. */
 
 /* HOSTING_CLAP_CODES (data/hosting/clap.json) */
@@ -429,4 +429,4 @@
 #define OMX_HOST_EVENTS(X) \
     X(0u, "remote_pages_changed", REMOTE_PAGES_CHANGED) X(1u, "xruns", XRUNS) X(2u, "abi_clobber", ABI_CLOBBER)
 
-#endif /* OMX_CLAP_CORE_VOCABULARY_H */
+#endif /* OMX_CLAP_VOCABULARY_H */

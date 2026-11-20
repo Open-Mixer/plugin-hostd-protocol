@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-#ifndef OMX_CLAP_CORE_HOST_VERBS_H
-#define OMX_CLAP_CORE_HOST_VERBS_H
+#ifndef OMX_CLAP_HOST_VERBS_H
+#define OMX_CLAP_HOST_VERBS_H
 /*
  * GENERATED: DO NOT EDIT BY HAND.
- * Produced by `omx-contract render --target c` from omx-clap-core's files.
+ * Produced by `omx-contract render --target c` from omx-clap's files.
  * The host verbs (docs/contract-dir.md): a verb is OMX_VERB_<VERB>, its word, OMX_VERB_<VERB>_FMT, the line
  * protocol_add_command takes, and OMX_VERB_<VERB>_REPLY; a verb that answers refusals carries their resp numbers
- * in OMX_VERB_<VERB>_CODES_INIT. omx_clap_core_host_verbs() is the table of what each host owes each verb.
+ * in OMX_VERB_<VERB>_CODES_INIT. omx_clap_host_verbs() is the table of what each host owes each verb.
  */
 
 /** @file
- * @brief The host verbs of omx-clap-core: each verb's word, line format and reply, and
+ * @brief The host verbs of omx-clap: each verb's word, line format and reply, and
  * the table of what each host owes it. */
 
 #include <string.h>
@@ -172,11 +172,11 @@ struct omx_host_verb {
 #define OMX_VERB_NOTE_OUT_DROPS_CODES_COUNT 1u
 #define OMX_VERB_NOTE_OUT_DROPS_CODES_INIT { -3 } /* reply.host.instance-non-exists */
 
-#define OMX_CLAP_CORE_HOST_VERB_COUNT 19u
+#define OMX_CLAP_HOST_VERB_COUNT 19u
 
 /* Every verb, in the order of its items, with what each host owes it. */
-static inline const struct omx_host_verb *omx_clap_core_host_verbs(void) {
-  static const struct omx_host_verb table[OMX_CLAP_CORE_HOST_VERB_COUNT] = {
+static inline const struct omx_host_verb *omx_clap_host_verbs(void) {
+  static const struct omx_host_verb table[OMX_CLAP_HOST_VERB_COUNT] = {
     { OMX_VERB_TRACK_INFO, OMX_VERB_TRACK_INFO_FMT, OMX_VERB_TRACK_INFO_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_REMOTE_PAGES, OMX_VERB_REMOTE_PAGES_FMT, OMX_VERB_REMOTE_PAGES_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_REMOTE_PAGE_GET, OMX_VERB_REMOTE_PAGE_GET_FMT, OMX_VERB_REMOTE_PAGE_GET_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED } },
@@ -201,17 +201,17 @@ static inline const struct omx_host_verb *omx_clap_core_host_verbs(void) {
 }
 
 /* The verb whose word is `verb`, or NULL. */
-static inline const struct omx_host_verb *omx_clap_core_host_verb_find(const char *verb) {
-  const struct omx_host_verb *t = omx_clap_core_host_verbs();
-  for (unsigned i = 0; i < OMX_CLAP_CORE_HOST_VERB_COUNT; i++)
+static inline const struct omx_host_verb *omx_clap_host_verb_find(const char *verb) {
+  const struct omx_host_verb *t = omx_clap_host_verbs();
+  for (unsigned i = 0; i < OMX_CLAP_HOST_VERB_COUNT; i++)
     if (!strcmp(t[i].verb, verb)) return &t[i];
   return NULL;
 }
 
 /* What the host at column `host` (an OMX_HOST_VERB_HOST_* index) owes `verb`: unsupported for a verb not here. */
-static inline enum omx_host_verb_level omx_clap_core_host_verb_level(const char *verb, unsigned host) {
-  const struct omx_host_verb *v = omx_clap_core_host_verb_find(verb);
+static inline enum omx_host_verb_level omx_clap_host_verb_level(const char *verb, unsigned host) {
+  const struct omx_host_verb *v = omx_clap_host_verb_find(verb);
   return v && host < OMX_HOST_VERB_HOST_COUNT ? v->level[host] : OMX_HOST_VERB_UNSUPPORTED;
 }
 
-#endif /* OMX_CLAP_CORE_HOST_VERBS_H */
+#endif /* OMX_CLAP_HOST_VERBS_H */

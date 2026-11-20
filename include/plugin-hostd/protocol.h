@@ -41,8 +41,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "omx_clap_core_host_verbs.h"
-#include "omx_clap_core_vocabulary.h"
+#include "omx_clap_host_verbs.h"
+#include "omx_clap_vocabulary.h"
 #include "plugin_hostd_protocol_host_verbs.h"
 #include "plugin_hostd_protocol_vocabulary.h"
 #include "plugin_db_vocabulary.h"
@@ -443,7 +443,7 @@ static inline int phd_pool_name_valid(const char *name)
  *
  * The codes are the -5xx hundred; a reply is "resp \<code\>". resp is the rendered number of the code. Each number has
  * one name in the contract, rendered as OMX_REPLY_\<GROUP\>_\<REASON\>_RESP: the ones omx-clap-host answers too are
- * omx-clap-core's reply.host.* codes (its HOST_REPLY_CODES, omx_clap_core_vocabulary.h), the others plugin-hostd's
+ * omx-clap-core's reply.host.* codes (its HOST_REPLY_CODES, omx_clap_vocabulary.h), the others plugin-hostd's
  * reply.plugin-hostd.* (data/verbs.json PLUGIN_HOSTD_REPLY_CODES, plugin_hostd_vocabulary.h); the header defines none.
  *
  * @param X the macro each row is passed to.
@@ -985,7 +985,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * itself and never forwards them. A string word is quoted when it is not a plain word, and always in a reply, with \" inside it
  * for a quote: mod-host's own tokenizer reads them. */
 /* The words and the lines of these verbs, and of the note verbs below, are omx-clap-core's declarations (its HOST_VERBS,
- * omx_clap_core_host_verbs.h): OMX_VERB_<VERB> and OMX_VERB_<VERB>_FMT. preset_list and preset_get are the daemon's,
+ * omx_clap_host_verbs.h): OMX_VERB_<VERB> and OMX_VERB_<VERB>_FMT. preset_list and preset_get are the daemon's,
  * OMX_VERB_PRESET_LIST and OMX_VERB_PRESET_GET */
 
 /* Notes, played on an instance by a controller that is not a jack client: the worker delivers each one as a MIDI
