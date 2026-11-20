@@ -1,0 +1,34 @@
+reasons 0 ADD add a user added the plugin
+reasons 1 RESCAN rescan the plugin was offered for a rescan
+reasons 2 BINARY_CHANGED binary-changed the files the host loads changed
+reasons 3 ON_REQUEST on-request a client asked
+reasons 4 AUTO_MEASURE auto-measure the machine measures what has no figures when it is idle
+reasons 5 REFERENCE reference a reference run on the named rig
+reasons 6 CI ci a continuous integration run
+outcomes 0 OK probe.ok the step ran to its end
+outcomes 1 CRASHED probe.crashed the child died of a signal not caused by a limit
+outcomes 2 TIMEOUT probe.timeout the supervisor's wall-clock deadline passed
+outcomes 3 CPU_LIMIT probe.cpu-limit the CPU-time limit was hit
+outcomes 4 MEMORY_LIMIT probe.memory-limit the memory limit was hit, known from the cgroup's oom_kill count
+outcomes 5 TASKS_LIMIT probe.tasks-limit the plugin tried to start more tasks than allowed, known from the cgroup's pids.events
+outcomes 6 OUTPUT_LIMIT probe.output-limit the plugin wrote a file past the size limit
+outcomes 7 SANDBOX_DENIED probe.sandbox-denied a syscall on the kill list was made
+outcomes 8 REFUSED_INSTANTIATION probe.refused-instantiation create, init or instantiate returned failure
+outcomes 9 REFUSED_BY_HOST probe.refused-by-host the host or its LV2 adapter refused the plugin; hostingCode holds its code unchanged
+outcomes 10 NOT_FOUND probe.not-found no such plugin in the files named
+outcomes 11 UNPINNABLE probe.unpinnable the files cannot be pinned
+outcomes 12 NON_FINITE_OUTPUT probe.non-finite-output NaN or infinity came out
+outcomes 13 SILENT_OUTPUT probe.silent-output silence under a stimulus that should pass
+outcomes 14 CANCELLED probe.cancelled stopped by the busy signal, a client or shutdown
+outcomes 15 NOT_ATTEMPTED probe.not-attempted the protocol did not ask for this step, or it does not apply
+outcomes 16 CHILD_PROTOCOL probe.child-protocol the child wrote a record outside the step grammar
+outcomes 17 ERROR probe.error anything else; detail keeps the words
+steps 0 HASH hash the files the host loads, pinned
+steps 1 SCAN scan the plugin's descriptor read
+steps 2 INSTANTIATE instantiate created and initialised
+steps 3 LIFECYCLE lifecycle created, activated, processed and destroyed
+steps 4 LATENCY latency latency per rate
+steps 5 COST cost cost per rate and quantum
+steps 6 RT_SAFETY rt-safety what process() does under the interposer
+steps 7 NOTE_SWEEP note-sweep a note input played
+steps 8 SOAK soak a long render
