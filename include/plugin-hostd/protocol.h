@@ -743,27 +743,21 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_PIN_LAYOUT_UNKNOWN   "-"
 /** @brief the optional last word of a pin line: the qualification verdict of the pinned bytes.
  *
- * The words of a pin are plugin-db's (data/pin.json), rendered beside this header
+ * The key is plugin-db's (data/pin.json, rendered beside this header); the verdict words are the domain pin's
  */
 #define PHD_PIN_VERDICT_KEY      OMX_PLUGIN_DB_PIN_KEYS_VERDICT "="
 
-/** @brief the verdict of a plugin qualified to run in a worker that other plugins share
- *
- * Only this verdict lets a plugin share a worker under pin_mode first-use.
- */
-#define PHD_PIN_VERDICT_IN_PROCESS OMX_PLUGIN_DB_PIN_VERDICTS_IN_PROCESS
-/** @brief the verdict of a plugin qualified to run, in a worker of its own */
-#define PHD_PIN_VERDICT_ISOLATED   OMX_PLUGIN_DB_PIN_VERDICTS_ISOLATED
-/** @brief the verdict of a plugin that failed qualification: the pin records the bytes, a host should not load them */
-#define PHD_PIN_VERDICT_REFUSED    OMX_PLUGIN_DB_PIN_VERDICTS_REFUSED
-/** @brief the verdicts as rows X(id, name, meaning)
- *
- * @param X the macro each row is passed to.
- */
+/* The verdict words of a pin and what each means. Only in-process lets a plugin share a worker under pin_mode first-use.
+ * The words are the domain pin's (contract.d/pin), the wire words of pin_set. */
+/* BEGIN GENERATED PHD_PIN_VERDICTS: tools/pin-words-gen.py, from contract.d/pin/pin.json */
+#define PHD_PIN_VERDICT_IN_PROCESS "in-process" ///< qualified to run in a worker that other plugins share
+#define PHD_PIN_VERDICT_ISOLATED "isolated" ///< qualified to run, in a worker of its own
+#define PHD_PIN_VERDICT_REFUSED "refused" ///< failed qualification: the pin records the bytes, a host should not load them
 #define PHD_PIN_VERDICTS(X) \
     X(IN_PROCESS, PHD_PIN_VERDICT_IN_PROCESS, "qualified to run in a worker that other plugins share") \
     X(ISOLATED, PHD_PIN_VERDICT_ISOLATED, "qualified to run, in a worker of its own") \
     X(REFUSED, PHD_PIN_VERDICT_REFUSED, "failed qualification: the pin records the bytes, a host should not load them")
+/* END GENERATED PHD_PIN_VERDICTS */
 
 /** @brief the key of the optional pool word of a pin line, after the verdict
  *
@@ -771,21 +765,15 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * omx-clap-core) real-time safe and faster at the quantum; a plugin with no word runs serial.
  */
 #define PHD_PIN_POOL_KEY   OMX_PLUGIN_DB_PIN_KEYS_POOL "="
-/** @brief the pool word of a plugin whose worker starts with the thread pool on
- *
- * No other plugin shares the worker.
- */
-#define PHD_PIN_POOL_CORES OMX_PLUGIN_DB_PIN_POOLS_CORES
-/** @brief the pool word of a plugin measured not faster or not safe with the pool: the worker keeps no option */
-#define PHD_PIN_POOL_OFF   OMX_PLUGIN_DB_PIN_POOLS_OFF
-/** @brief the pool words as rows X(id, name, meaning)
- *
- * @param X the macro each row is passed to.
- */
+/* The pool words of a pin and what each means; cores: no other plugin shares the worker. The words are the domain pin's
+ * (contract.d/pin). */
+/* BEGIN GENERATED PHD_PIN_POOLS: tools/pin-words-gen.py, from contract.d/pin/pin.json */
+#define PHD_PIN_POOL_CORES "cores" ///< its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker
+#define PHD_PIN_POOL_OFF "off" ///< measured, and not faster or not safe with the pool: the worker keeps no option
 #define PHD_PIN_POOLS(X) \
-    X(CORES, PHD_PIN_POOL_CORES, "its worker starts with the thread pool on, one helper per core of its cpu set but one, and " \
-                                 "no other plugin shares the worker") \
+    X(CORES, PHD_PIN_POOL_CORES, "its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker") \
     X(OFF, PHD_PIN_POOL_OFF, "measured, and not faster or not safe with the pool: the worker keeps no option")
+/* END GENERATED PHD_PIN_POOLS */
 
 /** @brief what pin_changed names when the plugin's files changed */
 #define PHD_PIN_CHANGED_FILES  OMX_PLUGIN_DB_PIN_CHANGES_FILES

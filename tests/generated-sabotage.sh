@@ -17,7 +17,7 @@ MAKE=${MAKE:-make}
 fresh() {
     rm -rf "$work/tree"
     mkdir -p "$work/tree"
-    cp -r Makefile VERSION include src data protocol grammar doc tools tests packaging clients "$work/tree/"
+    cp -r Makefile VERSION include src data protocol grammar doc tools tests packaging clients contract.d "$work/tree/"
     mkdir -p "$work/tree/fuzz" && cp -r fuzz/corpus-abnf "$work/tree/fuzz/"
 }
 

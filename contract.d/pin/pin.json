@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/pin",
+  "info": {
+    "title": "The words of a pin line",
+    "version": "1.0.0",
+    "x-owner": "plugin-hostd-protocol",
+    "x-stability": "experimental"
+  },
+  "components": {
+    "schemas": {
+      "PIN_VERDICTS": {
+        "description": "The verdict words of a pin: the value of its verdict key, what the qualification of the pinned bytes said. A pin with no verdict was learned on first use and carries no judgment.",
+        "x-since": "1.0.0",
+        "x-c-codes": true,
+        "oneOf": [
+          {
+            "const": "in-process",
+            "title": "inProcess",
+            "description": "Qualified to run in a worker that other plugins share.",
+            "x-code": 0,
+            "x-text": "Qualified to run in a worker that other plugins share."
+          },
+          {
+            "const": "isolated",
+            "title": "isolated",
+            "description": "Qualified to run, in a worker of its own.",
+            "x-code": 1,
+            "x-text": "Qualified to run, in a worker of its own."
+          },
+          {
+            "const": "refused",
+            "title": "refused",
+            "description": "Failed qualification: the pin records the bytes, a host should not load them.",
+            "x-code": 2,
+            "x-text": "Failed qualification: the pin records the bytes, a host should not load them."
+          }
+        ]
+      },
+      "PIN_POOLS": {
+        "description": "The pool words of a pin: the value of its pool key, whether the plugin's qualification measured the CLAP thread pool real-time safe and faster at the quantum. A plugin with no word runs serial.",
+        "x-since": "1.0.0",
+        "x-c-codes": true,
+        "oneOf": [
+          {
+            "const": "cores",
+            "title": "cores",
+            "description": "Its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker.",
+            "x-code": 0,
+            "x-text": "Its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker."
+          },
+          {
+            "const": "off",
+            "title": "off",
+            "description": "Measured, and not faster or not safe with the pool: the worker keeps no option.",
+            "x-code": 1,
+            "x-text": "Measured, and not faster or not safe with the pool: the worker keeps no option."
+          }
+        ]
+      }
+    }
+  }
+}
