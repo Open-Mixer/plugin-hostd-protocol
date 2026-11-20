@@ -313,32 +313,9 @@
 #define OMX_PLUGIN_DB_LATENCY(X) \
     X(0u, "within", WITHIN) X(1u, "over", OVER) X(2u, "unmeasured", UNMEASURED)
 
-/* PLUGIN_DB_PIN_VERDICTS (data/pin.json) */
-#define OMX_PLUGIN_DB_PIN_VERDICTS_IN_PROCESS "in-process" ///< qualified to run in a worker that other plugins share
-#define OMX_PLUGIN_DB_PIN_VERDICTS_ISOLATED "isolated" ///< qualified to run, in a worker of its own
-#define OMX_PLUGIN_DB_PIN_VERDICTS_REFUSED "refused" ///< failed qualification: the pin records the bytes, a host should not load them
-/** The number of words of PLUGIN_DB_PIN_VERDICTS. */
-#define OMX_PLUGIN_DB_PIN_VERDICTS_COUNT 3u
-/** The words of PLUGIN_DB_PIN_VERDICTS in their declared order, as a C initializer list. */
-#define OMX_PLUGIN_DB_PIN_VERDICTS_INIT { "in-process", "isolated", "refused" }
-/** Expands `X(code, "word", NAME)` once per word of PLUGIN_DB_PIN_VERDICTS, in order, the code being its place in the order. What the qualification of the pinned bytes said: the value of a pin's verdict key. A pin with no verdict was learned on first use and carries no judgment. A word outside these is not a pin's. */
-#define OMX_PLUGIN_DB_PIN_VERDICTS(X) \
-    X(0u, "in-process", IN_PROCESS) X(1u, "isolated", ISOLATED) X(2u, "refused", REFUSED)
-
-/* PLUGIN_DB_PIN_POOLS (data/pin.json) */
-#define OMX_PLUGIN_DB_PIN_POOLS_CORES "cores" ///< its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker
-#define OMX_PLUGIN_DB_PIN_POOLS_OFF "off" ///< measured, and not faster or not safe with the pool: the worker keeps no option
-/** The number of words of PLUGIN_DB_PIN_POOLS. */
-#define OMX_PLUGIN_DB_PIN_POOLS_COUNT 2u
-/** The words of PLUGIN_DB_PIN_POOLS in their declared order, as a C initializer list. */
-#define OMX_PLUGIN_DB_PIN_POOLS_INIT { "cores", "off" }
-/** Expands `X(code, "word", NAME)` once per word of PLUGIN_DB_PIN_POOLS, in order, the code being its place in the order. Whether the plugin's qualification measured the CLAP thread pool real-time safe and faster at the quantum: the value of a pin's pool key. A plugin with no word runs serial. A word outside these is not a pin's. */
-#define OMX_PLUGIN_DB_PIN_POOLS(X) \
-    X(0u, "cores", CORES) X(1u, "off", OFF)
-
 /* PLUGIN_DB_PIN_KEYS (data/pin.json) */
-#define OMX_PLUGIN_DB_PIN_KEYS_VERDICT "verdict" ///< the qualification verdict of the pinned bytes, a word of PLUGIN_DB_PIN_VERDICTS
-#define OMX_PLUGIN_DB_PIN_KEYS_POOL "pool" ///< the thread pool word of the pinned bytes, a word of PLUGIN_DB_PIN_POOLS
+#define OMX_PLUGIN_DB_PIN_KEYS_VERDICT "verdict" ///< the qualification verdict of the pinned bytes, a word of PIN_VERDICTS of plugin-hostd-protocol's domain pin
+#define OMX_PLUGIN_DB_PIN_KEYS_POOL "pool" ///< the thread pool word of the pinned bytes, a word of PIN_POOLS of plugin-hostd-protocol's domain pin
 /** The number of words of PLUGIN_DB_PIN_KEYS. */
 #define OMX_PLUGIN_DB_PIN_KEYS_COUNT 2u
 /** The words of PLUGIN_DB_PIN_KEYS in their declared order, as a C initializer list. */
