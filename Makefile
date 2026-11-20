@@ -157,7 +157,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -766,3 +766,10 @@ grouping-reasons:
 	python3 tools/grouping-reasons.py
 check-grouping-domain:
 	python3 tools/grouping-reasons.py --check
+
+# the insert verdict of estimate (PHD_ESTIMATE_VERDICTS, PHD_ESTIMATE_REASONS, their words and patterns) is generated from
+# the package's domain estimate (contract.d/estimate), meanings included, and the reply ends with the two words
+# (tests/estimate_words_test.py)
+.PHONY: test-estimate-words
+test-estimate-words:
+	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/estimate_words_test.py
