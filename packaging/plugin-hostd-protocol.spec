@@ -20,12 +20,12 @@ BuildRequires: python3
 BuildRequires: python3-devel
 # The floors of every omx-contract, omx-clap-core, omx-dsp and plugin-hostd-protocol requirement below are GENERATED from
 # packaging/deps.txt by Open-Mixer/.github deps-render (render.sh --write); edit that file, not these lines.
-# the declared protocol: tools/protocol-gen holds protocol.h's parameter scales to omx-contract's C headers, and
+# the declared protocol: protocol.h's parameter scales are written from omx-contract's domain param (omx-contract-data), and
 # install-contract writes the contract directory's package with omx-contract's script
 BuildRequires: omx-contract-devel >= 3.20.0
 # the codec's tests (make test-codec) read omx-clap-core's sentences and omx-contract's catalog reader
 BuildRequires: omx-clap-core-contract >= 0.32.3
-BuildRequires: omx-contract-data >= 3.16.0
+BuildRequires: omx-contract-data >= 3.21.0
 # plugin-db's package of the contract directory. The committed vocabulary header is the render of plugin-db 0.4.7, checked by ci's declared-protocol job against the served contract; the package build (make test: %check, debian/rules) reads none of its words, so the floor stays 0.4.4
 BuildRequires: plugin-db-contract >= 0.4.4
 # omx_curve.h, the curve function the curve verbs draw with (header only)
@@ -79,7 +79,7 @@ Requires: plugin-hostd-protocol-contract >= 0.5.8
 Requires: omx-clap-core-contract >= 0.32.3
 Requires: omx-contract >= 3.20.0
 # omx-contract's catalog reader, omx_contract_catalog.py, which reads a catalog entry whatever its shape
-Requires: omx-contract-data >= 3.16.0
+Requires: omx-contract-data >= 3.21.0
 
 %description -n python3-plugin-hostd-protocol
 plugin_hostd_protocol, the Python codec of the plugin-hostd protocol: one codec

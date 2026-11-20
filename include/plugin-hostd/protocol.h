@@ -1065,10 +1065,12 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  *
  * @param X the macro each row is passed to.
  */
+/* BEGIN GENERATED PHD_PARAM_SCALES: tools/param-scales-gen.py, from omx-contract's domain param, item PARAM_SCALES */
 #define PHD_PARAM_SCALES(X) \
     X(LINEAR, "linear", "the value is linear in position") \
     X(LOG, "log", "the value is geometric in position; both bounds are positive") \
     X(STEPPED, "stepped", "the whole numbers from min to max, step 1")
+/* END GENERATED PHD_PARAM_SCALES */
 
 /* what the ledger keeps of a verb: nothing; the latest one per instance; or the latest one per instance and first argument
  * (replace-keyed, ruling of 2026-11-14 on omx-clap-core#15: a property is the daemon's state, so a respawned worker gets

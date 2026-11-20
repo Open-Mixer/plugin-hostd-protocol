@@ -157,7 +157,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words test-param-scales check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -358,15 +358,13 @@ abi-check: abi-stage
 #   doc/overview.md                       the region host-verbs, tools/protocol-gen splice
 #   doc/protocol.md                       tools/protocol-doc.py, from all of the above
 #
-# protocol-gen holds the parameter scales of protocol.h to omx-contract's PARAM_SCALES, so it builds against
-# omx-contract's C headers (omx-contract-devel, libomx-contract-dev; CONTRACT_CFLAGS=-I<dir> for headers that are not
-# installed).
-CONTRACT_CFLAGS ?= $(shell $(PKG_CONFIG) --cflags omx-contract 2>/dev/null)
+# the parameter scales of protocol.h (PHD_PARAM_SCALES) are written by tools/param-scales-gen.py from omx-contract's domain
+# param, read from the contract directory (OMX_CONTRACT_PATH, then the installed one): protocol-gen needs no omx-contract header.
 GEN = build/protocol-gen
 
 $(GEN): tools/protocol-gen.c $(PROTOCOL_HEADERS)
 	@mkdir -p $(dir $@)
-	$(CC) -Wall -Wextra -Werror -std=gnu99 -Iinclude $(CONTRACT_CFLAGS) -o $@ tools/protocol-gen.c
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -Iinclude -o $@ tools/protocol-gen.c
 
 gen: $(GEN)
 	$(GEN) json > protocol/plugin-hostd.json.new && mv protocol/plugin-hostd.json.new protocol/plugin-hostd.json
@@ -379,6 +377,7 @@ gen: $(GEN)
 	python3 tools/ts-client-gen.py
 	python3 tools/probe-words-gen.py
 	python3 tools/pin-words-gen.py
+	python3 tools/param-scales-gen.py
 	$(OMX_CONTRACT) render --target c --package pin --contract-dir contract.d --out include/plugin-hostd
 	$(GEN) splice doc/overview.md > doc/overview.md.new && mv doc/overview.md.new doc/overview.md
 	$(MAKE) --no-print-directory protocol-doc
@@ -392,6 +391,7 @@ check-generated: $(GEN)
 	python3 tools/reply-words.py --check; \
 	python3 tools/ts-client-gen.py --check; \
 	python3 tools/probe-words-gen.py --check; \
+	python3 tools/param-scales-gen.py --check; \
 	python3 tools/pin-words-gen.py --check; \
 	$(OMX_CONTRACT) render --target c --package pin --contract-dir contract.d --out include/plugin-hostd --check; \
 	$(OMX_CONTRACT) render --target c --package probe --contract-dir contract.d --out include/plugin-hostd --check; \
@@ -732,3 +732,10 @@ test-probe-words:
 .PHONY: test-pin-words
 test-pin-words:
 	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/pin_words_test.py
+
+# the parameter scales of protocol.h (PHD_PARAM_SCALES) are generated from omx-contract's domain param, and held to the
+# 3 golden rows (tests/param_scales_test.py); OMX_CONTRACT_PATH names the contract directories the domain is read from
+# (tests/fixtures/contract.d until omx-contract 3.21.0 installs it)
+.PHONY: test-param-scales
+test-param-scales:
+	CC='$(CC)' OMX_CONTRACT_PATH='$(CURDIR)/tests/fixtures/contract.d' python3 tests/param_scales_test.py
