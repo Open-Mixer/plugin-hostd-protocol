@@ -3,7 +3,7 @@
 /* estimate_words_dump: every row of PHD_ESTIMATE_VERDICTS and PHD_ESTIMATE_REASONS of protocol.h, one line each,
  * "<list> <index> <id> <word> <meaning>", in the header's order, then each word by its own name, "word <NAME> <value>",
  * the two patterns, the arg types the reply is typed with, the reply as data/verbs.json declares it and its row of
- * PHD_REPLY_ARGS (tests/estimate_words_test.py compares it with tests/golden/estimate-words.txt). */
+ * PHD_REPLY_ARGS, then the CPU ceiling and its unit (tests/estimate_words_test.py compares it with tests/golden/estimate-words.txt). */
 #include <plugin-hostd/protocol.h>
 
 #include <stdio.h>
@@ -40,6 +40,6 @@ int main(void)
         printf("args %s %s\n", resp, args);
     PHD_REPLY_ARGS(X)
 #undef X
-    printf("ceiling %d\n", PHD_ESTIMATE_CPU_CEILING_PCT);
+    printf("ceiling %d %s\n", PHD_ESTIMATE_CPU_CEILING, PHD_ESTIMATE_CPU_CEILING_UNIT);
     return 0;
 }

@@ -26,4 +26,4 @@ type estimate-verdict recommend|warn|not-measured|refuse
 type estimate-reason unknown-plugin|no-record|no-cell|cpu-over-budget|ram-over-budget|ram-unknown|within
 reply resp 0 <latency_frames> <cpu_percent> <ram_bytes> <workers> <unknown_count> <member>:<code>,... <ram_used_bytes> <ram_added_bytes> <ram_budget_bytes> <ram_unknown_count> <verdict> <reason>
 args 0 latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint unknown:member-codes ram_used_bytes:amount ram_added_bytes:amount ram_budget_bytes:amount ram_unknown_count:uint verdict:estimate-verdict reason:estimate-reason
-ceiling 60
+ceiling 60 percent

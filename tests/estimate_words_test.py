@@ -12,14 +12,21 @@ protocol.h are generated from it, the meaning texts included; the reply of estim
     stop), include/plugin-hostd/estimate_codes.h is the render of its x-c-codes items, and protocol.h is the generator's
     output;
 (c) sabotage, in a scratch copy of the tree: a word, or a meaning, changed in the domain makes
-    tools/estimate-words-gen.py --check fail, and writing it changes what the call expands to.
+    tools/estimate-words-gen.py --check fail, and writing it changes what the call expands to;
+(d) the CPU ceiling has one holder, the domain's scalar item ESTIMATE_CPU_CEILING (x-kind scalar, x-unit a word of
+    omx-contract's PARAM_UNITS, x-value): protocol.h's PHD_ESTIMATE_CPU_CEILING and _UNIT are its render; a value changed in
+    the domain changes the rendered protocol.h; a hand #define of the ceiling outside the generated blocks is refused by
+    --check, by name.
 
-Environment: OMX_CONTRACT (the command, default omx-contract), CC. Exit 0 all green, 1 a FAIL line."""
+Environment: OMX_CONTRACT (the command, default omx-contract), CC, OMX_CONTRACT_PRIMITIVES (omx-contract's installed
+primitives.json, which holds PARAM_UNITS; default <contractdir>/3/omx-contract/primitives.json). Exit 0 all green, 1 a
+FAIL line."""
 import json, os, re, shlex, shutil, subprocess, sys, tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OMX = shlex.split(os.environ.get("OMX_CONTRACT", "omx-contract"))
 CC = shlex.split(os.environ.get("CC", "cc"))
+PRIMITIVES = os.environ.get("OMX_CONTRACT_PRIMITIVES", "/usr/share/omx-contract/contract.d/3/omx-contract/primitives.json")
 LISTS = (("verdicts", "ESTIMATE_VERDICTS", "PHD_ESTIMATE_VERDICT_"), ("reasons", "ESTIMATE_REASONS", "PHD_ESTIMATE_REASON_"))
 failed = 0
 
@@ -99,7 +106,59 @@ def main():
                       "(c) writing it changes the macro the call expands to (%s)" % what)
         else:
             check(False, "(c) no generator or no domain to sabotage")
+        ceiling(gold, tmp, doc_path, gen)
     return 1 if failed else 0
+
+
+def ceiling(gold, tmp, doc_path, gen):
+    """(d) the ceiling is the domain's scalar, rendered by the generator and by nothing else"""
+    item = None
+    if os.path.isfile(doc_path):
+        item = json.load(open(doc_path))["components"]["schemas"].get("ESTIMATE_CPU_CEILING")
+    want = [l for l in gold.splitlines() if l.startswith("ceiling ")][0].split()
+    check(item is not None and item.get("x-kind") == "scalar" and "oneOf" not in item,
+          "(d) the domain holds ESTIMATE_CPU_CEILING, a scalar item")
+    if item is None:
+        check(False, "(d) no ceiling in the domain to hold to the golden row, sabotage or guard")
+        return
+    units = json.load(open(PRIMITIVES))["PARAM_UNITS"]["words"]
+    check(item.get("x-unit") in [w["word"] for w in units.values()],
+          "(d) its x-unit %r is a word of omx-contract's PARAM_UNITS" % item.get("x-unit"))
+    check([str(item.get("x-value")), item.get("x-unit")] == want[1:], "(d) its value and unit are the golden %s" % want[1:])
+    text = open(os.path.join(ROOT, "include", "plugin-hostd", "protocol.h")).read()
+    outside = re.sub(r"/\* BEGIN GENERATED (\w+):.*?/\* END GENERATED \1 \*/", "", text, flags=re.S)
+    check(not re.search(r"#define\s+PHD_ESTIMATE_CPU_CEILING", outside), "(d) protocol.h defines no ceiling by hand")
+    if not os.path.isfile(gen):
+        check(False, "(d) no generator to sabotage")
+        return
+    # a value changed in the domain changes the rendered protocol.h, and the expansion
+    scratch = os.path.join(tmp, "tree-ceiling")
+    shutil.copytree(ROOT, scratch, ignore=shutil.ignore_patterns(".git", "build", "node_modules"))
+    p = os.path.join(scratch, "contract.d", "estimate", "estimate.json")
+    d = json.load(open(p))
+    d["components"]["schemas"]["ESTIMATE_CPU_CEILING"]["x-value"] = 75
+    json.dump(d, open(p, "w"), indent=2)
+    c = subprocess.run([sys.executable, os.path.join(scratch, "tools", "estimate-words-gen.py"), "--check"], cwd=scratch,
+                       capture_output=True, text=True)
+    check(c.returncode != 0, "(d) the ceiling's value changed in the domain makes --check fail")
+    subprocess.run([sys.executable, os.path.join(scratch, "tools", "estimate-words-gen.py")], cwd=scratch, capture_output=True,
+                   text=True)
+    out, _ = dump(scratch, tmp)
+    check(out is not None and "ceiling 75 percent" in out, "(d) writing it changes the ceiling protocol.h expands to")
+    # a hand #define of the ceiling outside the generated blocks is refused by name
+    for name in ("PHD_ESTIMATE_CPU_CEILING_PCT", "PHD_ESTIMATE_CPU_CEILING"):
+        scratch = os.path.join(tmp, "tree-hand-" + name)
+        shutil.copytree(ROOT, scratch, ignore=shutil.ignore_patterns(".git", "build", "node_modules"))
+        h = os.path.join(scratch, "include", "plugin-hostd", "protocol.h")
+        text = open(h).read()
+        open(h, "w").write(text.replace("#endif", "#define %s 60\n#endif" % name, 1) if name.endswith("_PCT") else
+                           text.replace("/* ---------------------------------------------------------------- instance verbs */",
+                                        "#define %s 60\n/* ---------------------------------------------------------------- "
+                                        "instance verbs */" % name, 1))
+        c = subprocess.run([sys.executable, os.path.join(scratch, "tools", "estimate-words-gen.py"), "--check"], cwd=scratch,
+                           capture_output=True, text=True)
+        check(c.returncode != 0 and name in (c.stdout + c.stderr),
+              "(d) a hand #define %s is refused by --check, by name: %s" % (name, (c.stdout + c.stderr).strip()[-160:]))
 
 
 if __name__ == "__main__":
