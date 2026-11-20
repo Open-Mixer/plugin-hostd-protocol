@@ -174,7 +174,7 @@ def table():
         entries.append(ours(v["verb"], "plugin-hostd-protocol", f"data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.{key}",
                             v["format"], v["reply"], [resolve(c["ref"]) for c in v.get("codes", [])], v.get("doc", "")))
     for word, v in shared.items():
-        entries.append(ours(word, "omx-clap", f"omx-clap data/verbs.json {v['item']}", v["format"],
+        entries.append(ours(word, "omx-clap", f"contract.d/omx-clap/omx-clap.json {v['item']}", v["format"],
                             v["reply"], v["codes"], v["doc"]))
     # a verb protocol.h declares that neither declaration holds is mod-host's (add) or a fault
     for word in meaning:
@@ -338,7 +338,7 @@ def table():
         "protocol": "plugin-hostd-protocol",
         "version": phd["version"],
         "superset_of": "mod-host",
-        "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "data/verbs.json", SHARED_H],
+        "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "data/verbs.json", "contract.d/omx-clap/omx-clap.json", SHARED_H],
         "commands": sorted(commands.values(), key=lambda e: (e["origin"] != "mod-host", e["origin"], e["verb"])),
         "refused": mod_ui,
         "feedback": sorted(feedback.values(), key=lambda e: (e["origin"] != "mod-host", e["line"])),

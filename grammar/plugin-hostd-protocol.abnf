@@ -291,35 +291,35 @@ cmd-track-info           = %s"track_info" SP int SP word SP word tail
 cmd-transport            = %s"transport" SP int SP float SP float
 ; mod-host: include/mod-host.h TRANSPORT_SYNC
 cmd-transport-sync       = %s"transport_sync" SP word
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-all-notes-off        = %s"all_notes_off" SP int
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-audio-ports          = %s"audio_ports" SP int
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS; sent by the daemon to a worker
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-chain-expect         = %s"chain_expect" SP int SP int
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-hide-external-ui     = %s"hide_external_ui" SP int
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-idle-hold            = %s"idle_hold" tail
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-note-drops           = %s"note_drops" SP int
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-note-input           = %s"note_input" SP int
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-note-off             = %s"note_off" SP int SP int SP int SP int
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-note-on              = %s"note_on" SP int SP int SP int SP int
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-note-out-drops       = %s"note_out_drops" SP int
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS; sent by the daemon to a worker
+; omx-clap: contract.d/omx-clap/omx-clap.json ; sent by the daemon to a worker
 cmd-pin-expect           = %s"pin_expect" SP int SP word
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-property-get         = %s"property_get" SP int SP word
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-property-info        = %s"property_info" SP int SP int
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-property-list        = %s"property_list" SP int
-; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-property-set         = %s"property_set" SP int SP word SP quoted-escaped
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.chain
 cmd-chain                = %s"chain" SP int SP int tail
