@@ -157,7 +157,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -445,6 +445,12 @@ test-reply-args:
 test-client:
 	python3 tests/client_test.py
 
+# the Python client and codec refuse a NUL at their doors, and the sabotage that turns each off
+.PHONY: test-nul
+test-nul:
+	python3 tests/nul_refusal_test.py
+	sh tests/nul-sabotage.sh
+
 # the protocol's codec (clients/python/plugin_hostd_protocol, python3-plugin-hostd-protocol) on its fixtures, reading the
 # table of this tree and the vocabulary and catalogs this tree stages as install-contract installs them (issue 46)
 .PHONY: test-codec
@@ -452,7 +458,11 @@ test-codec:
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
 	$(MAKE) --no-print-directory install-contract DESTDIR=$$tmp >/dev/null; \
 	PLUGIN_HOSTD_PROTOCOL_TABLE=protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) \
-	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) python3 tests/codec_test.py
+	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) python3 tests/codec_test.py; \
+	PLUGIN_HOSTD_PROTOCOL_TABLE=protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) \
+	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) python3 tests/client_codec_test.py; \
+	PLUGIN_HOSTD_PROTOCOL_TABLE=protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) \
+	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) sh tests/client-codec-sabotage.sh
 
 # which refusals are transient: a property of the code in data/verbs.json, in the table and the rendered header (#23)
 test-transient-codes:

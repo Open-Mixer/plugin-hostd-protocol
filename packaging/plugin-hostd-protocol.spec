@@ -58,6 +58,8 @@ protocol as JSON, each named by a pkg-config variable.
 Summary: The Python client of the plugin-hostd line protocol
 BuildArch: noarch
 Requires: python3
+# command() and reply() speak through the codec, built by this spec at this version: a floor at its own version
+Requires: python3-plugin-hostd-protocol = %{version}-%{release}
 # plugin-hostd-tests before 0.21.0 shipped the same module under /usr/libexec/plugin-hostd/tests/lib (not on sys.path:
 # no file conflict); it now requires this package
 
