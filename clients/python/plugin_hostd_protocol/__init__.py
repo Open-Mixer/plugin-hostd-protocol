@@ -54,10 +54,19 @@ ESCAPE = "%"
 EXCLUDED = ",= \t\r\n"
 
 
+def _no_nul(text):
+    """text itself; ProtocolError when it holds a NUL: the protocol's line end, so one command would be two and every
+    reply after it would answer the wrong one"""
+    if "\0" in text:
+        raise ProtocolError("a NUL is the end of a line, it is in no word")
+    return text
+
+
 def words(line):
     """The words of a line as the daemon reads them: split at whitespace; a word that starts with a quotation mark
     runs to the next one no backslash escapes, \\" in it is a quote, the marks are not part of it; a quoted word that
-    never closes runs to the end of the line."""  # noqa: D205, D209, D301
+    never closes runs to the end of the line. ProtocolError for a line that holds a NUL."""  # noqa: D205, D209, D301
+    _no_nul(line)
     out, i, n = [], 0, len(line)
     while i < n:
         if line[i] in SPACE:
@@ -83,11 +92,12 @@ def words(line):
 
 def quote(value):
     """A value as one quoted word: in quotation marks, \\" for a quote (the grammar's only escape)."""  # noqa: D301
-    return '"' + value.replace('"', '\\"') + '"'
+    return '"' + _no_nul(value).replace('"', '\\"') + '"'
 
 
 def _word(value):
     """A string as one word: bare when it can be, quoted when it is empty or holds whitespace or a quote."""
+    _no_nul(value)
     if value and not any(c in SPACE or c == '"' for c in value):
         return value
     return quote(value)
