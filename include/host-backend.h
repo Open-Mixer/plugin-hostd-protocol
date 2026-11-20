@@ -71,7 +71,7 @@ typedef struct HOST_BACKEND_T {
     int (*connect)(const char *port_a, const char *port_b);
     /** disconnect: the two port names, in the order of the line */
     int (*disconnect)(const char *port_a, const char *port_b);
-    /* the band origin (enum omx_curve_origins, omx_curve.h) a panel description gives one of a plugin's parameters,
+    /** the band origin (enum omx_curve_origins, omx_curve.h) a panel description gives one of a plugin's parameters,
        for the curve verbs' marks: NULL, or a symbol this does not set the origin of, answers OMX_CURVE_ORIGINS_USER.
        A foreign plugin's host sets this on no symbol, so curve_points draws it no mark. */
     int (*param_origin)(int instance, const char *symbol, int *origin);
