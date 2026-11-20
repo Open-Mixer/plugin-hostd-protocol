@@ -1,3 +1,74 @@
+plugin-hostd-protocol (0.7.0) unstable; urgency=medium
+
+  * The backward-compatibility removal: the ERR_LV2_* spellings of the error
+    words are gone from host-errors.h, and plan, plan_get and estimate answer
+    with their one reply form only; their reply schemas require every word of
+    it (#110). This removes API, hence a new minor.
+  * The qualify_requested event and the qualify spool: a plugin with no
+    verdict added under require_pins with pin_mode first-use says
+    qualify_requested with its uri, and one request for its quick
+    qualification is written in the spool (#107).
+  * The qualification_dir conf key, its OMX_QUALIFICATION_DIR default and the
+    subdirectory constant are dropped: plugin-hostd reads qualifications
+    through libplugin-qualification-db, so the key has no reader (#112).
+  * The plugin-db words of the rendered vocabulary come from plugin-db 0.4.7's
+    domain (#111); the plugin-db-contract floor stays 0.4.4.
+  * The table-constants check joins verb_table.py (#108).
+  * The Debian packages build on arm64 runners and Fedora 45 is the newest
+    cell, Fedora 44 dropped; the ABI baseline carries the types, not only
+    the symbols (#113).
+  * The commit identity check is on for pull requests (#115).
+  * The Breaks and Replaces of the ca language pack against plugin-hostd-
+    protocol-contract (<< 0.5.6) are gone: floors only, no Breaks, Replaces
+    or Conflicts between our packages.
+  * The soname stays libplugin-hostd-protocol.so.0: the exported symbols and
+    the layout of every type are as in 0.6.0, the removed names were
+    enumerators and macros that a consumer resolves when it compiles.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Fri, 20 Nov 2026 12:00:00 +0100
+
+plugin-hostd-protocol (0.6.0) unstable; urgency=medium
+
+  * Floors only, no ceilings, declared once in packaging/deps.txt; the spec
+    and debian/control are generated from it and the floors check refuses
+    drift (#64): omx-dsp-devel >= 0.32.4 (0.5.9 declared 0.32.1), omx-
+    contract 3.19.1 (0.5.9 declared 3.18.0: the release the headers are
+    rendered with), and plugin-db 0.4.4 as before.
+  * python3-plugin-hostd-client, a new noarch package: the protocol's Python
+    client ships from here (#47, #45).
+  * python3-plugin-hostd-protocol, the Python codec, ships from here (#48,
+    #46).
+  * The grammar's quoted-escaped form, a quoted value that is text, for the
+    property verbs (#39).
+  * The panel file declares its keys, meters among them (#51).
+  * The typed replies have a JSON Schema each, installed under shapesdir,
+    and the TypeScript render is published as an npm package (#82, #81); the
+    TypeScript client of the protocol, its transport, the generated
+    vocabulary and curvePoints, ships in the same package (#87).
+  * The protocol schemas take https://openmixer.org/schema/plugin-hostd-
+    protocol/ as their $id (#99).
+  * An untagged empty line, and a whitespace-only one, gets no reply and
+    changes no state; a tagged one keeps its answer (#79, #83).
+  * phd_note_valid reads no word past count, phd_pin_path_decode writes
+    nothing into a size of 0 (#74), and phd_number_in reads one spelling per
+    number, in the caller's lo and hi only (#75).
+  * The command and feedback markers of mod-host.h that the generator reads
+    are back (#80).
+  * The installed C headers document their public API with Doxygen, and the
+    documentation gates only shrink (#62, #69, #76, #78).
+  * The curve families of omx-dsp 0.32.4: the delay and reverb curve
+    families and the 37 roles curve_bind takes, with time_response, which a
+    curve verb draws as omx-dsp does (#93).
+  * rpc_timeout_ms: a silent worker gets SIGTERM first, so it closes its
+    JACK client, and SIGKILL only if it has not left two seconds later
+    (#89).
+  * No epoch on any package of this source (#95, #97).
+  * CI: the heavy workflows run by dispatch and tags, the fast checks alone
+    on a pull request (#43); each cell takes its cells from check-matrix
+    (#37).
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Thu, 19 Nov 2026 12:00:00 +0100
+
 plugin-hostd-protocol (0.5.9) unstable; urgency=medium
 
   * Built against plugin-db >= 0.4.4 and below 0.5 and omx-dsp >= 0.32.1 and

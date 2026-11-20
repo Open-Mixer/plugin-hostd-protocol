@@ -10,6 +10,10 @@
  * in OMX_VERB_<VERB>_CODES_INIT. omx_clap_core_host_verbs() is the table of what each host owes each verb.
  */
 
+/** @file
+ * @brief The host verbs of omx-clap-core: each verb's word, line format and reply, and
+ * the table of what each host owes it. */
+
 #include <string.h>
 
 #ifndef OMX_HOST_VERB_TYPES_H

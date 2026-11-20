@@ -19,11 +19,6 @@ override_dh_auto_install:
 	# the Python packages, python3-plugin-hostd-client and python3-plugin-hostd-protocol
 	$(MAKE) install-python DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr PYTHON3_SITELIB=/usr/lib/python3/dist-packages
 
-# the one epoch of this source: python3-plugin-hostd-protocol is 1:<version> (plugin-hostd built that name at 0.20.x)
-override_dh_gencontrol:
-	dh_gencontrol -Npython3-plugin-hostd-protocol
-	dh_gencontrol -ppython3-plugin-hostd-protocol -- -v1:$(DEB_VERSION)
-
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	$(MAKE) test

@@ -261,7 +261,11 @@ for line in ("clear", "transfer_curve dynamics threshold=thr:dbfs ratio=ratio:ra
              "eq_response eq band_freq.0=f_0:hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf",
              "eq_response eq band_type.31=t-31@-|bell band_freq.31=f.31:khz@notch hpf_on=:bypass",
              "eq_response eq band_type.0=t@bell|allpass1|allpass2 band_freq.0=f:hz hpf_slope=s@12|24 lpf_slope=l:db",
-             "transfer_curve gate threshold=t:db range=r:db knee_start=a:db knee_end=b:db ratio=q:coef"):
+             "transfer_curve gate threshold=t:db range=r:db knee_start=a:db knee_end=b:db ratio=q:coef",
+             "transfer_curve drive drive=d:db tone=t:coef mix=m:pc output=o:db model=k:none",
+             "time_response reverb size=s:coef mix=m:coef algorithm=a:none predelay=p:ms decay=d:s damping=g:coef width=w:coef",
+             "time_response delay time=t:ms feedback=f:coef tone=o:coef mix=m:coef pingpong=p:none sync=s:none division=d:none",
+             "time_response reverb low_cut=l:hz high_cut=h:khz"):
     must("curve-binding", line, "a curve binding")
     must("cmd-curve-bind", "curve_bind 3 0 " + line, "a curve_bind line")
 for line in ("", "clear threshold=t:db", "bar_graph dynamics threshold=t:db", "transfer_curve dynamics",
@@ -269,6 +273,7 @@ for line in ("", "clear threshold=t:db", "bar_graph dynamics threshold=t:db", "t
              "eq_response eq band_freq.=f:hz", "transfer_curve dynamics threshold=", "transfer_curve dynamics threshold=t:",
              "eq_response eq band_type.0=t@bell|wobble", "eq_response eq band_type.0=t@bell||notch",
              "transfer_curve dynamics threshold=t/x:db", "transfer_curve Dynamics threshold=t:db",
+             "time_response", "time_response reverb", "time_response reverb size", "Time_response reverb size=s:coef",
              "eq_response eq hpf_slope=s@0|24", "eq_response eq hpf_slope=s@12|", "eq_response eq hpf_slope=s@1234"):
     must_not("curve-binding", line, "not a curve binding")
 curve_replies = 0
@@ -278,7 +283,14 @@ for a in answers:
         curve_replies += 1
 if curve_replies == 0:
     fail("the golden transcript holds no curve_points reply")
-for line in ("resp 0 1 20,0.0", "resp 0 2 20.00,1", "resp 0 0", "resp 0 3 x,0.00"):
+# a reverb at mix 0 draws no point (resp 0 0); a delay's reply carries its taps after the points: `stems <count> <t>,<dB>,<shade>,<leg> ...`
+for line in ("resp 0 0", "resp 0 3 20.00,1.00 40.0,2.00 80.0,0.00",
+             "resp 0 0 stems 2 0,-4.44,1.000,both 250.0,-8.00,0.870,left",
+             "resp 0 2 0,-80.00 500.0,-80.00 stems 1 0,0.00,1.000,right"):
+    must("curve-points-reply", line, "a curve_points reply")
+for line in ("resp 0 1 20,0.0", "resp 0 2 20.00,1", "resp 0 3 x,0.00", "resp 0 0 stems", "resp 0 0 stems 0",
+             "resp 0 0 stems 1 0,0.00,1.000", "resp 0 0 stems 1 0,0.00,1.000,middle", "resp 0 0 stems 1 0,0.00,1.0,both",
+             "resp 0 0 stems 1 0,0.00,1.000,both 5"):
     must_not("curve-points-reply", line, "not a curve_points reply")
 with open(os.path.join(ROOT, "tests", "golden", "plugin-hostd-protocol.txt"), encoding="utf-8") as f:
     golden = f.read().split("\n")

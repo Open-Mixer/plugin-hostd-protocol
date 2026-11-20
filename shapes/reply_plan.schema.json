@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/schema/plugin-hostd-protocol/reply_plan.schema.json",
+  "title": "PlanReply",
+  "description": "The parsed form of a plan reply (a plan): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "segments": {
+      "type": "array",
+      "description": "The plan's segments, each its instances in order.",
+      "items": {
+        "type": "array",
+        "description": "One item: instance numbers, in order.",
+        "items": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "One item: a whole number, not negative."
+        }
+      }
+    },
+    "cores": {
+      "type": "array",
+      "description": "Each segment's cores, member by member, - for a worker pinned to none.",
+      "items": {
+        "type": "array",
+        "description": "One item: each member's core, in the segment's order.",
+        "items": {
+          "type": "string",
+          "pattern": "^(?:-|[0-9]+)$",
+          "description": "One item: an audio core, or - for a worker pinned to none."
+        }
+      }
+    }
+  },
+  "required": [
+    "segments",
+    "cores"
+  ],
+  "additionalProperties": false
+}

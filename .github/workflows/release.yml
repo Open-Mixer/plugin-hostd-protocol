@@ -2,7 +2,8 @@
 name: release
 
 # Packages through the shared release workflows of Open-Mixer/.github. A tag v<version> builds signed
-# RPMs (Fedora 44, x86_64 and aarch64) and DEBs (Debian bookworm and trixie, amd64 and arm64),
+# RPMs (Fedora 45, x86_64) and DEBs (Debian trixie, arm64) while the release matrix is quick (OMX_RELEASE_MATRIX=quick;
+# the full set returns with OMX_RELEASE_MATRIX=full),
 # publishes them to the OpenMixer channel and attaches them to the GitHub release. A dispatched run
 # (workflow_dispatch) is a dry run: it builds and lints everything and publishes nothing, unless it names a
 # tag in source-ref and sets publish: then it releases that tag's sources with this workflow (a tag whose own
@@ -30,9 +31,13 @@ on:
         type: boolean
         default: false
       staged:
-        description: 'Build fc44 x86_64 and trixie amd64 only and publish them to the staging channel, never to the real one'
+        description: 'Build fc45 x86_64 and trixie arm64 only and publish them to the staging channel, never to the real one'
         type: boolean
         default: false
+      same_pass:
+        description: 'Packages other repositories release later in the same pass, space separated; empty reads .github/release-same-pass at the commit built'
+        type: string
+        default: ''
 
 permissions:
   contents: write
@@ -40,9 +45,45 @@ permissions:
   actions: read
 
 jobs:
+  # The packages other repositories release LATER in this same pass, for the channel-installability gate's same-pass
+  # (a breakage they cause or suffer is reported, not red): a dispatch's same_pass input, else the tracked
+  # .github/release-same-pass at the very commit this run builds (the tag on a push, source-ref when one is named), one
+  # package per line, # comments allowed. The file is reviewed like code, lives on its release branch and goes with it;
+  # never a repository variable, which is mutable, unversioned and can outlive its pass to excuse a later break.
+  samepass:
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.read.outputs.list }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/release-same-pass
+          sparse-checkout-cone-mode: false
+      - id: read
+        env:
+          NAMED_SOURCE: ${{ github.event_name == 'workflow_dispatch' && inputs.source-ref || '' }}
+        run: |
+          f=.github/release-same-pass
+          # a named source-ref is fetched and its file read from FETCH_HEAD: no checkout is pinned to a ref (make check-no-pins)
+          if [ -n "$NAMED_SOURCE" ]; then
+            git fetch --quiet --depth=1 origin "$NAMED_SOURCE" || { echo "::error::cannot fetch source-ref $NAMED_SOURCE"; exit 1; }
+            rm -f "$f"
+            git show "FETCH_HEAD:$f" >"$f" 2>/dev/null || rm -f "$f"
+          fi
+          [ -f "$f" ] || { echo "list=" >>"$GITHUB_OUTPUT"; echo "no $f at this commit: nothing released in the same pass"; exit 0; }
+          names=$(sed -e 's/#.*//' "$f" | tr -s ' \t\r\n' '\n' | sed '/^$/d')
+          for n in $names; do
+            [[ "$n" =~ ^[a-z0-9][a-z0-9.+-]*$ ]] || { echo "::error::$f: '$n' is not a package name"; exit 1; }
+          done
+          list=$(echo $names)
+          echo "list=$list" >>"$GITHUB_OUTPUT"
+          echo "same pass from $f: ${list:-none}"
+
   rpm:
+    needs: samepass
     uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@openmixer-v1
     with:
+      same-pass: ${{ inputs.same_pass || needs.samepass.outputs.list }}
       staged: ${{ inputs.staged == true }}
       package-name: plugin-hostd-protocol
       binary-names: plugin-hostd-protocol plugin-hostd-protocol-devel plugin-hostd-protocol-contract
@@ -58,8 +99,10 @@ jobs:
   # or skipped RPM job skips this one, so no DEB is published after a failed RPM.
   # beside the RPMs: the two publish jobs share one concurrency group, so their pushes never race
   deb:
+    needs: samepass
     uses: Open-Mixer/.github/.github/workflows/build-deb.yml@openmixer-v1
     with:
+      same-pass: ${{ inputs.same_pass || needs.samepass.outputs.list }}
       staged: ${{ inputs.staged == true }}
       package-name: libplugin-hostd-protocol
       binary-names: libplugin-hostd-protocol0 libplugin-hostd-protocol-dev plugin-hostd-protocol-contract

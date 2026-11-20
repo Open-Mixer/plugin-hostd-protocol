@@ -23,6 +23,10 @@
 ************************************************************************************************************************
 */
 
+/** @file host-errors.h
+ * @brief The declarations of host-errors.h.
+ */
+
 #ifndef HOST_ERRORS_H
 #define HOST_ERRORS_H
 
@@ -46,13 +50,6 @@ enum {
     ERR_HOST_INVALID_PARAM_SYMBOL = -103,
     ERR_HOST_INVALID_PRESET_URI = -104,
     ERR_HOST_CANT_LOAD_STATE = -105,
-
-    /* the names above under the LV2 prefix they were introduced with */
-    ERR_LV2_INVALID_URI = ERR_HOST_INVALID_URI,
-    ERR_LV2_INSTANTIATION = ERR_HOST_INSTANTIATION,
-    ERR_LV2_INVALID_PARAM_SYMBOL = ERR_HOST_INVALID_PARAM_SYMBOL,
-    ERR_LV2_INVALID_PRESET_URI = ERR_HOST_INVALID_PRESET_URI,
-    ERR_LV2_CANT_LOAD_STATE = ERR_HOST_CANT_LOAD_STATE,
 
     ERR_JACK_CLIENT_CREATION = -201,
     ERR_JACK_CLIENT_ACTIVATION = -202,

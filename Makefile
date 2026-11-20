@@ -3,8 +3,8 @@
 CC ?= gcc
 PKG_CONFIG ?= pkg-config
 
-# the one version of the library: VERSION holds it, and `make version-check` holds the spec's Version and the newest
-# debian/changelog entry to it
+# the one version of the library: VERSION holds it, and `make version-check` holds the spec's Version, the newest
+# debian/changelog entry and package.json's (the npm package of the reply shapes) to it
 VERSION := $(strip $(shell cat VERSION))
 
 # the library: soname libplugin-hostd-protocol.so.<major>, the file <major>.<minor>.<patch>. While the version is 0.x
@@ -22,6 +22,8 @@ INCLUDEDIR = $(PREFIX)/include
 DATADIR = $(PREFIX)/share
 
 # the flags mod-host builds this code with, so the library behaves as libmod-host-protocol does
+# -g: the library carries debug info, which abidw reads the types of abi/*.abi from (abi-check compares them)
+CFLAGS += -g
 CFLAGS += -O3 -Wall -Wextra -std=gnu99 -fPIC -D_GNU_SOURCE -pthread
 CFLAGS += -Wno-deprecated-declarations
 CFLAGS += -Werror=implicit-function-declaration -Werror=return-type
@@ -29,13 +31,13 @@ ifeq ($(DEBUG), 1)
    CFLAGS += -O0 -g -DDEBUG
 endif
 # omx-dsp's curve function (omx_curve.h, header only), which the curve verbs draw with: at or above the minor that
-# declares it and below the next, as packaging/plugin-hostd-protocol.spec and debian/control require it
-OMXDSP_FLOOR = 0.32.1
-OMXDSP_CEILING = 0.33
-OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 'omxdsp < $(OMXDSP_CEILING)' 2>/dev/null)
-ifeq ($(filter clean version-check,$(MAKECMDGOALS)),)
+# declares it: the floor packaging/deps.txt declares, read back from the spec generated from it
+OMXDSP_FLOOR := $(shell sed -n 's/^BuildRequires: *omx-dsp-devel *>= *\([0-9][0-9.]*\) *$$/\1/p' packaging/plugin-hostd-protocol.spec)
+OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 2>/dev/null)
+# the shapes' targets read JSON and a generator, no header
+ifeq ($(filter clean version-check deps deps-check test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-no-backcompat test-no-fedora44,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
-$(error no omx-dsp >= $(OMXDSP_FLOOR) and < $(OMXDSP_CEILING) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
+$(error no omx-dsp >= $(OMXDSP_FLOOR) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
 endif
 INCS = -Iinclude $(OMXDSP_CFLAGS)
@@ -109,6 +111,8 @@ install: $(LIB_FILE)
 	install -m 644 grammar/plugin-hostd-protocol.abnf $(DESTDIR)$(DATADIR)/$(NAME)/plugin-hostd-protocol.abnf
 	install -m 644 protocol/plugin-hostd.json $(DESTDIR)$(DATADIR)/$(NAME)/plugin-hostd.json
 	install -m 644 protocol/plugin-hostd.schema.json $(DESTDIR)$(DATADIR)/$(NAME)/plugin-hostd.schema.json
+	install -d $(DESTDIR)$(DATADIR)/$(NAME)/shapes
+	install -m 644 shapes/*.schema.json $(DESTDIR)$(DATADIR)/$(NAME)/shapes/
 	install -m 644 protocol/mod-host.json $(DESTDIR)$(DATADIR)/$(NAME)/mod-host.json
 	install -m 644 tools/protocol-gen.c $(DESTDIR)$(DATADIR)/$(NAME)/protocol-gen.c
 	install -m 644 clients/fixtures/codec.json $(DESTDIR)$(DATADIR)/$(NAME)/codec-fixtures.json
@@ -123,13 +127,49 @@ TEST_CFLAGS = $(filter-out -O3,$(CFLAGS)) -O1 -g -Werror
 # the sources are compiled into the sanitized tests as they are; a distribution's _FORTIFY_SOURCE flags their unchecked
 # write() calls, which mod-host leaves unchecked too
 SAN = -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -Wno-error=unused-result
-TEST_PROGS = tests/feedback_lines tests/macro_compat tests/protocol_test tests/protocol_commands_test tests/host_scenarios tests/golden-run tests/fixes_test tests/forms_test \
+TEST_PROGS = tests/feedback_lines tests/bounds_test tests/number_test tests/protocol_test tests/protocol_commands_test tests/host_scenarios tests/golden-run tests/fixes_test tests/forms_test \
              tests/hello_test tests/curve_test tests/monitor_test tests/runner_test \
              tests/socket-test tests/bind-test tests/adopt-test tests/utils-test
 
+# the C documentation gate is doxygen (tools/Doxyfile over the headers): a warning that tools/doxygen.baseline does not
+# list fails, and so does a listed one that is gone; the baseline only shrinks. Needs doxygen.
+.PHONY: check-doxygen
+check-doxygen:
+	sh tools/doxygen_gate.sh
+
+# ruff's own ratchet on the Python clients: D and the default rules (ruff.toml), today's findings carried by `# noqa`
+# comments, so a new one is a plain ruff failure and fixing one deletes its noqa. Needs ruff.
+.PHONY: check-ruff
+check-ruff:
+	ruff check clients/python
+
+# the two gates only shrink, by mechanism (tools/doc_shrink.sh against the base branch: DOC_GATE_BASE, origin/main by
+# default); tests/doc_gate_test.sh proves it, and that doxygen_gate.sh --update only lowers the baseline
+.PHONY: check-doc-shrink test-doc-gates
+check-doc-shrink:
+	sh tools/doc_shrink.sh
+test-doc-gates:
+	sh tests/doc_gate_test.sh
+
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-table-constants test-transient-codes test-search-paths test-property-rows test-macro-compat test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range
+      check-generated check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-nul test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+
+# no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
+test-no-fedora44:
+	python3 tests/no_fedora44_test.py .
+
+# no package of this source carries an epoch (the owner's ruling, 2026-11-18): tests/epoch_test.py
+test-no-epoch:
+	python3 tests/epoch_test.py .
+
+# no backward-compatibility path is left in the tree (#109): tests/no-backcompat.sh
+test-no-backcompat:
+	sh tests/no-backcompat.sh .
+
+# the release workflow reads the same-pass list as plugin-hostd does (.github/release-same-pass at the built commit)
+test-same-pass:
+	python3 tests/same_pass_test.py .
 
 # every omx-clap-core-contract range admits the next omx-clap-core minor (the chain releases this protocol first)
 test-clap-core-range:
@@ -332,6 +372,7 @@ gen: $(GEN)
 	python3 tools/abnf-gen.py > grammar/plugin-hostd-protocol.abnf.new && \
 	    mv grammar/plugin-hostd-protocol.abnf.new grammar/plugin-hostd-protocol.abnf
 	python3 tools/reply-words.py > src/reply-words.h.new && mv src/reply-words.h.new src/reply-words.h
+	python3 tools/ts-client-gen.py
 	$(GEN) splice doc/overview.md > doc/overview.md.new && mv doc/overview.md.new doc/overview.md
 	$(MAKE) --no-print-directory protocol-doc
 
@@ -342,6 +383,7 @@ check-generated: $(GEN)
 	python3 tools/protocol-table.py --check; \
 	python3 tools/abnf-gen.py --check; \
 	python3 tools/reply-words.py --check; \
+	python3 tools/ts-client-gen.py --check; \
 	$(GEN) splice doc/overview.md > $$tmp/readme; cmp $$tmp/readme doc/overview.md; \
 	sha256sum -c --quiet $(ABNF_CORPUS)/GRAMMAR.sha256 || { echo "$(ABNF_CORPUS) is not written from this grammar: run make fuzz-abnf-corpus"; exit 1; }; \
 	$(GEN) regions > $$tmp/regions; test -s $$tmp/regions; \
@@ -366,24 +408,37 @@ test-feedback-args: tests/feedback_lines
 	./tests/feedback_lines > tests/feedback_lines.out
 	python3 tests/feedback_args.py protocol/plugin-hostd-protocol.json tests/feedback_lines.out
 
-# protocol.h's X-macro tables keep the arguments their consumers expand them with (tests/macro_compat.c): a row may be
-# added, an argument may not, within a major
-tests/macro_compat: tests/macro_compat.c $(PROTOCOL_HEADERS)
-	$(CC) -Wall -Wextra -Werror -std=gnu99 -Iinclude -o $@ tests/macro_compat.c
+# protocol.h's inline functions read no word past their count and write no byte past their size (tests/bounds_test.c),
+# under AddressSanitizer: an array of exactly count words, a buffer of size 0 before a guard byte (#71, #72)
+tests/bounds_test: tests/bounds_test.c $(PROTOCOL_HEADERS)
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -O1 -g $(SAN) -Iinclude -o $@ tests/bounds_test.c
 
-test-macro-compat: tests/macro_compat
-	./tests/macro_compat >/dev/null
+test-bounds: tests/bounds_test
+	./tests/bounds_test
+
+# phd_number_in's grammar, one named arm a spelling: one spelling a value, the caller's range and no other, a word past
+# the type refused (tests/number_test.c, #73); under the sanitizers, so an overflow in the reading is seen
+tests/number_test: tests/number_test.c $(PROTOCOL_HEADERS)
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -O1 -g $(SAN) -Iinclude -o $@ tests/number_test.c
+
+test-number: tests/number_test
+	./tests/number_test
 
 # every reply of this repository's verbs with a layout is typed and named in the table, and decodes (#19)
 test-reply-args:
 	python3 tests/reply_args.py protocol/plugin-hostd-protocol.json
 
-# the wire's constants, the pin's words and the LV2 workers, in the installed table as protocol.h declares them
 # the protocol's Python client (clients/python/plugin_hostd_client, python3-plugin-hostd-client): NUL framing, split replies,
 # timeout, close, and its newline sabotage (plugin-hostd-protocol issue 45: the owner ships the client)
 .PHONY: test-client
 test-client:
 	python3 tests/client_test.py
+
+# the Python client and codec refuse a NUL at their doors, and the sabotage that turns each off
+.PHONY: test-nul
+test-nul:
+	python3 tests/nul_refusal_test.py
+	sh tests/nul-sabotage.sh
 
 # the protocol's codec (clients/python/plugin_hostd_protocol, python3-plugin-hostd-protocol) on its fixtures, reading the
 # table of this tree and the vocabulary and catalogs this tree stages as install-contract installs them (issue 46)
@@ -392,10 +447,11 @@ test-codec:
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
 	$(MAKE) --no-print-directory install-contract DESTDIR=$$tmp >/dev/null; \
 	PLUGIN_HOSTD_PROTOCOL_TABLE=protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) \
-	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) python3 tests/codec_test.py
-
-test-table-constants:
-	python3 tests/table_constants.py protocol/plugin-hostd-protocol.json protocol/plugin-hostd.json
+	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) python3 tests/codec_test.py; \
+	PLUGIN_HOSTD_PROTOCOL_TABLE=protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) \
+	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) python3 tests/client_codec_test.py; \
+	PLUGIN_HOSTD_PROTOCOL_TABLE=protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) \
+	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) sh tests/client-codec-sabotage.sh
 
 # which refusals are transient: a property of the code in data/verbs.json, in the table and the rendered header (#23)
 test-transient-codes:
@@ -444,6 +500,7 @@ test-generated-sabotage:
 #   check-schema     protocol/plugin-hostd.json against its schema (python3-jsonschema)
 #   test-grammar     the grammar against the scenario corpus, the golden transcript and the table (python abnf)
 OMX_CONTRACT ?= omx-contract
+PYTHON ?= python3
 CONTRACT_SCHEMA_MAJOR = 3
 CONTRACTDIR = $(or $(shell $(PKG_CONFIG) --variable=contractdir omx-contract 2>/dev/null),$(DATADIR)/omx-contract/contract.d)
 INSTALL_CONTRACT_DIR = $(firstword $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/install-contract-dir.sh) $(wildcard $(OMX_CONTRACT_DIR)/tools/install-contract-dir.sh))
@@ -503,7 +560,46 @@ render-verbs check-rendered:
 check-schema:
 	python3 tests/protocol_schema.py protocol/plugin-hostd.json protocol/plugin-hostd.schema.json
 
-PYTHON ?= python3
+# The reply shapes (doc/reply-shapes.md): shapes/reply_<verb>.schema.json, one per typed reply of the table, held to the
+# table and to the replies themselves (test-reply-shapes, python3-jsonschema), and their TypeScript render, ts/shapes/,
+# the one omx-contract's `render --target ts --shapes` writes with its pinned json-schema-to-typescript, committed and
+# published as @openmixer/plugin-hostd-protocol. OMX_CONTRACT_DIR is a checkout of Open-Mixer/omx-contract with `npm ci`
+# run in it (the generator is a dev dependency there, never an installed command).
+#   test-reply-shapes     the schemas against the table, the golden transcript and a sample of every reply form
+#   render-shapes         writes ts/shapes/ from shapes/
+#   check-shapes-render   ts/shapes/ is what render-shapes writes, byte for byte
+#   test-shapes-sabotage  each of the above is red on the fault it guards
+#   test-ts-package       the packed npm package as a consumer imports it, compiled strict
+test-reply-shapes:
+	$(PYTHON) tests/reply_shapes.py protocol/plugin-hostd-protocol.json shapes tests/golden/plugin-hostd-protocol.txt
+
+render-shapes check-shapes-render:
+	@test -f "$(OMX_CONTRACT_DIR)/bin/omx-contract.mjs" || { echo "$@: set OMX_CONTRACT_DIR to a checkout of Open-Mixer/omx-contract with npm ci run in it" >&2; exit 1; }
+	node "$(OMX_CONTRACT_DIR)/bin/omx-contract.mjs" render --target ts --shapes --shapes-dir shapes --out ts $(if $(filter check-shapes-render,$@),--check)
+
+test-shapes-sabotage:
+	PYTHON=$(PYTHON) MAKE=$(MAKE) sh tests/shapes-sabotage.sh
+
+# npm pack, the tarball as a dependency, a strict TypeScript file importing the types by the package's exports
+test-ts-package:
+	sh tests/ts-package.sh
+
+# the TypeScript client (doc/ts-client.md): the transport, the generated vocabulary, curvePoints; node, no dependency
+test-ts-client:
+	node --test tests/ts_client_test.mjs tests/ts_codec_vectors_test.mjs
+
+# the table-driven TypeScript codec (clients/typescript/codec, the package's `.` export, moved from plugin-hostd's clients/ts):
+# built with its locked toolchain, then run on clients/fixtures/codec.json, the file the Python codec runs on, reading the
+# table of this tree and the vocabulary and catalogs this tree stages, as test-codec does. PLUGIN_HOSTD_GROUPING_JSON, when
+# set (CI sets it), also holds GroupingReason to plugin-hostd's data/grouping.json until plugin-hostd#175
+.PHONY: test-ts-codec
+test-ts-codec:
+	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
+	$(MAKE) --no-print-directory install-contract DESTDIR=$$tmp >/dev/null; \
+	npm --prefix clients/typescript/codec ci --no-audit --no-fund; npm --prefix clients/typescript/codec run build; \
+	PLUGIN_HOSTD_PROTOCOL_TABLE=$(abspath protocol/plugin-hostd-protocol.json) PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) \
+	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) npm --prefix clients/typescript/codec test
+
 test-grammar:
 	$(PYTHON) tests/grammar_test.py
 	PYTHON=$(PYTHON) sh tests/grammar-sabotage.sh
@@ -513,9 +609,10 @@ test-grammar:
 version-check:
 	@spec=$$(sed -n 's/^Version: *//p' packaging/$(NAME).spec); \
 	deb=$$(sed -n '1s/^[^(]*(\([0-9][0-9.]*\).*/\1/p' debian/changelog); \
-	test "$$spec" = "$(VERSION)" && test "$$deb" = "$(VERSION)" \
-	    || { echo "VERSION $(VERSION), spec $$spec, debian/changelog $$deb"; exit 1; }; \
-	echo "version $(VERSION) in VERSION, the spec and debian/changelog"
+	npm=$$(sed -n 's/^  "version": *"\([^"]*\)".*/\1/p' package.json); \
+	test "$$spec" = "$(VERSION)" && test "$$deb" = "$(VERSION)" && test "$$npm" = "$(VERSION)" \
+	    || { echo "VERSION $(VERSION), spec $$spec, debian/changelog $$deb, package.json $$npm"; exit 1; }; \
+	echo "version $(VERSION) in VERSION, the spec, debian/changelog and package.json"
 
 # ---------------------------------------------------------------------------------------------------------------------
 # libFuzzer harnesses (fuzz/README.md), built with clang: `make fuzz`, `make fuzz-run FUZZ_TIME=60`
@@ -591,9 +688,32 @@ fuzz-coverage: $(FUZZ_HARNESSES:%=$(FUZZ_COV_BUILD)/fuzz_%)
 clean:
 	rm -rf src/*.o $(LIB_SO) $(LIB_SONAME) $(LIB_FILE) $(TEST_PROGS) build
 
-.PHONY: test-clap-core-range gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-property-rows test-mod-host-json test-generated-sabotage test-default-lv2-worker test-served-render-ci \
+.PHONY: test-no-fedora44 gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-property-rows test-mod-host-json test-generated-sabotage test-default-lv2-worker test-served-render-ci \
         check-protocol-tools install-contract check-contract-dir render-verbs check-rendered test-rendered-sabotage \
-        check-schema test-grammar test-code-text test-code-text-sabotage
+        check-schema test-grammar test-code-text test-code-text-sabotage test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client
 .PHONY: all install test test-protocol test-protocol-commands test-utils test-socket test-bind test-golden \
         test-golden-modhost golden-update golden-modhost test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-runner test-hello-sabotage test-bind-sabotage test-install test-abi \
         abi-symbols abi-stage abi-baseline abi-check version-check fuzz fuzz-run fuzz-corpus fuzz-corpus-check fuzz-abnf-corpus test-abnf-corpus fuzz-sabotage fuzz-records fuzz-coverage clean
+
+# The dependency floors are written once, in packaging/deps.txt; the spec and debian/control are generated from it with
+# Open-Mixer/.github's deps-render. make deps writes them, make deps-check refuses drift (name a checkout of that
+# repository: make deps-check DOTGITHUB=<dir>).
+DOTGITHUB ?=
+.PHONY: deps deps-check
+deps:
+	@test -n "$(DOTGITHUB)" || { echo "$@: name a checkout of Open-Mixer/.github: make $@ DOTGITHUB=<dir>" >&2; exit 2; }
+	$(DOTGITHUB)/.github/actions/deps-render/render.sh --write .
+deps-check:
+	@test -n "$(DOTGITHUB)" || { echo "$@: name a checkout of Open-Mixer/.github: make $@ DOTGITHUB=<dir>" >&2; exit 2; }
+	$(DOTGITHUB)/.github/actions/deps-render/render.sh --check .
+
+# the conf keys declare no qualification directory: the daemon reads qualifications through libplugin-qualification-db
+TEST_PROGS += tests/conf_keys_test
+tests/conf_keys_test: tests/conf_keys_test.c $(PROTOCOL_HEADERS)
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -Iinclude -o $@ tests/conf_keys_test.c
+
+test-conf-keys: tests/conf_keys_test
+	./tests/conf_keys_test
+
+test: test-conf-keys
+.PHONY: test-conf-keys

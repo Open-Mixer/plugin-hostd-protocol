@@ -11,14 +11,14 @@ grammar written from them.
 
 ## Install
 
-Fedora 44:
+Fedora 45, x86_64:
 
 ```
 sudo dnf install https://www.openmixer.org/rpm/openmixer-release.noarch.rpm
 sudo dnf install plugin-hostd-protocol-devel
 ```
 
-Debian bookworm and trixie (also Raspberry Pi OS and Zynthian):
+Debian trixie, arm64 (also Raspberry Pi OS and Zynthian):
 
 ```
 curl -fsSLO https://www.openmixer.org/deb/openmixer-release.deb && sudo apt install ./openmixer-release.deb

@@ -16,11 +16,35 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  fuzz:
-    name: fuzz the protocol, the dispatcher and the scenarios
+  # the Fedora cells fuzz runs: check-matrix's answer (rule 11-10: fc45;
+  # the quick set while a release wave is open, the whole matrix declared here otherwise)
+  checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      rpm: ${{ steps.m.outputs.rpm }}
+      rpm-count: ${{ steps.m.outputs.rpm-count }}
+    steps:
+      - id: m
+        uses: Open-Mixer/.github/.github/actions/check-matrix@openmixer-v1
+        with:
+          wave: ${{ vars.OMX_RELEASE_MATRIX }}
+          rpm-releases: '["45"]'
+          rpm-arches: '["x86_64"]'
+          x86-runner: ${{ vars.OMX_RUNNER || 'ubuntu-latest' }}
+
+  fuzz:
+    needs: checks
+    if: needs.checks.outputs.rpm-count != '0'
+    name: fuzz the protocol, the dispatcher and the scenarios (${{ matrix.cell.image }})
+    runs-on: ${{ matrix.cell.runner }}
     timeout-minutes: 20
-    container: fedora:44
+    strategy:
+      fail-fast: false
+      matrix:
+        cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
+    container:
+      image: ${{ matrix.cell.image }}
     steps:
       - name: clang, libFuzzer and the sanitizer runtimes
         run: dnf -y install --setopt=install_weak_deps=False --setopt=retries=10 clang compiler-rt llvm gcc make git diffutils
@@ -30,7 +54,7 @@ jobs:
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
       - name: omx-dsp's curve function, which the dispatcher draws with
-        run: dnf -y install 'omx-dsp-devel >= 0.32.1' 'omx-dsp-devel < 0.33'
+        run: dnf builddep -y --setopt=install_weak_deps=False packaging/plugin-hostd-protocol.spec
       # a scenario or a generator change not followed by make fuzz-corpus is red in its own pull request (#33); after the
       # dependencies, which the Makefile asks pkg-config for when it is read
       - name: The seed corpus is what fuzz/gen-corpus.sh writes
@@ -49,6 +73,6 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: fuzz-findings
+          name: fuzz-findings-fc${{ matrix.cell.fedora }}-${{ matrix.cell.arch }}
           path: build/fuzz/artifacts/
           if-no-files-found: ignore

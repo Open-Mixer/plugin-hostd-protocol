@@ -1,0 +1,64 @@
+{
+  "name": "@openmixer/plugin-hostd-protocol",
+  "version": "0.7.0",
+  "description": "The plugin-hostd protocol's reply shapes (a JSON Schema and a TypeScript type for each document a reply carries, rendered from the schemas by omx-contract's pinned generator) and its thin TypeScript client: the transport, the generated vocabulary and curvePoints",
+  "license": "GPL-3.0-or-later",
+  "author": "Pau Aliagas <linuxnow@gmail.com>",
+  "homepage": "https://www.openmixer.org/projects/plugin-hostd-protocol",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Open-Mixer/plugin-hostd-protocol.git"
+  },
+  "exports": {
+    ".": {
+      "types": "./clients/typescript/codec/dist/index.d.ts",
+      "default": "./clients/typescript/codec/dist/index.js"
+    },
+    "./shapes/*": {
+      "types": "./ts/shapes/*.d.ts"
+    },
+    "./schemas/*": "./shapes/*.schema.json",
+    "./client": {
+      "types": "./clients/typescript/client.d.mts",
+      "default": "./clients/typescript/client.mjs"
+    },
+    "./lines": {
+      "types": "./clients/typescript/lines.d.mts",
+      "default": "./clients/typescript/lines.mjs"
+    },
+    "./vocabulary": {
+      "types": "./clients/typescript/vocabulary.d.mts",
+      "default": "./clients/typescript/vocabulary.mjs"
+    },
+    "./codec-vectors": "./clients/fixtures/codec.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "ts/shapes/",
+    "clients/typescript/",
+    "clients/fixtures/codec.json",
+    "shapes/",
+    "COPYING",
+    "clients/typescript/codec/package.json",
+    "clients/typescript/codec/dist/index.js",
+    "clients/typescript/codec/dist/index.d.ts",
+    "clients/typescript/codec/dist/cli.js",
+    "clients/typescript/codec/dist/cli.d.ts"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bin": {
+    "plugin-hostd-codec": "clients/typescript/codec/dist/cli.js"
+  },
+  "dependencies": {
+    "@openmixer/omx-contract": ">=3.18.0"
+  },
+  "scripts": {
+    "prepack": "npm --prefix clients/typescript/codec ci --no-audit --no-fund && npm --prefix clients/typescript/codec run build"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

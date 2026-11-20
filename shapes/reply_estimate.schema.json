@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/schema/plugin-hostd-protocol/reply_estimate.schema.json",
+  "title": "EstimateReply",
+  "description": "The parsed form of a estimate reply (a chain's cost estimate): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "latency_frames": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The chain's latency in frames."
+    },
+    "cpu_percent": {
+      "type": "number",
+      "description": "The estimated CPU load in percent."
+    },
+    "ram_bytes": {
+      "type": "string",
+      "pattern": "^(?:-|[0-9]+)$",
+      "description": "The estimated memory in bytes, or - when none is known."
+    },
+    "workers": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The workers the chain needs."
+    },
+    "unknown_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "How many members have no figure."
+    },
+    "unknown": {
+      "type": "array",
+      "description": "The members with no figure, each its position and its code.",
+      "items": {
+        "type": "object",
+        "title": "MemberCode",
+        "description": "A member with no figure.",
+        "properties": {
+          "position": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The member's position in the line."
+          },
+          "code": {
+            "type": "integer",
+            "description": "The code that says why there is no figure."
+          }
+        },
+        "required": [
+          "position",
+          "code"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "ram_used_bytes": {
+      "type": "string",
+      "pattern": "^(?:-|[0-9]+)$",
+      "description": "The memory in use in bytes, or -."
+    },
+    "ram_added_bytes": {
+      "type": "string",
+      "pattern": "^(?:-|[0-9]+)$",
+      "description": "The memory the chain adds in bytes, or -."
+    },
+    "ram_budget_bytes": {
+      "type": "string",
+      "pattern": "^(?:-|[0-9]+)$",
+      "description": "The memory budget in bytes, or -."
+    },
+    "ram_unknown_count": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "How many members have no memory figure."
+    }
+  },
+  "required": [
+    "latency_frames",
+    "cpu_percent",
+    "ram_bytes",
+    "workers",
+    "unknown_count",
+    "unknown",
+    "ram_used_bytes",
+    "ram_added_bytes",
+    "ram_budget_bytes",
+    "ram_unknown_count"
+  ],
+  "additionalProperties": false
+}

@@ -24,6 +24,9 @@ modhostjson=${protocoldir}/mod-host.json
 # the source of the generator of protocoljson: a consumer that checks its own pages against a changed copy of the
 # headers builds it against that copy (cc -I<copy> <omx-contract cflags> protocol-gen.c; protocol-gen json)
 protocolgen=${protocoldir}/protocol-gen.c
+# the reply shapes (doc/reply-shapes.md): a JSON Schema 2020-12 document per reply the table types, shapes/reply_<verb>.schema.json,
+# for a reader that validates a parsed reply; the types of them are the npm package @openmixer/plugin-hostd-protocol
+shapesdir=${protocoldir}/shapes
 
 Name: plugin-hostd-protocol
 Description: The plugin-hostd protocol: socket server, line protocol and command dispatch, a superset of mod-host's

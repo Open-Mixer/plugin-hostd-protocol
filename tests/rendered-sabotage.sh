@@ -13,7 +13,7 @@ MAKE=${MAKE:-make}
 fresh() {
     rm -rf "$work/tree"
     mkdir -p "$work/tree"
-    cp -r Makefile VERSION include data "$work/tree/"
+    cp -r Makefile VERSION include data packaging "$work/tree/"
 }
 
 check() {
@@ -40,6 +40,9 @@ arm "plugin-hostd's verbs header by hand" include/plugin-hostd/plugin_hostd_prot
 arm "the reply codes header by hand" include/plugin-hostd/plugin_hostd_protocol_vocabulary.h '(-522)' '(-599)'
 arm "omx-clap-core's verbs header by hand" include/plugin-hostd/omx_clap_core_host_verbs.h '"note_on %i %i %i %i"' '"note_on %i %i %i"'
 arm "plugin-db's words header by hand" include/plugin-hostd/plugin_db_vocabulary.h '"isolated"' '"alone"'
+# plugin-db 0.4.7 moved the address-format words to its domain document (#47), which renders no words: a render that
+# takes them from data/db.json again leaves this define in the header
+arm "address-format words taken from db.json" include/plugin-hostd/plugin_db_vocabulary.h '\/\* PLUGIN_DB_BUNDLE_RULES' '#define OMX_PLUGIN_DB_ADDRESS_FORMATS_CLAP "clap"\n\/* PLUGIN_DB_BUNDLE_RULES'
 arm "verbs.json not rendered" data/verbs.json '"format": "chain_get %i"' '"format": "chain_get %i %i"'
 
 [ "$failed" = 0 ] && echo "rendered sabotage ok" || { echo "rendered sabotage FAILED"; exit 1; }

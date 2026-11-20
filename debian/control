@@ -1,18 +1,9 @@
+# The dependency floors in this file are GENERATED from packaging/deps.txt by Open-Mixer/.github deps-render (render.sh --write).
 Source: plugin-hostd-protocol
 Section: libs
 Priority: optional
 Maintainer: Pau Aliagas <linuxnow@gmail.com>
-Build-Depends: debhelper-compat (= 13),
-               libomx-contract-dev (>= 3.18.0~),
-               libomx-contract-dev (<< 4~),
-               omx-clap-core-contract (>= 0.32.3~),
-               omx-clap-core-contract (<< 0.34~),
-               omx-contract-data (>= 3.16.0~),
-               omx-contract-data (<< 4~),
-               libomxdsp-dev (>= 0.32.1~),
-               libomxdsp-dev (<< 0.33~),
-               pkgconf,
-               python3
+Build-Depends: debhelper-compat (= 13), libomx-contract-dev (>= 3.19.1~), omx-clap-core-contract (>= 0.32.3~), omx-contract-data (>= 3.16.0~), plugin-db-contract (>= 0.4.4~), libomxdsp-dev (>= 0.32.4~), pkgconf, python3
 Standards-Version: 4.6.2
 Homepage: https://github.com/Open-Mixer/plugin-hostd-protocol
 Vcs-Git: https://github.com/Open-Mixer/plugin-hostd-protocol.git
@@ -51,7 +42,7 @@ Package: python3-plugin-hostd-client
 Architecture: all
 Multi-Arch: foreign
 Section: python
-Depends: python3, ${misc:Depends}
+Depends: python3, python3-plugin-hostd-protocol (= ${source:Version}), ${misc:Depends}
 Description: plugin-hostd line protocol, its Python client
  plugin_hostd_client, the Python client of the plugin-hostd line protocol: a
  command is one line ended by a NUL, a reply one NUL-ended line; send,
@@ -67,11 +58,7 @@ Package: python3-plugin-hostd-protocol
 Architecture: all
 Multi-Arch: foreign
 Section: python
-Depends: python3, libplugin-hostd-protocol0 (>= 0.5.8~), libplugin-hostd-protocol0 (<< 0.6~),
-         plugin-hostd-protocol-contract (>= 0.5.8~), plugin-hostd-protocol-contract (<< 0.6~),
-         omx-clap-core-contract (>= 0.32.3~), omx-clap-core-contract (<< 0.34~),
-         omx-contract (>= 3.12.0~), omx-contract (<< 4~),
-         omx-contract-data (>= 3.16.0~), omx-contract-data (<< 4~), ${misc:Depends}
+Depends: python3, libplugin-hostd-protocol0 (>= 0.5.8~), plugin-hostd-protocol-contract (>= 0.5.8~), omx-clap-core-contract (>= 0.32.3~), omx-contract (>= 3.19.1~), omx-contract-data (>= 3.16.0~), ${misc:Depends}
 Description: plugin-hostd protocol, its Python codec
  plugin_hostd_protocol: one codec over the files plugin-hostd-protocol
  installs, which encodes and decodes every command the protocol declares,
@@ -80,21 +67,17 @@ Description: plugin-hostd protocol, its Python codec
  nothing; the npm package @openmixer/plugin-hostd-client is the same codec in
  TypeScript. The transport is plugin_hostd_client.
  .
- This is the one package of the source with an epoch (1:): plugin-hostd 0.20.6
- and before built a package of this name at its own version, 0.20.x, which
- sorts above 0.5.x. Its documentation is on openmixer.org.
+ Its documentation is on openmixer.org.
 
 Package: plugin-hostd-protocol-contract
 Architecture: all
 Multi-Arch: foreign
-Depends: omx-contract (>= 3.18.0~), omx-contract (<< 4~), ${misc:Depends}
-Breaks: plugin-hostd-contract (<< 0.16.0~)
+Depends: omx-contract (>= 3.19.1~), ${misc:Depends}
 Description: plugin-hostd protocol, its verbs in omx-contract's contract directory
  data/verbs.json of plugin-hostd-protocol, the verbs and reply codes
  plugin-hostd adds to mod-host's protocol, as the package plugin-hostd-protocol
  of omx-contract's contract directory, under
- /usr/share/omx-contract/contract.d/3/plugin-hostd-protocol. plugin-hostd
- before 0.16.0 carried the same items in its own package.
+ /usr/share/omx-contract/contract.d/3/plugin-hostd-protocol.
  .
  Its documentation is on openmixer.org.
 
@@ -103,8 +86,6 @@ Package: plugin-hostd-protocol-l10n-ca
 Section: localization
 Architecture: all
 Depends: plugin-hostd-protocol-contract (= ${source:Version}), ${misc:Depends}
-Breaks: plugin-hostd-protocol-contract (<< 0.5.6~)
-Replaces: plugin-hostd-protocol-contract (<< 0.5.6~)
 Description: ca catalog of plugin-hostd-protocol's codes
  The sentences of plugin-hostd-protocol's codes in the language ca, read by
  every surface that shows them on a host in that locale; without it a surface

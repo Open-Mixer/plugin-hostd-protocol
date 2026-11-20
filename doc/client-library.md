@@ -35,7 +35,7 @@ value holding a control character, a newline included, has no spelling and is re
 refusal is one of `protocol_errors`. The client sends `hello` with the extensions it wants and uses only those
 granted.
 
-**Where the TypeScript lives.** In this repository, beside the JSON it is generated from, with the Python.
+**Where the TypeScript lives.** In this repository, beside the JSON it is generated from, with the Python: [ts-client.md](ts-client.md).
 
 ## Divergences, as the code stands
 
