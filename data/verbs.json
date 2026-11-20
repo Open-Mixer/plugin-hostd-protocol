@@ -7,7 +7,7 @@
   "PLUGIN_HOSTD_REPLY_CODES": {
     "kind": "codes",
     "since": "0.12.0",
-    "doc": "The refusals only plugin-hostd answers by number (include/plugin-hostd/protocol.h PHD_ERRORS), and the curve verbs' own, which any host that registers them through this library answers. The numbers it answers in common with omx-clap-host are omx-clap-core's HOST_REPLY_CODES.",
+    "doc": "The refusals only plugin-hostd answers by number (include/plugin-hostd/protocol.h PHD_ERRORS), and the curve verbs' own, which any host that registers them through this library answers. The numbers it answers in common with omx-clap-host are omx-clap's HOST_REPLY_CODES.",
     "codes": {
       "placementInvalid": {
         "code": "reply.plugin-hostd.placement-invalid",

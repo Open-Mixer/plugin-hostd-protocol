@@ -51,7 +51,7 @@ HEADERS = include/host-backend.h include/host-dispatch.h include/host-errors.h i
           include/host-scenario.h include/protocol.h include/socket.h include/utils.h
 
 # the declared protocol (doc/protocol.md): plugin-hostd's protocol.h and the headers it includes, rendered by
-# omx-contract from data/verbs.json and from omx-clap-core's and plugin-db's packages of the contract directory; installed under
+# omx-contract from data/verbs.json and from omx-clap's and plugin-db's packages of the contract directory; installed under
 # <includedir>/plugin-hostd-protocol/plugin-hostd/, so a consumer includes <plugin-hostd/protocol.h> with this package's
 # Cflags. src/protocol.c reads the protocol version, hello's line and the extensions hello grants from them.
 RENDERED = include/plugin-hostd/plugin_hostd_protocol_host_verbs.h include/plugin-hostd/plugin_hostd_protocol_vocabulary.h \
@@ -175,7 +175,7 @@ test-no-backcompat:
 test-same-pass:
 	python3 tests/same_pass_test.py .
 
-# every omx-clap-contract range admits the next omx-clap-core minor (the chain releases this protocol first)
+# every omx-clap-contract range admits the next omx-clap minor (the chain releases this protocol first)
 test-clap-core-range:
 	python3 tests/clap_core_range.py .
 
@@ -504,9 +504,9 @@ test-generated-sabotage:
 
 # The checks that need tools a package build does not: run by CI (.github/workflows/ci.yml, job protocol).
 #   check-rendered   the four rendered headers are what omx-contract renders from data/verbs.json (staged as the
-#                    package plugin-hostd-protocol of the contract directory) and from omx-clap-core's installed package;
+#                    package plugin-hostd-protocol of the contract directory) and from omx-clap's installed package;
 #                    test-rendered-sabotage holds it to failing. A contract directory named first on OMX_CONTRACT_PATH
-#                    outranks the installed one: CI stages omx-clap-core's data/ from its source there
+#                    outranks the installed one: CI stages omx-clap's data/ from its source there
 #   check-contract-dir  that staged package validates with the installed contract directory
 #   check-schema     protocol/plugin-hostd.json against its schema (python3-jsonschema)
 #   test-grammar     the grammar against the scenario corpus, the golden transcript and the table (python abnf)
@@ -536,7 +536,7 @@ check-contract-dir:
 	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) validate --installed --catalogs catalogs
 
 # the catalogs through omx-contract's release gate (translate --check, 3.16.0): every listed language has its catalog,
-# no key is missing and no entry is stale. This tree's items name omx-clap-core's reply codes, so they are read from
+# no key is missing and no entry is stale. This tree's items name omx-clap's reply codes, so they are read from
 # its contract staged as check-contract-dir stages it (#15).
 check-catalogs:
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
@@ -562,7 +562,7 @@ render-verbs check-rendered:
 	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
 	  $(OMX_CONTRACT) render --target c --package omx-clap --installed --out $$tmp; \
 	for f in omx_clap_host_verbs.h omx_clap_vocabulary.h; do \
-	  $(if $(filter check-rendered,$@),diff -u include/plugin-hostd/$$f $$tmp/$$f >&2 || { echo "include/plugin-hostd/$$f is not the render of omx-clap-core's package" >&2; exit 1; },cp $$tmp/$$f include/plugin-hostd/$$f); \
+	  $(if $(filter check-rendered,$@),diff -u include/plugin-hostd/$$f $$tmp/$$f >&2 || { echo "include/plugin-hostd/$$f is not the render of omx-clap's package" >&2; exit 1; },cp $$tmp/$$f include/plugin-hostd/$$f); \
 	done
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
 	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \

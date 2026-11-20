@@ -246,7 +246,7 @@ cmd-monitor-output       = %s"monitor_output" SP int SP word
 cmd-output-data-ready    = %s"output_data_ready"
 ; mod-host: include/mod-host.h EFFECT_PARAM_GET
 cmd-param-get            = %s"param_get" SP int SP word
-; mod-host: include/mod-host.h PARAM_INFO; extended by omx-clap-core
+; mod-host: include/mod-host.h PARAM_INFO; extended by omx-clap
 cmd-param-info           = %s"param_info" SP int SP word
 ; mod-host: include/mod-host.h EFFECT_PARAM_MON
 cmd-param-monitor        = %s"param_monitor" SP int SP word SP word SP float
@@ -265,9 +265,9 @@ cmd-preset-save          = %s"preset_save" SP int SP word SP word SP word
 cmd-preset-show          = (%s"preset_show" SP word) / (%s"preset_show" SP int SP word)
 ; mod-host: include/mod-host.h QUIT
 cmd-quit                 = %s"quit"
-; mod-host: include/mod-host.h REMOTE_PAGE_GET; extended by omx-clap-core
+; mod-host: include/mod-host.h REMOTE_PAGE_GET; extended by omx-clap
 cmd-remote-page-get      = %s"remote_page_get" SP int SP int
-; mod-host: include/mod-host.h REMOTE_PAGES; extended by omx-clap-core
+; mod-host: include/mod-host.h REMOTE_PAGES; extended by omx-clap
 cmd-remote-pages         = %s"remote_pages" SP int
 ; mod-host: include/mod-host.h EFFECT_REMOVE
 cmd-remove               = %s"remove" SP int
@@ -285,41 +285,41 @@ cmd-state-load           = %s"state_load" SP word
 cmd-state-save           = %s"state_save" SP word
 ; mod-host: include/mod-host.h STATE_TMPDIR
 cmd-state-tmpdir         = %s"state_tmpdir" SP word
-; mod-host: include/mod-host.h TRACK_INFO; extended by omx-clap-core
+; mod-host: include/mod-host.h TRACK_INFO; extended by omx-clap
 cmd-track-info           = %s"track_info" SP int SP word SP word tail
 ; mod-host: include/mod-host.h TRANSPORT
 cmd-transport            = %s"transport" SP int SP float SP float
 ; mod-host: include/mod-host.h TRANSPORT_SYNC
 cmd-transport-sync       = %s"transport_sync" SP word
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
 cmd-all-notes-off        = %s"all_notes_off" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_HOST_VERBS
 cmd-audio-ports          = %s"audio_ports" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS; sent by the daemon to a worker
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS; sent by the daemon to a worker
 cmd-chain-expect         = %s"chain_expect" SP int SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_HOST_VERBS
 cmd-hide-external-ui     = %s"hide_external_ui" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_HOST_VERBS
 cmd-idle-hold            = %s"idle_hold" tail
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_HOST_VERBS
 cmd-note-drops           = %s"note_drops" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
 cmd-note-input           = %s"note_input" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
 cmd-note-off             = %s"note_off" SP int SP int SP int SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
 cmd-note-on              = %s"note_on" SP int SP int SP int SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_HOST_VERBS
 cmd-note-out-drops       = %s"note_out_drops" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS; sent by the daemon to a worker
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS; sent by the daemon to a worker
 cmd-pin-expect           = %s"pin_expect" SP int SP word
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
 cmd-property-get         = %s"property_get" SP int SP word
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
 cmd-property-info        = %s"property_info" SP int SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
 cmd-property-list        = %s"property_list" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: omx-clap data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
 cmd-property-set         = %s"property_set" SP int SP word SP quoted-escaped
 ; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.chain
 cmd-chain                = %s"chain" SP int SP int tail

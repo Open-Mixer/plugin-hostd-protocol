@@ -38,7 +38,7 @@ fresh
 if check; then echo "ok   control: the copy as it is passes"; else echo "FAIL control: the copy as it is fails"; cat "$work/log"; failed=1; fi
 arm "plugin-hostd's verbs header by hand" include/plugin-hostd/plugin_hostd_protocol_host_verbs.h '"chain_get %i"' '"chain_get %s"'
 arm "the reply codes header by hand" include/plugin-hostd/plugin_hostd_protocol_vocabulary.h '(-522)' '(-599)'
-arm "omx-clap-core's verbs header by hand" include/plugin-hostd/omx_clap_host_verbs.h '"note_on %i %i %i %i"' '"note_on %i %i %i"'
+arm "omx-clap's verbs header by hand" include/plugin-hostd/omx_clap_host_verbs.h '"note_on %i %i %i %i"' '"note_on %i %i %i"'
 arm "plugin-db's words header by hand" include/plugin-hostd/plugin_db_vocabulary.h '"isolated"' '"alone"'
 # plugin-db 0.4.7 moved the address-format words to its domain document (#47), which renders no words: a render that
 # takes them from data/db.json again leaves this define in the header

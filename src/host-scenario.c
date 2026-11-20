@@ -43,7 +43,7 @@
 #include "protocol.h"
 #include "socket.h"
 #include "utils.h"
-// the declared verbs and what each host owes them (data/verbs.json, omx-clap-core's package)
+// the declared verbs and what each host owes them (data/verbs.json, omx-clap's package)
 #include "plugin-hostd/plugin_hostd_protocol_host_verbs.h"
 #include "plugin-hostd/omx_clap_host_verbs.h"
 

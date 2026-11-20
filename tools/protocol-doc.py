@@ -5,7 +5,7 @@
 # doc/protocol.md, the wire protocol as a reader outside this tree reads it, written from the data the tree already
 # holds and checks: the verb table (protocol/plugin-hostd-protocol.json) and what it is merged from,
 # protocol/plugin-hostd.json and protocol/mod-host.json (generated, check-generated), data/verbs.json and the headers
-# omx-contract renders from it and from omx-clap-core's package (check-rendered); the grammar written from the table
+# omx-contract renders from it and from omx-clap's package (check-rendered); the grammar written from the table
 # (grammar/plugin-hostd-protocol.abnf), the JSON schema, the install rule of the Makefile, the overview's generated
 # host-verbs region, the Path A evidence of doc/mod-ui-verbs.tsv, and mod-host's own command reference
 # (doc/mod-host-commands.md, kept as mod-host wrote it). Nothing in the page is typed here but headings and sentences
@@ -74,7 +74,7 @@ def table(head, rows):
 # ---- reply codes: one name and meaning per number, from the declarations that own it ----
 
 def host_codes():
-    """omx-clap-core's HOST_REPLY_CODES as rendered: camel name -> (resp, code word, meaning)"""
+    """omx-clap's HOST_REPLY_CODES as rendered: camel name -> (resp, code word, meaning)"""
     text = read(VOCAB_H)
     out = {}
     for m in re.finditer(r'#define OMX_REPLY_HOST_([A-Z0-9_]+) "([^"]+)"(?: ///< (.*))?\n#define OMX_REPLY_HOST_\1_RESP \((-?\d+)\)',
@@ -126,7 +126,7 @@ def codes_cell(resps):
 # ---- the verbs each declaration holds ----
 
 def shared_verbs():
-    """omx-clap-core's verbs as rendered: word -> {format, codes, levels by host}"""
+    """omx-clap's verbs as rendered: word -> {format, codes, levels by host}"""
     text = read(SHARED_H)
     hosts = re.search(r"#define OMX_HOST_VERB_HOSTS_INIT \{ (.*) \}", text)
     if not hosts:
@@ -827,7 +827,7 @@ def page():
     w("-------------------------------")
     w("")
     w("Each is declared in `protocol/plugin-hostd.json`; the formats, codes and hosts come from `data/verbs.json`, or "
-      "from omx-clap-core's verb table for a verb the two hosts share. A verb whose meaning begins \"sent by the daemon "
+      "from omx-clap's verb table for a verb the two hosts share. A verb whose meaning begins \"sent by the daemon "
       "to a worker\" is the daemon's to a worker, never a controller's.")
     w("")
     ours = [v for v in list(PHD["verbs"]) + list(PHD["instance_verbs"]) if v["name"] not in MOD_COMMANDS]
@@ -914,7 +914,7 @@ def page():
     w("mod-host's reply codes (`host-errors.h`): " + "; ".join(
         f"{e['value']} {e['name']}" for e in MOD["host_errors"]) + ".")
     w("")
-    w("The codes omx-clap-host answers too (omx-clap-core's `reply.host.*`):")
+    w("The codes omx-clap-host answers too (omx-clap's `reply.host.*`):")
     w("")
     w("\n".join(table(["resp", "code", "meaning"],
                       [[str(r), code(word), cell(meaning)] for r, word, meaning in sorted(HOST_CODES.values(),
