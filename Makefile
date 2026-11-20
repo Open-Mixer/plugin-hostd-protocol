@@ -157,7 +157,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -593,8 +593,8 @@ test-ts-client:
 
 # the table-driven TypeScript codec (clients/typescript/codec, the package's `.` export, moved from plugin-hostd's clients/ts):
 # built with its locked toolchain, then run on clients/fixtures/codec.json, the file the Python codec runs on, reading the
-# table of this tree and the vocabulary and catalogs this tree stages, as test-codec does. PLUGIN_HOSTD_GROUPING_JSON, when
-# set (CI sets it), also holds GroupingReason to plugin-hostd's data/grouping.json until plugin-hostd#175
+# table of this tree and the vocabulary and catalogs this tree stages, as test-codec does. GroupingReason and RETRY_REASONS are
+# held to the 16 golden reasons (clients/fixtures/grouping-reasons.txt)
 .PHONY: test-ts-codec
 test-ts-codec:
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
@@ -739,3 +739,17 @@ test-pin-words:
 .PHONY: test-param-scales
 test-param-scales:
 	CC='$(CC)' OMX_CONTRACT_PATH='$(CURDIR)/tests/fixtures/contract.d' python3 tests/param_scales_test.py
+
+# GroupingReason and RETRY_REASONS of both clients are written by tools/grouping-reasons.py from plugin-hostd's domain
+# plugin-hostd/grouping, and held to the 16 golden reasons (tests/grouping_reasons_test.py, which reads
+# tests/fixtures/contract.d, the interface of the domain, until plugin-hostd installs it).
+#   grouping-reasons         writes both blocks from the installed domain (OMX_CONTRACT_PATH, then the installed directory)
+#   check-grouping-domain    both blocks are what the INSTALLED domain gives; not part of `make test`: plugin-hostd builds against
+#                            this package, so the installed plugin-hostd-contract carries the domain only after plugin-hostd's release
+.PHONY: test-grouping-reasons grouping-reasons check-grouping-domain
+test-grouping-reasons:
+	OMX_CONTRACT_PATH='$(CURDIR)/tests/fixtures/contract.d' python3 tests/grouping_reasons_test.py
+grouping-reasons:
+	python3 tools/grouping-reasons.py
+check-grouping-domain:
+	python3 tools/grouping-reasons.py --check

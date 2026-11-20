@@ -220,8 +220,7 @@ NONE = "-"
 # the largest count both clients hold exactly (a double's whole numbers)
 _SAFE = 2 ** 53 - 1
 
-# the reasons a plan gives: plugin-hostd declares them (PLUGIN_HOSTD_GROUPING_REASONS in its data/grouping.json) and
-# its tests hold this block to that file, each declared reason to its constant and each constant to a declared reason
+# BEGIN GENERATED grouping-reasons (tools/grouping-reasons.py, from plugin-hostd's domain plugin-hostd/grouping): do not edit
 class GroupingReason:
     """The reasons a plan gives (PLUGIN_HOSTD_GROUPING_REASONS): a controller compares against these and writes no
     reason word of its own. plan_get answers them as instance:reason; a plan-refused is followed by a colon and the
@@ -246,8 +245,9 @@ class GroupingReason:
 
 
 # the reasons of a plan that a later plan may not give again with the chain as it is: the reasons that declare
-# the group retry in the file, read from it and chosen nowhere in code
+# the group retry in the domain, read from it and chosen nowhere in code
 RETRY_REASONS = (GroupingReason.NO_VERDICT, GroupingReason.PLAN_REFUSED)
+# END GENERATED grouping-reasons
 
 
 class Names:

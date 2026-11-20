@@ -936,7 +936,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(PLAN_GET, OMX_VERB_PLAN_GET, "<chain>", OMX_VERB_PLAN_GET_REPLY, \
       "read the last plan of a chain back: its segments as " OMX_VERB_PLAN " answered them, then the members that have " \
       "a reason, instance:reason joined by commas (" PHD_WORD_NONE " for none); the reasons are the words of " \
-      "PLUGIN_HOSTD_GROUPING_REASONS (data/grouping.json), then the cores of the members as " OMX_VERB_PLAN " answers " \
+      "PLUGIN_HOSTD_GROUPING_REASONS (domain plugin-hostd/grouping), then the cores of the members as " OMX_VERB_PLAN " answers " \
       "them; -532 for a chain no " OMX_VERB_PLAN " planned, -902 for a chain that is not a number") \
     X(PLAN_CLEAR, OMX_VERB_PLAN_CLEAR, "<chain>", OMX_VERB_PLAN_CLEAR_REPLY, \
       "forget the plan: each member goes to a worker of its own; -532 for a chain no " OMX_VERB_PLAN " planned") \
