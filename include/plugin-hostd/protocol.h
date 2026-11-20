@@ -263,6 +263,7 @@ static inline int phd_has_display(void)
  *
  * @param X the macro each row is passed to.
  */
+/* BEGIN GENERATED PHD_PROBE_OUTCOMES: tools/probe-words-gen.py, from contract.d/probe/probe.json */
 #define PHD_PROBE_OUTCOMES(X) \
     X(OK, "probe.ok", "the step ran to its end") \
     X(CRASHED, "probe.crashed", "the child died of a signal not caused by a limit") \
@@ -282,11 +283,13 @@ static inline int phd_has_display(void)
     X(NOT_ATTEMPTED, "probe.not-attempted", "the protocol did not ask for this step, or it does not apply") \
     X(CHILD_PROTOCOL, "probe.child-protocol", "the child wrote a record outside the step grammar") \
     X(ERROR, "probe.error", "anything else; detail keeps the words")
+/* END GENERATED PHD_PROBE_OUTCOMES */
 
 /** @brief why a run was made, the document's run.reason: X(id, name, meaning)
  *
  * @param X the macro each row is passed to.
  */
+/* BEGIN GENERATED PHD_PROBE_REASONS: tools/probe-words-gen.py, from contract.d/probe/probe.json */
 #define PHD_PROBE_REASONS(X) \
     X(ADD, "add", "a user added the plugin") \
     X(RESCAN, "rescan", "the plugin was offered for a rescan") \
@@ -295,6 +298,7 @@ static inline int phd_has_display(void)
     X(AUTO_MEASURE, "auto-measure", "the machine measures what has no figures when it is idle") \
     X(REFERENCE, "reference", "a reference run on the named rig") \
     X(CI, "ci", "a continuous integration run")
+/* END GENERATED PHD_PROBE_REASONS */
 
 /** @brief the limits a set can ask for: X(id, name, meaning)
  *
@@ -386,6 +390,7 @@ static inline int phd_has_display(void)
  *
  * @param X the macro each row is passed to.
  */
+/* BEGIN GENERATED PHD_PROBE_STEPS: tools/probe-words-gen.py, from contract.d/probe/probe.json */
 #define PHD_PROBE_STEPS(X) \
     X(HASH, "hash", "the files the host loads, pinned") \
     X(SCAN, "scan", "the plugin's descriptor read") \
@@ -396,6 +401,7 @@ static inline int phd_has_display(void)
     X(RT_SAFETY, "rt-safety", "what process() does under the interposer") \
     X(NOTE_SWEEP, "note-sweep", "a note input played") \
     X(SOAK, "soak", "a long render")
+/* END GENERATED PHD_PROBE_STEPS */
 
 /** @brief tells whether a string is a pool name
  *
