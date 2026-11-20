@@ -153,7 +153,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-curve-words test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -292,6 +292,13 @@ tests/hello_test: tests/hello_test.c tests/test-client.h $(SRC) $(HEADERS) $(PRO
 # the curve verbs (tests/curve_test.c): curve_points is omx_curve_points over the values the instance holds, a binding
 # kept, replaced, started again and dropped with its instance, each refusal by its code
 CURVE_PORT ?= 15596
+# the grammar's curve-origin and curve-leg alternatives are omx-dsp's words, read from its installed omx_curve.h, and the
+# sabotage that drops and adds one of each
+.PHONY: test-curve-words
+test-curve-words:
+	python3 tests/curve_words_test.py $(OMXDSP_CFLAGS)
+	sh tests/curve-words-sabotage.sh $(OMXDSP_CFLAGS)
+
 test-curve: tests/curve_test
 	CURVE_PORT=$(CURVE_PORT) ./tests/curve_test
 

@@ -381,6 +381,7 @@ static void curve_points_cb(proto_t *proto)
     struct omx_curve_term rqt[CURVE_TERMS_MAX];
     struct omx_curve_request rq;
     struct omx_curve_stem stems[OMX_CURVE_TAPS_MAX];
+    struct omx_curve_mark marks[OMX_CURVE_BANDS_MAX];
     struct omx_curve_extra ex;
     double rate, x[OMX_CURVE_POINTS_MAX], y[OMX_CURVE_POINTS_MAX];
     char buffer[SOCKET_MSG_BUFFER_SIZE * 4], xs[32];
@@ -431,8 +432,20 @@ static void curve_points_cb(proto_t *proto)
         rqt[i].value = value;
         rqt[i].unit = t->unit;
         rqt[i].shape = OMX_CURVE_NO_SHAPE;
-        /* a host binds a plugin's controls, which carry no origin (spec §7.6: the strip's EQ is the console's) */
+        /* the backend names the band a corrector planted; a host that does not (a foreign plugin's) answers every
+           symbol user, and curve_points draws it no mark (spec §7.6: the strip's EQ is the console's) */
         rqt[i].origin = OMX_CURVE_ORIGINS_USER;
+        if (g_curve_backend->param_origin)
+        {
+            int origin = OMX_CURVE_ORIGINS_USER;
+
+            if ((code = g_curve_backend->param_origin(instance, t->symbol, &origin)) < 0)
+            {
+                protocol_response_int(code, proto);
+                return;
+            }
+            rqt[i].origin = (enum omx_curve_origins)origin;
+        }
         if (t->role == OMX_CURVE_ROLES_BAND_TYPE && t->nshapes)
         {
             /* the shape the choice value selects; a value past the list is a choice with no shape */
@@ -461,6 +474,8 @@ static void curve_points_cb(proto_t *proto)
     memset(&ex, 0, sizeof(ex));
     ex.stems = stems;
     ex.stem_room = OMX_CURVE_TAPS_MAX;
+    ex.marks = marks;
+    ex.mark_room = OMX_CURVE_BANDS_MAX;
     n = omx_curve_points_marked(&rq, x, y, OMX_CURVE_POINTS_MAX, &ex, &code);
     if (code != OMX_CURVE_OK)
     {
@@ -482,6 +497,17 @@ static void curve_points_cb(proto_t *proto)
         pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, " %s,%.2f,%.3f,%s", xs,
                                 fabs(stems[i].level_db) < 0.005 ? 0.0 : stems[i].level_db, stems[i].shade,
                                 OMX_CURVE_LEG_WORDS[stems[i].leg]);
+    }
+    if (pos < sizeof(buffer))
+        pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, " %u", ex.nmarks);
+    for (i = 0; i < ex.nmarks && pos < sizeof(buffer); i++)
+    {
+        const struct omx_curve_mark *m = &ex.marks[i];
+
+        format_x(xs, sizeof(xs), m->freq_hz);
+        pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, " %s,%.2f,%.2f,%s", xs,
+                                 fabs(m->depth_db) < 0.005 ? 0.0 : m->depth_db, m->q,
+                                 OMX_CURVE_ORIGIN_WORDS[m->origin]);
     }
     if (pos >= sizeof(buffer))
         protocol_response_int(ERR_MEMORY_ALLOCATION, proto);
