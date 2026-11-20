@@ -958,7 +958,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "what the daemon kept of the plugin on this host class, for the binary its pin holds now (the running history: " \
       "the windows it ran alone and in a group, its crashes, restarts and quarantines): one word of comma-joined " \
       "digest=<sha256>, class=<host class>, crashed=<0|1>, raises_xruns=<0|1> and then every key=value of the record " \
-      "(data/history.json); " PHD_WORD_NONE " when the plugin has no pin or no record, " PHD_WORD_UNAVAILABLE " while the " \
+      "(domain plugin-hostd/history, contract.d/plugin-hostd/history/history.json); " PHD_WORD_NONE " when the plugin has no pin or no record, " PHD_WORD_UNAVAILABLE " while the " \
       "history file is blocked or history_window_s is 0, -902 for a line that is not one word") \
     X(HISTORY_CLEAR, OMX_VERB_HISTORY_CLEAR, "<uri> | " PHD_WORD_ALL, OMX_VERB_HISTORY_CLEAR_REPLY, \
       "delete the history of one plugin (every binary and host class of it), or all of it, from memory and from the " \
@@ -2105,7 +2105,7 @@ static inline int phd_is_note_verb(const char *verb)
 
 /* The running history (the grouping-planner design note, The history record): what each plugin did on
  * this machine, one line per <uri> <binary digest> <host class> in a file of the daemon's own, whose keys are the words
- * of PLUGIN_HOSTD_HISTORY_KEYS (data/history.json). The first line is PHD_HISTORY_HEADER; the file is local, mode 0600,
+ * of PLUGIN_HOSTD_HISTORY_KEYS (domain plugin-hostd/history, contract.d/plugin-hostd/history/history.json). The first line is PHD_HISTORY_HEADER; the file is local, mode 0600,
  * and only the daemon writes it. The summary history_get answers reads crashes within PHD_HISTORY_KEEP_DAYS of
  * last_crash, and marks a plugin raises_xruns once it has PHD_HISTORY_MIN_WINDOWS grouped windows and its share of xrun
  * windows grouped exceeds its share solo by PHD_HISTORY_XRUN_MARGIN_PCT percentage points, or exceeds
