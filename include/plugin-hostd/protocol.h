@@ -981,7 +981,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "ram_unknown_count, how many members have no such figure. Last the host's insert verdict on the last uri, the " \
       "candidate, added to the chain the others make: a word of PHD_ESTIMATE_VERDICTS and the word of " \
       "PHD_ESTIMATE_REASONS that gave it, the first that holds in this order: the candidate's -535 refuses, its -533 " \
-      "or -534 is not measured; the CPU over PHD_ESTIMATE_CPU_CEILING_PCT, used and added over the budget, another " \
+      "or -534 is not measured; the CPU over PHD_ESTIMATE_CPU_CEILING, used and added over the budget, another " \
       "member's code, a memory figure missing each warns; else recommend, within. -902 for a rate or a quantum that " \
       "is not a whole number above 0, or no uri")
 
@@ -1019,9 +1019,10 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(RAM_UNKNOWN, PHD_ESTIMATE_REASON_RAM_UNKNOWN, "a member has no memory figure, or what the workers hold now cannot be read") \
     X(WITHIN, PHD_ESTIMATE_REASON_WITHIN, "every member is measured, and the chain is within the CPU ceiling and the memory budget")
 /* END GENERATED PHD_ESTIMATE_REASONS */
-/** @brief the real-time admission ceiling of one core, in percent of its cycle: an estimate whose cpu_percent is over
- * it warns, PHD_ESTIMATE_REASON_CPU_OVER_BUDGET */
-#define PHD_ESTIMATE_CPU_CEILING_PCT 60
+/* BEGIN GENERATED PHD_ESTIMATE_CPU_CEILING: tools/estimate-words-gen.py, from contract.d/estimate/estimate.json */
+#define PHD_ESTIMATE_CPU_CEILING 60 ///< the real-time admission ceiling of one core, in percent of its cycle: an estimate whose CPU is over it warns, cpu-over-budget. The host judges the figure, never the word the reply rounds it to
+#define PHD_ESTIMATE_CPU_CEILING_UNIT "percent" ///< the unit of PHD_ESTIMATE_CPU_CEILING, a word of omx-contract's PARAM_UNITS
+/* END GENERATED PHD_ESTIMATE_CPU_CEILING */
 
 /* ---------------------------------------------------------------- instance verbs */
 
