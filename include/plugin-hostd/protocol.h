@@ -975,8 +975,54 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "rate and quantum, and the latency and the CPU add up only the others. The last word names each of them as its " \
       "position in the line, from 0, and its code, -533 for no record, -534 for no point of the grid at that rate " \
       "and quantum, -535 for a uri that names no plugin installed here, joined by commas, " PHD_WORD_NONE " for none. " \
-      "Several records of one plugin (several versions) give the largest figure. -902 for a rate or a quantum that " \
+      "Several records of one plugin (several versions) give the largest figure. Then the memory: ram_used_bytes, " \
+      "what the workers hold now (" PHD_WORD_NONE " when one cannot be read), ram_added_bytes, what the members would " \
+      "add, ram_budget_bytes, the host's ram_budget_mb in bytes (" PHD_WORD_NONE " when none is set), and " \
+      "ram_unknown_count, how many members have no such figure. Last the host's insert verdict on the last uri, the " \
+      "candidate, added to the chain the others make: a word of PHD_ESTIMATE_VERDICTS and the word of " \
+      "PHD_ESTIMATE_REASONS that gave it, the first that holds in this order: the candidate's -535 refuses, its -533 " \
+      "or -534 is not measured; the CPU over PHD_ESTIMATE_CPU_CEILING, used and added over the budget, another " \
+      "member's code, a memory figure missing each warns; else recommend, within. -902 for a rate or a quantum that " \
       "is not a whole number above 0, or no uri")
+
+/* ---------------------------------------------------------------- the insert verdict of estimate */
+
+/* The words of estimate's verdict and reason are this package's domain estimate (contract.d/estimate/estimate.json), as
+ * the pin and probe words are: the host judges, a consumer shows the words and computes no verdict of its own. */
+/* BEGIN GENERATED PHD_ESTIMATE_VERDICTS: tools/estimate-words-gen.py, from contract.d/estimate/estimate.json */
+#define PHD_ESTIMATE_VERDICT_RECOMMEND "recommend" ///< nothing the host knows speaks against adding the candidate
+#define PHD_ESTIMATE_VERDICT_WARN "warn" ///< the candidate is measured, but the chain would pass the CPU ceiling or the memory budget, or a figure the judgement needs is missing: it may still be added
+#define PHD_ESTIMATE_VERDICT_NOT_MEASURED "not-measured" ///< the candidate is installed but has no figure at that rate and quantum: the host cannot judge it
+#define PHD_ESTIMATE_VERDICT_REFUSE "refuse" ///< the candidate names no plugin installed on this host: it cannot be added here
+#define PHD_ESTIMATE_VERDICT_PATTERN "recommend|warn|not-measured|refuse" ///< one word of PHD_ESTIMATE_VERDICTS
+#define PHD_ESTIMATE_VERDICTS(X) \
+    X(RECOMMEND, PHD_ESTIMATE_VERDICT_RECOMMEND, "nothing the host knows speaks against adding the candidate") \
+    X(WARN, PHD_ESTIMATE_VERDICT_WARN, "the candidate is measured, but the chain would pass the CPU ceiling or the memory budget, or a figure the judgement needs is missing: it may still be added") \
+    X(NOT_MEASURED, PHD_ESTIMATE_VERDICT_NOT_MEASURED, "the candidate is installed but has no figure at that rate and quantum: the host cannot judge it") \
+    X(REFUSE, PHD_ESTIMATE_VERDICT_REFUSE, "the candidate names no plugin installed on this host: it cannot be added here")
+/* END GENERATED PHD_ESTIMATE_VERDICTS */
+/* BEGIN GENERATED PHD_ESTIMATE_REASONS: tools/estimate-words-gen.py, from contract.d/estimate/estimate.json */
+#define PHD_ESTIMATE_REASON_UNKNOWN_PLUGIN "unknown-plugin" ///< a member names no plugin installed on this host: the candidate's refuses, another member's warns
+#define PHD_ESTIMATE_REASON_NO_RECORD "no-record" ///< a member has no qualification record: the candidate's is not measured, another member's warns
+#define PHD_ESTIMATE_REASON_NO_CELL "no-cell" ///< a member's qualification records hold no figure at that rate and quantum: the candidate's is not measured, another member's warns
+#define PHD_ESTIMATE_REASON_CPU_OVER_BUDGET "cpu-over-budget" ///< the chain's CPU, percent of one core, is over the real-time admission ceiling of one core
+#define PHD_ESTIMATE_REASON_RAM_OVER_BUDGET "ram-over-budget" ///< what the workers hold now plus what the members would add is over the host's ram_budget_mb
+#define PHD_ESTIMATE_REASON_RAM_UNKNOWN "ram-unknown" ///< a member has no memory figure, or what the workers hold now cannot be read
+#define PHD_ESTIMATE_REASON_WITHIN "within" ///< every member is measured, and the chain is within the CPU ceiling and the memory budget
+#define PHD_ESTIMATE_REASON_PATTERN "unknown-plugin|no-record|no-cell|cpu-over-budget|ram-over-budget|ram-unknown|within" ///< one word of PHD_ESTIMATE_REASONS
+#define PHD_ESTIMATE_REASONS(X) \
+    X(UNKNOWN_PLUGIN, PHD_ESTIMATE_REASON_UNKNOWN_PLUGIN, "a member names no plugin installed on this host: the candidate's refuses, another member's warns") \
+    X(NO_RECORD, PHD_ESTIMATE_REASON_NO_RECORD, "a member has no qualification record: the candidate's is not measured, another member's warns") \
+    X(NO_CELL, PHD_ESTIMATE_REASON_NO_CELL, "a member's qualification records hold no figure at that rate and quantum: the candidate's is not measured, another member's warns") \
+    X(CPU_OVER_BUDGET, PHD_ESTIMATE_REASON_CPU_OVER_BUDGET, "the chain's CPU, percent of one core, is over the real-time admission ceiling of one core") \
+    X(RAM_OVER_BUDGET, PHD_ESTIMATE_REASON_RAM_OVER_BUDGET, "what the workers hold now plus what the members would add is over the host's ram_budget_mb") \
+    X(RAM_UNKNOWN, PHD_ESTIMATE_REASON_RAM_UNKNOWN, "a member has no memory figure, or what the workers hold now cannot be read") \
+    X(WITHIN, PHD_ESTIMATE_REASON_WITHIN, "every member is measured, and the chain is within the CPU ceiling and the memory budget")
+/* END GENERATED PHD_ESTIMATE_REASONS */
+/* BEGIN GENERATED PHD_ESTIMATE_CPU_CEILING: tools/estimate-words-gen.py, from contract.d/estimate/estimate.json */
+#define PHD_ESTIMATE_CPU_CEILING 60 ///< the real-time admission ceiling of one core, in percent of its cycle: an estimate whose CPU is over it warns, cpu-over-budget. The host judges the figure, never the word the reply rounds it to
+#define PHD_ESTIMATE_CPU_CEILING_UNIT "percent" ///< the unit of PHD_ESTIMATE_CPU_CEILING, a word of omx-contract's PARAM_UNITS
+/* END GENERATED PHD_ESTIMATE_CPU_CEILING */
 
 /* ---------------------------------------------------------------- instance verbs */
 
@@ -1675,6 +1721,8 @@ static inline int phd_is_note_verb(const char *verb)
       "text in double quotes, \\\" a quote and \\\\ a backslash inside it (a property's value)") \
     X(KEY, "key", "[a-z_]+", 0, "a key of a key=value") \
     X(VALUE, "value", "[^, ]*", 0, "a value of a key=value") \
+    X(ESTIMATE_VERDICT, "estimate-verdict", PHD_ESTIMATE_VERDICT_PATTERN, 0, "a verdict word of PHD_ESTIMATE_VERDICTS") \
+    X(ESTIMATE_REASON, "estimate-reason", PHD_ESTIMATE_REASON_PATTERN, 0, "a reason word of PHD_ESTIMATE_REASONS") \
     X(LINE, "line", ".*", 1, "the rest of the line, its words as they were sent")
 
 /** @brief the forms of a command whose words the verb table's one format does not name, as rows X(verb, args)
@@ -1707,7 +1755,8 @@ static inline int phd_is_note_verb(const char *verb)
     X("reasons", "7:budget") X("placement", "own") X("member", "7" PHD_WORKER_PIN_REFUSED) X("worker-or-none", "w2") \
     X("state", "up") X("place", "chain:4.1") X("amount", "1024") X("number", "-6.02") \
     X("sha256", "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08") X("quoted", "\"/var/lib/x.json\"") X("quoted-escaped", "\"Sala \\\"A\\\" \\\\ 1\"") \
-    X("key", "crashed") X("value", "0") X("line", "{\"name\":\"warm\"}") X("core", "2")
+    X("key", "crashed") X("value", "0") X("line", "{\"name\":\"warm\"}") X("core", "2") \
+    X("estimate-verdict", PHD_ESTIMATE_VERDICT_WARN) X("estimate-reason", PHD_ESTIMATE_REASON_RAM_UNKNOWN)
 
 /* The composite types (#19): a list is items of one type joined by a separator, or one of its none words (a|b, "" for
  * none); a record is named fields joined by a separator, its fields name:type as PHD_EVENT_ARGS writes them. The
@@ -1771,7 +1820,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_PLAN, "0", "segments:segments cores:core-segments") \
     X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list cores:core-segments") \
     X(OMX_VERB_ESTIMATE, "0", "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint " \
-      "unknown:member-codes ram_used_bytes:amount ram_added_bytes:amount ram_budget_bytes:amount ram_unknown_count:uint") \
+      "unknown:member-codes ram_used_bytes:amount ram_added_bytes:amount ram_budget_bytes:amount ram_unknown_count:uint " \
+      "verdict:estimate-verdict reason:estimate-reason") \
     X(OMX_VERB_HELLO, "0", "version:int extensions:word...") \
     X(OMX_VERB_PARAM_GET_MANY, "0", "values:word...") \
     X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...")
