@@ -99,6 +99,13 @@
             "x-text": "Every member is measured, and the chain is within the CPU ceiling and the memory budget."
           }
         ]
+      },
+      "ESTIMATE_CPU_CEILING": {
+        "description": "The real-time admission ceiling of one core, in percent of its cycle: an estimate whose CPU is over it warns, cpu-over-budget. The host judges the figure, never the word the reply rounds it to.",
+        "x-since": "1.0.0",
+        "x-kind": "scalar",
+        "x-unit": "percent",
+        "x-value": 60
       }
     }
   }

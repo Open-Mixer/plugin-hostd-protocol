@@ -22,7 +22,7 @@ BuildRequires: python3-devel
 # packaging/deps.txt by Open-Mixer/.github deps-render (render.sh --write); edit that file, not these lines.
 # the declared protocol: protocol.h's parameter scales are written from omx-contract's domain param (omx-contract-data), and
 # install-contract writes the contract directory's package with omx-contract's script
-BuildRequires: omx-contract-devel >= 3.20.0
+BuildRequires: omx-contract-devel >= 3.21.0
 # the codec's tests (make test-codec) read omx-clap's sentences and omx-contract's catalog reader
 BuildRequires: omx-clap-contract >= 0.34.0
 BuildRequires: omx-contract-data >= 3.21.0
@@ -79,7 +79,7 @@ Requires: python3
 Requires: plugin-hostd-protocol >= 0.5.8
 Requires: plugin-hostd-protocol-contract >= 0.5.8
 Requires: omx-clap-contract >= 0.34.0
-Requires: omx-contract >= 3.20.0
+Requires: omx-contract >= 3.21.0
 # omx-contract's catalog reader, omx_contract_catalog.py, which reads a catalog entry whatever its shape
 Requires: omx-contract-data >= 3.21.0
 
@@ -96,7 +96,7 @@ Its documentation is on openmixer.org.
 %package contract
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
-Requires: omx-contract >= 3.20.0
+Requires: omx-contract >= 3.21.0
 
 %description contract
 data/verbs.json of plugin-hostd-protocol, the verbs and reply codes
