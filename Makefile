@@ -155,7 +155,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -719,3 +719,9 @@ test: test-conf-keys
 .PHONY: test-probe-words
 test-probe-words:
 	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/probe_words_test.py
+
+# the pin words of protocol.h (PHD_PIN_VERDICT_*, PHD_PIN_POOL_*, PHD_PIN_VERDICTS, PHD_PIN_POOLS) are generated from the
+# package's domain pin (contract.d/pin), meanings included, and held to the 10 golden rows (tests/pin_words_test.py)
+.PHONY: test-pin-words
+test-pin-words:
+	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/pin_words_test.py
