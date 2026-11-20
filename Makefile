@@ -61,7 +61,9 @@ RENDERED = include/plugin-hostd/plugin_hostd_protocol_host_verbs.h include/plugi
 PROBE_CODES = include/plugin-hostd/probe_codes.h
 # the pin domain's codes header, the same way
 PIN_CODES = include/plugin-hostd/pin_codes.h
-PROTOCOL_HEADERS = include/plugin-hostd/protocol.h include/plugin-hostd/search_paths.h $(PROBE_CODES) $(PIN_CODES) $(RENDERED)
+# the estimate domain's codes header (the insert verdict's words), the same way
+ESTIMATE_CODES = include/plugin-hostd/estimate_codes.h
+PROTOCOL_HEADERS = include/plugin-hostd/protocol.h include/plugin-hostd/search_paths.h $(PROBE_CODES) $(PIN_CODES) $(ESTIMATE_CODES) $(RENDERED)
 
 PC_LIBDIR = $(patsubst $(PREFIX)/%,$${prefix}/%,$(LIBDIR))
 PC_INCLUDEDIR = $(patsubst $(PREFIX)/%,$${prefix}/%,$(INCLUDEDIR))
@@ -379,6 +381,8 @@ gen: $(GEN)
 	python3 tools/pin-words-gen.py
 	python3 tools/param-scales-gen.py
 	$(OMX_CONTRACT) render --target c --package pin --contract-dir contract.d --out include/plugin-hostd
+	python3 tools/estimate-words-gen.py
+	$(OMX_CONTRACT) render --target c --package estimate --contract-dir contract.d --out include/plugin-hostd
 	$(GEN) splice doc/overview.md > doc/overview.md.new && mv doc/overview.md.new doc/overview.md
 	$(MAKE) --no-print-directory protocol-doc
 
@@ -394,6 +398,8 @@ check-generated: $(GEN)
 	python3 tools/param-scales-gen.py --check; \
 	python3 tools/pin-words-gen.py --check; \
 	$(OMX_CONTRACT) render --target c --package pin --contract-dir contract.d --out include/plugin-hostd --check; \
+	python3 tools/estimate-words-gen.py --check; \
+	$(OMX_CONTRACT) render --target c --package estimate --contract-dir contract.d --out include/plugin-hostd --check; \
 	$(OMX_CONTRACT) render --target c --package probe --contract-dir contract.d --out include/plugin-hostd --check; \
 	$(GEN) splice doc/overview.md > $$tmp/readme; cmp $$tmp/readme doc/overview.md; \
 	sha256sum -c --quiet $(ABNF_CORPUS)/GRAMMAR.sha256 || { echo "$(ABNF_CORPUS) is not written from this grammar: run make fuzz-abnf-corpus"; exit 1; }; \
@@ -525,6 +531,7 @@ install-contract:
 	sh $(INSTALL_CONTRACT_DIR) $(NAME) $(VERSION) $(CONTRACT_SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
 	sh $(INSTALL_CONTRACT_DIR) --domain contract.d/probe $(DESTDIR)$(CONTRACTDIR)
 	sh $(INSTALL_CONTRACT_DIR) --domain contract.d/pin $(DESTDIR)$(CONTRACTDIR)
+	sh $(INSTALL_CONTRACT_DIR) --domain contract.d/estimate $(DESTDIR)$(CONTRACTDIR)
 	install -d $(DESTDIR)$(DATADIR)/$(NAME)/catalogs
 	install -m 644 catalogs/*.json $(DESTDIR)$(DATADIR)/$(NAME)/catalogs/
 

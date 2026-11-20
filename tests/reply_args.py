@@ -162,13 +162,16 @@ def main():
     nested = decode_reply("plan_get", "resp 0 7,8;9 7:budget,9:plan-refused -,-;-", table)
     if not nested or nested.get("segments") != [["7", "8"], ["9"]] or nested.get("cores") != [["-", "-"], ["-"]]:
         failures.append("plan_get: 7,8;9 and -,-;- are not read as lists of lists: %r" % (nested,))
-    # one reply form each: plan and plan_get without their cores, estimate without its memory figures, are refused
+    # one reply form each: plan and plan_get without their cores, estimate without its memory figures or without its
+    # verdict and reason, are refused
     for verb, line in (("plan", "resp 0 1,2;3"), ("plan_get", "resp 0 1,2 -"),
-                       ("estimate", "resp 0 192 24.00 - 2 1 -")):
+                       ("estimate", "resp 0 192 24.00 - 2 1 -"), ("estimate", "resp 0 192 24.00 - 2 1 - 0 - - 2")):
         if decode_reply(verb, line, table) is not None:
             failures.append("%s: the short reply %r still decodes" % (verb, line))
-    # estimate's figures as the daemon writes them: whole frames, a finite percent, whole bytes or -, counts
-    for line in ("resp 0 192 24.00 1.5 2 1 -", "resp 0 - 24.00 - 2 1 -", "resp 0 192 nan - 2 1 -",
+    # estimate's figures as the daemon writes them: whole frames, a finite percent, whole bytes or -, counts, then a
+    # verdict and a reason of the domain estimate, in that order
+    for line in ("resp 0 192 24.00 - 2 1 - 0 - - 2 maybe ram-unknown", "resp 0 192 24.00 - 2 1 - 0 - - 2 warn fine",
+                 "resp 0 192 24.00 - 2 1 - 0 - - 2 ram-unknown warn","resp 0 192 24.00 1.5 2 1 -", "resp 0 - 24.00 - 2 1 -", "resp 0 192 nan - 2 1 -",
                  "resp 0 192 24.00 - 2 1 -1:-544", "resp 0 192 24.00 - 2 1 1:x"):
         if decode_reply("estimate", line, table) is not None:
             failures.append("estimate: %r decodes" % line)
@@ -187,7 +190,7 @@ def main():
     if failures:
         return 1
     print("ok   %d replies of this repository's verbs are typed and named (%d with words, %d a count alone); each sample "
-          "decodes; nested lists read as lists; 7 planted faults refused" % (typed, typed - count_only, count_only))
+          "decodes; nested lists read as lists; 10 planted faults refused" % (typed, typed - count_only, count_only))
     return 0
 
 
