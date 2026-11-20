@@ -3,15 +3,30 @@
 controllers imports: a command is one line ended by a NUL, a reply is one NUL-ended line. The protocol's owner ships it:
 the package python3-plugin-hostd-client (make install-python), importable as plugin_hostd_client; in this tree it is
 clients/python/plugin_hostd_client. It carries the transport only; the codec of the declared commands and replies is
-plugin_hostd_protocol (plugin-hostd-protocol issue 46 moves it here too).
+plugin_hostd_protocol (plugin-hostd-protocol issue 46 moves it here too). command() and reply() speak through that codec,
+imported when first called, so the transport alone needs no codec installed.
 
     c = Client(sock)            a connected socket, or Client.connect(port)
     c.send(line)                the reply; ConnectionError when the peer closes, socket.timeout when none comes in time
     c.try_send(line, timeout)   (reply, None), or (None, 'closed' | 'timeout' | 'oserror <why>'): a test that expects a death
     c.expect(line, wanted)      the reply, AssertionError when it is not wanted
+    c.command(verb, *args)      send(), its line built by plugin_hostd_protocol's Protocol().encode(verb, args)
+    c.reply(line)               Protocol().parse(line): a reply already read, structured
 """  # noqa: D205
 import socket
 import time
+
+
+_protocol = None
+
+
+def protocol():
+    """plugin_hostd_protocol.Protocol(), built once: the codec every command() and reply() goes through."""
+    global _protocol
+    if _protocol is None:
+        import plugin_hostd_protocol
+        _protocol = plugin_hostd_protocol.Protocol()
+    return _protocol
 
 
 class Client:  # noqa: D101
@@ -54,6 +69,12 @@ class Client:  # noqa: D101
         if reply != wanted:
             raise AssertionError("%s -> %r, wanted %r" % (line, reply, wanted))
         return reply
+
+    def command(self, verb, *args, tag=None, timeout=None):  # noqa: D102
+        return self.send(protocol().encode(verb, args, tag), timeout)
+
+    def reply(self, line):  # noqa: D102
+        return protocol().parse(line)
 
     def close(self):  # noqa: D102
         self.sock.close()

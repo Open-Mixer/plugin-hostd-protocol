@@ -17,6 +17,37 @@ from plugin_hostd_protocol.__main__ import answer  # noqa: E402
 FIXTURES = os.environ.get("PLUGIN_HOSTD_CODEC_FIXTURES") or os.path.join(HERE, "..", "clients", "fixtures", "codec.json")
 
 
+class ClientThroughCodec(unittest.TestCase):
+    """#34: the client's command() builds its line with the codec's encode() and reply() is the codec's parse(); no
+    quoting is spelled by hand in the client."""
+
+    def test_command_and_reply_go_through_the_codec(self):
+        import socket
+        import threading
+        sys.path.insert(0, os.environ.get("PLUGIN_HOSTD_CODEC_DIR") or os.path.join(HERE, "..", "clients", "python"))
+        import plugin_hostd_client as client
+        a, b = socket.socketpair()
+        seen = []
+
+        def peer():
+            buf = b""
+            while b"\0" not in buf:
+                buf += b.recv(4096)
+            seen.append(buf.split(b"\0", 1)[0].decode())
+            b.sendall(b"resp 0 1\0")
+
+        t = threading.Thread(target=peer)
+        t.start()
+        c = client.Client(a, timeout=5)
+        got = c.command("add", "clap:/x#y", 0)
+        t.join()
+        a.close()
+        b.close()
+        self.assertEqual(seen, [client.protocol().encode("add", ["clap:/x#y", 0], None)])
+        self.assertEqual(got, "resp 0 1")
+        self.assertEqual(c.reply(got), client.protocol().parse("resp 0 1"))
+
+
 def clean(value):
     if isinstance(value, dict):
         return {k: clean(v) for k, v in value.items() if v is not None}
