@@ -8,7 +8,7 @@ PHD_PROBE_STEPS are generated from it, the meaning texts included (sorting pass 
 (a) golden: the three lists of protocol.h, expanded by tests/probe_words_dump.c, are the rows frozen from the hand-written
     header (tests/golden/probe-words.txt, 34 rows);
 (b) the domain holds exactly those rows: the word, the code (its place), the meaning (its description, first letter
-    lowered, no final stop), and include/plugin-hostd/probe_codes.h is the render of its x-c-codes items;
+    lowered unless the first word has another capital, no final stop), and include/plugin-hostd/probe_codes.h is the render of its x-c-codes items;
 (c) sabotage, in a scratch copy of the tree: a word, or a meaning, changed in the domain makes tools/probe-words-gen.py
     --check fail, and writing it changes the macro the call expands to.
 
@@ -40,7 +40,8 @@ def dump(tree, tmp):
 
 def meaning(w):
     text = w["description"].rstrip(".")
-    return text[0].lower() + text[1:] if len(text) > 1 and text[1].islower() else text
+    first = text.split(" ")[0]
+    return text if any(c.isupper() for c in first[1:]) else text[0].lower() + text[1:]
 
 
 def main():
