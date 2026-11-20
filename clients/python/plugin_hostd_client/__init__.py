@@ -70,10 +70,12 @@ class Client:  # noqa: D101
             raise AssertionError("%s -> %r, wanted %r" % (line, reply, wanted))
         return reply
 
-    def command(self, verb, *args, tag=None, timeout=None):  # noqa: D102
+    def command(self, verb, *args, tag=None, timeout=None):
+        """Send the line protocol().encode builds for verb and args; the reply, as send returns it."""
         return self.send(protocol().encode(verb, args, tag), timeout)
 
-    def reply(self, line):  # noqa: D102
+    def reply(self, line):
+        """A reply already read, structured as protocol().parse gives it."""
         return protocol().parse(line)
 
     def close(self):  # noqa: D102
