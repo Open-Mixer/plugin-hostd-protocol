@@ -59,7 +59,9 @@ RENDERED = include/plugin-hostd/plugin_hostd_protocol_host_verbs.h include/plugi
            include/plugin-hostd/plugin_db_vocabulary.h
 # the probe domain's codes header (the render of the items of contract.d/probe marked x-c-codes), committed
 PROBE_CODES = include/plugin-hostd/probe_codes.h
-PROTOCOL_HEADERS = include/plugin-hostd/protocol.h include/plugin-hostd/search_paths.h $(PROBE_CODES) $(RENDERED)
+# the pin domain's codes header, the same way
+PIN_CODES = include/plugin-hostd/pin_codes.h
+PROTOCOL_HEADERS = include/plugin-hostd/protocol.h include/plugin-hostd/search_paths.h $(PROBE_CODES) $(PIN_CODES) $(RENDERED)
 
 PC_LIBDIR = $(patsubst $(PREFIX)/%,$${prefix}/%,$(LIBDIR))
 PC_INCLUDEDIR = $(patsubst $(PREFIX)/%,$${prefix}/%,$(INCLUDEDIR))
@@ -155,7 +157,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -376,6 +378,8 @@ gen: $(GEN)
 	python3 tools/reply-words.py > src/reply-words.h.new && mv src/reply-words.h.new src/reply-words.h
 	python3 tools/ts-client-gen.py
 	python3 tools/probe-words-gen.py
+	python3 tools/pin-words-gen.py
+	$(OMX_CONTRACT) render --target c --package pin --contract-dir contract.d --out include/plugin-hostd
 	$(GEN) splice doc/overview.md > doc/overview.md.new && mv doc/overview.md.new doc/overview.md
 	$(MAKE) --no-print-directory protocol-doc
 
@@ -388,6 +392,8 @@ check-generated: $(GEN)
 	python3 tools/reply-words.py --check; \
 	python3 tools/ts-client-gen.py --check; \
 	python3 tools/probe-words-gen.py --check; \
+	python3 tools/pin-words-gen.py --check; \
+	$(OMX_CONTRACT) render --target c --package pin --contract-dir contract.d --out include/plugin-hostd --check; \
 	$(OMX_CONTRACT) render --target c --package probe --contract-dir contract.d --out include/plugin-hostd --check; \
 	$(GEN) splice doc/overview.md > $$tmp/readme; cmp $$tmp/readme doc/overview.md; \
 	sha256sum -c --quiet $(ABNF_CORPUS)/GRAMMAR.sha256 || { echo "$(ABNF_CORPUS) is not written from this grammar: run make fuzz-abnf-corpus"; exit 1; }; \
@@ -508,6 +514,7 @@ install-contract:
 	@test -n "$(INSTALL_CONTRACT_DIR)" || { echo "install-contract: no install-contract-dir.sh: install omx-contract-devel, or set OMX_CONTRACT_DIR to a checkout" >&2; exit 1; }
 	sh $(INSTALL_CONTRACT_DIR) $(NAME) $(VERSION) $(CONTRACT_SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
 	sh $(INSTALL_CONTRACT_DIR) --domain contract.d/probe $(DESTDIR)$(CONTRACTDIR)
+	sh $(INSTALL_CONTRACT_DIR) --domain contract.d/pin $(DESTDIR)$(CONTRACTDIR)
 	install -d $(DESTDIR)$(DATADIR)/$(NAME)/catalogs
 	install -m 644 catalogs/*.json $(DESTDIR)$(DATADIR)/$(NAME)/catalogs/
 
@@ -719,3 +726,9 @@ test: test-conf-keys
 .PHONY: test-probe-words
 test-probe-words:
 	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/probe_words_test.py
+
+# the pin words of protocol.h (PHD_PIN_VERDICT_*, PHD_PIN_POOL_*, PHD_PIN_VERDICTS, PHD_PIN_POOLS) are generated from the
+# package's domain pin (contract.d/pin), meanings included, and held to the 10 golden rows (tests/pin_words_test.py)
+.PHONY: test-pin-words
+test-pin-words:
+	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/pin_words_test.py
