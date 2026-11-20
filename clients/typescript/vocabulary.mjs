@@ -375,7 +375,7 @@ export const VERBS = {
       },
     ],
     'codes': [-3, -103, -536, -537, -539, -542, -901, -902],
-    'reply': 'resp 0 <count> <x>,<y> ... [stems <count> <t>,<dB>,<shade>,<leg> ...] <mark_count> <freq>,<depth>,<q>,<origin> ...',
+    'reply': 'resp 0 <count> <x>,<y> ...',
   },
   'cv_map': {
     'forms': [

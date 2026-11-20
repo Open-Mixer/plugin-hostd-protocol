@@ -1113,7 +1113,7 @@
       "curvePoints": {
         "verb": "curve_points",
         "format": "curve_points %i %i %i",
-        "reply": "resp 0 <count> <x>,<y> ... [stems <count> <t>,<dB>,<shade>,<leg> ...] <mark_count> <freq>,<depth>,<q>,<origin> ...",
+        "reply": "resp 0 <count> <x>,<y> ...",
         "codes": [
           {
             "ref": "HOST_REPLY_CODES.instanceNonExists"
