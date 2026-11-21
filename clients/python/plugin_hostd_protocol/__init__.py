@@ -227,6 +227,15 @@ def _texts(node, out):
             _texts(v, out)
 
 
+def _domain_texts(doc, out):
+    """Every reply code of a domain document with its English sentence: a word of an item, its `const` the code and its
+    `x-text` the sentence (omx-contract docs/contract-dir.md, "Domains")."""  # noqa: D205
+    for item in (doc.get("components") or {}).get("schemas", {}).values():
+        for w in item.get("oneOf", []) if isinstance(item, dict) else []:
+            if isinstance(w.get("const"), str) and isinstance(w.get("x-text"), str):
+                out.setdefault(w["const"], w["x-text"])
+
+
 # a figure or a list the daemon has none for
 NONE = "-"
 # the largest count both clients hold exactly (a double's whole numbers)
@@ -354,6 +363,19 @@ class Protocol:
                     if code in self.codes and code not in self.sentences:
                         self.sentences[code] = text
                         self.owners[code] = package
+            # the domains of the directory, <contractdir>/<domain>/<domain>.json: the words plugin-hostd-protocol, omx-clap and
+            # the others declare as domains are read as the package files above are
+            for domain in sorted(os.listdir(d)) if os.path.isdir(d) else []:
+                path = os.path.join(d, domain, domain + ".json")
+                if domain == "3" or not os.path.isfile(path):
+                    continue
+                doc = _read(path, "the domain")
+                found = {}
+                _domain_texts(doc, found)
+                for code, text in found.items():
+                    if code in self.codes and code not in self.sentences:
+                        self.sentences[code] = text
+                        self.owners[code] = doc.get("info", {}).get("x-owner", domain)
         self._catalogs = {}
         self._reader = None
 

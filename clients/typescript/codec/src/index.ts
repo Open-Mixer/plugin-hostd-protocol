@@ -278,6 +278,18 @@ function texts(node: unknown, out: Map<string, string>): void {
   }
 }
 
+/** Every reply code of a domain document with its English sentence: a word of an item, its `const` the code and its `x-text` the sentence. */
+function domainTexts(doc: unknown, out: Map<string, string>): void {
+  const schemas = (doc as { components?: { schemas?: Record<string, { oneOf?: Array<Record<string, unknown>> }> } }).components?.schemas ?? {};
+  for (const item of Object.values(schemas)) {
+    for (const w of item.oneOf ?? []) {
+      const code = w['const'];
+      const text = w['x-text'];
+      if (typeof code === 'string' && typeof text === 'string' && !out.has(code)) out.set(code, text);
+    }
+  }
+}
+
 interface Form {
   readonly args: readonly string[] | null;
   readonly tail?: boolean;
@@ -434,6 +446,20 @@ export class Protocol {
           if (this.codes.has(code) && !this.sentences.has(code)) {
             this.sentences.set(code, text);
             this.owners.set(code, pkg);
+          }
+        }
+      }
+      // the domains of the directory, <contractdir>/<domain>/<domain>.json, read as the package files above are
+      for (const domain of existsSync(d) ? readdirSync(d).sort() : []) {
+        const path = join(d, domain, `${domain}.json`);
+        if (domain === '3' || !existsSync(path)) continue;
+        const doc = read(path, 'the domain') as { info?: { 'x-owner'?: string } };
+        const found = new Map<string, string>();
+        domainTexts(doc, found);
+        for (const [code, text] of found) {
+          if (this.codes.has(code) && !this.sentences.has(code)) {
+            this.sentences.set(code, text);
+            this.owners.set(code, doc.info?.['x-owner'] ?? domain);
           }
         }
       }
