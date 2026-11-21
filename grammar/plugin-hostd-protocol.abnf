@@ -261,7 +261,7 @@ cmd-preset-load          = %s"preset_load" SP int SP word
 ; mod-host: include/mod-host.h EFFECT_PRESET_SAVE
 cmd-preset-save          = %s"preset_save" SP int SP word SP word SP word
 ; mod-host: include/mod-host.h EFFECT_PRESET_SHOW
-; form 1: mod-host; form 2: plugin-hostd (data/verbs.json PLUGIN_HOSTD_VERBS.presetShow)
+; form 1: mod-host; form 2: plugin-hostd (contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.presetShow)
 cmd-preset-show          = (%s"preset_show" SP word) / (%s"preset_show" SP int SP word)
 ; mod-host: include/mod-host.h QUIT
 cmd-quit                 = %s"quit"
@@ -321,74 +321,74 @@ cmd-property-info        = %s"property_info" SP int SP int
 cmd-property-list        = %s"property_list" SP int
 ; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-property-set         = %s"property_set" SP int SP word SP quoted-escaped
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.chain
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.chain
 cmd-chain                = %s"chain" SP int SP int tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.chainClear
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.chainClear
 cmd-chain-clear          = %s"chain_clear" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.chainGet
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.chainGet
 cmd-chain-get            = %s"chain_get" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.descriptorGet
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.descriptorGet
 cmd-descriptor-get       = %s"descriptor_get" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.estimate
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.estimate
 cmd-estimate             = %s"estimate" SP int SP int SP word tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.historyClear
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.historyClear
 cmd-history-clear        = %s"history_clear" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.historyGet
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.historyGet
 cmd-history-get          = %s"history_get" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.instanceInfo
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.instanceInfo
 cmd-instance-info        = %s"instance_info" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.lv2WorkerSet
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.lv2WorkerSet
 cmd-lv2-worker-set       = %s"lv2_worker_set" SP word SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.nodeLabel
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.nodeLabel
 cmd-node-label           = %s"node_label" SP int tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.panelGet
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.panelGet
 cmd-panel-get            = %s"panel_get" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinAccept
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.pinAccept
 cmd-pin-accept           = %s"pin_accept" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinChanged
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.pinChanged
 cmd-pin-changed          = %s"pin_changed" tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinClear
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.pinClear
 cmd-pin-clear            = %s"pin_clear" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinLayout; sent by the daemon to a worker
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.pinLayout; sent by the daemon to a worker
 cmd-pin-layout           = %s"pin_layout" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinReload
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.pinReload
 cmd-pin-reload           = %s"pin_reload"
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinSet
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.pinSet
 cmd-pin-set              = %s"pin_set" SP word SP word SP word tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.plan
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.plan
 cmd-plan                 = %s"plan" SP int SP int tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.planClear
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.planClear
 cmd-plan-clear           = %s"plan_clear" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.planGet
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.planGet
 cmd-plan-get             = %s"plan_get" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.policySet
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.policySet
 cmd-policy-set           = %s"policy_set" SP word SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.poolConfig
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.poolConfig
 cmd-pool-config          = %s"pool_config" SP word SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.presetGet
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.presetGet
 cmd-preset-get           = %s"preset_get" SP int SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.presetList
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.presetList
 cmd-preset-list          = %s"preset_list" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.quarantineClear
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.quarantineClear
 cmd-quarantine-clear     = %s"quarantine_clear" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.supervisorReset
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.supervisorReset
 ; form 1: plugin-hostd; form 2: plugin-hostd; form 3: plugin-hostd
 cmd-supervisor-reset     = (%s"supervisor_reset") / (%s"supervisor_reset" SP word) / (%s"supervisor_reset" SP %s"all")
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.workerEnv
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.workerEnv
 cmd-worker-env           = %s"worker_env" SP word SP word SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.workerList
+; plugin-hostd: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.workerList
 cmd-worker-list          = %s"worker_list"
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.curveBind
+; plugin-hostd-protocol: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_PROTOCOL_VERBS.curveBind
 cmd-curve-bind           = %s"curve_bind" SP int SP int SP word tail
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.curvePoints
+; plugin-hostd-protocol: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_PROTOCOL_VERBS.curvePoints
 cmd-curve-points         = %s"curve_points" SP int SP int SP int
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.hello
+; plugin-hostd-protocol: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_PROTOCOL_VERBS.hello
 cmd-hello                = %s"hello" SP int tail
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.monitorOutputOff
+; plugin-hostd-protocol: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_PROTOCOL_VERBS.monitorOutputOff
 cmd-monitor-output-off   = %s"monitor_output_off" SP int SP word
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.paramGetMany
+; plugin-hostd-protocol: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_PROTOCOL_VERBS.paramGetMany
 cmd-param-get-many       = %s"param_get_many" SP int SP word tail
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.paramSetMany
+; plugin-hostd-protocol: contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_PROTOCOL_VERBS.paramSetMany
 cmd-param-set-many       = %s"param_set_many" SP int SP word SP float tail
 
 ; words a client of mod-ui may send that no host answers; each is refused and has no rule: set_midi_program_change_pedalboard_bank_channel, set_midi_program_change_pedalboard_snapshot_channel

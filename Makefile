@@ -51,7 +51,7 @@ HEADERS = include/host-backend.h include/host-dispatch.h include/host-errors.h i
           include/host-scenario.h include/protocol.h include/socket.h include/utils.h
 
 # the declared protocol (doc/protocol.md): plugin-hostd's protocol.h and the headers it includes, rendered by
-# omx-contract from data/verbs.json and from omx-clap's and plugin-db's packages of the contract directory; installed under
+# omx-contract from contract.d/plugin-hostd/plugin-hostd.json and from omx-clap's and plugin-db's packages of the contract directory; installed under
 # <includedir>/plugin-hostd-protocol/plugin-hostd/, so a consumer includes <plugin-hostd/protocol.h> with this package's
 # Cflags. src/protocol.c reads the protocol version, hello's line and the extensions hello grants from them.
 RENDERED = include/plugin-hostd/plugin_hostd_protocol_host_verbs.h include/plugin-hostd/plugin_hostd_protocol_vocabulary.h \
@@ -159,7 +159,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -352,7 +352,7 @@ abi-check: abi-stage
 #   protocol/plugin-hostd.json            tools/protocol-gen json, compiled against include/plugin-hostd/protocol.h
 #   protocol/mod-host.json                tools/mod-host-json.py, from include/mod-host.h, protocol.h, host-errors.h
 #   protocol/plugin-hostd-protocol.json   tools/protocol-table.py, the one table merged from the three above and
-#                                         data/verbs.json; it refuses a word of ours that changes a mod-host word
+#                                         contract.d/plugin-hostd/plugin-hostd.json; it refuses a word of ours that changes a mod-host word
 #   grammar/plugin-hostd-protocol.abnf    tools/abnf-gen.py, grammar/core.abnf and a rule per word of the table
 #   fuzz/corpus-abnf/                     tools/abnf-corpus.py, seeds from the grammar (check-generated reads the
 #                                         SHA-256 of the grammar they were written from)
@@ -470,9 +470,9 @@ test-codec:
 	PLUGIN_HOSTD_PROTOCOL_TABLE=protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) \
 	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) sh tests/client-codec-sabotage.sh
 
-# which refusals are transient: a property of the code in data/verbs.json, in the table and the rendered header (#23)
+# which refusals are transient: a property of the code in contract.d/plugin-hostd/plugin-hostd.json, in the table and the rendered header (#23)
 test-transient-codes:
-	python3 tests/transient_codes.py protocol/plugin-hostd-protocol.json data/verbs.json include/plugin-hostd/plugin_hostd_protocol_vocabulary.h
+	python3 tests/transient_codes.py protocol/plugin-hostd-protocol.json contract.d/plugin-hostd/plugin-hostd.json include/plugin-hostd/plugin_hostd_protocol_vocabulary.h
 
 # the default search paths name the folders distributions install plugins in (plugin-hostd#82)
 test-search-paths:
@@ -498,7 +498,7 @@ test-mod-host-json:
 # every code this repository owns has its source sentence, and its Catalan in catalogs/ca.json (tests/code_text.py); the installed
 # omx-contract must be the schema that has `text`, and test-code-text-sabotage takes each rule out in a scratch copy
 test-code-text:
-	python3 tests/code_text.py data/verbs.json protocol/plugin-hostd-protocol.json catalogs/ca.json $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/omx-contract.schema.json)
+	python3 tests/code_text.py contract.d/plugin-hostd/plugin-hostd.json protocol/plugin-hostd-protocol.json catalogs/ca.json $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/omx-contract.schema.json)
 
 test-code-text-sabotage:
 	sh tests/code-text-sabotage.sh
@@ -509,7 +509,7 @@ test-generated-sabotage:
 	sh tests/generated-sabotage.sh
 
 # The checks that need tools a package build does not: run by CI (.github/workflows/ci.yml, job protocol).
-#   check-rendered   the four rendered headers are what omx-contract renders from data/verbs.json (staged as the
+#   check-rendered   the four rendered headers are what omx-contract renders from contract.d/plugin-hostd/plugin-hostd.json (staged as the
 #                    package plugin-hostd-protocol of the contract directory) and from omx-clap's installed package;
 #                    test-rendered-sabotage holds it to failing. A contract directory named first on OMX_CONTRACT_PATH
 #                    outranks the installed one: CI stages omx-clap's data/ from its source there
@@ -519,19 +519,20 @@ test-generated-sabotage:
 OMX_CONTRACT ?= omx-contract
 PYTHON ?= python3
 CONTRACT_SCHEMA_MAJOR = 3
+# the domains this package's contract is (no data file: a domain-only owner): the words of the protocol, the probe's, the pin's
+# and the estimate's
+CONTRACT_DOMAINS = plugin-hostd probe pin estimate
 CONTRACTDIR = $(or $(shell $(PKG_CONFIG) --variable=contractdir omx-contract 2>/dev/null),$(DATADIR)/omx-contract/contract.d)
 INSTALL_CONTRACT_DIR = $(firstword $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/install-contract-dir.sh) $(wildcard $(OMX_CONTRACT_DIR)/tools/install-contract-dir.sh))
 
 check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-grammar check-contract-dir test-abnf-corpus test-code-text-sabotage test-served-render-ci
 
-# data/verbs.json as the package plugin-hostd-protocol of omx-contract's contract directory,
+# contract.d/plugin-hostd/plugin-hostd.json as the package plugin-hostd-protocol of omx-contract's contract directory,
 # <contractdir>/<schema major>/plugin-hostd-protocol/, with the MANIFEST.json omx-contract's script writes
 install-contract:
 	@test -n "$(INSTALL_CONTRACT_DIR)" || { echo "install-contract: no install-contract-dir.sh: install omx-contract-devel, or set OMX_CONTRACT_DIR to a checkout" >&2; exit 1; }
-	sh $(INSTALL_CONTRACT_DIR) $(NAME) $(VERSION) $(CONTRACT_SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
-	sh $(INSTALL_CONTRACT_DIR) --domain contract.d/probe $(DESTDIR)$(CONTRACTDIR)
-	sh $(INSTALL_CONTRACT_DIR) --domain contract.d/pin $(DESTDIR)$(CONTRACTDIR)
-	sh $(INSTALL_CONTRACT_DIR) --domain contract.d/estimate $(DESTDIR)$(CONTRACTDIR)
+	sh $(INSTALL_CONTRACT_DIR) --owner $(NAME) $(VERSION) $(CONTRACT_SCHEMA_MAJOR) $(DESTDIR)$(CONTRACTDIR) $(CONTRACT_DOMAINS)
+	for d in $(CONTRACT_DOMAINS); do sh $(INSTALL_CONTRACT_DIR) --domain contract.d/$$d $(DESTDIR)$(CONTRACTDIR) || exit 1; done
 	install -d $(DESTDIR)$(DATADIR)/$(NAME)/catalogs
 	install -m 644 catalogs/*.json $(DESTDIR)$(DATADIR)/$(NAME)/catalogs/
 
@@ -554,17 +555,15 @@ check-catalogs:
 test-served-render-ci:
 	python3 tests/served_render_ci.py
 
-# check-rendered must fail on a rendered header changed by hand and on verbs.json not rendered again
+# check-rendered must fail on a rendered header changed by hand and on the domain plugin-hostd not rendered again
 test-rendered-sabotage:
 	sh tests/rendered-sabotage.sh
 
 render-verbs check-rendered:
 	@command -v $(OMX_CONTRACT) >/dev/null || { echo "$@: no $(OMX_CONTRACT) command: install omx-contract" >&2; exit 1; }
-	@test -n "$(INSTALL_CONTRACT_DIR)" || { echo "$@: no install-contract-dir.sh: install omx-contract-devel, or set OMX_CONTRACT_DIR to a checkout" >&2; exit 1; }
-	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
-	sh $(INSTALL_CONTRACT_DIR) $(NAME) $(VERSION) $(CONTRACT_SCHEMA_MAJOR) data $$tmp data >/dev/null; \
-	OMX_CONTRACT_PATH=$$tmp$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) \
-	  $(OMX_CONTRACT) render --target c --package $(NAME) --installed --out include/plugin-hostd $(if $(filter check-rendered,$@),--check)
+	@set -e; \
+	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
+	  $(OMX_CONTRACT) render --target c --package $(NAME) --installed --with-domain contract.d/plugin-hostd --out include/plugin-hostd $(if $(filter check-rendered,$@),--check)
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
 	wd=""; for n in host omx-clap; do for d in $$(printf %s "$(OMX_CONTRACT_PATH)" | tr : ' ') $(CONTRACTDIR); do \
 	  if [ -f $$d/$$n/$$n.json ]; then wd="$$wd --with-domain $$d/$$n"; break; fi; done; done; \
@@ -777,6 +776,12 @@ check-grouping-domain:
 # the insert verdict of estimate (PHD_ESTIMATE_VERDICTS, PHD_ESTIMATE_REASONS, their words and patterns) is generated from
 # the package's domain estimate (contract.d/estimate), meanings included, and the reply ends with the two words
 # (tests/estimate_words_test.py)
+# the words of the protocol are the domain plugin-hostd (contract.d/plugin-hostd), read from there by the tools and the codec, and
+# data/verbs.json is gone (tests/protocol_domain_test.py)
+.PHONY: test-protocol-domain
+test-protocol-domain:
+	python3 tests/protocol_domain_test.py
+
 .PHONY: test-estimate-words
 test-estimate-words:
 	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/estimate_words_test.py
