@@ -286,12 +286,30 @@
 /** The source sentence (English) of OMX_HOSTING_TOPOLOGY_WIDER_THAN_STRIP. */
 #define OMX_HOSTING_TOPOLOGY_WIDER_THAN_STRIP_TEXT_EN "This plugin\342\200\231s main port is wider than the strip it runs on. Run it on a strip wide enough for its main port."
 
+/* HOSTING_VERB_HOSTS (data/hosting/verb-hosts.json) */
+#define OMX_HOSTING_VERB_HOSTS_PLUGIN_HOSTD "plugin-hostd" ///< The daemon that places plugins in workers and answers the verbs it adds itself.
+/** The source sentence (English) of OMX_HOSTING_VERB_HOSTS_PLUGIN_HOSTD. */
+#define OMX_HOSTING_VERB_HOSTS_PLUGIN_HOSTD_TEXT_EN "The daemon that places plugins in workers and answers the verbs it adds itself."
+#define OMX_HOSTING_VERB_HOSTS_OMX_CLAP_HOST "omx-clap-host" ///< omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter.
+/** The source sentence (English) of OMX_HOSTING_VERB_HOSTS_OMX_CLAP_HOST. */
+#define OMX_HOSTING_VERB_HOSTS_OMX_CLAP_HOST_TEXT_EN "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter."
+#define OMX_HOSTING_VERB_HOSTS_MOD_HOST "mod-host" ///< mod-host, the LV2 host whose protocol the others speak.
+/** The source sentence (English) of OMX_HOSTING_VERB_HOSTS_MOD_HOST. */
+#define OMX_HOSTING_VERB_HOSTS_MOD_HOST_TEXT_EN "mod-host, the LV2 host whose protocol the others speak."
+/** The number of words of HOSTING_VERB_HOSTS. */
+#define OMX_HOSTING_VERB_HOSTS_COUNT 3u
+/** The words of HOSTING_VERB_HOSTS in their declared order, as a C initializer list. */
+#define OMX_HOSTING_VERB_HOSTS_INIT { "plugin-hostd", "omx-clap-host", "mod-host" }
+/** Expands `X(code, "word", NAME)` once per word of HOSTING_VERB_HOSTS, in order, the code being its place in the order. The hosts a verb's implementedBy names (docs/contract-dir.md): the programs a controller sends mod-host's protocol to. A verb states what each one owes it; a host the verb leaves out owes it nothing. */
+#define OMX_HOSTING_VERB_HOSTS(X) \
+    X(0u, "plugin-hostd", PLUGIN_HOSTD) X(1u, "omx-clap-host", OMX_CLAP_HOST) X(2u, "mod-host", MOD_HOST)
+
 /* HOSTING_WORKER_CODES (data/hosting/worker.json) */
 #define OMX_HOSTING_WORKER_NONCONFORMING "hosting.worker.nonconforming"
 /** The source sentence (English) of OMX_HOSTING_WORKER_NONCONFORMING. */
 #define OMX_HOSTING_WORKER_NONCONFORMING_TEXT_EN "This plugin\342\200\231s worker does not conform to what a worker must do. Don\342\200\231t rely on its worker."
 
-/* HOST_REPLY_CODES (data/verbs-host.json) */
+/* HOST_REPLY_CODES (contract.d/host/host.json) */
 #define OMX_REPLY_HOST_INSTANCE_INVALID "reply.host.instance-invalid" ///< mod-host's ERR_INSTANCE_INVALID: an instance number outside the host's table
 #define OMX_REPLY_HOST_INSTANCE_INVALID_RESP (-1)
 /** The source sentence (English) of OMX_REPLY_HOST_INSTANCE_INVALID. */
@@ -405,7 +423,7 @@
 /** The source sentence (English) of OMX_REPLY_HOST_PROPERTY_QUEUE_FULL. */
 #define OMX_REPLY_HOST_PROPERTY_QUEUE_FULL_TEXT_EN "The plugin had no room for this value before its next block, so it was not kept. Send it again."
 
-/* HOST_TRACK_KINDS (data/verbs-host.json) */
+/* HOST_TRACK_KINDS (contract.d/host/host.json) */
 #define OMX_HOST_TRACK_KINDS_BUS "bus"
 #define OMX_HOST_TRACK_KINDS_RETURN "return"
 #define OMX_HOST_TRACK_KINDS_MASTER "master"
@@ -417,7 +435,7 @@
 #define OMX_HOST_TRACK_KINDS(X) \
     X(0u, "bus", BUS) X(1u, "return", RETURN) X(2u, "master", MASTER)
 
-/* HOST_EVENTS (data/verbs-host.json) */
+/* HOST_EVENTS (contract.d/host/host.json) */
 #define OMX_HOST_EVENTS_REMOTE_PAGES_CHANGED "remote_pages_changed" ///< the plugin changed its remote pages: a controller reads remote_pages and remote_page_get again
 #define OMX_HOST_EVENTS_XRUNS "xruns" ///< the worker's JACK xrun count since its start, written when it changes and at most once a second; a worker that never writes it reports no xruns
 #define OMX_HOST_EVENTS_ABI_CLOBBER "abi_clobber" ///< the plugin returned from a call with a callee-saved register changed (0.26.2): the instance number, the registers as a hexadecimal mask with their names, the plugin function and the block, written once per instance. The worker put the registers back, so its own frame is whole; the other members' state in the same process is not covered, so the plugin is run only in a worker of its own
