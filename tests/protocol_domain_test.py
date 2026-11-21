@@ -7,7 +7,9 @@ and are read from there by every reader of this tree (plugin-hostd-protocol#26, 
   (b) every reply code of the domain is in the protocol's table with its number, and every verb of it is a command of
       the table (the tools read the domain);
   (c) the Python codec, given a contract directory that holds nothing but this domain, gives a reply code its sentence and
-      names this package its owner: the sentence is read from the domain.
+      names this package its owner: the sentence is read from the domain;
+  (d) a stale 3/plugin-hostd-protocol/verbs.json beside the domain, with a sentence of its own, is never read: the codec
+      reads the domains alone, so the domain's sentence is the one given.
 
   protocol_domain_test.py"""
 import os
@@ -76,6 +78,24 @@ class ProtocolDomain(unittest.TestCase):
             self.assertEqual(p.owners[name], "plugin-hostd-protocol")
             want = protocol_words.items()["PLUGIN_HOSTD_REPLY_CODES"]["codes"]["noCell"]["text"]["en"]
             self.assertEqual(p.sentences[name], want)
+        finally:
+            shutil.rmtree(d)
+
+    def test_d_a_stale_verbs_file_beside_the_domain_is_never_read(self):
+        d = tempfile.mkdtemp(prefix="protocol-domain-")
+        try:
+            name = "reply.plugin-hostd.no-cell"
+            os.makedirs(os.path.join(d, "plugin-hostd"))
+            shutil.copy(os.path.join(ROOT, DOMAIN), os.path.join(d, "plugin-hostd", "plugin-hostd.json"))
+            stale = os.path.join(d, "3", "plugin-hostd-protocol")
+            os.makedirs(stale)
+            code = protocol_words.items()["PLUGIN_HOSTD_REPLY_CODES"]["codes"]["noCell"]
+            with open(os.path.join(stale, "verbs.json"), "w") as f:
+                json.dump({"PLUGIN_HOSTD_REPLY_CODES": {"kind": "codes", "codes": {"noCell": {
+                    "code": name, "resp": code["resp"], "text": {"en": "A stale sentence of the old home."}}}}}, f)
+            p = Protocol(table=TABLE, contract_dirs=[d])
+            self.assertEqual(p.sentences[name], code["text"]["en"], "the sentence of a stale verbs.json was read")
+            self.assertEqual(p.owners[name], "plugin-hostd-protocol")
         finally:
             shutil.rmtree(d)
 
