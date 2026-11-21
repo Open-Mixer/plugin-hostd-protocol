@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.7.0
+Version: 0.8.0
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -251,6 +251,14 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Sat Nov 21 2026 Pau Aliagas <linuxnow@gmail.com> - 0.8.0-1
+- The vocabulary sorting pass: the probe words (outcomes, reasons, steps, signals)
+  and the pin verdict and pool words are domains of this package (probe, pin) and
+  protocol.h generates its lists from them; the parameter scales are read from
+  omx-contract's domain param; GroupingReason and RETRY_REASONS of both clients are
+  written from plugin-hostd's domain plugin-hostd/grouping; the shared verbs and
+  host words are read from omx-clap's domains, under the new omx-clap names.
+
 * Fri Nov 20 2026 Pau Aliagas <linuxnow@gmail.com> - 0.7.0-1
 - The backward-compatibility removal: the ERR_LV2_* spellings of the error
   words are gone from host-errors.h, and plan, plan_get and estimate answer

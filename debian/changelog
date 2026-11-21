@@ -1,3 +1,15 @@
+plugin-hostd-protocol (0.8.0) unstable; urgency=medium
+
+  * The vocabulary sorting pass: the probe words (outcomes, reasons, steps,
+    signals) and the pin verdict and pool words are domains of this package
+    (probe, pin) and protocol.h generates its lists from them; the parameter
+    scales are read from omx-contract's domain param; GroupingReason and
+    RETRY_REASONS of both clients are written from plugin-hostd's domain
+    plugin-hostd/grouping; the shared verbs and host words are read from
+    omx-clap's domains, under the new omx-clap names.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Sat, 21 Nov 2026 00:30:00 +0100
+
 plugin-hostd-protocol (0.7.0) unstable; urgency=medium
 
   * The backward-compatibility removal: the ERR_LV2_* spellings of the error
