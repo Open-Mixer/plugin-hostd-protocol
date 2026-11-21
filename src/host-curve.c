@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include <omxdsp/omx_curve.h>
+#include <omxdsp/omxdsp_definitions.h>
 
 #include "host-curve.h"
 #include "host-dispatch.h"
@@ -167,7 +168,7 @@ static int parse_term(const char *w, curve_term_t *t)
             ;
         if (end == p)
             return ERR_INVALID_OPERATION;
-        v = word_in(OMX_CURVE_UNIT_WORDS, OMX_CURVE_UNITS_COUNT, p, end);
+        v = word_in(OMX_CURVE_UNITS_STANDARD, OMX_CURVE_UNITS_COUNT, p, end);
         if (v < 0)
             return OMX_REPLY_PLUGIN_HOSTD_CURVE_UNIT_REFUSED_RESP;
         t->unit = (enum omx_curve_units)v;

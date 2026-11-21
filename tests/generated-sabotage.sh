@@ -17,7 +17,7 @@ MAKE=${MAKE:-make}
 fresh() {
     rm -rf "$work/tree"
     mkdir -p "$work/tree"
-    cp -r Makefile VERSION include src data protocol grammar doc tools tests packaging clients "$work/tree/"
+    cp -r Makefile VERSION include src data protocol grammar doc tools tests packaging clients contract.d "$work/tree/"
     mkdir -p "$work/tree/fuzz" && cp -r fuzz/corpus-abnf "$work/tree/fuzz/"
 }
 
@@ -69,7 +69,7 @@ arm "protocol.h not generated" include/plugin-hostd/protocol.h '"an LV2 plugin.s
 arm "mod-host.h not generated" include/mod-host.h '"remove %i"' '"destroy %i"'
 arm "mod-host.json by hand" protocol/mod-host.json '"cpu_load"' '"cpu_loads"'
 arm "verbs.json not generated" data/verbs.json '"resp 0 <load_key> <name>"' '"resp 0 <name>"'
-arm "the table by hand" protocol/plugin-hostd-protocol.json '"origin": "omx-clap-core"' '"origin": "mod-host"'
+arm "the table by hand" protocol/plugin-hostd-protocol.json '"origin": "omx-clap"' '"origin": "mod-host"'
 arm "the grammar by hand" grammar/plugin-hostd-protocol.abnf '%s"bypass" SP int SP int' '%s"bypass" SP int'
 arm "the grammar's core not generated" grammar/core.abnf 'int              = \["-"\] 1\*DIGIT' 'int              = 1*DIGIT'
 arm "the overview region by hand" doc/overview.md '| `bypass` | mod-ui | required' '| `bypass` | mod-ui | optional'

@@ -1,1 +1,1 @@
-curve_bind 3 0 transfer_curve reverb threshold=gain:db
+curve_bind 3 0 transfer_curve reverb threshold=gain:dB

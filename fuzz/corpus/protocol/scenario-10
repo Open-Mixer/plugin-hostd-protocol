@@ -1,1 +1,1 @@
-curve_bind 3 0 transfer_curve dynamics threshold=gain:hz
+curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz

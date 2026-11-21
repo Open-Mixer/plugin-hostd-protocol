@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-#ifndef OMX_CLAP_CORE_VOCABULARY_H
-#define OMX_CLAP_CORE_VOCABULARY_H
+#ifndef OMX_CLAP_VOCABULARY_H
+#define OMX_CLAP_VOCABULARY_H
 /*
  * GENERATED: DO NOT EDIT BY HAND.
- * Produced by `omx-contract render --target c` from Open-Mixer/omx-clap-core's data/: the vocabulary
+ * Produced by `omx-contract render --target c` from Open-Mixer/omx-clap's data/: the vocabulary
  * (docs/data-layout.md). A code is OMX_ and the code in upper snake case, and a reply code that carries a resp has it as that name and _RESP; a word is OMX_<ITEM>_<NAME>, each words
  * item with its _COUNT and an _INIT of its words in their order. A consumer writes and compares these, never a
  * literal of its own.
  */
 
 /** @file
- * @brief The vocabulary of omx-clap-core: every code and every word as a string define, with its sentence
+ * @brief The vocabulary of omx-clap: every code and every word as a string define, with its sentence
  * where it carries one. */
 
 /* HOSTING_CLAP_CODES (data/hosting/clap.json) */
@@ -291,7 +291,7 @@
 /** The source sentence (English) of OMX_HOSTING_WORKER_NONCONFORMING. */
 #define OMX_HOSTING_WORKER_NONCONFORMING_TEXT_EN "This plugin\342\200\231s worker does not conform to what a worker must do. Don\342\200\231t rely on its worker."
 
-/* HOST_REPLY_CODES (data/verbs.json) */
+/* HOST_REPLY_CODES (data/verbs-host.json) */
 #define OMX_REPLY_HOST_INSTANCE_INVALID "reply.host.instance-invalid" ///< mod-host's ERR_INSTANCE_INVALID: an instance number outside the host's table
 #define OMX_REPLY_HOST_INSTANCE_INVALID_RESP (-1)
 /** The source sentence (English) of OMX_REPLY_HOST_INSTANCE_INVALID. */
@@ -405,7 +405,7 @@
 /** The source sentence (English) of OMX_REPLY_HOST_PROPERTY_QUEUE_FULL. */
 #define OMX_REPLY_HOST_PROPERTY_QUEUE_FULL_TEXT_EN "The plugin had no room for this value before its next block, so it was not kept. Send it again."
 
-/* HOST_TRACK_KINDS (data/verbs.json) */
+/* HOST_TRACK_KINDS (data/verbs-host.json) */
 #define OMX_HOST_TRACK_KINDS_BUS "bus"
 #define OMX_HOST_TRACK_KINDS_RETURN "return"
 #define OMX_HOST_TRACK_KINDS_MASTER "master"
@@ -417,7 +417,7 @@
 #define OMX_HOST_TRACK_KINDS(X) \
     X(0u, "bus", BUS) X(1u, "return", RETURN) X(2u, "master", MASTER)
 
-/* HOST_EVENTS (data/verbs.json) */
+/* HOST_EVENTS (data/verbs-host.json) */
 #define OMX_HOST_EVENTS_REMOTE_PAGES_CHANGED "remote_pages_changed" ///< the plugin changed its remote pages: a controller reads remote_pages and remote_page_get again
 #define OMX_HOST_EVENTS_XRUNS "xruns" ///< the worker's JACK xrun count since its start, written when it changes and at most once a second; a worker that never writes it reports no xruns
 #define OMX_HOST_EVENTS_ABI_CLOBBER "abi_clobber" ///< the plugin returned from a call with a callee-saved register changed (0.26.2): the instance number, the registers as a hexadecimal mask with their names, the plugin function and the block, written once per instance. The worker put the registers back, so its own frame is whole; the other members' state in the same process is not covered, so the plugin is run only in a worker of its own
@@ -429,4 +429,4 @@
 #define OMX_HOST_EVENTS(X) \
     X(0u, "remote_pages_changed", REMOTE_PAGES_CHANGED) X(1u, "xruns", XRUNS) X(2u, "abi_clobber", ABI_CLOBBER)
 
-#endif /* OMX_CLAP_CORE_VOCABULARY_H */
+#endif /* OMX_CLAP_VOCABULARY_H */

@@ -232,8 +232,7 @@ NONE = "-"
 # the largest count both clients hold exactly (a double's whole numbers)
 _SAFE = 2 ** 53 - 1
 
-# the reasons a plan gives: plugin-hostd declares them (PLUGIN_HOSTD_GROUPING_REASONS in its data/grouping.json) and
-# its tests hold this block to that file, each declared reason to its constant and each constant to a declared reason
+# BEGIN GENERATED grouping-reasons (tools/grouping-reasons.py, from plugin-hostd's domain plugin-hostd/grouping): do not edit
 class GroupingReason:
     """The reasons a plan gives (PLUGIN_HOSTD_GROUPING_REASONS): a controller compares against these and writes no
     reason word of its own. plan_get answers them as instance:reason; a plan-refused is followed by a colon and the
@@ -258,8 +257,9 @@ class GroupingReason:
 
 
 # the reasons of a plan that a later plan may not give again with the chain as it is: the reasons that declare
-# the group retry in the file, read from it and chosen nowhere in code
+# the group retry in the domain, read from it and chosen nowhere in code
 RETRY_REASONS = (GroupingReason.NO_VERDICT, GroupingReason.PLAN_REFUSED)
+# END GENERATED grouping-reasons
 
 
 class Names:
@@ -604,10 +604,13 @@ class Protocol:
     def read_estimate(self, data):
         """What estimate answers after resp 0, as words, read by the table's reply_forms, each figure by the name the
         protocol gives it; None for one the daemon has no figure for (-). members: the members no figure could be read for, counted from 0 in the order
-        they were asked, each with the reply code that says why and its name."""  # noqa: D205, D209
+        they were asked, each with the reply code that says why and its name. verdict and reason: the host's insert
+        verdict on the last member, the candidate, and the reason word that gave it, the domain estimate's words; a
+        client shows them and computes no verdict."""  # noqa: D205, D209
         r = self.read_reply("estimate", data)
         out = {k: r[k] for k in ("latency_frames", "cpu_percent", "ram_bytes", "workers", "unknown_count",
-                                    "ram_used_bytes", "ram_added_bytes", "ram_budget_bytes", "ram_unknown_count")}
+                                    "ram_used_bytes", "ram_added_bytes", "ram_budget_bytes", "ram_unknown_count",
+                                    "verdict", "reason")}
         out["members"] = [{"member": u["position"], "code": u["code"], "name": self.names.get(u["code"])}
                           for u in r["unknown"]]
         return out

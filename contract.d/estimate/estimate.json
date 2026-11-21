@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/estimate",
+  "info": {
+    "title": "The insert verdict of an estimate",
+    "version": "1.0.0",
+    "x-owner": "plugin-hostd-protocol",
+    "x-stability": "experimental"
+  },
+  "components": {
+    "schemas": {
+      "ESTIMATE_VERDICTS": {
+        "description": "The verdict words of an estimate: the host's judgement of adding the last uri of the line (the candidate) to the chain the others make, the second-last word of its reply. A consumer shows it and computes none.",
+        "x-since": "1.0.0",
+        "x-c-codes": true,
+        "oneOf": [
+          {
+            "const": "recommend",
+            "title": "recommend",
+            "description": "Nothing the host knows speaks against adding the candidate.",
+            "x-code": 0,
+            "x-text": "Nothing the host knows speaks against adding the candidate."
+          },
+          {
+            "const": "warn",
+            "title": "warn",
+            "description": "The candidate is measured, but the chain would pass the CPU ceiling or the memory budget, or a figure the judgement needs is missing: it may still be added.",
+            "x-code": 1,
+            "x-text": "The candidate is measured, but the chain would pass the CPU ceiling or the memory budget, or a figure the judgement needs is missing: it may still be added."
+          },
+          {
+            "const": "not-measured",
+            "title": "notMeasured",
+            "description": "The candidate is installed but has no figure at that rate and quantum: the host cannot judge it.",
+            "x-code": 2,
+            "x-text": "The candidate is installed but has no figure at that rate and quantum: the host cannot judge it."
+          },
+          {
+            "const": "refuse",
+            "title": "refuse",
+            "description": "The candidate names no plugin installed on this host: it cannot be added here.",
+            "x-code": 3,
+            "x-text": "The candidate names no plugin installed on this host: it cannot be added here."
+          }
+        ]
+      },
+      "ESTIMATE_REASONS": {
+        "description": "The reason words of an estimate: why the host gave its verdict, the last word of its reply. The first that holds in this order gives it: the candidate's own code (unknown-plugin refuses, no-record and no-cell are not measured); then, each a warning, cpu-over-budget, ram-over-budget, another member's code, ram-unknown; within when none holds. unknown-plugin, no-record and no-cell are the member codes -535, -533 and -534 of the reply as words.",
+        "x-since": "1.0.0",
+        "x-c-codes": true,
+        "oneOf": [
+          {
+            "const": "unknown-plugin",
+            "title": "unknownPlugin",
+            "description": "A member names no plugin installed on this host: the candidate's refuses, another member's warns.",
+            "x-code": 0,
+            "x-text": "A member names no plugin installed on this host: the candidate's refuses, another member's warns."
+          },
+          {
+            "const": "no-record",
+            "title": "noRecord",
+            "description": "A member has no qualification record: the candidate's is not measured, another member's warns.",
+            "x-code": 1,
+            "x-text": "A member has no qualification record: the candidate's is not measured, another member's warns."
+          },
+          {
+            "const": "no-cell",
+            "title": "noCell",
+            "description": "A member's qualification records hold no figure at that rate and quantum: the candidate's is not measured, another member's warns.",
+            "x-code": 2,
+            "x-text": "A member's qualification records hold no figure at that rate and quantum: the candidate's is not measured, another member's warns."
+          },
+          {
+            "const": "cpu-over-budget",
+            "title": "cpuOverBudget",
+            "description": "The chain's CPU, percent of one core, is over the real-time admission ceiling of one core.",
+            "x-code": 3,
+            "x-text": "The chain's CPU, percent of one core, is over the real-time admission ceiling of one core."
+          },
+          {
+            "const": "ram-over-budget",
+            "title": "ramOverBudget",
+            "description": "What the workers hold now plus what the members would add is over the host's ram_budget_mb.",
+            "x-code": 4,
+            "x-text": "What the workers hold now plus what the members would add is over the host's ram_budget_mb."
+          },
+          {
+            "const": "ram-unknown",
+            "title": "ramUnknown",
+            "description": "A member has no memory figure, or what the workers hold now cannot be read.",
+            "x-code": 5,
+            "x-text": "A member has no memory figure, or what the workers hold now cannot be read."
+          },
+          {
+            "const": "within",
+            "title": "within",
+            "description": "Every member is measured, and the chain is within the CPU ceiling and the memory budget.",
+            "x-code": 6,
+            "x-text": "Every member is measured, and the chain is within the CPU ceiling and the memory budget."
+          }
+        ]
+      },
+      "ESTIMATE_CPU_CEILING": {
+        "description": "The real-time admission ceiling of one core, in percent of its cycle: an estimate whose CPU is over it warns, cpu-over-budget. The host judges the figure, never the word the reply rounds it to.",
+        "x-since": "1.0.0",
+        "x-kind": "scalar",
+        "x-unit": "percent",
+        "x-value": 60
+      }
+    }
+  }
+}

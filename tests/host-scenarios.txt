@@ -47,7 +47,7 @@ curve_bind 3 0 transfer_curve dynamics threshold=$PARAM:db ratio=$PARAM:ratio =>
 @curve_bind curve_points 3 0 1 => resp -539
 @curve_bind curve_points 9 0 3 => resp -3
 @curve_bind curve_bind 9 0 transfer_curve dynamics threshold=$PARAM:db => resp -3
-@curve_bind curve_bind 3 0 transfer_curve dynamics threshold=no_such_symbol:db => resp -103
+@curve_bind curve_bind 3 0 transfer_curve dynamics threshold=no_such_symbol:dB => resp -103
 @curve_bind curve_bind 3 0 transfer_curve reverb threshold=$PARAM:db => resp -536
 @curve_bind curve_bind 3 0 transfer_curve dynamics threshold=$PARAM:hz => resp -538
 @curve_bind curve_bind 3 0 transfer_curve dynamics threshold=$PARAM:db@bell => resp -902

@@ -48,10 +48,8 @@ export interface Plan {
   readonly cores: (number | null)[][];
 }
 
-// the reasons plugin-hostd declares (PLUGIN_HOSTD_GROUPING_REASONS in its data/grouping.json), copied by hand until
-// Open-Mixer/plugin-hostd#175 publishes them as a domain item both codecs read; until then this repository's CI sets
-// PLUGIN_HOSTD_GROUPING_JSON (that file at a pinned plugin-hostd commit) and the tests hold this block to it
-/** The reasons a plan gives (PLUGIN_HOSTD_GROUPING_REASONS), by the key the file gives each: a controller compares
+// BEGIN GENERATED grouping-reasons (tools/grouping-reasons.py, from plugin-hostd's domain plugin-hostd/grouping): do not edit
+/** The reasons a plan gives (PLUGIN_HOSTD_GROUPING_REASONS), by the key the domain gives each: a controller compares
  * against these and writes no reason word of its own. A plan-refused is followed by a colon and the refusal's number. */
 export const GroupingReason = {
   refused: 'refused',
@@ -74,10 +72,11 @@ export const GroupingReason = {
 /** One of the reasons a plan gives. */
 export type GroupingReasonWord = (typeof GroupingReason)[keyof typeof GroupingReason];
 /**
- * The reasons of a plan that a later plan may not give again with the chain as it is: the reasons the file declares
+ * The reasons of a plan that a later plan may not give again with the chain as it is: the reasons the domain declares
  * in the group retry, read from it and chosen nowhere in code.
  */
 export const RETRY_REASONS: readonly string[] = [GroupingReason.noVerdict, GroupingReason.planRefused];
+// END GENERATED grouping-reasons
 
 /** A member of a plan that has a reason: the word of PLUGIN_HOSTD_GROUPING_REASONS, the code a plan-refused carries. */
 export interface PlanReason {
@@ -106,6 +105,10 @@ export interface Estimate {
   readonly ram_added_bytes: number | null;
   readonly ram_budget_bytes: number | null;
   readonly ram_unknown_count: number | null;
+  /** The host's insert verdict on the candidate (the last member): a word of the domain estimate's ESTIMATE_VERDICTS. */
+  readonly verdict: string;
+  /** The word of ESTIMATE_REASONS that gave the verdict. A client shows both and computes no verdict. */
+  readonly reason: string;
 }
 
 // ---- the words of a line, as plugin-hostd-protocol's grammar (core.abnf: word, quoted, escaped-quote) writes them,
@@ -711,7 +714,8 @@ export class Protocol {
    * What estimate answers after resp 0, as words, read by the table's reply_forms; null for a figure the daemon does
    * not have (-). members: the members no
    * figure could be read for, counted from 0 in the order they were asked, each with the reply code that says why and
-   * its name.
+   * its name. verdict and reason: the host's insert verdict on the last member, the candidate, and the reason word
+   * that gave it; a client shows them and computes no verdict.
    */
   readEstimate(data: readonly string[]): Estimate {
     const r = this.readReply('estimate', data);
@@ -730,6 +734,8 @@ export class Protocol {
       ram_added_bytes: n('ram_added_bytes'),
       ram_budget_bytes: n('ram_budget_bytes'),
       ram_unknown_count: n('ram_unknown_count'),
+      verdict: r['verdict'] as string,
+      reason: r['reason'] as string,
     };
   }
 
