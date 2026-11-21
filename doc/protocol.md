@@ -178,13 +178,13 @@ A panel description's display (an EQ's response, a dynamics stage's transfer cur
 A term is `<role>[.<index>]=<symbol>[:<unit>][@<shape>|<shape>...]`: the role word and the band's index as the description gives them, the parameter's symbol (a host's own control starts with `:`), the unit token, and the shapes (`off`, `bell`, `lowshelf`, `highshelf`, `highpass`, `lowpass`, `notch`, or `-` for a choice value with no closed form). The words are omx-dsp's `CURVE_ROLES`, `CURVE_UNITS` and `CURVE_SHAPES`; the grammar spells them as `curve-term`; since omx-dsp 0.32 there are 37 roles, the delay's and the reverb's among them, and a display of the `time_response` kind. A reply carries at most omx-dsp's `CURVE_POINTS_MAX` points, 256, an EQ's three anchors a drawn band among them, so a caller asks for 256 less three times the drawn bands at most.
 
 ```
-> curve_bind 3 0 eq_response eq band_freq.0=f_0:hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf
+> curve_bind 3 0 eq_response eq band_freq.0=f_0:Hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf
 < resp 0
-> curve_bind 3 0 eq_response eq band_freq.1=f_1:hz band_gain.1=g_1:coef band_q.1=w_1:oct band_type.1=ft_1@off|bell|lowshelf|highshelf
+> curve_bind 3 0 eq_response eq band_freq.1=f_1:Hz band_gain.1=g_1:coef band_q.1=w_1:oct band_type.1=ft_1@off|bell|lowshelf|highshelf
 < resp 0
 > curve_points 3 0 128
 < resp 0 134 20.00,0.00 20.54,0.00 ...
-> curve_bind 4 0 transfer_curve dynamics threshold=thr:dbfs ratio=ratio:ratio knee=knee:db makeup=gain:db
+> curve_bind 4 0 transfer_curve dynamics threshold=thr:dBFS ratio=ratio:ratio knee=knee:dB makeup=gain:dB
 < resp 0
 > curve_points 4 0 1
 < resp -539
