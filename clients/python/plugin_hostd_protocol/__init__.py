@@ -215,21 +215,11 @@ def _read(path, what):
         raise ProtocolError("%s %s is not readable (%s)" % (what, path, e)) from e
 
 
-def _texts(node, out):
-    """Every reply code of a vocabulary file with its English sentence, wherever the file holds it."""
-    if isinstance(node, dict):
-        if isinstance(node.get("code"), str) and isinstance(node.get("text"), dict) and "en" in node["text"]:
-            out.setdefault(node["code"], node["text"]["en"])
-        for v in node.values():
-            _texts(v, out)
-    elif isinstance(node, list):
-        for v in node:
-            _texts(v, out)
-
-
 def _domain_texts(doc, out):
-    """Every reply code of a domain document with its English sentence: a word of an item, its `const` the code and its
-    `x-text` the sentence (omx-contract docs/contract-dir.md, "Domains")."""  # noqa: D205
+    """Every reply code of a domain document with its English sentence.
+
+    A word of an item, its `const` the code and its `x-text` the sentence (omx-contract docs/contract-dir.md, "Domains").
+    """
     for item in (doc.get("components") or {}).get("schemas", {}).values():
         for w in item.get("oneOf", []) if isinstance(item, dict) else []:
             if isinstance(w.get("const"), str) and isinstance(w.get("x-text"), str):
@@ -351,20 +341,11 @@ class Protocol:
             _pkg_config("--variable=datadir", "plugin-hostd-protocol") or \
             os.path.dirname(os.path.dirname(os.path.abspath(table)))
         self.sentences, self.owners = {}, {}
+        # the domains of each directory, <contractdir>/<domain>/<domain>.json, and nothing else: the words
+        # plugin-hostd-protocol, omx-clap and the others declare are domains, and a <contractdir>/3/<package>/verbs.json
+        # (the old home of the protocol's words, before 0.8.0) is never read, so a stale one cannot shadow the domain's
+        # sentence
         for d in contract_dirs:
-            root = os.path.join(d, "3")
-            for package in sorted(os.listdir(root)) if os.path.isdir(root) else []:
-                path = os.path.join(root, package, "verbs.json")
-                if not os.path.isfile(path):
-                    continue
-                found = {}
-                _texts(_read(path, "the vocabulary"), found)
-                for code, text in found.items():
-                    if code in self.codes and code not in self.sentences:
-                        self.sentences[code] = text
-                        self.owners[code] = package
-            # the domains of the directory, <contractdir>/<domain>/<domain>.json: the words plugin-hostd-protocol, omx-clap and
-            # the others declare as domains are read as the package files above are
             for domain in sorted(os.listdir(d)) if os.path.isdir(d) else []:
                 path = os.path.join(d, domain, domain + ".json")
                 if domain == "3" or not os.path.isfile(path):

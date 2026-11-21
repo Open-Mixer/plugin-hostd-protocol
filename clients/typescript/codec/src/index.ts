@@ -264,20 +264,6 @@ function read(path: string, what: string): unknown {
   }
 }
 
-/** Every reply code of a vocabulary file with its English sentence, wherever the file holds it. */
-function texts(node: unknown, out: Map<string, string>): void {
-  if (Array.isArray(node)) {
-    for (const v of node) texts(v, out);
-  } else if (node && typeof node === 'object') {
-    const o = node as Record<string, unknown>;
-    const text = o['text'] as Record<string, unknown> | undefined;
-    if (typeof o['code'] === 'string' && text && typeof text === 'object' && typeof text['en'] === 'string' && !out.has(o['code'])) {
-      out.set(o['code'], text['en']);
-    }
-    for (const v of Object.values(o)) texts(v, out);
-  }
-}
-
 /** Every reply code of a domain document with its English sentence: a word of an item, its `const` the code and its `x-text` the sentence. */
 function domainTexts(doc: unknown, out: Map<string, string>): void {
   const schemas = (doc as { components?: { schemas?: Record<string, { oneOf?: Array<Record<string, unknown>> }> } }).components?.schemas ?? {};
@@ -434,22 +420,9 @@ export class Protocol {
     this.code = namesOf('code', short, (name) => this.codeOf(name));
     const contractDirs = options.contractDirs ?? INSTALLED.contractDirs;
     this.datadir = options.datadir ?? INSTALLED.datadir;
+    // the domains of each directory, <contractdir>/<domain>/<domain>.json, and nothing else: a <contractdir>/3/<package>/verbs.json
+    // (the old home of the protocol's words, before 0.8.0) is never read, so a stale one cannot shadow the domain's sentence
     for (const d of contractDirs) {
-      const root = join(d, '3');
-      const packages = existsSync(root) ? readdirSync(root).sort() : [];
-      for (const pkg of packages) {
-        const path = join(root, pkg, 'verbs.json');
-        if (!existsSync(path)) continue;
-        const found = new Map<string, string>();
-        texts(read(path, 'the vocabulary'), found);
-        for (const [code, text] of found) {
-          if (this.codes.has(code) && !this.sentences.has(code)) {
-            this.sentences.set(code, text);
-            this.owners.set(code, pkg);
-          }
-        }
-      }
-      // the domains of the directory, <contractdir>/<domain>/<domain>.json, read as the package files above are
       for (const domain of existsSync(d) ? readdirSync(d).sort() : []) {
         const path = join(d, domain, `${domain}.json`);
         if (domain === '3' || !existsSync(path)) continue;
