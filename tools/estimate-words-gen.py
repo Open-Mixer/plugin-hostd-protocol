@@ -39,7 +39,7 @@ def block(doc, macro, prefix, item):
     pattern = '#define %sPATTERN "%s" ///< one word of %s' % (prefix, "|".join(w["const"] for w in words), macro)
     rows = ['    X(%s, %s%s, "%s")' % (snake(w["title"]), prefix, snake(w["title"]), meaning(w)) for w in words]
     return ("/* BEGIN GENERATED %s: tools/estimate-words-gen.py, from contract.d/estimate/estimate.json */\n%s\n%s\n"
-            "#define %s(X) \\\n%s\n/* END GENERATED %s */" % (macro, "\n".join(defs), pattern, macro, " \\\n".join(rows), macro))
+            "/** @brief the rows of the list: X(id, word, meaning)\n *\n * @param X the macro each row is passed to.\n */\n#define %s(X) \\\n%s\n/* END GENERATED %s */" % (macro, "\n".join(defs), pattern, macro, " \\\n".join(rows), macro))
 
 
 CEILING = "PHD_ESTIMATE_CPU_CEILING"

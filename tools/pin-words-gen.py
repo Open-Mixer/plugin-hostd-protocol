@@ -32,7 +32,7 @@ def block(doc, macro, prefix, item):
     words = sorted(doc["components"]["schemas"][item]["oneOf"], key=lambda w: w["x-code"])
     defs = ['#define %s%s "%s" ///< %s' % (prefix, snake(w["title"]), w["const"], meaning(w)) for w in words]
     rows = ['    X(%s, %s%s, "%s")' % (snake(w["title"]), prefix, snake(w["title"]), meaning(w)) for w in words]
-    return ("/* BEGIN GENERATED %s: tools/pin-words-gen.py, from contract.d/pin/pin.json */\n%s\n#define %s(X) \\\n%s\n"
+    return ("/* BEGIN GENERATED %s: tools/pin-words-gen.py, from contract.d/pin/pin.json */\n%s\n/** @brief the rows of the list: X(id, word, meaning)\n *\n * @param X the macro each row is passed to.\n */\n#define %s(X) \\\n%s\n"
             "/* END GENERATED %s */" % (macro, "\n".join(defs), macro, " \\\n".join(rows), macro))
 
 

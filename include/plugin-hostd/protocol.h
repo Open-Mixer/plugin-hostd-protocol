@@ -753,6 +753,10 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_PIN_VERDICT_IN_PROCESS "in-process" ///< qualified to run in a worker that other plugins share
 #define PHD_PIN_VERDICT_ISOLATED "isolated" ///< qualified to run, in a worker of its own
 #define PHD_PIN_VERDICT_REFUSED "refused" ///< failed qualification: the pin records the bytes, a host should not load them
+/** @brief the rows of the list: X(id, word, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PIN_VERDICTS(X) \
     X(IN_PROCESS, PHD_PIN_VERDICT_IN_PROCESS, "qualified to run in a worker that other plugins share") \
     X(ISOLATED, PHD_PIN_VERDICT_ISOLATED, "qualified to run, in a worker of its own") \
@@ -770,6 +774,10 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 /* BEGIN GENERATED PHD_PIN_POOLS: tools/pin-words-gen.py, from contract.d/pin/pin.json */
 #define PHD_PIN_POOL_CORES "cores" ///< its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker
 #define PHD_PIN_POOL_OFF "off" ///< measured, and not faster or not safe with the pool: the worker keeps no option
+/** @brief the rows of the list: X(id, word, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_PIN_POOLS(X) \
     X(CORES, PHD_PIN_POOL_CORES, "its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker") \
     X(OFF, PHD_PIN_POOL_OFF, "measured, and not faster or not safe with the pool: the worker keeps no option")
@@ -995,6 +1003,10 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_ESTIMATE_VERDICT_NOT_MEASURED "not-measured" ///< the candidate is installed but has no figure at that rate and quantum: the host cannot judge it
 #define PHD_ESTIMATE_VERDICT_REFUSE "refuse" ///< the candidate names no plugin installed on this host: it cannot be added here
 #define PHD_ESTIMATE_VERDICT_PATTERN "recommend|warn|not-measured|refuse" ///< one word of PHD_ESTIMATE_VERDICTS
+/** @brief the rows of the list: X(id, word, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_ESTIMATE_VERDICTS(X) \
     X(RECOMMEND, PHD_ESTIMATE_VERDICT_RECOMMEND, "nothing the host knows speaks against adding the candidate") \
     X(WARN, PHD_ESTIMATE_VERDICT_WARN, "the candidate is measured, but the chain would pass the CPU ceiling or the memory budget, or a figure the judgement needs is missing: it may still be added") \
@@ -1010,6 +1022,10 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_ESTIMATE_REASON_RAM_UNKNOWN "ram-unknown" ///< a member has no memory figure, or what the workers hold now cannot be read
 #define PHD_ESTIMATE_REASON_WITHIN "within" ///< every member is measured, and the chain is within the CPU ceiling and the memory budget
 #define PHD_ESTIMATE_REASON_PATTERN "unknown-plugin|no-record|no-cell|cpu-over-budget|ram-over-budget|ram-unknown|within" ///< one word of PHD_ESTIMATE_REASONS
+/** @brief the rows of the list: X(id, word, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
 #define PHD_ESTIMATE_REASONS(X) \
     X(UNKNOWN_PLUGIN, PHD_ESTIMATE_REASON_UNKNOWN_PLUGIN, "a member names no plugin installed on this host: the candidate's refuses, another member's warns") \
     X(NO_RECORD, PHD_ESTIMATE_REASON_NO_RECORD, "a member has no qualification record: the candidate's is not measured, another member's warns") \
