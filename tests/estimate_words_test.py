@@ -25,7 +25,7 @@ import json, os, re, shlex, shutil, subprocess, sys, tempfile
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
-from domain_path import read_domain  # noqa: E402  omx-contract's domain param, from the contract directories
+from domain_path import read_domain, render_env  # noqa: E402  omx-contract's domain param; the renders' contract path
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OMX = shlex.split(os.environ.get("OMX_CONTRACT", "omx-contract"))
@@ -83,8 +83,9 @@ def main():
             doc = json.load(open(doc_path))
             want = [l for l in gold.splitlines() if l.split(" ")[0] in ("verdicts", "reasons", "word")]
             check(domain_rows(doc) == want, "(b) the domain holds exactly the golden rows, meanings included")
-            r = subprocess.run(OMX + ["render", "--target", "c", "--package", "estimate", "--contract-dir", "contract.d",
-                                      "--out", "include/plugin-hostd", "--check"], cwd=ROOT, capture_output=True, text=True)
+            r = subprocess.run(OMX + ["render", "--target", "c", "--package", "estimate", "--installed",
+                                      "--out", "include/plugin-hostd", "--check"], cwd=ROOT, env=render_env(ROOT),
+                                     capture_output=True, text=True)
             check(r.returncode == 0, "(b) include/plugin-hostd/estimate_codes.h is the render of the domain: %s"
                   % (r.stderr.strip() or r.stdout.strip())[-200:])
         gen = os.path.join(ROOT, "tools", "estimate-words-gen.py")
