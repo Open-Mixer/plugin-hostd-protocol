@@ -85,7 +85,16 @@ def main():
             check(out is not None and out != gold, "(c) writing it changes the macro the call expands to (%s)" % what)
         empty = os.path.join(tmp, "empty")
         os.makedirs(empty)
-        c = gen(["--check"], empty, ROOT)
+        # the installed omx-contract is searched after OMX_CONTRACT_PATH (tools/domain_path.py): a box that installs one
+        # carrying the param domain would answer this arm, so pkg-config names the empty directory as the installed one
+        pc = os.path.join(tmp, "pc")
+        os.makedirs(pc)
+        open(os.path.join(pc, "omx-contract.pc"), "w").write("contractdir=%s\nName: omx-contract\nDescription: none\nVersion: 0\n" % empty)
+        os.environ["PKG_CONFIG_LIBDIR"] = pc
+        try:
+            c = gen(["--check"], empty, ROOT)
+        finally:
+            del os.environ["PKG_CONFIG_LIBDIR"]
         check(c.returncode != 0 and "no domain param" in (c.stderr + c.stdout), "(c) no domain param in the contract directories is a refusal naming it")
     src = open(os.path.join(ROOT, "tools", "protocol-gen.c")).read()
     check("omxcontract/" not in src and "OMX_PARAM_SCALES" not in src, "(d) tools/protocol-gen.c reads no omx-contract header and spells no OMX_PARAM_SCALES")
