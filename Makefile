@@ -160,7 +160,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -381,9 +381,8 @@ gen: $(GEN)
 	python3 tools/probe-words-gen.py
 	python3 tools/pin-words-gen.py
 	python3 tools/param-scales-gen.py
-	$(OMX_CONTRACT) render --target c --package pin --contract-dir contract.d --out include/plugin-hostd
 	python3 tools/estimate-words-gen.py
-	$(OMX_CONTRACT) render --target c --package estimate --contract-dir contract.d --out include/plugin-hostd
+	$(MAKE) --no-print-directory render-domains
 	$(GEN) splice doc/overview.md > doc/overview.md.new && mv doc/overview.md.new doc/overview.md
 	$(MAKE) --no-print-directory protocol-doc
 
@@ -398,10 +397,8 @@ check-generated: $(GEN)
 	python3 tools/probe-words-gen.py --check; \
 	python3 tools/param-scales-gen.py --check; \
 	python3 tools/pin-words-gen.py --check; \
-	$(OMX_CONTRACT) render --target c --package pin --contract-dir contract.d --out include/plugin-hostd --check; \
 	python3 tools/estimate-words-gen.py --check; \
-	$(OMX_CONTRACT) render --target c --package estimate --contract-dir contract.d --out include/plugin-hostd --check; \
-	$(OMX_CONTRACT) render --target c --package probe --contract-dir contract.d --out include/plugin-hostd --check; \
+	$(MAKE) --no-print-directory check-domain-renders; \
 	$(GEN) splice doc/overview.md > $$tmp/readme; cmp $$tmp/readme doc/overview.md; \
 	sha256sum -c --quiet $(ABNF_CORPUS)/GRAMMAR.sha256 || { echo "$(ABNF_CORPUS) is not written from this grammar: run make fuzz-abnf-corpus"; exit 1; }; \
 	$(GEN) regions > $$tmp/regions; test -s $$tmp/regions; \
@@ -785,6 +782,20 @@ check-grouping-domain:
 .PHONY: test-protocol-domain
 test-protocol-domain:
 	python3 tests/protocol_domain_test.py
+
+# the C renders of this tree's own domains pin, estimate and probe (include/plugin-hostd/{pin,estimate,probe}_codes.h):
+# render-domains writes them, check-domain-renders holds them byte for byte (check-generated runs it)
+DOMAIN_RENDERS = pin estimate probe
+.PHONY: render-domains check-domain-renders test-domain-renders
+render-domains check-domain-renders:
+	@set -e; for p in $(DOMAIN_RENDERS); do \
+	  $(OMX_CONTRACT) render --target c --package $$p --contract-dir contract.d --out include/plugin-hostd $(if $(filter check-domain-renders,$@),--check); \
+	done
+
+# check-domain-renders resolves a reference of this tree's domains to an installed owner's domain (the domain
+# plugin-hostd names omx-clap's HOST_REPLY_CODES), and refuses one whose owner is not installed by name
+test-domain-renders:
+	sh tests/domain-renders-test.sh
 
 .PHONY: test-estimate-words
 test-estimate-words:
