@@ -18,15 +18,18 @@ protocol.h are generated from it, the meaning texts included; the reply of estim
     the domain changes the rendered protocol.h; a hand #define of the ceiling outside the generated blocks is refused by
     --check, by name.
 
-Environment: OMX_CONTRACT (the command, default omx-contract), CC, OMX_CONTRACT_PRIMITIVES (omx-contract's installed
-primitives.json, which holds PARAM_UNITS; default <contractdir>/3/omx-contract/primitives.json). Exit 0 all green, 1 a
-FAIL line."""
+Environment: OMX_CONTRACT (the command, default omx-contract), CC, OMX_CONTRACT_PATH (the contract directories
+tools/domain_path.py reads omx-contract's domain param from, the holder of PARAM_UNITS; then the installed one). Exit 0
+all green, 1 a FAIL line."""
 import json, os, re, shlex, shutil, subprocess, sys, tempfile
+
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+from domain_path import read_domain  # noqa: E402  omx-contract's domain param, from the contract directories
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OMX = shlex.split(os.environ.get("OMX_CONTRACT", "omx-contract"))
 CC = shlex.split(os.environ.get("CC", "cc"))
-PRIMITIVES = os.environ.get("OMX_CONTRACT_PRIMITIVES", "/usr/share/omx-contract/contract.d/3/omx-contract/primitives.json")
 LISTS = (("verdicts", "ESTIMATE_VERDICTS", "PHD_ESTIMATE_VERDICT_"), ("reasons", "ESTIMATE_REASONS", "PHD_ESTIMATE_REASON_"))
 failed = 0
 
@@ -121,8 +124,8 @@ def ceiling(gold, tmp, doc_path, gen):
     if item is None:
         check(False, "(d) no ceiling in the domain to hold to the golden row, sabotage or guard")
         return
-    units = json.load(open(PRIMITIVES))["PARAM_UNITS"]["words"]
-    check(item.get("x-unit") in [w["word"] for w in units.values()],
+    units = read_domain("param", "estimate_words_test")["components"]["schemas"]["PARAM_UNITS"]["oneOf"]
+    check(item.get("x-unit") in [w["const"] for w in units],
           "(d) its x-unit %r is a word of omx-contract's PARAM_UNITS" % item.get("x-unit"))
     check([str(item.get("x-value")), item.get("x-unit")] == want[1:], "(d) its value and unit are the golden %s" % want[1:])
     text = open(os.path.join(ROOT, "include", "plugin-hostd", "protocol.h")).read()
