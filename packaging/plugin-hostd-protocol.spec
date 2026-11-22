@@ -27,7 +27,7 @@ BuildRequires: omx-contract-devel >= 3.21.0
 BuildRequires: omx-clap-contract >= 0.34.0
 BuildRequires: omx-contract-data >= 3.21.0
 # plugin-db's package of the contract directory. The committed vocabulary header is the render of plugin-db 0.4.7, checked by ci's declared-protocol job against the served contract; the package build (make test: %check, debian/rules) reads none of its words, so the floor stays 0.4.4
-BuildRequires: plugin-db-contract >= 0.4.4
+BuildRequires: plugin-db-contract >= 0.5.0
 # omx_curve.h, the curve function the curve verbs draw with (header only)
 BuildRequires: omx-dsp-devel >= 0.34.0
 
