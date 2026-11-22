@@ -784,12 +784,18 @@ test-protocol-domain:
 	python3 tests/protocol_domain_test.py
 
 # the C renders of this tree's own domains pin, estimate and probe (include/plugin-hostd/{pin,estimate,probe}_codes.h):
-# render-domains writes them, check-domain-renders holds them byte for byte (check-generated runs it)
+# render-domains writes them, check-domain-renders holds them byte for byte (check-generated runs it). They read this
+# tree's contract.d first, then the contract directories render-verbs reads (OMX_CONTRACT_PATH, then the installed
+# one): the domain plugin-hostd names omx-clap's HOST_REPLY_CODES, so omx-clap's package must be installed beside it, at
+# the floor the domain's info.x-requires states (omx-clap-contract, packaging/deps.txt; data only, the protocol <->
+# omx-clap cycle of a chain is bootstrapped from the clap chain head's contract)
 DOMAIN_RENDERS = pin estimate probe
 .PHONY: render-domains check-domain-renders test-domain-renders
 render-domains check-domain-renders:
+	@command -v $(OMX_CONTRACT) >/dev/null || { echo "$@: no $(OMX_CONTRACT) command: install omx-contract" >&2; exit 1; }
 	@set -e; for p in $(DOMAIN_RENDERS); do \
-	  $(OMX_CONTRACT) render --target c --package $$p --contract-dir contract.d --out include/plugin-hostd $(if $(filter check-domain-renders,$@),--check); \
+	  OMX_CONTRACT_PATH=$(abspath contract.d)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH))$(if $(wildcard $(CONTRACTDIR)),:$(CONTRACTDIR)) \
+	    $(OMX_CONTRACT) render --target c --package $$p --installed --out include/plugin-hostd $(if $(filter check-domain-renders,$@),--check); \
 	done
 
 # check-domain-renders resolves a reference of this tree's domains to an installed owner's domain (the domain
