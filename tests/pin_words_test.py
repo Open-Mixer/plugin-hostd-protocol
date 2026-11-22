@@ -6,7 +6,7 @@
 generated from it, the meaning texts included (sorting pass V12).
 
 (a) golden: the two lists and the five words of protocol.h, expanded by tests/pin_words_dump.c, are the rows frozen from the
-    words plugin-db's data/pin.json wrote (tests/golden/pin-words.txt, 10 rows);
+    words plugin-db's pin file wrote before its domain took them (tests/golden/pin-words.txt, 10 rows);
 (b) the domain holds exactly those rows: word, code (its place), meaning (its description, first letter lowered, no final
     stop), and include/plugin-hostd/pin_codes.h is the render of its x-c-codes items;
 (c) sabotage, in a scratch copy of the tree: a word, or a meaning, changed in the domain makes tools/pin-words-gen.py --check

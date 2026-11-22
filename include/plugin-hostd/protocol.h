@@ -743,7 +743,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_PIN_LAYOUT_UNKNOWN   "-"
 /** @brief the optional last word of a pin line: the qualification verdict of the pinned bytes.
  *
- * The key is plugin-db's (data/pin.json, rendered beside this header); the verdict words are the domain pin's
+ * The key is plugin-db's (its domain plugin-db, rendered beside this header); the verdict words are the domain pin's
  */
 #define PHD_PIN_VERDICT_KEY      OMX_PLUGIN_DB_PIN_KEYS_VERDICT "="
 

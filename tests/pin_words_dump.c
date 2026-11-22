@@ -3,7 +3,7 @@
 /* pin_words_dump: every row of PHD_PIN_VERDICTS and PHD_PIN_POOLS of protocol.h, one line each,
  * "<list> <index> <id> <word> <meaning>", in the header's order, then the three verdict words and the two pool words by their
  * own names, "word <NAME> <value>" (tests/pin_words_test.py compares it with tests/golden/pin-words.txt, frozen from the
- * words plugin-db's data/pin.json wrote). */
+ * words plugin-db's pin file wrote before its domain took them). */
 #include <plugin-hostd/protocol.h>
 
 #include <stdio.h>
