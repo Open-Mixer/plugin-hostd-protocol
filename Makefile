@@ -51,7 +51,7 @@ HEADERS = include/host-backend.h include/host-dispatch.h include/host-errors.h i
           include/host-scenario.h include/protocol.h include/socket.h include/utils.h
 
 # the declared protocol (doc/protocol.md): plugin-hostd's protocol.h and the headers it includes, rendered by
-# omx-contract from data/verbs.json and from omx-clap's and plugin-db's packages of the contract directory; installed under
+# omx-contract from data/verbs.json and from omx-clap's package and the domains of omx-clap and plugin-db in the contract directory; installed under
 # <includedir>/plugin-hostd-protocol/plugin-hostd/, so a consumer includes <plugin-hostd/protocol.h> with this package's
 # Cflags. src/protocol.c reads the protocol version, hello's line and the extensions hello grants from them.
 RENDERED = include/plugin-hostd/plugin_hostd_protocol_host_verbs.h include/plugin-hostd/plugin_hostd_protocol_vocabulary.h \
@@ -575,8 +575,11 @@ render-verbs check-rendered:
 	  $(if $(filter check-rendered,$@),diff -u include/plugin-hostd/$$f $$tmp/$$f >&2 || { echo "include/plugin-hostd/$$f is not the render of omx-clap's package" >&2; exit 1; },cp $$tmp/$$f include/plugin-hostd/$$f); \
 	done
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
+	wd=""; for d in $$(printf %s "$(OMX_CONTRACT_PATH)" | tr : ' ') $(CONTRACTDIR); do \
+	  if [ -f $$d/plugin-db/plugin-db.json ]; then wd="--with-domain $$d/plugin-db"; break; fi; done; \
+	test -n "$$wd" || { echo "$@: no domain plugin-db of plugin-db's contract in the contract directories" >&2; exit 1; }; \
 	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
-	  $(OMX_CONTRACT) render --target c --package plugin-db --installed --out $$tmp; \
+	  $(OMX_CONTRACT) render --target c --package plugin-db --installed $$wd --out $$tmp; \
 	$(if $(filter check-rendered,$@),diff -u include/plugin-hostd/plugin_db_vocabulary.h $$tmp/plugin_db_vocabulary.h >&2 || { echo "include/plugin-hostd/plugin_db_vocabulary.h is not the render of plugin-db's package" >&2; exit 1; },cp $$tmp/plugin_db_vocabulary.h include/plugin-hostd/plugin_db_vocabulary.h); \
 	echo "the rendered headers are current"
 
