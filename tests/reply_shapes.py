@@ -35,6 +35,8 @@ def typed(value, kind, types):
     """a decoded word, list or record as the document the schema describes"""
     t = types.get(kind)
     if t and "items" in t:
+        if isinstance(value, str):
+            return value  # a further none word, itself (#86)
         return [typed(v, t["items"]["type"], types) for v in value]
     if t and "fields" in t:
         return {n: typed(value[n], k, types) for n, k in zip(t["fields"]["names"], t["fields"]["args"])}
@@ -71,6 +73,15 @@ def record_names(schema, kind, types, where, failures):
 def walk(schema, kind, types, where, failures):
     t = types.get(kind)
     if t and "items" in t:
+        # a list whose none words are more than one: an array, or one of the further words (#86)
+        further = t["items"]["none"].split("|")[1:] if t["items"].get("none") else []
+        if further:
+            arms = schema.get("anyOf", [])
+            words = [a for a in arms if "enum" in a]
+            if len(arms) != 2 or len(words) != 1 or words[0]["enum"] != further:
+                failures.append("%s: the list %s is not an array or one of its further none words %s" % (where, kind, further))
+                return
+            schema = next(a for a in arms if "enum" not in a)
         if schema.get("type") != "array":
             failures.append("%s: the list %s is not an array" % (where, kind))
         else:
@@ -159,6 +170,11 @@ def main():
     for name in ("Bright Mix", ""):
         if "preset_get" in validators and not validators["preset_get"].is_valid({"load_key": "urn:p:1", "name": name}):
             failures.append("preset_get: the schema refuses the name %r" % name)
+    # history_get: "-" is no entry, "unavailable" the history blocked, and the parsed reply tells them apart (#86)
+    for line, want in (("resp 0 -", []), ("resp 0 unavailable", "unavailable")):
+        doc = validate("history_get", line, "a reply as the host writes it") if "history_get" in validators else None
+        if doc is not None and doc.get("history") != want:
+            failures.append("history_get: the history of %r is %r, not %r" % (line, doc.get("history"), want))
     served = {"hello", "curve_points", "param_get_many"}
     for v in sorted(served & set(verbs)):
         if real.get(v, 0) < 1:
@@ -186,6 +202,7 @@ def main():
     plant("worker_list", "a worker that is not w<k>", lambda d: d["workers"][0].update(worker="x1"))
     plant("curve_points", "a point that is a word", lambda d: d["points"].append({"x": "1", "y": 2.0}))
     plant("hello", "a version that is a word", lambda d: d.update(version="1"))
+    plant("history_get", "a none word the table does not have", lambda d: d.update(history="off"))
     plant("estimate", "a ram key that is not a number or -", lambda d: d.update(ram_bytes="lots"))
     plant("estimate", "a verdict that is no word of the domain estimate", lambda d: d.update(verdict="fits"))
     plant("pin_layout", "a sha256 that is short", lambda d: d["layout"].update(sha256="ab"))

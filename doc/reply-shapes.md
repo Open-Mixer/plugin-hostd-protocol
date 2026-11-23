@@ -24,7 +24,9 @@ One property per word of the reply, in the order of the longest reply form, and 
 (`estimate` has six words and, from a daemon with the memory budget, ten; `plan` and `plan_get` have their `cores` from a
 daemon with them). A list is an array and a record an object whose keys are the table's names; `uint` and `int` are
 integers, `number` a number; a word in double quotes is unquoted (`\"` and `\\` undone). Where a word can be `-`
-(`amount`, `core`, `worker-or-none`) it stays a string, since a number does not say none. A count that only counts the
+(`amount`, `core`, `worker-or-none`) it stays a string, since a number does not say none. A list's first none word is
+the empty array and a further one stays its word: `history_get` answers `[]` for `-` (no entry) and `"unavailable"` while
+the history file is blocked, so a client tells "no history yet" from "history off" (#86). A count that only counts the
 records (`worker_list`) is not a property: the array's length is it. `preset_get`'s `name` is the rest of the line, as the
 host wrote it (the table's `line` type): it may hold spaces and may be empty. `preset_list` answers only a count and has no
 document.

@@ -1781,7 +1781,8 @@ static inline int phd_is_note_verb(const char *verb)
  * X(name, item, separator, none, spelling) and X(name, separator, fields, spelling) */
 /** @brief the list types of the table, as rows X(name, item, separator, none, spelling)
  *
- * A list is items of one type joined by a separator, or one of its none words.
+ * A list is items of one type joined by a separator, or one of its none words: the first is the empty list, a further
+ * one is itself, so a reader tells history's unavailable from its "-" (#86).
  *
  * @param X the macro each row is passed to.
  */

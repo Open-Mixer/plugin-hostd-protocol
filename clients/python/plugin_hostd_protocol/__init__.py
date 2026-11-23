@@ -523,8 +523,8 @@ class Protocol:
         return word
 
     def read_word(self, kind, word):
-        """One word as its declared type: a leaf by its pattern, a list as a list (one of its none words an empty one),
-        a record as {field: value}, its fields found by the record's own pattern, so a field may hold the separator;
+        """One word as its declared type: a leaf by its pattern, a list as a list (its first none word an empty one, a
+        further none word itself: history's unavailable is not its "-", #86), a record as {field: value}, its fields found by the record's own pattern, so a field may hold the separator;
         literal words a|b as the word. ProtocolError when the word is not of the type."""  # noqa: D205, D209
         t = self.types.get(kind)
         if t is None:
@@ -535,8 +535,9 @@ class Protocol:
             raise ProtocolError("%s is not one of %s" % (word, kind))
         if "items" in t:
             items = t["items"]
-            if items.get("none") and word in items["none"].split("|"):
-                return []
+            nones = items["none"].split("|") if items.get("none") else []
+            if word in nones:
+                return [] if word == nones[0] else word
             return [self.read_word(items["type"], w) for w in word.split(items["separator"])]
         if "fields" in t:
             f = t["fields"]

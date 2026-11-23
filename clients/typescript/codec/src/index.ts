@@ -611,8 +611,8 @@ export class Protocol {
   }
 
   /**
-   * One word as its declared type: a leaf by its pattern, a list as a list (one of its none words an empty one), a
-   * record as {field: value}, its fields found by the record's own pattern, so a field may hold the separator; literal
+   * One word as its declared type: a leaf by its pattern, a list as a list (its first none word an empty one, a
+   * further none word itself: history's unavailable is not its "-", #86), a record as {field: value}, its fields found by the record's own pattern, so a field may hold the separator; literal
    * words a|b as the word. ProtocolError when the word is not of the type.
    */
   readWord(kind: string, word: string): Value {
@@ -624,7 +624,8 @@ export class Protocol {
     }
     if (t.items) {
       const items = t.items;
-      if (items.none && items.none.split('|').includes(word)) return [];
+      const nones = items.none ? items.none.split('|') : [];
+      if (nones.includes(word)) return word === nones[0] ? [] : word;
       return word.split(items.separator).map((w) => this.readWord(items.type, w));
     }
     if (t.fields) {
