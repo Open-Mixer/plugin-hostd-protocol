@@ -34,8 +34,8 @@ endif
 # declares it: the floor packaging/deps.txt declares, read back from the spec generated from it
 OMXDSP_FLOOR := $(shell sed -n 's/^BuildRequires: *omx-dsp-devel *>= *\([0-9][0-9.]*\) *$$/\1/p' packaging/plugin-hostd-protocol.spec)
 OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 2>/dev/null)
-# the shapes' targets read JSON and a generator, no header
-ifeq ($(filter clean version-check deps deps-check test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-no-backcompat test-no-fedora44,$(MAKECMDGOALS)),)
+# the shapes' targets read JSON and a generator, and the documentation targets read the headers as text: no header
+ifeq ($(filter clean version-check deps deps-check test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-no-backcompat test-no-fedora44 docs-site check-protocol-doc check-doxygen,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
 $(error no omx-dsp >= $(OMXDSP_FLOOR) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
@@ -410,6 +410,24 @@ protocol-doc:
 
 check-protocol-doc:
 	python3 tools/protocol-doc.py --check
+
+# The published reference: Open-Mixer/.github's docs-publish.yml runs this with DOCS_OUT, an empty absolute directory,
+# then renders the Markdown and, at a release tag, publishes the tree under
+# https://www.openmixer.org/reference/plugin-hostd-protocol/<version>/. The two base-free doc checks run first: the
+# verb reference doc/protocol.md is what tools/protocol-doc.py renders from protocol/ (check-protocol-doc), and every
+# public C symbol is documented or in the shrink-only baseline (check-doxygen). Then only what the tree generates or
+# keeps: the C API reference doxygen renders from the headers (api/), doc/ and docs/.
+.PHONY: docs-site
+docs-site: check-protocol-doc check-doxygen
+	@case "$(DOCS_OUT)" in /*) ;; *) echo "docs-site: FAIL - DOCS_OUT '$(DOCS_OUT)' is not an absolute directory: name the directory the reference is written to" >&2; exit 1;; esac
+	rm -rf build/doxygen && mkdir -p build/doxygen
+	DOXYGEN_LOG=build/doxygen/warnings.log DOXYGEN_OUT=build/doxygen doxygen tools/Doxyfile >/dev/null
+	@test -f build/doxygen/html/index.html || { echo "docs-site: FAIL - doxygen wrote no build/doxygen/html/index.html" >&2; exit 1; }
+	mkdir -p $(DOCS_OUT)/api $(DOCS_OUT)/doc $(DOCS_OUT)/docs
+	cp -a build/doxygen/html/. $(DOCS_OUT)/api/
+	cp README.md COPYING $(DOCS_OUT)/
+	cp doc/*.md $(DOCS_OUT)/doc/
+	cp docs/*.md $(DOCS_OUT)/docs/
 
 # the host verb table of protocol.h has a row for every verb a controller sends, no more and no fewer; and each of its
 # rules broken in a scratch copy of the header turns it red; the scenario list exercises every verb a console's host
