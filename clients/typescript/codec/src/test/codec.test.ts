@@ -15,11 +15,12 @@ import { optionsFromEnvironment } from '../environment.js';
 import { formatNumber, GroupingReason, Protocol, ProtocolError, RETRY_REASONS } from '../index.js';
 
 const FIXTURES = new URL('../../../../fixtures/codec.json', import.meta.url);
-// plugin-hostd declares the grouping reasons (its data/grouping.json); this repository's CI names that file here (a pinned
-// plugin-hostd commit), and the arms that hold GroupingReason and RETRY_REASONS to it run, until plugin-hostd#175
-// publishes the reasons as a domain item both codecs read. Without the file they are skipped by name, never silently.
-const GROUPING = process.env['PLUGIN_HOSTD_GROUPING_JSON'] ?? '';
-const skipGrouping = GROUPING ? false : 'PLUGIN_HOSTD_GROUPING_JSON is not set';
+// the grouping reasons are written by tools/grouping-reasons.py from plugin-hostd's domain plugin-hostd/grouping; these arms hold
+// them to the 16 reasons frozen in clients/fixtures/grouping-reasons.txt (key, word, group), with no file of plugin-hostd
+const GOLDEN = readFileSync(new URL('../../../../fixtures/grouping-reasons.txt', import.meta.url), 'utf8')
+  .trim()
+  .split('\n')
+  .map((line) => line.split(' ') as [string, string, string]);
 const { cases } = JSON.parse(readFileSync(FIXTURES, 'utf8')) as { cases: { op: string; in: unknown; expect?: unknown; error?: boolean }[] };
 
 function clean(value: unknown): unknown {
@@ -97,7 +98,7 @@ describe('the replies with a shape of their own', () => {
   });
 
   it('names every figure of an estimate', () => {
-    assert.deepEqual(protocol.readEstimate(data('resp 0 192 24.00 - 2 1 1:-544 0 - - 3')), {
+    assert.deepEqual(protocol.readEstimate(data('resp 0 192 24.00 - 2 1 1:-544 0 - - 3 warn ram-unknown')), {
       latency_frames: 192,
       cpu_percent: 24,
       ram_bytes: null,
@@ -108,37 +109,28 @@ describe('the replies with a shape of their own', () => {
       ram_added_bytes: null,
       ram_budget_bytes: null,
       ram_unknown_count: 3,
+      verdict: 'warn',
+      reason: 'ram-unknown',
     });
   });
 
-  it('asks again for exactly the reasons the file declares retry', { skip: skipGrouping }, () => {
-    // RETRY_REASONS is read from the property each reason declares in data/grouping.json (#67), not chosen in code
-    const declared = JSON.parse(readFileSync(GROUPING, 'utf8')) as { PLUGIN_HOSTD_GROUPING_REASONS: { words: Record<string, { word: string; group?: string }> } };
-    const retry = Object.values(declared.PLUGIN_HOSTD_GROUPING_REASONS.words).filter((w) => w.group === 'retry').map((w) => w.word);
-    assert.ok(retry.length > 0);
+  it('asks again for exactly the reasons the domain declares retry', () => {
+    // RETRY_REASONS is the reasons of the group retry (#67), not chosen in code
+    const retry = GOLDEN.filter(([, , group]) => group === 'retry').map(([, word]) => word);
+    assert.deepEqual(retry, ['no-verdict', 'plan-refused']);
     assert.deepEqual([...RETRY_REASONS], retry);
   });
 });
 
-describe('the grouping reasons are constants of the reader, held to plugin-hostd\'s data/grouping.json (#67)', { skip: skipGrouping }, () => {
-  const file = (GROUPING ? JSON.parse(readFileSync(GROUPING, 'utf8')) : { PLUGIN_HOSTD_GROUPING_REASONS: { words: {} } }) as { PLUGIN_HOSTD_GROUPING_REASONS: { words: Record<string, { word: string; group?: string }> } };
-  const declared = Object.entries(file.PLUGIN_HOSTD_GROUPING_REASONS.words);
-
-  it('has a constant for every declared reason, named as the file keys it, with the file\'s value', () => {
-    for (const [key, { word }] of declared) assert.equal((GroupingReason as Record<string, string>)[key], word, key);
+describe("the grouping reasons are constants of the reader, held to the golden 16 reasons of plugin-hostd's domain plugin-hostd/grouping", () => {
+  it("has a constant for every golden reason, named as the domain keys it, with the domain's value", () => {
+    assert.equal(GOLDEN.length, 16);
+    for (const [key, word] of GOLDEN) assert.equal((GroupingReason as Record<string, string>)[key], word, key);
   });
 
-  it('has no constant that names a reason the file does not declare', () => {
-    assert.deepEqual(Object.keys(GroupingReason).sort(), declared.map(([key]) => key).sort());
-    assert.deepEqual(Object.values(GroupingReason).sort(), declared.map(([, { word }]) => word).sort());
-  });
-
-  it('has every reason declare its retry property', () => {
-    const all = JSON.parse(readFileSync(GROUPING, 'utf8')) as Record<string, { groups?: string; words: Record<string, { word: string; group?: string }> }>;
-    const groups = Object.values(all.PLUGIN_HOSTD_GROUPING_REASON_GROUPS?.words ?? {}).map((w) => w.word).sort();
-    assert.deepEqual(groups, ['final', 'retry']);
-    assert.equal(all.PLUGIN_HOSTD_GROUPING_REASONS!.groups, 'PLUGIN_HOSTD_GROUPING_REASON_GROUPS');
-    for (const [key, row] of declared) assert.ok(row.group !== undefined && groups.includes(row.group), key);
+  it('has no constant that names a reason the domain does not declare', () => {
+    assert.deepEqual(Object.keys(GroupingReason).sort(), GOLDEN.map(([key]) => key).sort());
+    assert.deepEqual(Object.values(GroupingReason).sort(), GOLDEN.map(([, word]) => word).sort());
   });
 
   it('spells the two a controller branches on', () => {

@@ -48,10 +48,8 @@ export interface Plan {
   readonly cores: (number | null)[][];
 }
 
-// the reasons plugin-hostd declares (PLUGIN_HOSTD_GROUPING_REASONS in its data/grouping.json), copied by hand until
-// Open-Mixer/plugin-hostd#175 publishes them as a domain item both codecs read; until then this repository's CI sets
-// PLUGIN_HOSTD_GROUPING_JSON (that file at a pinned plugin-hostd commit) and the tests hold this block to it
-/** The reasons a plan gives (PLUGIN_HOSTD_GROUPING_REASONS), by the key the file gives each: a controller compares
+// BEGIN GENERATED grouping-reasons (tools/grouping-reasons.py, from plugin-hostd's domain plugin-hostd/grouping): do not edit
+/** The reasons a plan gives (PLUGIN_HOSTD_GROUPING_REASONS), by the key the domain gives each: a controller compares
  * against these and writes no reason word of its own. A plan-refused is followed by a colon and the refusal's number. */
 export const GroupingReason = {
   refused: 'refused',
@@ -74,10 +72,11 @@ export const GroupingReason = {
 /** One of the reasons a plan gives. */
 export type GroupingReasonWord = (typeof GroupingReason)[keyof typeof GroupingReason];
 /**
- * The reasons of a plan that a later plan may not give again with the chain as it is: the reasons the file declares
+ * The reasons of a plan that a later plan may not give again with the chain as it is: the reasons the domain declares
  * in the group retry, read from it and chosen nowhere in code.
  */
 export const RETRY_REASONS: readonly string[] = [GroupingReason.noVerdict, GroupingReason.planRefused];
+// END GENERATED grouping-reasons
 
 /** A member of a plan that has a reason: the word of PLUGIN_HOSTD_GROUPING_REASONS, the code a plan-refused carries. */
 export interface PlanReason {
@@ -106,6 +105,10 @@ export interface Estimate {
   readonly ram_added_bytes: number | null;
   readonly ram_budget_bytes: number | null;
   readonly ram_unknown_count: number | null;
+  /** The host's insert verdict on the candidate (the last member): a word of the domain estimate's ESTIMATE_VERDICTS. */
+  readonly verdict: string;
+  /** The word of ESTIMATE_REASONS that gave the verdict. A client shows both and computes no verdict. */
+  readonly reason: string;
 }
 
 // ---- the words of a line, as plugin-hostd-protocol's grammar (core.abnf: word, quoted, escaped-quote) writes them,
@@ -275,6 +278,29 @@ function texts(node: unknown, out: Map<string, string>): void {
   }
 }
 
+/** Every word of a domain document with its English sentence: a word is its `const`, its sentence its `x-text`. */
+function domainTexts(node: unknown, out: Map<string, string>): void {
+  if (Array.isArray(node)) {
+    for (const v of node) domainTexts(v, out);
+  } else if (node && typeof node === 'object') {
+    const o = node as Record<string, unknown>;
+    if (typeof o['const'] === 'string' && typeof o['x-text'] === 'string' && !out.has(o['const'])) out.set(o['const'], o['x-text']);
+    for (const v of Object.values(o)) domainTexts(v, out);
+  }
+}
+
+/** The domain documents of a contract directory: <d>/<name>/<last segment>.json, one or two segments deep. */
+function domains(d: string): string[] {
+  const out: string[] = [];
+  for (const name of existsSync(d) ? readdirSync(d, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort() : []) {
+    if (name === '3') continue;
+    const top = join(d, name);
+    if (existsSync(join(top, `${name}.json`))) out.push(join(top, `${name}.json`));
+    for (const sub of readdirSync(top).sort()) if (existsSync(join(top, sub, `${sub}.json`))) out.push(join(top, sub, `${sub}.json`));
+  }
+  return out;
+}
+
 interface Form {
   readonly args: readonly string[] | null;
   readonly tail?: boolean;
@@ -431,6 +457,20 @@ export class Protocol {
           if (this.codes.has(code) && !this.sentences.has(code)) {
             this.sentences.set(code, text);
             this.owners.set(code, pkg);
+          }
+        }
+      }
+      // the words a package keeps as a domain (omx-clap's host words, the domain host): their sentence is the word's
+      // x-text and their owner the domain's info.x-owner, whose catalog translates them
+      for (const path of domains(d)) {
+        const doc = read(path, 'the domain') as { info?: { 'x-owner'?: unknown } };
+        const owner = typeof doc?.info?.['x-owner'] === 'string' ? doc.info['x-owner'] : undefined;
+        const found = new Map<string, string>();
+        domainTexts(doc, found);
+        for (const [code, text] of found) {
+          if (this.codes.has(code) && !this.sentences.has(code)) {
+            this.sentences.set(code, text);
+            if (owner) this.owners.set(code, owner);
           }
         }
       }
@@ -711,7 +751,8 @@ export class Protocol {
    * What estimate answers after resp 0, as words, read by the table's reply_forms; null for a figure the daemon does
    * not have (-). members: the members no
    * figure could be read for, counted from 0 in the order they were asked, each with the reply code that says why and
-   * its name.
+   * its name. verdict and reason: the host's insert verdict on the last member, the candidate, and the reason word
+   * that gave it; a client shows them and computes no verdict.
    */
   readEstimate(data: readonly string[]): Estimate {
     const r = this.readReply('estimate', data);
@@ -730,6 +771,8 @@ export class Protocol {
       ram_added_bytes: n('ram_added_bytes'),
       ram_budget_bytes: n('ram_budget_bytes'),
       ram_unknown_count: n('ram_unknown_count'),
+      verdict: r['verdict'] as string,
+      reason: r['reason'] as string,
     };
   }
 

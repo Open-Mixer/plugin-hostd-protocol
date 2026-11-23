@@ -127,6 +127,8 @@ export type ArgType =
   | 'quoted-escaped'
   | 'key'
   | 'value'
+  | 'estimate-verdict'
+  | 'estimate-reason'
   | 'line'
   | 'members'
   | 'instance-list'

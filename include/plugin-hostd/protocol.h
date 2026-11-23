@@ -41,8 +41,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "omx_clap_core_host_verbs.h"
-#include "omx_clap_core_vocabulary.h"
+#include "omx_clap_host_verbs.h"
+#include "omx_clap_vocabulary.h"
 #include "plugin_hostd_protocol_host_verbs.h"
 #include "plugin_hostd_protocol_vocabulary.h"
 #include "plugin_db_vocabulary.h"
@@ -87,7 +87,7 @@ static inline int phd_has_display(void)
 
 /** @brief the word after a window verb's -902 from a daemon with no display session
  *
- * It is omx-clap-core's hosting.window code for the same fact (data/hosting.json), the word its worker gives after -404
+ * It is omx-clap's hosting.window code for the same fact (data/hosting.json), the word its worker gives after -404
  * when no display answers.
  */
 #define PHD_EXTERNAL_UI_NO_DISPLAY "hosting.window.no-display"
@@ -263,6 +263,7 @@ static inline int phd_has_display(void)
  *
  * @param X the macro each row is passed to.
  */
+/* BEGIN GENERATED PHD_PROBE_OUTCOMES: tools/probe-words-gen.py, from contract.d/probe/probe.json */
 #define PHD_PROBE_OUTCOMES(X) \
     X(OK, "probe.ok", "the step ran to its end") \
     X(CRASHED, "probe.crashed", "the child died of a signal not caused by a limit") \
@@ -282,11 +283,13 @@ static inline int phd_has_display(void)
     X(NOT_ATTEMPTED, "probe.not-attempted", "the protocol did not ask for this step, or it does not apply") \
     X(CHILD_PROTOCOL, "probe.child-protocol", "the child wrote a record outside the step grammar") \
     X(ERROR, "probe.error", "anything else; detail keeps the words")
+/* END GENERATED PHD_PROBE_OUTCOMES */
 
 /** @brief why a run was made, the document's run.reason: X(id, name, meaning)
  *
  * @param X the macro each row is passed to.
  */
+/* BEGIN GENERATED PHD_PROBE_REASONS: tools/probe-words-gen.py, from contract.d/probe/probe.json */
 #define PHD_PROBE_REASONS(X) \
     X(ADD, "add", "a user added the plugin") \
     X(RESCAN, "rescan", "the plugin was offered for a rescan") \
@@ -295,6 +298,7 @@ static inline int phd_has_display(void)
     X(AUTO_MEASURE, "auto-measure", "the machine measures what has no figures when it is idle") \
     X(REFERENCE, "reference", "a reference run on the named rig") \
     X(CI, "ci", "a continuous integration run")
+/* END GENERATED PHD_PROBE_REASONS */
 
 /** @brief the limits a set can ask for: X(id, name, meaning)
  *
@@ -386,6 +390,7 @@ static inline int phd_has_display(void)
  *
  * @param X the macro each row is passed to.
  */
+/* BEGIN GENERATED PHD_PROBE_STEPS: tools/probe-words-gen.py, from contract.d/probe/probe.json */
 #define PHD_PROBE_STEPS(X) \
     X(HASH, "hash", "the files the host loads, pinned") \
     X(SCAN, "scan", "the plugin's descriptor read") \
@@ -396,6 +401,7 @@ static inline int phd_has_display(void)
     X(RT_SAFETY, "rt-safety", "what process() does under the interposer") \
     X(NOTE_SWEEP, "note-sweep", "a note input played") \
     X(SOAK, "soak", "a long render")
+/* END GENERATED PHD_PROBE_STEPS */
 
 /** @brief tells whether a string is a pool name
  *
@@ -437,7 +443,7 @@ static inline int phd_pool_name_valid(const char *name)
  *
  * The codes are the -5xx hundred; a reply is "resp \<code\>". resp is the rendered number of the code. Each number has
  * one name in the contract, rendered as OMX_REPLY_\<GROUP\>_\<REASON\>_RESP: the ones omx-clap-host answers too are
- * omx-clap-core's reply.host.* codes (its HOST_REPLY_CODES, omx_clap_core_vocabulary.h), the others plugin-hostd's
+ * omx-clap's reply.host.* codes (its HOST_REPLY_CODES, omx_clap_vocabulary.h), the others plugin-hostd's
  * reply.plugin-hostd.* (data/verbs.json PLUGIN_HOSTD_REPLY_CODES, plugin_hostd_vocabulary.h); the header defines none.
  *
  * @param X the macro each row is passed to.
@@ -552,7 +558,7 @@ static inline int phd_pool_name_valid(const char *name)
 
 /** @brief the word of mod-host's add verb, which the daemon extends with a placement
  *
- * Every verb of its own is OMX_VERB_\<VERB\> of plugin_hostd_host_verbs.h, and pin_expect is omx-clap-core's,
+ * Every verb of its own is OMX_VERB_\<VERB\> of plugin_hostd_host_verbs.h, and pin_expect is omx-clap's,
  * OMX_VERB_PIN_EXPECT.
  */
 #define PHD_VERB_ADD              "add"
@@ -737,20 +743,17 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_PIN_LAYOUT_UNKNOWN   "-"
 /** @brief the optional last word of a pin line: the qualification verdict of the pinned bytes.
  *
- * The words of a pin are plugin-db's (data/pin.json), rendered beside this header
+ * The key is plugin-db's (its domain plugin-db, rendered beside this header); the verdict words are the domain pin's
  */
 #define PHD_PIN_VERDICT_KEY      OMX_PLUGIN_DB_PIN_KEYS_VERDICT "="
 
-/** @brief the verdict of a plugin qualified to run in a worker that other plugins share
- *
- * Only this verdict lets a plugin share a worker under pin_mode first-use.
- */
-#define PHD_PIN_VERDICT_IN_PROCESS OMX_PLUGIN_DB_PIN_VERDICTS_IN_PROCESS
-/** @brief the verdict of a plugin qualified to run, in a worker of its own */
-#define PHD_PIN_VERDICT_ISOLATED   OMX_PLUGIN_DB_PIN_VERDICTS_ISOLATED
-/** @brief the verdict of a plugin that failed qualification: the pin records the bytes, a host should not load them */
-#define PHD_PIN_VERDICT_REFUSED    OMX_PLUGIN_DB_PIN_VERDICTS_REFUSED
-/** @brief the verdicts as rows X(id, name, meaning)
+/* The verdict words of a pin and what each means. Only in-process lets a plugin share a worker under pin_mode first-use.
+ * The words are the domain pin's (contract.d/pin), the wire words of pin_set. */
+/* BEGIN GENERATED PHD_PIN_VERDICTS: tools/pin-words-gen.py, from contract.d/pin/pin.json */
+#define PHD_PIN_VERDICT_IN_PROCESS "in-process" ///< qualified to run in a worker that other plugins share
+#define PHD_PIN_VERDICT_ISOLATED "isolated" ///< qualified to run, in a worker of its own
+#define PHD_PIN_VERDICT_REFUSED "refused" ///< failed qualification: the pin records the bytes, a host should not load them
+/** @brief the rows of the list: X(id, word, meaning)
  *
  * @param X the macro each row is passed to.
  */
@@ -758,28 +761,27 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(IN_PROCESS, PHD_PIN_VERDICT_IN_PROCESS, "qualified to run in a worker that other plugins share") \
     X(ISOLATED, PHD_PIN_VERDICT_ISOLATED, "qualified to run, in a worker of its own") \
     X(REFUSED, PHD_PIN_VERDICT_REFUSED, "failed qualification: the pin records the bytes, a host should not load them")
+/* END GENERATED PHD_PIN_VERDICTS */
 
 /** @brief the key of the optional pool word of a pin line, after the verdict
  *
  * The word tells whether the plugin's qualification measured the CLAP thread pool (docs/thread-pool.md of
- * omx-clap-core) real-time safe and faster at the quantum; a plugin with no word runs serial.
+ * omx-clap) real-time safe and faster at the quantum; a plugin with no word runs serial.
  */
 #define PHD_PIN_POOL_KEY   OMX_PLUGIN_DB_PIN_KEYS_POOL "="
-/** @brief the pool word of a plugin whose worker starts with the thread pool on
- *
- * No other plugin shares the worker.
- */
-#define PHD_PIN_POOL_CORES OMX_PLUGIN_DB_PIN_POOLS_CORES
-/** @brief the pool word of a plugin measured not faster or not safe with the pool: the worker keeps no option */
-#define PHD_PIN_POOL_OFF   OMX_PLUGIN_DB_PIN_POOLS_OFF
-/** @brief the pool words as rows X(id, name, meaning)
+/* The pool words of a pin and what each means; cores: no other plugin shares the worker. The words are the domain pin's
+ * (contract.d/pin). */
+/* BEGIN GENERATED PHD_PIN_POOLS: tools/pin-words-gen.py, from contract.d/pin/pin.json */
+#define PHD_PIN_POOL_CORES "cores" ///< its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker
+#define PHD_PIN_POOL_OFF "off" ///< measured, and not faster or not safe with the pool: the worker keeps no option
+/** @brief the rows of the list: X(id, word, meaning)
  *
  * @param X the macro each row is passed to.
  */
 #define PHD_PIN_POOLS(X) \
-    X(CORES, PHD_PIN_POOL_CORES, "its worker starts with the thread pool on, one helper per core of its cpu set but one, and " \
-                                 "no other plugin shares the worker") \
+    X(CORES, PHD_PIN_POOL_CORES, "its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker") \
     X(OFF, PHD_PIN_POOL_OFF, "measured, and not faster or not safe with the pool: the worker keeps no option")
+/* END GENERATED PHD_PIN_POOLS */
 
 /** @brief what pin_changed names when the plugin's files changed */
 #define PHD_PIN_CHANGED_FILES  OMX_PLUGIN_DB_PIN_CHANGES_FILES
@@ -942,7 +944,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(PLAN_GET, OMX_VERB_PLAN_GET, "<chain>", OMX_VERB_PLAN_GET_REPLY, \
       "read the last plan of a chain back: its segments as " OMX_VERB_PLAN " answered them, then the members that have " \
       "a reason, instance:reason joined by commas (" PHD_WORD_NONE " for none); the reasons are the words of " \
-      "PLUGIN_HOSTD_GROUPING_REASONS (data/grouping.json), then the cores of the members as " OMX_VERB_PLAN " answers " \
+      "PLUGIN_HOSTD_GROUPING_REASONS (domain plugin-hostd/grouping), then the cores of the members as " OMX_VERB_PLAN " answers " \
       "them; -532 for a chain no " OMX_VERB_PLAN " planned, -902 for a chain that is not a number") \
     X(PLAN_CLEAR, OMX_VERB_PLAN_CLEAR, "<chain>", OMX_VERB_PLAN_CLEAR_REPLY, \
       "forget the plan: each member goes to a worker of its own; -532 for a chain no " OMX_VERB_PLAN " planned") \
@@ -964,7 +966,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "what the daemon kept of the plugin on this host class, for the binary its pin holds now (the running history: " \
       "the windows it ran alone and in a group, its crashes, restarts and quarantines): one word of comma-joined " \
       "digest=<sha256>, class=<host class>, crashed=<0|1>, raises_xruns=<0|1> and then every key=value of the record " \
-      "(data/history.json); " PHD_WORD_NONE " when the plugin has no pin or no record, " PHD_WORD_UNAVAILABLE " while the " \
+      "(domain plugin-hostd/history, contract.d/plugin-hostd/history/history.json); " PHD_WORD_NONE " when the plugin has no pin or no record, " PHD_WORD_UNAVAILABLE " while the " \
       "history file is blocked or history_window_s is 0, -902 for a line that is not one word") \
     X(HISTORY_CLEAR, OMX_VERB_HISTORY_CLEAR, "<uri> | " PHD_WORD_ALL, OMX_VERB_HISTORY_CLEAR_REPLY, \
       "delete the history of one plugin (every binary and host class of it), or all of it, from memory and from the " \
@@ -981,8 +983,62 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "rate and quantum, and the latency and the CPU add up only the others. The last word names each of them as its " \
       "position in the line, from 0, and its code, -533 for no record, -534 for no point of the grid at that rate " \
       "and quantum, -535 for a uri that names no plugin installed here, joined by commas, " PHD_WORD_NONE " for none. " \
-      "Several records of one plugin (several versions) give the largest figure. -902 for a rate or a quantum that " \
+      "Several records of one plugin (several versions) give the largest figure. Then the memory: ram_used_bytes, " \
+      "what the workers hold now (" PHD_WORD_NONE " when one cannot be read), ram_added_bytes, what the members would " \
+      "add, ram_budget_bytes, the host's ram_budget_mb in bytes (" PHD_WORD_NONE " when none is set), and " \
+      "ram_unknown_count, how many members have no such figure. Last the host's insert verdict on the last uri, the " \
+      "candidate, added to the chain the others make: a word of PHD_ESTIMATE_VERDICTS and the word of " \
+      "PHD_ESTIMATE_REASONS that gave it, the first that holds in this order: the candidate's -535 refuses, its -533 " \
+      "or -534 is not measured; the CPU over PHD_ESTIMATE_CPU_CEILING, used and added over the budget, another " \
+      "member's code, a memory figure missing each warns; else recommend, within. -902 for a rate or a quantum that " \
       "is not a whole number above 0, or no uri")
+
+/* ---------------------------------------------------------------- the insert verdict of estimate */
+
+/* The words of estimate's verdict and reason are this package's domain estimate (contract.d/estimate/estimate.json), as
+ * the pin and probe words are: the host judges, a consumer shows the words and computes no verdict of its own. */
+/* BEGIN GENERATED PHD_ESTIMATE_VERDICTS: tools/estimate-words-gen.py, from contract.d/estimate/estimate.json */
+#define PHD_ESTIMATE_VERDICT_RECOMMEND "recommend" ///< nothing the host knows speaks against adding the candidate
+#define PHD_ESTIMATE_VERDICT_WARN "warn" ///< the candidate is measured, but the chain would pass the CPU ceiling or the memory budget, or a figure the judgement needs is missing: it may still be added
+#define PHD_ESTIMATE_VERDICT_NOT_MEASURED "not-measured" ///< the candidate is installed but has no figure at that rate and quantum: the host cannot judge it
+#define PHD_ESTIMATE_VERDICT_REFUSE "refuse" ///< the candidate names no plugin installed on this host: it cannot be added here
+#define PHD_ESTIMATE_VERDICT_PATTERN "recommend|warn|not-measured|refuse" ///< one word of PHD_ESTIMATE_VERDICTS
+/** @brief the rows of the list: X(id, word, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
+#define PHD_ESTIMATE_VERDICTS(X) \
+    X(RECOMMEND, PHD_ESTIMATE_VERDICT_RECOMMEND, "nothing the host knows speaks against adding the candidate") \
+    X(WARN, PHD_ESTIMATE_VERDICT_WARN, "the candidate is measured, but the chain would pass the CPU ceiling or the memory budget, or a figure the judgement needs is missing: it may still be added") \
+    X(NOT_MEASURED, PHD_ESTIMATE_VERDICT_NOT_MEASURED, "the candidate is installed but has no figure at that rate and quantum: the host cannot judge it") \
+    X(REFUSE, PHD_ESTIMATE_VERDICT_REFUSE, "the candidate names no plugin installed on this host: it cannot be added here")
+/* END GENERATED PHD_ESTIMATE_VERDICTS */
+/* BEGIN GENERATED PHD_ESTIMATE_REASONS: tools/estimate-words-gen.py, from contract.d/estimate/estimate.json */
+#define PHD_ESTIMATE_REASON_UNKNOWN_PLUGIN "unknown-plugin" ///< a member names no plugin installed on this host: the candidate's refuses, another member's warns
+#define PHD_ESTIMATE_REASON_NO_RECORD "no-record" ///< a member has no qualification record: the candidate's is not measured, another member's warns
+#define PHD_ESTIMATE_REASON_NO_CELL "no-cell" ///< a member's qualification records hold no figure at that rate and quantum: the candidate's is not measured, another member's warns
+#define PHD_ESTIMATE_REASON_CPU_OVER_BUDGET "cpu-over-budget" ///< the chain's CPU, percent of one core, is over the real-time admission ceiling of one core
+#define PHD_ESTIMATE_REASON_RAM_OVER_BUDGET "ram-over-budget" ///< what the workers hold now plus what the members would add is over the host's ram_budget_mb
+#define PHD_ESTIMATE_REASON_RAM_UNKNOWN "ram-unknown" ///< a member has no memory figure, or what the workers hold now cannot be read
+#define PHD_ESTIMATE_REASON_WITHIN "within" ///< every member is measured, and the chain is within the CPU ceiling and the memory budget
+#define PHD_ESTIMATE_REASON_PATTERN "unknown-plugin|no-record|no-cell|cpu-over-budget|ram-over-budget|ram-unknown|within" ///< one word of PHD_ESTIMATE_REASONS
+/** @brief the rows of the list: X(id, word, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
+#define PHD_ESTIMATE_REASONS(X) \
+    X(UNKNOWN_PLUGIN, PHD_ESTIMATE_REASON_UNKNOWN_PLUGIN, "a member names no plugin installed on this host: the candidate's refuses, another member's warns") \
+    X(NO_RECORD, PHD_ESTIMATE_REASON_NO_RECORD, "a member has no qualification record: the candidate's is not measured, another member's warns") \
+    X(NO_CELL, PHD_ESTIMATE_REASON_NO_CELL, "a member's qualification records hold no figure at that rate and quantum: the candidate's is not measured, another member's warns") \
+    X(CPU_OVER_BUDGET, PHD_ESTIMATE_REASON_CPU_OVER_BUDGET, "the chain's CPU, percent of one core, is over the real-time admission ceiling of one core") \
+    X(RAM_OVER_BUDGET, PHD_ESTIMATE_REASON_RAM_OVER_BUDGET, "what the workers hold now plus what the members would add is over the host's ram_budget_mb") \
+    X(RAM_UNKNOWN, PHD_ESTIMATE_REASON_RAM_UNKNOWN, "a member has no memory figure, or what the workers hold now cannot be read") \
+    X(WITHIN, PHD_ESTIMATE_REASON_WITHIN, "every member is measured, and the chain is within the CPU ceiling and the memory budget")
+/* END GENERATED PHD_ESTIMATE_REASONS */
+/* BEGIN GENERATED PHD_ESTIMATE_CPU_CEILING: tools/estimate-words-gen.py, from contract.d/estimate/estimate.json */
+#define PHD_ESTIMATE_CPU_CEILING 60 ///< the real-time admission ceiling of one core, in percent of its cycle: an estimate whose CPU is over it warns, cpu-over-budget. The host judges the figure, never the word the reply rounds it to
+#define PHD_ESTIMATE_CPU_CEILING_UNIT "percent" ///< the unit of PHD_ESTIMATE_CPU_CEILING, a word of omx-contract's PARAM_UNITS
+/* END GENERATED PHD_ESTIMATE_CPU_CEILING */
 
 /* ---------------------------------------------------------------- instance verbs */
 
@@ -990,8 +1046,8 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * worker of a format whose workers answer them from the plugin; for a format whose worker does not, it answers them
  * itself and never forwards them. A string word is quoted when it is not a plain word, and always in a reply, with \" inside it
  * for a quote: mod-host's own tokenizer reads them. */
-/* The words and the lines of these verbs, and of the note verbs below, are omx-clap-core's declarations (its HOST_VERBS,
- * omx_clap_core_host_verbs.h): OMX_VERB_<VERB> and OMX_VERB_<VERB>_FMT. preset_list and preset_get are the daemon's,
+/* The words and the lines of these verbs, and of the note verbs below, are omx-clap's declarations (its HOST_VERBS,
+ * omx_clap_host_verbs.h): OMX_VERB_<VERB> and OMX_VERB_<VERB>_FMT. preset_list and preset_get are the daemon's,
  * OMX_VERB_PRESET_LIST and OMX_VERB_PRESET_GET */
 
 /* Notes, played on an instance by a controller that is not a jack client: the worker delivers each one as a MIDI
@@ -1071,17 +1127,19 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  *
  * @param X the macro each row is passed to.
  */
+/* BEGIN GENERATED PHD_PARAM_SCALES: tools/param-scales-gen.py, from omx-contract's domain param, item PARAM_SCALES */
 #define PHD_PARAM_SCALES(X) \
     X(LINEAR, "linear", "the value is linear in position") \
     X(LOG, "log", "the value is geometric in position; both bounds are positive") \
     X(STEPPED, "stepped", "the whole numbers from min to max, step 1")
+/* END GENERATED PHD_PARAM_SCALES */
 
 /* what the ledger keeps of a verb: nothing; the latest one per instance; or the latest one per instance and first argument
  * (replace-keyed, ruling of 2026-11-14 on omx-clap-core#15: a property is the daemon's state, so a respawned worker gets
  * back every symbol it was given, each the latest set of it, in the order they were first set). Replayed after the add. */
 /** @brief the word of the show_external_ui verb
  *
- * mod-host.h declares it as the format SHOW_EXTERNAL_UI, and omx-clap-core's verb table does not.
+ * mod-host.h declares it as the format SHOW_EXTERNAL_UI, and omx-clap's verb table does not.
  */
 #define PHD_VERB_SHOW_EXTERNAL_UI "show_external_ui"
 /** @brief the ledger keeps nothing of the verb */
@@ -1595,7 +1653,7 @@ static inline int phd_is_note_verb(const char *verb)
  * Relayed from a worker: the user took hold of a control of the plugin's own, or let it go.
  */
 #define PHD_EVENT_PARAM_GESTURE           "param_gesture"
-/* a worker's own count, not an instance's: omx-clap-core's HOST_EVENTS word xruns (tests/verbs_declared.py holds this to it) */
+/* a worker's own count, not an instance's: omx-clap's HOST_EVENTS word xruns (tests/verbs_declared.py holds this to it) */
 /** @brief the name of the feedback event xruns
  *
  * Relayed from a worker and read by the daemon: the JACK xruns the worker has counted since it started.
@@ -1681,6 +1739,8 @@ static inline int phd_is_note_verb(const char *verb)
       "text in double quotes, \\\" a quote and \\\\ a backslash inside it (a property's value)") \
     X(KEY, "key", "[a-z_]+", 0, "a key of a key=value") \
     X(VALUE, "value", "[^, ]*", 0, "a value of a key=value") \
+    X(ESTIMATE_VERDICT, "estimate-verdict", PHD_ESTIMATE_VERDICT_PATTERN, 0, "a verdict word of PHD_ESTIMATE_VERDICTS") \
+    X(ESTIMATE_REASON, "estimate-reason", PHD_ESTIMATE_REASON_PATTERN, 0, "a reason word of PHD_ESTIMATE_REASONS") \
     X(LINE, "line", ".*", 1, "the rest of the line, its words as they were sent")
 
 /** @brief the forms of a command whose words the verb table's one format does not name, as rows X(verb, args)
@@ -1713,7 +1773,8 @@ static inline int phd_is_note_verb(const char *verb)
     X("reasons", "7:budget") X("placement", "own") X("member", "7" PHD_WORKER_PIN_REFUSED) X("worker-or-none", "w2") \
     X("state", "up") X("place", "chain:4.1") X("amount", "1024") X("number", "-6.02") \
     X("sha256", "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08") X("quoted", "\"/var/lib/x.json\"") X("quoted-escaped", "\"Sala \\\"A\\\" \\\\ 1\"") \
-    X("key", "crashed") X("value", "0") X("line", "{\"name\":\"warm\"}") X("core", "2")
+    X("key", "crashed") X("value", "0") X("line", "{\"name\":\"warm\"}") X("core", "2") \
+    X("estimate-verdict", PHD_ESTIMATE_VERDICT_WARN) X("estimate-reason", PHD_ESTIMATE_REASON_RAM_UNKNOWN)
 
 /* The composite types (#19): a list is items of one type joined by a separator, or one of its none words (a|b, "" for
  * none); a record is named fields joined by a separator, its fields name:type as PHD_EVENT_ARGS writes them. The
@@ -1777,7 +1838,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_PLAN, "0", "segments:segments cores:core-segments") \
     X(OMX_VERB_PLAN_GET, "0", "segments:segments reasons:reason-list cores:core-segments") \
     X(OMX_VERB_ESTIMATE, "0", "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint " \
-      "unknown:member-codes ram_used_bytes:amount ram_added_bytes:amount ram_budget_bytes:amount ram_unknown_count:uint") \
+      "unknown:member-codes ram_used_bytes:amount ram_added_bytes:amount ram_budget_bytes:amount ram_unknown_count:uint " \
+      "verdict:estimate-verdict reason:estimate-reason") \
     X(OMX_VERB_HELLO, "0", "version:int extensions:word...") \
     X(OMX_VERB_PARAM_GET_MANY, "0", "values:word...") \
     X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...")
@@ -2109,7 +2171,7 @@ static inline int phd_is_note_verb(const char *verb)
 
 /* The running history (the grouping-planner design note, The history record): what each plugin did on
  * this machine, one line per <uri> <binary digest> <host class> in a file of the daemon's own, whose keys are the words
- * of PLUGIN_HOSTD_HISTORY_KEYS (data/history.json). The first line is PHD_HISTORY_HEADER; the file is local, mode 0600,
+ * of PLUGIN_HOSTD_HISTORY_KEYS (domain plugin-hostd/history, contract.d/plugin-hostd/history/history.json). The first line is PHD_HISTORY_HEADER; the file is local, mode 0600,
  * and only the daemon writes it. The summary history_get answers reads crashes within PHD_HISTORY_KEEP_DAYS of
  * last_crash, and marks a plugin raises_xruns once it has PHD_HISTORY_MIN_WINDOWS grouped windows and its share of xrun
  * windows grouped exceeds its share solo by PHD_HISTORY_XRUN_MARGIN_PCT percentage points, or exceeds

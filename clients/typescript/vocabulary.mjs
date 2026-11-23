@@ -100,6 +100,14 @@ export const ARG_TYPES = {
     'pattern': '[^, ]*',
     'rest': false,
   },
+  'estimate-verdict': {
+    'pattern': 'recommend|warn|not-measured|refuse',
+    'rest': false,
+  },
+  'estimate-reason': {
+    'pattern': 'unknown-plugin|no-record|no-cell|cpu-over-budget|ram-over-budget|ram-unknown|within',
+    'rest': false,
+  },
   'line': {
     'pattern': '.*',
     'rest': true,
@@ -430,7 +438,7 @@ export const VERBS = {
       },
     ],
     'codes': [-533, -534, -535, -901, -902],
-    'reply': 'resp 0 <latency_frames> <cpu_percent> <ram_bytes> <workers> <unknown_count> <member>:<code>,... <ram_used_bytes> <ram_added_bytes> <ram_budget_bytes> <ram_unknown_count>',
+    'reply': 'resp 0 <latency_frames> <cpu_percent> <ram_bytes> <workers> <unknown_count> <member>:<code>,... <ram_used_bytes> <ram_added_bytes> <ram_budget_bytes> <ram_unknown_count> <verdict> <reason>',
   },
   'feature_enable': {
     'forms': [
