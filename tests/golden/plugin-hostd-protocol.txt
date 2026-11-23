@@ -427,7 +427,7 @@
 < resp -3
 = add(http://example.org/plugin,3,NULL)
 # fuzz/corpus/protocol/scenario-10 answer 0
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -3
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-11 answer 0
@@ -591,11 +591,11 @@
 < resp -3
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-8 answer 0
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -3
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-9 answer 0
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -3
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 0
@@ -759,7 +759,7 @@
 < resp -3
 = add(http://example.org/plugin,3,NULL)
 # dispatch:fuzz/corpus/dispatch/scenario-10 answer 0
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -3
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-11 answer 0
@@ -923,11 +923,11 @@
 < resp -3
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-8 answer 0
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -3
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-9 answer 0
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -3
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/track-info-beyond answer 0
@@ -1395,7 +1395,7 @@
 < resp -4
 = add(http://example.org/plugin,3,NULL)
 # fuzz/corpus/protocol/scenario-10 answer 1
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -4
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-11 answer 1
@@ -1559,11 +1559,11 @@
 < resp -4
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-8 answer 1
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -4
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-9 answer 1
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -4
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 1
@@ -1727,7 +1727,7 @@
 < resp -4
 = add(http://example.org/plugin,3,NULL)
 # dispatch:fuzz/corpus/dispatch/scenario-10 answer 1
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -4
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-11 answer 1
@@ -1891,11 +1891,11 @@
 < resp -4
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-8 answer 1
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -4
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-9 answer 1
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -4
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/track-info-beyond answer 1
@@ -2363,7 +2363,7 @@
 < resp -101
 = add(http://example.org/plugin,3,NULL)
 # fuzz/corpus/protocol/scenario-10 answer 2
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -101
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-11 answer 2
@@ -2527,11 +2527,11 @@
 < resp -101
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-8 answer 2
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -101
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-9 answer 2
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -101
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 2
@@ -2695,7 +2695,7 @@
 < resp -101
 = add(http://example.org/plugin,3,NULL)
 # dispatch:fuzz/corpus/dispatch/scenario-10 answer 2
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -101
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-11 answer 2
@@ -2859,11 +2859,11 @@
 < resp -101
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-8 answer 2
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -101
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-9 answer 2
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -101
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/track-info-beyond answer 2
@@ -3331,7 +3331,7 @@
 < resp -902
 = add(http://example.org/plugin,3,NULL)
 # fuzz/corpus/protocol/scenario-10 answer 3
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -902
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-11 answer 3
@@ -3495,11 +3495,11 @@
 < resp -902
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-8 answer 3
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -902
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-9 answer 3
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -902
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 3
@@ -3663,7 +3663,7 @@
 < resp -902
 = add(http://example.org/plugin,3,NULL)
 # dispatch:fuzz/corpus/dispatch/scenario-10 answer 3
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -902
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-11 answer 3
@@ -3827,11 +3827,11 @@
 < resp -902
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-8 answer 3
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -902
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-9 answer 3
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -902
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/track-info-beyond answer 3
@@ -4299,7 +4299,7 @@
 < resp -205
 = add(http://example.org/plugin,3,NULL)
 # fuzz/corpus/protocol/scenario-10 answer 4
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -205
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-11 answer 4
@@ -4463,11 +4463,11 @@
 < resp -205
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-8 answer 4
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -205
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-9 answer 4
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -205
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 4
@@ -4631,7 +4631,7 @@
 < resp -205
 = add(http://example.org/plugin,3,NULL)
 # dispatch:fuzz/corpus/dispatch/scenario-10 answer 4
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -205
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-11 answer 4
@@ -4795,11 +4795,11 @@
 < resp -205
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-8 answer 4
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -205
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-9 answer 4
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -205
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/track-info-beyond answer 4
@@ -5267,7 +5267,7 @@
 < resp -105
 = add(http://example.org/plugin,3,NULL)
 # fuzz/corpus/protocol/scenario-10 answer 5
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -105
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-11 answer 5
@@ -5431,11 +5431,11 @@
 < resp -105
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-8 answer 5
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -105
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-9 answer 5
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -105
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 5
@@ -5599,7 +5599,7 @@
 < resp -105
 = add(http://example.org/plugin,3,NULL)
 # dispatch:fuzz/corpus/dispatch/scenario-10 answer 5
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -105
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-11 answer 5
@@ -5763,11 +5763,11 @@
 < resp -105
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-8 answer 5
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -105
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-9 answer 5
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -105
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/track-info-beyond answer 5
@@ -6235,8 +6235,8 @@
 < resp 3
 = add(http://example.org/plugin,3,NULL)
 # fuzz/corpus/protocol/scenario-10 answer 6
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
-< resp -538
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+< resp -902
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-11 answer 6
 > curve_bind 3 0 transfer_curve dynamics threshold=no_such_symbol:dB
@@ -6399,13 +6399,13 @@
 < resp 0
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-8 answer 6
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+< resp -538
+= sample_rate(3)
+# fuzz/corpus/protocol/scenario-9 answer 6
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp 0
 = sample_rate(3) param_get(3,gain) param_get(3,gain)
-# fuzz/corpus/protocol/scenario-9 answer 6
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
-< resp -902
-= sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 6
 > add clap:ur\xf9\xf9_m\xf9\xf9\xf9\xf9\xf9/72 \xf9& #FF8800\x1301  8 \xf9\xf9\xf9\xf9\xf9\xf9\xf9\xf9\x0a\x0d\x0a
 < resp -101
@@ -6567,8 +6567,8 @@
 < resp 3
 = add(http://example.org/plugin,3,NULL)
 # dispatch:fuzz/corpus/dispatch/scenario-10 answer 6
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
-< resp -538
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+< resp -902
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-11 answer 6
 > curve_bind 3 0 transfer_curve dynamics threshold=no_such_symbol:dB
@@ -6731,13 +6731,13 @@
 < resp 0
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-8 answer 6
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+< resp -538
+= sample_rate(3)
+# dispatch:fuzz/corpus/dispatch/scenario-9 answer 6
 > curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp 0
 = sample_rate(3) param_get(3,gain) param_get(3,gain)
-# dispatch:fuzz/corpus/dispatch/scenario-9 answer 6
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
-< resp -902
-= sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/track-info-beyond answer 6
 > track_info 0 \xf4\x90\x80\x80 #FF8000
 < resp -902
@@ -7203,7 +7203,7 @@
 < resp -1
 = add(http://example.org/plugin,3,NULL)
 # fuzz/corpus/protocol/scenario-10 answer 7
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -1
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-11 answer 7
@@ -7367,11 +7367,11 @@
 < resp -1
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-8 answer 7
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -1
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-9 answer 7
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -1
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 7
@@ -7535,7 +7535,7 @@
 < resp -1
 = add(http://example.org/plugin,3,NULL)
 # dispatch:fuzz/corpus/dispatch/scenario-10 answer 7
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -1
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-11 answer 7
@@ -7699,11 +7699,11 @@
 < resp -1
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-8 answer 7
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -1
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-9 answer 7
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -1
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/track-info-beyond answer 7
@@ -8171,7 +8171,7 @@
 < resp -2
 = add(http://example.org/plugin,3,NULL)
 # fuzz/corpus/protocol/scenario-10 answer 8
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -2
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-11 answer 8
@@ -8335,11 +8335,11 @@
 < resp -2
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-8 answer 8
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -2
 = sample_rate(3)
 # fuzz/corpus/protocol/scenario-9 answer 8
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -2
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/add-clap-high-bytes answer 8
@@ -8503,7 +8503,7 @@
 < resp -2
 = add(http://example.org/plugin,3,NULL)
 # dispatch:fuzz/corpus/dispatch/scenario-10 answer 8
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
 < resp -2
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-11 answer 8
@@ -8667,11 +8667,11 @@
 < resp -2
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-8 answer 8
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:Hz
 < resp -2
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/scenario-9 answer 8
-> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB@bell
+> curve_bind 3 0 transfer_curve dynamics threshold=gain:dB ratio=gain:ratio
 < resp -2
 = sample_rate(3)
 # dispatch:fuzz/corpus/dispatch/track-info-beyond answer 8
