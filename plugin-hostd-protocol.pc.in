@@ -13,7 +13,7 @@ codecfixtures=${datadir}/plugin-hostd-protocol/codec-fixtures.json
 protocoldoc=${datadir}/plugin-hostd-protocol/protocol.md
 # the declared protocol: the one verb table, the grammar of a line (ABNF), what plugin-hostd/protocol.h declares as JSON
 # and its schema, and mod-host's commands and codes as JSON. The headers are <plugin-hostd/protocol.h> and the ones it
-# includes, found with the Cflags below; the domain plugin-hostd (contract.d/plugin-hostd) is its words in omx-contract's
+# includes, found with the Cflags below; the domain plugin-hostd-protocol (contract.d/plugin-hostd-protocol) is its words in omx-contract's
 # contract directory.
 protocoldir=${datadir}/plugin-hostd-protocol
 table=${protocoldir}/plugin-hostd-protocol.json

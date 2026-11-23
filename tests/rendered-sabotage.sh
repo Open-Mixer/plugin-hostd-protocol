@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-or-later
-# check-rendered against a scratch copy of the tree with one rendered header changed, and with the domain contract.d/plugin-hostd changed
+# check-rendered against a scratch copy of the tree with one rendered header changed, and with the domain contract.d/plugin-hostd-protocol changed
 # and the header not rendered again: it must fail on each, and pass on the copy as it is.
 #
 #   sh tests/rendered-sabotage.sh          (make check-protocol-tools)
@@ -43,6 +43,6 @@ arm "plugin-db's words header by hand" include/plugin-hostd/plugin_db_vocabulary
 # plugin-db 0.4.7 moved the address-format words to its domain document (#47), which renders no words: a render that
 # takes them from plugin-db's old db file again leaves this define in the header
 arm "address-format words taken from db.json" include/plugin-hostd/plugin_db_vocabulary.h '\/\* PLUGIN_DB_BUNDLE_RULES' '#define OMX_PLUGIN_DB_ADDRESS_FORMATS_CLAP "clap"\n\/* PLUGIN_DB_BUNDLE_RULES'
-arm "the domain not rendered" contract.d/plugin-hostd/plugin-hostd.json '"x-format": "chain_get %i"' '"x-format": "chain_get %i %i"'
+arm "the domain not rendered" contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json '"x-format": "chain_get %i"' '"x-format": "chain_get %i %i"'
 
 [ "$failed" = 0 ] && echo "rendered sabotage ok" || { echo "rendered sabotage FAILED"; exit 1; }

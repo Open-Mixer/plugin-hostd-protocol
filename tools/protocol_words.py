@@ -1,16 +1,16 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-"""tools/protocol_words.py: the words of the protocol, read from this tree's domain contract.d/plugin-hostd, the one
+"""tools/protocol_words.py: the words of the protocol, read from this tree's domain contract.d/plugin-hostd-protocol, the one
 declaration of the verbs plugin-hostd adds, the protocol's own verbs, the reply codes only plugin-hostd answers and the
 extensions hello grants. Each item comes back in the form omx-contract's data reader gives it (kind, since, doc, then
-codes, verbs or words keyed as the data form keys them), so a tool reads `items()["PLUGIN_HOSTD_VERBS"]["verbs"]` as it
+codes, verbs or words keyed as the data form keys them), so a tool reads `items()["PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS"]["verbs"]` as it
 read data/verbs.json; `requires()` is the floors the document names (info.x-requires). Nothing is read from a copy."""
 import json
 import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DOMAIN = "contract.d/plugin-hostd/plugin-hostd.json"
+DOMAIN = "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json"
 
 
 def document(path=None):

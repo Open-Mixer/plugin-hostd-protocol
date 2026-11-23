@@ -1,6 +1,6 @@
 #!/bin/sh
 # SPDX-License-Identifier: GPL-3.0-or-later
-# tests/code_text.py against a scratch copy of contract.d/plugin-hostd with one rule broken in each arm: it must fail on each, and the
+# tests/code_text.py against a scratch copy of contract.d/plugin-hostd-protocol with one rule broken in each arm: it must fail on each, and the
 # copy left as it is must pass, so a check that holds nothing is caught. The last arms stage the broken declaration as the
 # package of omx-contract's contract directory and the validator itself must refuse it (make check-contract-dir), when
 # omx-contract is installed.
@@ -18,14 +18,14 @@ scratch() {
     rm -rf "$work/tree"
     mkdir -p "$work/tree"
     cp -r Makefile VERSION contract.d protocol catalogs tools "$work/tree/"
-    $PYTHON - "$work/tree/contract.d/plugin-hostd/plugin-hostd.json" "$work/tree/catalogs/ca.json" "$1" <<'PY'
+    $PYTHON - "$work/tree/contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json" "$work/tree/catalogs/ca.json" "$1" <<'PY'
 import json, os, sys
 sys.path.insert(0, "tools")
 import protocol_words
 path, catpath, edit = sys.argv[1], sys.argv[2], sys.argv[3]
 doc = protocol_words.document(path)
 d = protocol_words.items(path)
-c = d["PLUGIN_HOSTD_REPLY_CODES"]["codes"]
+c = d["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"]
 cat = json.load(open(catpath))
 m = cat["messages"]
 exec(edit)
@@ -37,7 +37,7 @@ PY
 # <name> <edit>: code_text.py must fail on the edited copy
 arm() {
     scratch "$2"
-    if $PYTHON tests/code_text.py "$work/tree/contract.d/plugin-hostd/plugin-hostd.json" protocol/plugin-hostd-protocol.json "$work/tree/catalogs/ca.json" >"$work/log" 2>&1; then
+    if $PYTHON tests/code_text.py "$work/tree/contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json" protocol/plugin-hostd-protocol.json "$work/tree/catalogs/ca.json" >"$work/log" 2>&1; then
         echo "FAIL $1: code_text.py passes"
         failed=1
     else
@@ -61,7 +61,7 @@ validator() {
 }
 
 # the copy as it is passes
-if $PYTHON tests/code_text.py contract.d/plugin-hostd/plugin-hostd.json protocol/plugin-hostd-protocol.json catalogs/ca.json >"$work/log" 2>&1; then
+if $PYTHON tests/code_text.py contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json protocol/plugin-hostd-protocol.json catalogs/ca.json >"$work/log" 2>&1; then
     echo "ok   control: the declaration as it is passes"
 else
     echo "FAIL control: the declaration as it is fails"; head -3 "$work/log"; failed=1

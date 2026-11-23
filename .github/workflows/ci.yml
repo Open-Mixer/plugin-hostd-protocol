@@ -121,7 +121,7 @@ jobs:
           make test-ts-codec
 
   # The declared protocol with the tools a package build does not carry: the rendered headers are what the installed
-  # omx-contract renders from contract.d/plugin-hostd/plugin-hostd.json and from omx-clap's package (and a header changed by hand is red), the
+  # omx-contract renders from contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json and from omx-clap's package (and a header changed by hand is red), the
   # staged contract package validates, protocol/plugin-hostd.json satisfies its schema, and the grammar holds the
   # scenario corpus, the golden transcript and the table, read by python's abnf parser (and a broken rule is red).
   # omx-clap's contract (contract.d/omx-clap/omx-clap.json, the shared verbs protocol/plugin-hostd-protocol.json imports) is read from

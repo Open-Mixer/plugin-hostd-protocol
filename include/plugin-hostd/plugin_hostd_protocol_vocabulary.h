@@ -14,7 +14,7 @@
  * @brief The vocabulary of plugin-hostd-protocol: every code and every word as a string define, with its sentence
  * where it carries one. */
 
-/* PLUGIN_HOSTD_REPLY_CODES (contract.d/plugin-hostd/plugin-hostd.json) */
+/* PLUGIN_HOSTD_PROTOCOL_REPLY_CODES (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json) */
 #define OMX_REPLY_PLUGIN_HOSTD_PLACEMENT_INVALID "reply.plugin-hostd.placement-invalid" ///< not a placement, or not valid here
 #define OMX_REPLY_PLUGIN_HOSTD_PLACEMENT_INVALID_RESP (-501)
 /** The source sentence (English) of OMX_REPLY_PLUGIN_HOSTD_PLACEMENT_INVALID. */
@@ -175,7 +175,7 @@
 /** The source sentence (English) of OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED. */
 #define OMX_REPLY_PLUGIN_HOSTD_OUTPUT_NOT_MONITORED_TEXT_EN "That output is not being watched on this connection, so there is nothing to stop."
 
-/* PLUGIN_HOSTD_PROTOCOL_EXTENSIONS (contract.d/plugin-hostd/plugin-hostd.json) */
+/* PLUGIN_HOSTD_PROTOCOL_EXTENSIONS (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json) */
 #define OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_TAGS "tags" ///< request tags: a line may start with \@\<tag\>, and its answer then starts with the same \@\<tag\>
 #define OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_ERRORS "errors" ///< error words: a refusal resp \<n\> is followed by the stable word of its code, reply.\<group\>.\<reason\>, when the protocol declares one
 #define OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_SEQ "seq" ///< event sequence numbers: every feedback line starts with #\<n\>, 1 for the first after this hello and one more for each, so a gap is a missed line

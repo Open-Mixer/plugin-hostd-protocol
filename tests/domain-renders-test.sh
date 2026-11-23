@@ -4,7 +4,7 @@
 #
 # domain-renders-test.sh — the C renders of this tree's own domains (make check-domain-renders) read the installed
 # contract directory beside contract.d, so a reference of a domain here to an installed owner's domain resolves: the
-# domain plugin-hostd names omx-clap's HOST_REPLY_CODES (its verbs' shared refusals), which omx-clap-contract installs.
+# domain plugin-hostd-protocol names omx-clap's HOST_REPLY_CODES (its verbs' shared refusals), which omx-clap-contract installs.
 #
 #   (a) with the contract directories make reads (OMX_CONTRACT_PATH, then the installed one, holding omx-clap's
 #       package), check-domain-renders holds pin, estimate and probe byte for byte;

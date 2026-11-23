@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-"""tests/transient_codes.py <table> <domain plugin-hostd> <vocabulary header>: which refusals are transient is a property of the
-code (plugin-hostd-protocol#23, rulings D22 and D23), declared once in contract.d/plugin-hostd/plugin-hostd.json and read by a client from the
+"""tests/transient_codes.py <table> <domain plugin-hostd-protocol> <vocabulary header>: which refusals are transient is a property of the
+code (plugin-hostd-protocol#23, rulings D22 and D23), declared once in contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json and read by a client from the
 table, never a list of code names it keeps. A code declared transient reads transient in the table's reply_codes and
 has its _TRANSIENT macro in the rendered header; a code not declared so carries neither. Transient means an identical
 request may succeed later with no change by the caller: the worker not up, the storm bound spent, the verb dropped with
@@ -40,7 +40,7 @@ def problems(table, verbs, header):
         if "transient" in r and r["transient"] is not True:
             out.append("%s carries transient %r: the table writes it only when it is true" % (r["code"], r["transient"]))
     if read != want:
-        out.append("the table's transient codes %s differ from the domain plugin-hostd's %s" % (sorted(read), sorted(want)))
+        out.append("the table's transient codes %s differ from the domain plugin-hostd-protocol's %s" % (sorted(read), sorted(want)))
     for code in TRANSIENT:
         if code not in read:
             out.append("%s is not transient in the table" % code)

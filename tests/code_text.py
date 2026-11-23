@@ -9,7 +9,7 @@
 #   - the sentence is one sentence, plain, with no code name inside it, and ca is no copy of en;
 #   - the installed omx-contract is the schema that has catalogs (>= 3.12.0), when a schema is given.
 #
-#   code_text.py <contract.d/plugin-hostd/plugin-hostd.json> <protocol/plugin-hostd-protocol.json> <catalogs/ca.json> [<installed omx-contract.schema.json>]
+#   code_text.py <contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json> <protocol/plugin-hostd-protocol.json> <catalogs/ca.json> [<installed omx-contract.schema.json>]
 import json
 import os
 import re
@@ -55,7 +55,7 @@ for group, items in declaration.items():
 named = [c["code"] for c in table["reply_codes"] if c["code"].startswith("reply.plugin-hostd.")]
 for word in named:
     if word not in owned:
-        fail("%s is in the protocol's table and in no codes item of the domain plugin-hostd" % word)
+        fail("%s is in the protocol's table and in no codes item of the domain plugin-hostd-protocol" % word)
 if not named:
     fail("the protocol's table names no reply.plugin-hostd code: the check read nothing")
 

@@ -6,7 +6,7 @@ verdict and reason words are this package's domain `estimate` (contract.d/estima
 PHD_ESTIMATE_VERDICT_*, PHD_ESTIMATE_REASON_*, PHD_ESTIMATE_VERDICTS, PHD_ESTIMATE_REASONS and their two patterns of
 protocol.h are generated from it, the meaning texts included; the reply of estimate ends with the two words.
 
-(a) golden: the two lists, every word, the patterns, the two arg types, the reply as contract.d/plugin-hostd/plugin-hostd.json declares it, its
+(a) golden: the two lists, every word, the patterns, the two arg types, the reply as contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json declares it, its
     row of PHD_REPLY_ARGS and the CPU ceiling, expanded by tests/estimate_words_dump.c, are tests/golden/estimate-words.txt;
 (b) the domain holds exactly those rows: word, code (its place), meaning (its description, first letter lowered, no final
     stop), include/plugin-hostd/estimate_codes.h is the render of its x-c-codes items, and protocol.h is the generator's

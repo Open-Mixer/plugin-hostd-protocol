@@ -36,7 +36,7 @@
 #include "host-errors.h"
 #include "session.h"
 #include "reply-words.h"
-// the declared protocol: the protocol version, hello's line and the extensions it grants (contract.d/plugin-hostd/plugin-hostd.json)
+// the declared protocol: the protocol version, hello's line and the extensions it grants (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json)
 #include "plugin-hostd/protocol.h"
 
 

@@ -8,7 +8,7 @@
 #
 #   protocol/mod-host.json        mod-host's commands and feedback, written from include/mod-host.h (check-generated)
 #   protocol/plugin-hostd.json    what include/plugin-hostd/protocol.h declares (check-generated)
-#   contract.d/plugin-hostd       the domain plugin-hostd: the verbs plugin-hostd adds, the protocol's own (hello) and the
+#   contract.d/plugin-hostd-protocol       the domain plugin-hostd-protocol: the verbs plugin-hostd adds, the protocol's own (hello) and the
 #                                 extensions hello grants, as omx-contract declares them (check-rendered)
 #   include/plugin-hostd/omx_clap_host_verbs.h   omx-clap's verbs, as omx-contract renders them
 #
@@ -124,10 +124,10 @@ def table():
         parts = m.group(1).lower().split("_")
         host_codes[parts[0] + "".join(x.capitalize() for x in parts[1:])] = int(m.group(3))
         words.setdefault(int(m.group(3)), set()).add(m.group(2))
-    phd_codes = {k: v["resp"] for k, v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].items()}
+    phd_codes = {k: v["resp"] for k, v in verbs["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"].items()}
     # a refusal the same request may be taken past later (#23, D22): the code's own property, never a list of names
-    transient = {v["code"] for v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].values() if v.get("transient") is True}
-    for v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].values():
+    transient = {v["code"] for v in verbs["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"].values() if v.get("transient") is True}
+    for v in verbs["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"].values():
         words.setdefault(v["resp"], set()).add(v["code"])
     # the word an error word answer carries after a refusal's number: one word a number, or the table is not written
     for resp, w in words.items():
@@ -138,12 +138,12 @@ def table():
 
     def resolve(ref):
         group, name = ref.split(".", 1)
-        known = {"PLUGIN_HOSTD_REPLY_CODES": phd_codes, "HOST_REPLY_CODES": host_codes}.get(group)
+        known = {"PLUGIN_HOSTD_PROTOCOL_REPLY_CODES": phd_codes, "HOST_REPLY_CODES": host_codes}.get(group)
         if known is None or name not in known:
-            fail(f"contract.d/plugin-hostd/plugin-hostd.json: the code {ref} is declared nowhere")
+            fail(f"contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json: the code {ref} is declared nowhere")
         return known[name]
 
-    declared = {v["verb"]: (k, v) for k, v in verbs["PLUGIN_HOSTD_VERBS"]["verbs"].items()}
+    declared = {v["verb"]: (k, v) for k, v in verbs["PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS"]["verbs"].items()}
     meaning = {v["name"]: v for v in phd["verbs"] + phd["instance_verbs"]}
     host_rows = {r["name"]: r for r in phd["host_verbs"]}
 
@@ -168,13 +168,13 @@ def table():
 
     entries = []
     for word, (key, v) in declared.items():
-        entries.append(ours(word, "plugin-hostd", f"contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_VERBS.{key}", v["format"], v["reply"],
+        entries.append(ours(word, "plugin-hostd", f"contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.{key}", v["format"], v["reply"],
                             [resolve(c["ref"]) for c in v.get("codes", [])], v.get("doc", "")))
     # the verbs of the protocol itself (hello), which the library answers for the host that registers them
-    for key, v in verbs["PLUGIN_HOSTD_PROTOCOL_VERBS"]["verbs"].items():
+    for key, v in verbs["PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS"]["verbs"].items():
         if v["verb"] in declared:
-            fail(f"{v['verb']}: declared by both PLUGIN_HOSTD_VERBS and PLUGIN_HOSTD_PROTOCOL_VERBS")
-        entries.append(ours(v["verb"], "plugin-hostd-protocol", f"contract.d/plugin-hostd/plugin-hostd.json PLUGIN_HOSTD_PROTOCOL_VERBS.{key}",
+            fail(f"{v['verb']}: declared by both PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS and PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS")
+        entries.append(ours(v["verb"], "plugin-hostd-protocol", f"contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS.{key}",
                             v["format"], v["reply"], [resolve(c["ref"]) for c in v.get("codes", [])], v.get("doc", "")))
     for word, v in shared.items():
         entries.append(ours(word, "omx-clap", f"contract.d/omx-clap/omx-clap.json {v['item']}", v["format"],
@@ -182,7 +182,7 @@ def table():
     # a verb protocol.h declares that neither declaration holds is mod-host's (add) or a fault
     for word in meaning:
         if word not in commands and word not in declared and word not in shared:
-            fail(f"protocol/plugin-hostd.json: {word} is declared by protocol.h alone; declare it in contract.d/plugin-hostd/plugin-hostd.json")
+            fail(f"protocol/plugin-hostd.json: {word} is declared by protocol.h alone; declare it in contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json")
 
     for e in entries:
         word = e["verb"]
@@ -341,7 +341,7 @@ def table():
         "protocol": "plugin-hostd-protocol",
         "version": phd["version"],
         "superset_of": "mod-host",
-        "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "contract.d/plugin-hostd/plugin-hostd.json", "contract.d/omx-clap/omx-clap.json", SHARED_H],
+        "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json", "contract.d/omx-clap/omx-clap.json", SHARED_H],
         "commands": sorted(commands.values(), key=lambda e: (e["origin"] != "mod-host", e["origin"], e["verb"])),
         "refused": mod_ui,
         "feedback": sorted(feedback.values(), key=lambda e: (e["origin"] != "mod-host", e["line"])),

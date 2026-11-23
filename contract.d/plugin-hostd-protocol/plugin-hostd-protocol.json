@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://openmixer.org/contract/plugin-hostd",
+  "$id": "https://openmixer.org/contract/plugin-hostd-protocol",
   "info": {
     "title": "The words of the plugin-hostd protocol",
     "version": "1.0.0",
@@ -13,7 +13,7 @@
   },
   "components": {
     "schemas": {
-      "PLUGIN_HOSTD_REPLY_CODES": {
+      "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES": {
         "description": "The refusals only plugin-hostd answers by number (include/plugin-hostd/protocol.h PHD_ERRORS), and the curve verbs' own, which any host that registers them through this library answers. The numbers it answers in common with omx-clap-host are omx-clap's HOST_REPLY_CODES.",
         "x-since": "0.12.0",
         "x-kind": "codes",
@@ -414,7 +414,7 @@
           }
         ]
       },
-      "PLUGIN_HOSTD_VERBS": {
+      "PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS": {
         "description": "The verbs plugin-hostd adds to mod-host's protocol and answers itself, and the ones it sends a worker (README.md, Verbs the daemon adds).",
         "x-since": "0.12.0",
         "x-kind": "verbs",
@@ -470,7 +470,7 @@
             "x-reply": "resp 0",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.noSuchWorker"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noSuchWorker"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -514,7 +514,7 @@
             "x-reply": "resp 0",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.placementInvalid"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.placementInvalid"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -536,7 +536,7 @@
             "x-reply": "resp 0",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.placementInvalid"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.placementInvalid"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -577,7 +577,7 @@
             "x-reply": "resp 0",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.pinRefused"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.pinRefused"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -605,10 +605,10 @@
                 "ref": "HOST_REPLY_CODES.invalidOperation"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.durableWriteFailed"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.durableWriteFailed"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.writerQueueFull"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.writerQueueFull"
               }
             ],
             "x-implemented-by": {
@@ -659,10 +659,10 @@
                 "ref": "HOST_REPLY_CODES.pinAbsent"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.pinBinaryMismatch"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.pinBinaryMismatch"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.pinRefused"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.pinRefused"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -671,10 +671,10 @@
                 "ref": "HOST_REPLY_CODES.invalidOperation"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.durableWriteFailed"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.durableWriteFailed"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.writerQueueFull"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.writerQueueFull"
               }
             ],
             "x-implemented-by": {
@@ -721,19 +721,19 @@
             "x-reply": "resp 0",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.chainUnknownInstance"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainUnknownInstance"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.chainDuplicate"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainDuplicate"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.chainInstanceBusy"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainInstanceBusy"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.chainMixedFormat"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainMixedFormat"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.placementInvalid"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.placementInvalid"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -757,7 +757,7 @@
             "x-reply": "resp 0",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.noSuchChain"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noSuchChain"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -779,7 +779,7 @@
             "x-reply": "resp 0 <worker> <instance>,... <instance>,...",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.noSuchChain"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noSuchChain"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -801,16 +801,16 @@
             "x-reply": "resp 0 \"<path>\"",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.dirNotWritable"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.dirNotWritable"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.descriptorAbsent"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorAbsent"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.descriptorPending"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorPending"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.descriptorScanFailed"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorScanFailed"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -832,16 +832,16 @@
             "x-reply": "resp 0 \"<path>\"",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.dirNotWritable"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.dirNotWritable"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.descriptorAbsent"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorAbsent"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.descriptorPending"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorPending"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.descriptorScanFailed"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorScanFailed"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -863,7 +863,7 @@
             "x-reply": "resp <count>",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.noPresetList"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noPresetList"
               },
               {
                 "ref": "HOST_REPLY_CODES.instanceNonExists"
@@ -890,7 +890,7 @@
             "x-reply": "resp 0 <load_key> <name>",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.noPresetList"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noPresetList"
               },
               {
                 "ref": "HOST_REPLY_CODES.instanceNonExists"
@@ -917,10 +917,10 @@
             "x-reply": "resp 0 <json>",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.presetNotOffered"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.presetNotOffered"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.presetInvalid"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.presetInvalid"
               },
               {
                 "ref": "HOST_REPLY_CODES.instanceNonExists"
@@ -972,10 +972,10 @@
                 "ref": "HOST_REPLY_CODES.invalidOperation"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.durableWriteFailed"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.durableWriteFailed"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.writerQueueFull"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.writerQueueFull"
               }
             ],
             "x-implemented-by": {
@@ -991,16 +991,16 @@
             "x-reply": "resp 0 <instance>,...;<instance>,...;... <core>,...;<core>,...;...",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.chainUnknownInstance"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainUnknownInstance"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.chainDuplicate"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainDuplicate"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.chainInstanceBusy"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainInstanceBusy"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.placementInvalid"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.placementInvalid"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -1022,7 +1022,7 @@
             "x-reply": "resp 0 <instance>,...;<instance>,...;... <instance>:<reason>,... <core>,...;<core>,...;...",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.noSuchPlan"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noSuchPlan"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -1044,7 +1044,7 @@
             "x-reply": "resp 0",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.noSuchPlan"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noSuchPlan"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -1066,13 +1066,13 @@
             "x-reply": "resp 0 <latency_frames> <cpu_percent> <ram_bytes> <workers> <unknown_count> <member>:<code>,... <ram_used_bytes> <ram_added_bytes> <ram_budget_bytes> <ram_unknown_count> <verdict> <reason>",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.noRecord"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noRecord"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.noCell"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noCell"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.unknownPlugin"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.unknownPlugin"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -1094,7 +1094,7 @@
             "x-reply": "resp 0",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.labelInvalid"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.labelInvalid"
               },
               {
                 "ref": "HOST_REPLY_CODES.instanceNonExists"
@@ -1112,7 +1112,7 @@
           }
         ]
       },
-      "PLUGIN_HOSTD_PROTOCOL_VERBS": {
+      "PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS": {
         "description": "The verbs of the protocol itself, which the library answers for any host that registers them: hello (protocol_add_hello), the bulk verbs, which host_dispatch_register() answers over the host's backend, and the curve verbs, which host_dispatch_register_curve() answers over it and the rate the host gives. A client that never sends one is answered exactly as mod-host answers it.",
         "x-since": "0.3.0",
         "x-kind": "verbs",
@@ -1208,10 +1208,10 @@
                 "ref": "HOST_REPLY_CODES.paramSymbolInvalid"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.curveKindUnknown"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curveKindUnknown"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.curveUnitRefused"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curveUnitRefused"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -1242,16 +1242,16 @@
                 "ref": "HOST_REPLY_CODES.paramSymbolInvalid"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.curveKindUnknown"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curveKindUnknown"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.curveTermMissing"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curveTermMissing"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.curvePointsRange"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curvePointsRange"
               },
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.curveValueNotFinite"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curveValueNotFinite"
               },
               {
                 "ref": "HOST_REPLY_CODES.memoryAllocation"
@@ -1276,7 +1276,7 @@
             "x-reply": "resp 0",
             "x-codes": [
               {
-                "ref": "PLUGIN_HOSTD_REPLY_CODES.outputNotMonitored"
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.outputNotMonitored"
               },
               {
                 "ref": "HOST_REPLY_CODES.invalidOperation"
