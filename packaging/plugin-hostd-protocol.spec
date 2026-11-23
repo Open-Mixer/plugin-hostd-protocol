@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.8.0
+Version: 0.8.1
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -252,6 +252,12 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Tue Nov 24 2026 Pau Aliagas <linuxnow@gmail.com> - 0.8.1-1
+- tests: the empty-contract arms of param_scales_test and grouping_reasons_test
+  hold the installed omx-contract out by PKG_CONFIG_PATH as well as
+  PKG_CONFIG_LIBDIR, and check that they did, so %check passes on a box with
+  omx-contract installed (#146). 0.8.0 never reached the rpm channel.
+
 * Sat Nov 21 2026 Pau Aliagas <linuxnow@gmail.com> - 0.8.0-1
 - The vocabulary sorting pass: the probe words (outcomes, reasons, steps, signals)
   and the pin verdict and pool words are domains of this package (probe, pin) and

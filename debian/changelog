@@ -1,3 +1,12 @@
+plugin-hostd-protocol (0.8.1) unstable; urgency=medium
+
+  * tests: the empty-contract arms of param_scales_test and
+    grouping_reasons_test hold the installed omx-contract out by
+    PKG_CONFIG_PATH as well as PKG_CONFIG_LIBDIR, and check that they did, so
+    the build's tests pass on a box with omx-contract installed (#146).
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Tue, 24 Nov 2026 00:30:00 +0100
+
 plugin-hostd-protocol (0.8.0) unstable; urgency=medium
 
   * The vocabulary sorting pass: the probe words (outcomes, reasons, steps,
