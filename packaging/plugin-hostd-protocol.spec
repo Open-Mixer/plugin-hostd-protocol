@@ -99,10 +99,10 @@ BuildArch: noarch
 Requires: omx-contract >= 3.21.0
 
 %description contract
-data/verbs.json of plugin-hostd-protocol, the verbs and reply codes
-plugin-hostd adds to mod-host's protocol, as the package plugin-hostd-protocol
-of omx-contract's contract directory, under
-share/omx-contract/contract.d/3/plugin-hostd-protocol.
+The domain plugin-hostd-protocol, the verbs and reply codes
+plugin-hostd adds to mod-host's protocol, in omx-contract's contract directory,
+under share/omx-contract/contract.d/plugin-hostd-protocol, beside its domains
+probe, pin and estimate.
 Its documentation is on openmixer.org.
 
 %prep
@@ -114,7 +114,7 @@ Its documentation is on openmixer.org.
 
 %install
 %make_install PREFIX=%{_prefix} LIBDIR=%{_libdir} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir}
-# data/verbs.json, as the package plugin-hostd-protocol of omx-contract's contract directory
+# the domains of plugin-hostd-protocol (contract.d/plugin-hostd-protocol, probe, pin, estimate), as omx-contract's contract directory holds them
 %make_build install-contract DESTDIR=%{buildroot} PREFIX=%{_prefix}
 # the Python packages, python3-plugin-hostd-client and python3-plugin-hostd-protocol
 %make_build install-python DESTDIR=%{buildroot} PREFIX=%{_prefix} DATADIR=%{_datadir} PYTHON3_SITELIB=%{python3_sitelib}
@@ -159,7 +159,8 @@ make test
 %files contract
 %license COPYING
 %doc README.md
-%{_datadir}/omx-contract/contract.d/3/plugin-hostd-protocol/
+%dir %{_datadir}/omx-contract/contract.d/plugin-hostd-protocol/
+%{_datadir}/omx-contract/contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json
 %{_datadir}/omx-contract/contract.d/probe/
 %{_datadir}/omx-contract/contract.d/pin/
 %{_datadir}/omx-contract/contract.d/estimate/

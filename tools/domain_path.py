@@ -26,3 +26,12 @@ def read_domain(name, who):
             with open(path, encoding="utf-8") as f:
                 return json.load(f)
     sys.exit("%s: no domain %s in %s" % (who, name, ", ".join(dirs)))
+
+
+def render_env(tree):
+    """The environment of `omx-contract render --installed` over a tree's own domains, as make check-domain-renders
+    reads them: <tree>/contract.d first, then the contract directories above that exist, so a reference of a domain of
+    the tree to an installed owner's domain (plugin-hostd's to omx-clap's HOST_REPLY_CODES) resolves."""
+    env = dict(os.environ)
+    env["OMX_CONTRACT_PATH"] = ":".join([os.path.join(tree, "contract.d")] + [d for d in contract_dirs() if os.path.isdir(d)])
+    return env
