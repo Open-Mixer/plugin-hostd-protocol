@@ -65,8 +65,9 @@
  * double.
  */
 typedef struct HOST_PARAM_INFO_T {
-    /** the unit, one word: an LV2 unit name ("db", "hz", ...) or "none"; not NULL when param_info
-     * returns 0 or more, and not freed */
+    /** the unit, one word: the standard unit id, a const of omx-contract's PARAM_UNITS ("dB", "Hz", "percent",
+     * "none"), never a format's own spelling (plugin-hostd#215 D1); not NULL when param_info returns 0 or more, and
+     * not freed */
     const char *unit;
     /** the scale, one word: "linear", "log" or "stepped"; not NULL when param_info
      * returns 0 or more, and not freed */
