@@ -76,46 +76,6 @@ describe('the TypeScript client on the fixtures', () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
-
-  // plugin-hostd-protocol#26: the words of the protocol are the domain plugin-hostd, and a contract directory that holds only it
-  // gives a reply code its sentence and this package as its owner
-  it('reads a sentence from the domain plugin-hostd of a contract directory that holds nothing else', () => {
-    const name = 'reply.plugin-hostd.no-cell';
-    const dir = mkdtempSync(join(tmpdir(), 'protocol-domain-'));
-    try {
-      mkdirSync(join(dir, 'plugin-hostd'), { recursive: true });
-      const source = new URL('../../../../../contract.d/plugin-hostd/plugin-hostd.json', import.meta.url);
-      writeFileSync(join(dir, 'plugin-hostd', 'plugin-hostd.json'), readFileSync(source));
-      const doc = JSON.parse(readFileSync(source, 'utf8')) as { components: { schemas: Record<string, { oneOf: { const: string; 'x-text'?: string }[] }> } };
-      const want = doc.components.schemas['PLUGIN_HOSTD_REPLY_CODES']!.oneOf.find((w) => w.const === name)!['x-text'];
-      const p = new Protocol({ ...optionsFromEnvironment(), contractDirs: [dir] });
-      assert.equal(p.sentence(p.code(name), 'en'), want);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
-
-  // the codec reads the domains alone: a stale 3/plugin-hostd-protocol/verbs.json beside the domain, with a sentence of its
-  // own, is never read
-  it('never reads a stale verbs.json of the package beside the domain', () => {
-    const name = 'reply.plugin-hostd.no-cell';
-    const dir = mkdtempSync(join(tmpdir(), 'protocol-domain-'));
-    try {
-      mkdirSync(join(dir, 'plugin-hostd'), { recursive: true });
-      const source = new URL('../../../../../contract.d/plugin-hostd/plugin-hostd.json', import.meta.url);
-      writeFileSync(join(dir, 'plugin-hostd', 'plugin-hostd.json'), readFileSync(source));
-      const doc = JSON.parse(readFileSync(source, 'utf8')) as { components: { schemas: Record<string, { oneOf: { const: string; 'x-text'?: string; 'x-resp'?: number }[] }> } };
-      const word = doc.components.schemas['PLUGIN_HOSTD_REPLY_CODES']!.oneOf.find((w) => w.const === name)!;
-      mkdirSync(join(dir, '3', 'plugin-hostd-protocol'), { recursive: true });
-      writeFileSync(join(dir, '3', 'plugin-hostd-protocol', 'verbs.json'), JSON.stringify({
-        PLUGIN_HOSTD_REPLY_CODES: { kind: 'codes', codes: { noCell: { code: name, resp: word['x-resp'], text: { en: 'A stale sentence of the old home.' } } } },
-      }));
-      const p = new Protocol({ ...optionsFromEnvironment(), contractDirs: [dir] });
-      assert.equal(p.sentence(p.code(name), 'en'), word['x-text']);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
-  });
 });
 
 describe('the replies with a shape of their own', () => {

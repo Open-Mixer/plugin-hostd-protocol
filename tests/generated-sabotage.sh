@@ -17,7 +17,7 @@ MAKE=${MAKE:-make}
 fresh() {
     rm -rf "$work/tree"
     mkdir -p "$work/tree"
-    cp -r Makefile VERSION include src protocol grammar doc tools tests packaging clients contract.d "$work/tree/"
+    cp -r Makefile VERSION include src data protocol grammar doc tools tests packaging clients contract.d "$work/tree/"
     mkdir -p "$work/tree/fuzz" && cp -r fuzz/corpus-abnf "$work/tree/fuzz/"
 }
 
@@ -45,19 +45,10 @@ table_arm() {
     fresh
     python3 - "$work/tree/$file" "$edit" <<'PY'
 import json, sys
-sys.path.insert(0, "tools")
-import protocol_words
 path, edit = sys.argv[1], sys.argv[2]
-if path.endswith("plugin-hostd.json"):
-    # the domain document, edited in the form tools/protocol_words.py reads it
-    doc = protocol_words.document(path)
-    d = protocol_words.items(path)
-    exec(edit)
-    json.dump(protocol_words.domain_from(d, doc), open(path, "w"), indent=2)
-else:
-    d = json.load(open(path))
-    exec(edit)
-    json.dump(d, open(path, "w"), indent=2)
+d = json.load(open(path))
+exec(edit)
+json.dump(d, open(path, "w"), indent=2)
 PY
     if (cd "$work/tree" && python3 tools/protocol-table.py) >"$work/log" 2>&1; then
         echo "FAIL $name: tools/protocol-table.py writes the table"
@@ -77,7 +68,7 @@ arm "plugin-hostd.json by hand" protocol/plugin-hostd.json '"worker_list"' '"wor
 arm "protocol.h not generated" include/plugin-hostd/protocol.h '"an LV2 plugin.s worker' '"an LV2 worker'
 arm "mod-host.h not generated" include/mod-host.h '"remove %i"' '"destroy %i"'
 arm "mod-host.json by hand" protocol/mod-host.json '"cpu_load"' '"cpu_loads"'
-arm "the domain not generated" contract.d/plugin-hostd/plugin-hostd.json '"resp 0 <load_key> <name>"' '"resp 0 <name>"'
+arm "verbs.json not generated" data/verbs.json '"resp 0 <load_key> <name>"' '"resp 0 <name>"'
 arm "the table by hand" protocol/plugin-hostd-protocol.json '"origin": "omx-clap"' '"origin": "mod-host"'
 arm "the grammar by hand" grammar/plugin-hostd-protocol.abnf '%s"bypass" SP int SP int' '%s"bypass" SP int'
 arm "the grammar's core not generated" grammar/core.abnf 'int              = \["-"\] 1\*DIGIT' 'int              = 1*DIGIT'
@@ -86,16 +77,16 @@ arm "protocol.md by hand" doc/protocol.md 'is a superset of' 'extends'
 arm "the evidence not generated" doc/mod-ui-verbs.tsv 'connect' 'konnect'
 arm "the grammar's seeds not written again" fuzz/corpus-abnf/GRAMMAR.sha256 '^[0-9a-f]' 'g'
 arm "the error words by hand" src/reply-words.h '"reply.host.instance-non-exists"' '"reply.host.no-instance"'
-arm "a reply code not generated" contract.d/plugin-hostd/plugin-hostd.json '"reply.plugin-hostd.no-such-worker"' '"reply.plugin-hostd.no-worker"'
+arm "a reply code not generated" data/verbs.json '"reply.plugin-hostd.no-such-worker"' '"reply.plugin-hostd.no-worker"'
 arm "mod-host's page not generated" doc/mod-host-commands.md 'toggle effect processing' 'toggle processing'
 
-table_arm "a word of ours that changes mod-host's" contract.d/plugin-hostd/plugin-hostd.json \
+table_arm "a word of ours that changes mod-host's" data/verbs.json \
     'd["PLUGIN_HOSTD_VERBS"]["verbs"]["bypassAll"] = {"verb": "bypass", "format": "bypass %s %s", "reply": "resp 0", "implementedBy": {"plugin-hostd": "required"}, "doc": "a word of ours"}' \
     "changes mod-host's bypass"
-table_arm "a second form a mod-host line is a line of" contract.d/plugin-hostd/plugin-hostd.json \
+table_arm "a second form a mod-host line is a line of" data/verbs.json \
     'v = d["PLUGIN_HOSTD_VERBS"]["verbs"]["presetShow"]; v["format"] = "preset_show %i"' \
     "changes mod-host's preset_show"
-table_arm "one refusal number, two codes" contract.d/plugin-hostd/plugin-hostd.json \
+table_arm "one refusal number, two codes" data/verbs.json \
     'd["PLUGIN_HOSTD_REPLY_CODES"]["codes"]["noSuchWorker"]["resp"] = -3' \
     "is declared as more than one code"
 

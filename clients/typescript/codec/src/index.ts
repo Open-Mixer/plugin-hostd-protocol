@@ -264,16 +264,41 @@ function read(path: string, what: string): unknown {
   }
 }
 
-/** Every reply code of a domain document with its English sentence: a word of an item, its `const` the code and its `x-text` the sentence. */
-function domainTexts(doc: unknown, out: Map<string, string>): void {
-  const schemas = (doc as { components?: { schemas?: Record<string, { oneOf?: Array<Record<string, unknown>> }> } }).components?.schemas ?? {};
-  for (const item of Object.values(schemas)) {
-    for (const w of item.oneOf ?? []) {
-      const code = w['const'];
-      const text = w['x-text'];
-      if (typeof code === 'string' && typeof text === 'string' && !out.has(code)) out.set(code, text);
+/** Every reply code of a vocabulary file with its English sentence, wherever the file holds it. */
+function texts(node: unknown, out: Map<string, string>): void {
+  if (Array.isArray(node)) {
+    for (const v of node) texts(v, out);
+  } else if (node && typeof node === 'object') {
+    const o = node as Record<string, unknown>;
+    const text = o['text'] as Record<string, unknown> | undefined;
+    if (typeof o['code'] === 'string' && text && typeof text === 'object' && typeof text['en'] === 'string' && !out.has(o['code'])) {
+      out.set(o['code'], text['en']);
     }
+    for (const v of Object.values(o)) texts(v, out);
   }
+}
+
+/** Every word of a domain document with its English sentence: a word is its `const`, its sentence its `x-text`. */
+function domainTexts(node: unknown, out: Map<string, string>): void {
+  if (Array.isArray(node)) {
+    for (const v of node) domainTexts(v, out);
+  } else if (node && typeof node === 'object') {
+    const o = node as Record<string, unknown>;
+    if (typeof o['const'] === 'string' && typeof o['x-text'] === 'string' && !out.has(o['const'])) out.set(o['const'], o['x-text']);
+    for (const v of Object.values(o)) domainTexts(v, out);
+  }
+}
+
+/** The domain documents of a contract directory: <d>/<name>/<last segment>.json, one or two segments deep. */
+function domains(d: string): string[] {
+  const out: string[] = [];
+  for (const name of existsSync(d) ? readdirSync(d, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort() : []) {
+    if (name === '3') continue;
+    const top = join(d, name);
+    if (existsSync(join(top, `${name}.json`))) out.push(join(top, `${name}.json`));
+    for (const sub of readdirSync(top).sort()) if (existsSync(join(top, sub, `${sub}.json`))) out.push(join(top, sub, `${sub}.json`));
+  }
+  return out;
 }
 
 interface Form {
@@ -420,19 +445,32 @@ export class Protocol {
     this.code = namesOf('code', short, (name) => this.codeOf(name));
     const contractDirs = options.contractDirs ?? INSTALLED.contractDirs;
     this.datadir = options.datadir ?? INSTALLED.datadir;
-    // the domains of each directory, <contractdir>/<domain>/<domain>.json, and nothing else: a <contractdir>/3/<package>/verbs.json
-    // (the old home of the protocol's words, before 0.8.0) is never read, so a stale one cannot shadow the domain's sentence
     for (const d of contractDirs) {
-      for (const domain of existsSync(d) ? readdirSync(d).sort() : []) {
-        const path = join(d, domain, `${domain}.json`);
-        if (domain === '3' || !existsSync(path)) continue;
-        const doc = read(path, 'the domain') as { info?: { 'x-owner'?: string } };
+      const root = join(d, '3');
+      const packages = existsSync(root) ? readdirSync(root).sort() : [];
+      for (const pkg of packages) {
+        const path = join(root, pkg, 'verbs.json');
+        if (!existsSync(path)) continue;
+        const found = new Map<string, string>();
+        texts(read(path, 'the vocabulary'), found);
+        for (const [code, text] of found) {
+          if (this.codes.has(code) && !this.sentences.has(code)) {
+            this.sentences.set(code, text);
+            this.owners.set(code, pkg);
+          }
+        }
+      }
+      // the words a package keeps as a domain (omx-clap's host words, the domain host): their sentence is the word's
+      // x-text and their owner the domain's info.x-owner, whose catalog translates them
+      for (const path of domains(d)) {
+        const doc = read(path, 'the domain') as { info?: { 'x-owner'?: unknown } };
+        const owner = typeof doc?.info?.['x-owner'] === 'string' ? doc.info['x-owner'] : undefined;
         const found = new Map<string, string>();
         domainTexts(doc, found);
         for (const [code, text] of found) {
           if (this.codes.has(code) && !this.sentences.has(code)) {
             this.sentences.set(code, text);
-            this.owners.set(code, doc.info?.['x-owner'] ?? domain);
+            if (owner) this.owners.set(code, owner);
           }
         }
       }

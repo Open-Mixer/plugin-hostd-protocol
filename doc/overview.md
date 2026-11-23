@@ -31,7 +31,7 @@ What plugin-hostd declares of the protocol is installed with the development pac
 
 - `<plugin-hostd/protocol.h>` (under `<includedir>/plugin-hostd-protocol/`, found with this package's Cflags): the
   verbs, the placement, the reply codes, the events, the host verb table and the settings, with the headers omx-contract
-  renders from the domain `plugin-hostd` (`contract.d/plugin-hostd/plugin-hostd.json`: `plugin_hostd_protocol_host_verbs.h`, `plugin_hostd_protocol_vocabulary.h`) and from
+  renders from `data/verbs.json` (`plugin_hostd_protocol_host_verbs.h`, `plugin_hostd_protocol_vocabulary.h`) and from
   omx-clap's package of the contract directory (`omx_clap_host_verbs.h`, `omx_clap_vocabulary.h`), and from plugin-db's (`plugin_db_vocabulary.h`, the words of a pin);
 - the one verb table, `plugin-hostd-protocol.json`: every command, each once, with its origin (mod-host, plugin-hostd or
   omx-clap), its argument types, its reply and its refusals, and every feedback line
@@ -43,7 +43,7 @@ What plugin-hostd declares of the protocol is installed with the development pac
   package `@openmixer/plugin-hostd-protocol` ([reply-shapes.md](reply-shapes.md));
 - the source of the generator of `plugin-hostd.json` (`--variable=protocolgen`), for a consumer that checks its own
   pages against a changed copy of the headers;
-- `contract.d/plugin-hostd/plugin-hostd.json`, the domain plugin-hostd of omx-contract's contract directory
+- `data/verbs.json`, as the package plugin-hostd-protocol of omx-contract's contract directory
   (`plugin-hostd-protocol-contract`).
 
 Every one is written from the declarations by a tool of `tools/`, and `make check-generated` fails when one is not what

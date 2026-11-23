@@ -286,24 +286,6 @@
 /** The source sentence (English) of OMX_HOSTING_TOPOLOGY_WIDER_THAN_STRIP. */
 #define OMX_HOSTING_TOPOLOGY_WIDER_THAN_STRIP_TEXT_EN "This plugin\342\200\231s main port is wider than the strip it runs on. Run it on a strip wide enough for its main port."
 
-/* HOSTING_VERB_HOSTS (data/hosting/verb-hosts.json) */
-#define OMX_HOSTING_VERB_HOSTS_PLUGIN_HOSTD "plugin-hostd" ///< The daemon that places plugins in workers and answers the verbs it adds itself.
-/** The source sentence (English) of OMX_HOSTING_VERB_HOSTS_PLUGIN_HOSTD. */
-#define OMX_HOSTING_VERB_HOSTS_PLUGIN_HOSTD_TEXT_EN "The daemon that places plugins in workers and answers the verbs it adds itself."
-#define OMX_HOSTING_VERB_HOSTS_OMX_CLAP_HOST "omx-clap-host" ///< omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter.
-/** The source sentence (English) of OMX_HOSTING_VERB_HOSTS_OMX_CLAP_HOST. */
-#define OMX_HOSTING_VERB_HOSTS_OMX_CLAP_HOST_TEXT_EN "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter."
-#define OMX_HOSTING_VERB_HOSTS_MOD_HOST "mod-host" ///< mod-host, the LV2 host whose protocol the others speak.
-/** The source sentence (English) of OMX_HOSTING_VERB_HOSTS_MOD_HOST. */
-#define OMX_HOSTING_VERB_HOSTS_MOD_HOST_TEXT_EN "mod-host, the LV2 host whose protocol the others speak."
-/** The number of words of HOSTING_VERB_HOSTS. */
-#define OMX_HOSTING_VERB_HOSTS_COUNT 3u
-/** The words of HOSTING_VERB_HOSTS in their declared order, as a C initializer list. */
-#define OMX_HOSTING_VERB_HOSTS_INIT { "plugin-hostd", "omx-clap-host", "mod-host" }
-/** Expands `X(code, "word", NAME)` once per word of HOSTING_VERB_HOSTS, in order, the code being its place in the order. The hosts a verb's implementedBy names (docs/contract-dir.md): the programs a controller sends mod-host's protocol to. A verb states what each one owes it; a host the verb leaves out owes it nothing. */
-#define OMX_HOSTING_VERB_HOSTS(X) \
-    X(0u, "plugin-hostd", PLUGIN_HOSTD) X(1u, "omx-clap-host", OMX_CLAP_HOST) X(2u, "mod-host", MOD_HOST)
-
 /* HOSTING_WORKER_CODES (data/hosting/worker.json) */
 #define OMX_HOSTING_WORKER_NONCONFORMING "hosting.worker.nonconforming"
 /** The source sentence (English) of OMX_HOSTING_WORKER_NONCONFORMING. */

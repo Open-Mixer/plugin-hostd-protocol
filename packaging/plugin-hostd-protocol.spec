@@ -24,7 +24,7 @@ BuildRequires: python3-devel
 # install-contract writes the contract directory's package with omx-contract's script
 BuildRequires: omx-contract-devel >= 3.21.0
 # the codec's tests (make test-codec) read omx-clap's sentences and omx-contract's catalog reader
-BuildRequires: omx-clap-contract >= 0.35.0
+BuildRequires: omx-clap-contract >= 0.34.0
 BuildRequires: omx-contract-data >= 3.21.0
 # plugin-db's package of the contract directory. The committed vocabulary header is the render of plugin-db 0.4.7, checked by ci's declared-protocol job against the served contract; the package build (make test: %check, debian/rules) reads none of its words, so the floor stays 0.4.4
 BuildRequires: plugin-db-contract >= 0.4.4
@@ -78,7 +78,7 @@ BuildArch: noarch
 Requires: python3
 Requires: plugin-hostd-protocol >= 0.5.8
 Requires: plugin-hostd-protocol-contract >= 0.5.8
-Requires: omx-clap-contract >= 0.35.0
+Requires: omx-clap-contract >= 0.34.0
 Requires: omx-contract >= 3.21.0
 # omx-contract's catalog reader, omx_contract_catalog.py, which reads a catalog entry whatever its shape
 Requires: omx-contract-data >= 3.21.0
@@ -99,10 +99,9 @@ BuildArch: noarch
 Requires: omx-contract >= 3.21.0
 
 %description contract
-The domain plugin-hostd of plugin-hostd-protocol, the verbs and reply codes
-plugin-hostd adds to mod-host's protocol, in omx-contract's contract directory,
-under share/omx-contract/contract.d/plugin-hostd, and the package
-plugin-hostd-protocol that names its domains, under
+data/verbs.json of plugin-hostd-protocol, the verbs and reply codes
+plugin-hostd adds to mod-host's protocol, as the package plugin-hostd-protocol
+of omx-contract's contract directory, under
 share/omx-contract/contract.d/3/plugin-hostd-protocol.
 Its documentation is on openmixer.org.
 
@@ -115,7 +114,7 @@ Its documentation is on openmixer.org.
 
 %install
 %make_install PREFIX=%{_prefix} LIBDIR=%{_libdir} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir}
-# the domains of plugin-hostd-protocol (contract.d/plugin-hostd, probe, pin, estimate), as omx-contract's contract directory holds them
+# data/verbs.json, as the package plugin-hostd-protocol of omx-contract's contract directory
 %make_build install-contract DESTDIR=%{buildroot} PREFIX=%{_prefix}
 # the Python packages, python3-plugin-hostd-client and python3-plugin-hostd-protocol
 %make_build install-python DESTDIR=%{buildroot} PREFIX=%{_prefix} DATADIR=%{_datadir} PYTHON3_SITELIB=%{python3_sitelib}
@@ -161,8 +160,6 @@ make test
 %license COPYING
 %doc README.md
 %{_datadir}/omx-contract/contract.d/3/plugin-hostd-protocol/
-%dir %{_datadir}/omx-contract/contract.d/plugin-hostd/
-%{_datadir}/omx-contract/contract.d/plugin-hostd/plugin-hostd.json
 %{_datadir}/omx-contract/contract.d/probe/
 %{_datadir}/omx-contract/contract.d/pin/
 %{_datadir}/omx-contract/contract.d/estimate/
