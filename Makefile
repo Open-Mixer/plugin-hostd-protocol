@@ -543,11 +543,13 @@ check-contract-dir:
 
 # the catalogs through omx-contract's release gate (translate --check, 3.16.0): every listed language has its catalog,
 # no key is missing and no entry is stale. This tree's items name omx-clap's reply codes, so they are read from
-# its contract staged as check-contract-dir stages it (#15).
+# its contract staged as check-contract-dir stages it (#15). The words are the domain plugin-hostd (V16), owned by this
+# package (info.x-owner) but named for the daemon: translate keeps the items of the --package it names, so it names the
+# domain; named plugin-hostd-protocol, every reply.plugin-hostd.* key read as no word of it.
 check-catalogs:
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
 	$(MAKE) --no-print-directory install-contract DESTDIR=$$tmp >/dev/null; \
-	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) translate --check --installed --catalogs catalogs --package plugin-hostd-protocol
+	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) translate --check --installed --catalogs catalogs --package plugin-hostd
 
 # a served contract package that changes the render turns main red when it is served: ci.yml's schedule (#27)
 test-served-render-ci:
