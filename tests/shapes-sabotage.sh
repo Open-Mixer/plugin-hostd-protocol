@@ -15,42 +15,55 @@ failed=0
 
 fresh() {
     rm -rf "$work/tree"
-    mkdir -p "$work/tree/tests/golden"
+    mkdir -p "$work/tree/tests/golden" "$work/tree/packaging"
     cp -r Makefile VERSION shapes ts protocol "$work/tree/"
+    cp packaging/plugin-hostd-protocol.spec "$work/tree/packaging/"   # the Makefile reads omx-dsp's floor from it
     cp tests/reply_shapes.py tests/reply_args.py "$work/tree/tests/"
     cp tests/golden/plugin-hostd-protocol.txt "$work/tree/tests/golden/"
 }
+# a run's log holds nothing but the target's own words: no tool complaining about a file the copy lacks, which would be read
+# as the reason an arm went red
+clean() { ! grep -q -i "no such file\|can't read\|cannot open" "$work/log"; }
 run() { (cd "$work/tree" && $MAKE -s "$1" PYTHON="$PYTHON" OMX_CONTRACT_DIR="$OMX_CONTRACT_DIR" >"$work/log" 2>&1); }
 
-# <name> <make target> <file> <text, as sed matches it> <what it becomes>
+# <name> <make target> <the words the guard must answer with>, on the tree as fresh-then-changed left it
+verdict() {
+    name=$1 target=$2 why=$3
+    if run "$target"; then
+        echo "FAIL $name: $target passes"
+        failed=1
+    elif ! clean || ! grep -q -F -- "$why" "$work/log"; then
+        echo "FAIL $name: $target is red, but not because of the change (\"$why\" not in its log): $(grep -v '^ok' "$work/log" | head -n3 | tr '\n' '|' | head -c 400)"
+        failed=1
+    else
+        echo "ok   $name: red ($(grep -F -- "$why" "$work/log" | head -n1 | head -c 110))"
+    fi
+}
+# <name> <make target> <file> <text, as sed matches it> <what it becomes> <the words the guard must answer with>
 arm() {
-    name=$1 target=$2 file=$3 from=$4 to=$5
+    name=$1 target=$2 file=$3 from=$4 to=$5 why=$6
     fresh
     grep -q "$from" "$work/tree/$file" || { echo "FAIL $name: \"$from\" is not in $file"; failed=1; return; }
     sed -i "0,/$from/s//$to/" "$work/tree/$file"
-    if run "$target"; then
-        echo "FAIL $name: $target passes with $file changed"
-        failed=1
-    else
-        echo "ok   $name: red ($(grep -v '^ok' "$work/log" | head -n1 | head -c 110))"
-    fi
+    verdict "$name" "$target" "$why"
 }
 
 fresh
 for t in test-reply-shapes check-shapes-render; do
-    if run $t; then echo "ok   control: $t passes on the copy as it is"; else echo "FAIL control: $t fails on the copy as it is"; cat "$work/log"; failed=1; fi
+    if run $t && clean; then echo "ok   control: $t passes on the copy as it is"; elif clean; then echo "FAIL control: $t fails on the copy as it is"; cat "$work/log"; failed=1
+    else echo "FAIL control: $t complains of a file the copy lacks"; cat "$work/log"; failed=1; fi
 done
-arm "a property dropped from a schema" test-reply-shapes shapes/reply_instance_info.schema.json '"crashes": {' '"crashes_": {'
-arm "a state word the table does not declare" test-reply-shapes shapes/reply_instance_info.schema.json 'up|starting|backoff|given-up' 'up|starting|backoff|sleeping'
-arm "a schema left open" test-reply-shapes shapes/reply_hello.schema.json '"additionalProperties": false' '"additionalProperties": true'
-arm "a pid typed as a word" test-reply-shapes shapes/reply_instance_info.schema.json '"type": "integer"' '"type": "string"'
-arm "a record key renamed" test-reply-shapes shapes/reply_worker_list.schema.json '"place": {' '"where": {'
-arm "the table renames a reply word" test-reply-shapes protocol/plugin-hostd-protocol.json '"crashes", "quarantined"' '"crashed", "quarantined"'
-arm "a render edited by hand" check-shapes-render ts/shapes/reply_hello.d.ts 'version: number' 'version: string'
-arm "a schema changed and not rendered again" check-shapes-render shapes/reply_hello.schema.json 'The protocol version the daemon answers on' 'The version'
+arm "a property dropped from a schema" test-reply-shapes shapes/reply_instance_info.schema.json '"crashes": {' '"crashes_": {' "are not the names ['worker', 'pid', 'state', 'crashes', 'quarantined']"
+arm "a state word the table does not declare" test-reply-shapes shapes/reply_instance_info.schema.json 'up|starting|backoff|given-up' 'up|starting|backoff|sleeping' "are not the table's worker_states"
+arm "a schema left open" test-reply-shapes shapes/reply_hello.schema.json '"additionalProperties": false' '"additionalProperties": true' "FAIL hello: not closed (additionalProperties)"
+arm "a pid typed as a word" test-reply-shapes shapes/reply_instance_info.schema.json '"type": "integer"' '"type": "string"' "is not of type 'string' at pid"
+arm "a record key renamed" test-reply-shapes shapes/reply_worker_list.schema.json '"place": {' '"where": {' "FAIL worker_list.workers: not the record worker-record of the table"
+arm "the table renames a reply word" test-reply-shapes protocol/plugin-hostd-protocol.json '"crashes", "quarantined"' '"crashed", "quarantined"' "'crashed', 'quarantined'] of the longest reply form"
+arm "a render edited by hand" check-shapes-render ts/shapes/reply_hello.d.ts 'version: number' 'version: string' "ts/shapes/reply_hello.d.ts differs"
+arm "a schema changed and not rendered again" check-shapes-render shapes/reply_hello.schema.json 'The protocol version the daemon answers on' 'The version' "ts/shapes/reply_hello.d.ts differs"
 fresh; rm "$work/tree/shapes/reply_hello.schema.json"
-if run test-reply-shapes; then echo "FAIL a schema deleted: test-reply-shapes passes"; failed=1; else echo "ok   a schema deleted: red"; fi
+verdict "a schema deleted" test-reply-shapes "shapes/reply_hello.schema.json is absent"
 fresh; echo '// extra' > "$work/tree/ts/shapes/reply_extra.d.ts"
-if run check-shapes-render; then echo "FAIL an extra render: check-shapes-render passes"; failed=1; else echo "ok   an extra render: red"; fi
+verdict "an extra render" check-shapes-render "ts/shapes/reply_extra.d.ts is extra"
 
 if [ "$failed" = 0 ]; then echo "shapes sabotage ok"; else echo "shapes sabotage FAILED"; exit 1; fi
