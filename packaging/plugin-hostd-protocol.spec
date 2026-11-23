@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.8.0
+Version: 0.9.0
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -253,6 +253,15 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Mon Nov 23 2026 Pau Aliagas <linuxnow@gmail.com> - 0.9.0-1
+- V16 as ruled 2026-11-23: the protocol's words are the domain
+  plugin-hostd-protocol, installed as
+  contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, every item named
+  PLUGIN_HOSTD_PROTOCOL_* (REPLY_CODES, DAEMON_VERBS, LIBRARY_VERBS, EXTENSIONS);
+  it no longer shares <contractdir>/plugin-hostd/ with plugin-hostd's package
+  and nested domains. No C macro changes.
+- The TypeScript codec reads the domains in one loop, as the Python codec.
+
 * Sat Nov 21 2026 Pau Aliagas <linuxnow@gmail.com> - 0.8.0-1
 - The vocabulary sorting pass: the probe words (outcomes, reasons, steps, signals)
   and the pin verdict and pool words are domains of this package (probe, pin) and
