@@ -1071,6 +1071,9 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_PRESET_FORMAT_1   "org.openmixer.preset/1"
 /** @brief the format word of a user-preset file that adds the state body */
 #define PHD_PRESET_FORMAT_2   "org.openmixer.preset/2"
+/** @brief the protocol's ceiling on a user-preset file, in bytes: a reader refuses a longer one. A daemon may hold a stricter
+ * limit of its own and must assert at build time that it is at most this one (ruled 2026-11-23 on #70: omx-clap-core keeps
+ * 3 MiB with a static assert against this, Open-Mixer/omx-clap-core#182) */
 #define PHD_PRESET_FILE_MAX   (64 * 1024 * 1024)
 /** @brief the parameters on one remote page */
 #define PHD_REMOTE_PAGE_SLOTS 8

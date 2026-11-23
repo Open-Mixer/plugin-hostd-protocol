@@ -1,5 +1,4 @@
 include/host-dispatch.h: warning: Member host_dispatch_register_unsupported(void) (function) of file host-dispatch.h is not documented.
-include/plugin-hostd/protocol.h: warning: Member PHD_PRESET_FILE_MAX (macro definition) of file protocol.h is not documented.
 include/socket.h: warning: Member SOCKET_HAS_ADOPT (macro definition) of file socket.h is not documented.
 include/utils.h: warning: Member clamp(int value, int min, int max) (function) of file utils.h is not documented.
 include/utils.h: warning: Member clampf(float value, float min, float max) (function) of file utils.h is not documented.
