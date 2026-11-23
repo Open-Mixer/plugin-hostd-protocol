@@ -11,7 +11,7 @@
  */
 import { loadCatalog, sentenceOf, type Catalog } from '@openmixer/omx-contract/catalog';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 
 /** A line the table does not declare, an argument no form takes, a reply that is no reply. */
 export class ProtocolError extends Error {
@@ -264,18 +264,6 @@ function read(path: string, what: string): unknown {
   }
 }
 
-/** Every reply code of a domain document with its English sentence: a word of an item, its `const` the code and its `x-text` the sentence. */
-function domainTexts(doc: unknown, out: Map<string, string>): void {
-  const schemas = (doc as { components?: { schemas?: Record<string, { oneOf?: Array<Record<string, unknown>> }> } }).components?.schemas ?? {};
-  for (const item of Object.values(schemas)) {
-    for (const w of item.oneOf ?? []) {
-      const code = w['const'];
-      const text = w['x-text'];
-      if (typeof code === 'string' && typeof text === 'string' && !out.has(code)) out.set(code, text);
-    }
-  }
-}
-
 /** Every word of a domain document with its English sentence: a word is its `const`, its sentence its `x-text`. */
 function domainTexts(node: unknown, out: Map<string, string>): void {
   if (Array.isArray(node)) {
@@ -443,33 +431,20 @@ export class Protocol {
     this.code = namesOf('code', short, (name) => this.codeOf(name));
     const contractDirs = options.contractDirs ?? INSTALLED.contractDirs;
     this.datadir = options.datadir ?? INSTALLED.datadir;
-    // the domains of each directory, <contractdir>/<domain>/<domain>.json, and nothing else: a <contractdir>/3/<package>/verbs.json
-    // (the old home of the protocol's words, before 0.8.0) is never read, so a stale one cannot shadow the domain's sentence
+    // the domains of each directory, <contractdir>/<domain>/<domain>.json one or two segments deep (domains), and nothing
+    // else: the words plugin-hostd-protocol, omx-clap and the others declare are domains, and a <contractdir>/3/<package>/verbs.json
+    // (the old home of the protocol's words, before 0.8.0) is never read, so a stale one cannot shadow the domain's sentence;
+    // a word's owner is its domain's info.x-owner, else the domain, whose catalog translates it (as the Python codec reads them)
     for (const d of contractDirs) {
-      for (const domain of existsSync(d) ? readdirSync(d).sort() : []) {
-        const path = join(d, domain, `${domain}.json`);
-        if (domain === '3' || !existsSync(path)) continue;
-        const doc = read(path, 'the domain') as { info?: { 'x-owner'?: string } };
-        const found = new Map<string, string>();
-        domainTexts(doc, found);
-        for (const [code, text] of found) {
-          if (this.codes.has(code) && !this.sentences.has(code)) {
-            this.sentences.set(code, text);
-            this.owners.set(code, doc.info?.['x-owner'] ?? domain);
-          }
-        }
-      }
-      // the words a package keeps as a domain (omx-clap's host words, the domain host): their sentence is the word's
-      // x-text and their owner the domain's info.x-owner, whose catalog translates them
       for (const path of domains(d)) {
         const doc = read(path, 'the domain') as { info?: { 'x-owner'?: unknown } };
-        const owner = typeof doc?.info?.['x-owner'] === 'string' ? doc.info['x-owner'] : undefined;
+        const owner = typeof doc?.info?.['x-owner'] === 'string' ? doc.info['x-owner'] : basename(dirname(path));
         const found = new Map<string, string>();
         domainTexts(doc, found);
         for (const [code, text] of found) {
           if (this.codes.has(code) && !this.sentences.has(code)) {
             this.sentences.set(code, text);
-            if (owner) this.owners.set(code, owner);
+            this.owners.set(code, owner);
           }
         }
       }
