@@ -312,6 +312,12 @@ for line in ("", "zzz 3", "add", "remove x", "set_bpm loud", "param_set 3 gain",
 for line in ("resp", "resp x", "ok"):
     must_not("reply", line, "a wrong reply")
 
+# ---- a quoted word: \" a quote and \\ a backslash, a lone backslash no value (#88) ----
+for v in ('"a b\\\\"', '"\\\\"', '"a\\\\\\"b"', '"say \\"hi\\""', '""'):
+    must("word", v, "a quoted word")
+for v in ('"a b\\"', '"\\"', '"a\\b"'):
+    must_not("word", v, "a quoted word that never closes or holds a lone backslash")
+
 # ---- the float of #371 ----
 for v in ("NaN", "Infinity", "-Infinity", "nan", "inf", "-inf", "0.2500", "-1e-3", "440.125", ".5"):
     must("float", v, "a float")

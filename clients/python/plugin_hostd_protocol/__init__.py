@@ -44,7 +44,7 @@ class ProtocolError(ValueError):
     """A line the table does not declare, an argument no form takes, a reply that is no reply."""
 
 
-# ---- the words of a line, as plugin-hostd-protocol's grammar (core.abnf: word, quoted, escaped-quote) writes them,
+# ---- the words of a line, as plugin-hostd-protocol's grammar (core.abnf: word, quoted, escaped-char) writes them,
 # and the percent-encoded path of a clap: uri, as its pin section does (PHD_PIN_PATH_EXCLUDED, PHD_PIN_PATH_ESCAPE)
 
 # the daemon's tokenizer splits at C's isspace(): these six, and no other character
@@ -66,8 +66,8 @@ def _no_nul(text):
 
 def words(line):
     """The words of a line as the daemon reads them: split at whitespace; a word that starts with a quotation mark
-    runs to the next one no backslash escapes, \\" in it is a quote, the marks are not part of it; a quoted word that
-    never closes runs to the end of the line. ProtocolError for a line that holds a NUL."""  # noqa: D205, D209, D301
+    runs to the next one no backslash escapes, \\" in it is a quote and \\\\ a backslash, the marks are not part of it;
+    a quoted word that never closes runs to the end of the line. ProtocolError for a line that holds a NUL."""  # noqa: D205, D209, D301
     _no_nul(line)
     out, i, n = [], 0, len(line)
     while i < n:
@@ -77,7 +77,7 @@ def words(line):
             i += 1
             word = []
             while i < n and line[i] != '"':
-                if line[i] == "\\" and i + 1 < n and line[i + 1] == '"':
+                if line[i] == "\\" and i + 1 < n and line[i + 1] in '"\\':
                     i += 1
                 word.append(line[i])
                 i += 1
@@ -93,8 +93,8 @@ def words(line):
 
 
 def quote(value):
-    """A value as one quoted word: in quotation marks, \\" for a quote (the grammar's only escape)."""  # noqa: D301
-    return '"' + _no_nul(value).replace('"', '\\"') + '"'
+    """A value as one quoted word: in quotation marks, \\\\ for a backslash and \\" for a quote (core.abnf's quoted)."""  # noqa: D301
+    return '"' + _no_nul(value).replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
 def _word(value):

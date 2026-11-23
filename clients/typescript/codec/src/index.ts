@@ -111,7 +111,7 @@ export interface Estimate {
   readonly reason: string;
 }
 
-// ---- the words of a line, as plugin-hostd-protocol's grammar (core.abnf: word, quoted, escaped-quote) writes them,
+// ---- the words of a line, as plugin-hostd-protocol's grammar (core.abnf: word, quoted, escaped-char) writes them,
 // and the percent-encoded path of a clap: uri, as its pin section does (PHD_PIN_PATH_EXCLUDED, PHD_PIN_PATH_ESCAPE)
 
 /** The daemon's tokenizer splits at C's isspace(): these six, and no other character. */
@@ -122,8 +122,8 @@ const EXCLUDED = ',= \t\r\n';
 
 /**
  * The words of a line as the daemon reads them: split at whitespace; a word that starts with a quotation mark runs to
- * the next one no backslash escapes, \" in it is a quote, the marks are not part of it; a quoted word that never
- * closes runs to the end of the line.
+ * the next one no backslash escapes, \" in it is a quote and \\ a backslash, the marks are not part of it; a
+ * quoted word that never closes runs to the end of the line.
  */
 export function words(line: string): string[] {
   const out: string[] = [];
@@ -136,7 +136,7 @@ export function words(line: string): string[] {
       i += 1;
       let word = '';
       while (i < n && line[i] !== '"') {
-        if (line[i] === '\\' && i + 1 < n && line[i + 1] === '"') i += 1;
+        if (line[i] === '\\' && i + 1 < n && (line[i + 1] === '"' || line[i + 1] === '\\')) i += 1;
         word += line[i];
         i += 1;
       }
@@ -152,9 +152,9 @@ export function words(line: string): string[] {
   return out;
 }
 
-/** A value as one quoted word: in quotation marks, \" for a quote (the grammar's only escape). */
+/** A value as one quoted word: in quotation marks, \\ for a backslash and \" for a quote (core.abnf's quoted). */
 export function quote(value: string): string {
-  return '"' + value.replaceAll('"', '\\"') + '"';
+  return '"' + value.replaceAll('\\', '\\\\').replaceAll('"', '\\"') + '"';
 }
 
 /** A string as one word: bare when it can be, quoted when it is empty or holds whitespace or a quote. */

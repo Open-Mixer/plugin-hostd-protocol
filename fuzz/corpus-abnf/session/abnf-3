@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-note_off -6 98 -73 6
-@- note_out_drops 0
-@._- remote_page_get 68 5
-@.1 midi_map -25 "" 1 -7 -nan +88.82
-audio_ports 044
-@t-8 remove -925
-@__. midi_learn -090 $Κ inf +.43e+18
-param_monitor 247 "" "" 084e-619
-@. state_tmpdir ʓ7
-state_tmpdir A
-quit
-quit
+chain -90 2 !e)
+set_bpb -nan
+cc_value_set 8 !В! +nan
+@1 licensee -4
+@._. hide_external_ui -6
+@__ note_drops -1
+pool_config & -48
+pin_accept +!
+@.k feature_enable bwţ -893
+@6 preset_load 316 "å\""
+@.O pin_reload
+instance_info 143

@@ -479,7 +479,7 @@ static void remote_pages_cb(proto_t *proto)
     protocol_response_int(resp, proto);
 }
 
-/* appends " \"text\"", a quote inside written as \" */
+/* appends " \"text\"", a quote inside written as \" and a backslash as \\ (core.abnf's quoted, #88) */
 static size_t append_quoted(char *buf, size_t pos, size_t size, const char *text)
 {
     if (pos + 2 < size)
@@ -489,7 +489,7 @@ static size_t append_quoted(char *buf, size_t pos, size_t size, const char *text
     }
     for (; *text && pos + 3 < size; text++)
     {
-        if (*text == '"')
+        if (*text == '"' || *text == '\\')
             buf[pos++] = '\\';
         buf[pos++] = *text;
     }

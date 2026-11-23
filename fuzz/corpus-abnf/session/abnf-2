@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-@0 load !͝!
-@_ property_info -37 887
-@_1_ quarantine_clear "\"\""
-@31 hmi_map -39 ) -67 -26 -1 8 -4 "η" -083 inf -50
-show_external_ui -956
-@10 history_clear "\"\""
-midi_learn -2 CȖѪ +nan -inf
-@-. plan_clear -2
-instance_info 1
-set_bpm .7e+982
-pin_clear "ŅЕ"
-@4H- cc_value_set 8 ˇ inf
+@.. chain_get -9
+@.r pool_config ! 4
+@4 cc_value_set 8 ˇ inf
+@8NC note_off 98 -73 6 -5
+@R curve_bind 44 68 ( ""
+output_data_ready
+hide_external_ui -11
+param_monitor -7 "\\\\" ! +.87
+@- worker_list
+@-.- policy_set "ǯr" ƭ*
+cc_map 054 Κ 55 -74 "" +infinity +73.E-842 -nan 9 -8 ʓ 5 "\""
+@-1 pin_reload
