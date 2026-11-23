@@ -227,6 +227,33 @@ def _texts(node, out):
             _texts(v, out)
 
 
+def _domain_texts(node, out):
+    """Every word of a domain document with its English sentence: a word is its `const`, its sentence its `x-text`."""
+    if isinstance(node, dict):
+        if isinstance(node.get("const"), str) and isinstance(node.get("x-text"), str):
+            out.setdefault(node["const"], node["x-text"])
+        for v in node.values():
+            _domain_texts(v, out)
+    elif isinstance(node, list):
+        for v in node:
+            _domain_texts(v, out)
+
+
+def _domains(d):
+    """The domain documents of a contract directory, by name: <d>/<name>/<last segment>.json, one or two segments deep."""
+    out = []
+    for name in sorted(os.listdir(d)) if os.path.isdir(d) else []:
+        top = os.path.join(d, name)
+        if name == "3" or not os.path.isdir(top):
+            continue
+        if os.path.isfile(os.path.join(top, name + ".json")):
+            out.append(os.path.join(top, name + ".json"))
+        for sub in sorted(os.listdir(top)):
+            if os.path.isfile(os.path.join(top, sub, sub + ".json")):
+                out.append(os.path.join(top, sub, sub + ".json"))
+    return out
+
+
 # a figure or a list the daemon has none for
 NONE = "-"
 # the largest count both clients hold exactly (a double's whole numbers)
@@ -354,6 +381,18 @@ class Protocol:
                     if code in self.codes and code not in self.sentences:
                         self.sentences[code] = text
                         self.owners[code] = package
+            # the words a package keeps as a domain (omx-clap's host words, the domain host): their sentence is the word's
+            # x-text and their owner the domain's info.x-owner, whose catalog translates them
+            for path in _domains(d):
+                doc = _read(path, "the domain")
+                owner = (doc.get("info") or {}).get("x-owner") if isinstance(doc, dict) else None
+                found = {}
+                _domain_texts(doc, found)
+                for code, text in found.items():
+                    if code in self.codes and code not in self.sentences:
+                        self.sentences[code] = text
+                        if owner:
+                            self.owners[code] = owner
         self._catalogs = {}
         self._reader = None
 

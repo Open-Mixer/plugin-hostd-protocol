@@ -278,6 +278,29 @@ function texts(node: unknown, out: Map<string, string>): void {
   }
 }
 
+/** Every word of a domain document with its English sentence: a word is its `const`, its sentence its `x-text`. */
+function domainTexts(node: unknown, out: Map<string, string>): void {
+  if (Array.isArray(node)) {
+    for (const v of node) domainTexts(v, out);
+  } else if (node && typeof node === 'object') {
+    const o = node as Record<string, unknown>;
+    if (typeof o['const'] === 'string' && typeof o['x-text'] === 'string' && !out.has(o['const'])) out.set(o['const'], o['x-text']);
+    for (const v of Object.values(o)) domainTexts(v, out);
+  }
+}
+
+/** The domain documents of a contract directory: <d>/<name>/<last segment>.json, one or two segments deep. */
+function domains(d: string): string[] {
+  const out: string[] = [];
+  for (const name of existsSync(d) ? readdirSync(d, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort() : []) {
+    if (name === '3') continue;
+    const top = join(d, name);
+    if (existsSync(join(top, `${name}.json`))) out.push(join(top, `${name}.json`));
+    for (const sub of readdirSync(top).sort()) if (existsSync(join(top, sub, `${sub}.json`))) out.push(join(top, sub, `${sub}.json`));
+  }
+  return out;
+}
+
 interface Form {
   readonly args: readonly string[] | null;
   readonly tail?: boolean;
@@ -434,6 +457,20 @@ export class Protocol {
           if (this.codes.has(code) && !this.sentences.has(code)) {
             this.sentences.set(code, text);
             this.owners.set(code, pkg);
+          }
+        }
+      }
+      // the words a package keeps as a domain (omx-clap's host words, the domain host): their sentence is the word's
+      // x-text and their owner the domain's info.x-owner, whose catalog translates them
+      for (const path of domains(d)) {
+        const doc = read(path, 'the domain') as { info?: { 'x-owner'?: unknown } };
+        const owner = typeof doc?.info?.['x-owner'] === 'string' ? doc.info['x-owner'] : undefined;
+        const found = new Map<string, string>();
+        domainTexts(doc, found);
+        for (const [code, text] of found) {
+          if (this.codes.has(code) && !this.sentences.has(code)) {
+            this.sentences.set(code, text);
+            if (owner) this.owners.set(code, owner);
           }
         }
       }
