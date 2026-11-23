@@ -1071,7 +1071,6 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_PRESET_FORMAT_1   "org.openmixer.preset/1"
 /** @brief the format word of a user-preset file that adds the state body */
 #define PHD_PRESET_FORMAT_2   "org.openmixer.preset/2"
-#define PHD_PRESET_ALIAS_MAX  12
 #define PHD_PRESET_FILE_MAX   (64 * 1024 * 1024)
 /** @brief the parameters on one remote page */
 #define PHD_REMOTE_PAGE_SLOTS 8
