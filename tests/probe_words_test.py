@@ -15,6 +15,10 @@ PHD_PROBE_STEPS are generated from it, the meaning texts included (sorting pass 
 Environment: OMX_CONTRACT (the command, default omx-contract), CC. Exit 0 all green, 1 a FAIL line."""
 import json, os, re, shlex, shutil, subprocess, sys, tempfile
 
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+from domain_path import render_env  # noqa: E402  the renders read contract.d, then the installed contract directory
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OMX = shlex.split(os.environ.get("OMX_CONTRACT", "omx-contract"))
 CC = shlex.split(os.environ.get("CC", "cc"))
@@ -62,8 +66,9 @@ def main():
                                                     if name == "outcomes" else re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", w["title"]).upper(),
                                                     w["const"], meaning(w)))
             check("\n".join(rows) + "\n" == gold, "(b) the domain holds exactly the golden rows, meanings included")
-            r = subprocess.run(OMX + ["render", "--target", "c", "--package", "probe", "--contract-dir", "contract.d",
-                                      "--out", "include/plugin-hostd", "--check"], cwd=ROOT, capture_output=True, text=True)
+            r = subprocess.run(OMX + ["render", "--target", "c", "--package", "probe", "--installed",
+                                      "--out", "include/plugin-hostd", "--check"], cwd=ROOT, env=render_env(ROOT),
+                                     capture_output=True, text=True)
             check(r.returncode == 0, "(b) include/plugin-hostd/probe_codes.h is the render of the domain: %s" % (r.stderr.strip() or r.stdout.strip())[-200:])
         gen = os.path.join(ROOT, "tools", "probe-words-gen.py")
         r = subprocess.run([sys.executable, gen, "--check"], cwd=ROOT, capture_output=True, text=True) if os.path.isfile(gen) else None

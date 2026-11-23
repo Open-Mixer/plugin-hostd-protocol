@@ -14,7 +14,7 @@ override_dh_auto_build:
 
 override_dh_auto_install:
 	dh_auto_install -- $(MAKE_VARS)
-	# data/verbs.json, as the package plugin-hostd-protocol of omx-contract's contract directory
+	# the domains of plugin-hostd-protocol (contract.d/plugin-hostd, probe, pin, estimate), as omx-contract's contract directory holds them
 	$(MAKE) install-contract DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr
 	# the Python packages, python3-plugin-hostd-client and python3-plugin-hostd-protocol
 	$(MAKE) install-python DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr PYTHON3_SITELIB=/usr/lib/python3/dist-packages
