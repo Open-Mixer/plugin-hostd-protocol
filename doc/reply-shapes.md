@@ -1,10 +1,15 @@
 # The reply shapes: a JSON Schema per reply document, and its TypeScript type
 
 A reply is a line, `resp <code> <words>`, and a client turns the words into a document: a worker's record, an instance's
-cost, a curve's points. Each client wrote that document's type for itself. The table types 17 of the replies
+cost, a curve's points. Each client wrote that document's type for itself. The table types 21 of the replies
 (`reply_forms` of `protocol/plugin-hostd-protocol.json`: the name and the type of each word, see
 [protocol.md](protocol.md)), and each is now also a JSON Schema, the one source of the document's type in every language
 (the shapes facility of Open-Mixer/omx-contract, `docs/shapes.md`, and the typed-contracts spec, section 3).
+
+Three replies with words have no form yet (#85): `param_info`, whose bounds and default may be `NaN`, `Infinity` or
+`-Infinity`, which a JSON number cannot hold; `audio_ports`, a leading `dry` that may be absent and a port record with
+optional fields; and `idle_hold`, whose target and held are `off` or microseconds. Each needs a type the table does not
+have.
 
 ## What is where
 

@@ -159,7 +159,9 @@ def main():
         if line.startswith("> "):
             cmd = line[2:].split(" ")[0]
         elif line.startswith("< resp 0") and cmd in validators:
-            real[cmd] = real.get(cmd, 0) + (validate(cmd, line[2:], "a reply of the golden transcript") is not None)
+            # the transcript writes a backslash as \\ and a byte outside printable ASCII as \xNN (tests/golden.c)
+            raw = re.sub(r"\\(\\|x[0-9a-f]{2})", lambda m: "\\" if m.group(1) == "\\" else chr(int(m.group(1)[1:], 16)), line[2:])
+            real[cmd] = real.get(cmd, 0) + (validate(cmd, raw, "a reply of the golden transcript") is not None)
     # replies as the host writes them, beyond the samples: preset_get's name is the rest of the line, raw, so it may hold
     # spaces and may be empty (a preset with no name answers "resp 0 <key> " with nothing after the key)
     for v, line, want in (("preset_get", "resp 0 urn:p:1 Bright Mix", "Bright Mix"), ("preset_get", "resp 0 urn:p:1 ", ""),
@@ -175,7 +177,12 @@ def main():
         doc = validate("history_get", line, "a reply as the host writes it") if "history_get" in validators else None
         if doc is not None and doc.get("history") != want:
             failures.append("history_get: the history of %r is %r, not %r" % (line, doc.get("history"), want))
-    served = {"hello", "curve_points", "param_get_many"}
+    # remote_page_get's section ends in a backslash in the golden fixture: unquoted, it is the value the backend gave (#88)
+    page = document("remote_page_get", 'resp 0 0 "Main \\"A\\"\\\\" "Page" gain - gain - gain - gain -', table) \
+        if "remote_page_get" in validators else None
+    if page is not None and page["section"] != 'Main "A"\\':
+        failures.append("remote_page_get: the section reads %r, not %r" % (page["section"], 'Main "A"\\'))
+    served = {"hello", "curve_points", "param_get_many", "remote_page_get"}
     for v in sorted(served & set(verbs)):
         if real.get(v, 0) < 1:
             failures.append("%s: the golden transcript holds no reply of it to validate" % v)
@@ -203,6 +210,8 @@ def main():
     plant("curve_points", "a point that is a word", lambda d: d["points"].append({"x": "1", "y": 2.0}))
     plant("hello", "a version that is a word", lambda d: d.update(version="1"))
     plant("history_get", "a none word the table does not have", lambda d: d.update(history="off"))
+    plant("note_drops", "a count that is a word", lambda d: d.update(notes="3"))
+    plant("remote_page_get", "a slot that is no word", lambda d: d["slots"].append(""))
     plant("estimate", "a ram key that is not a number or -", lambda d: d.update(ram_bytes="lots"))
     plant("estimate", "a verdict that is no word of the domain estimate", lambda d: d.update(verdict="fits"))
     plant("pin_layout", "a sha256 that is short", lambda d: d["layout"].update(sha256="ab"))

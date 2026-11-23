@@ -1,0 +1,10 @@
+note_input 291 => resp 0 {
+note_input 8 => resp 0 "w"
+note_input 825 => resp 0 "ğh"
+note_input 65 => resp 0 !
+note_input -48 => resp 0 ""
+note_input 45 => resp 0 5$T
+note_input 367 => resp 0 " \\"
+note_input -96 => resp 0 "*"
+note_input 521 => resp 0 %!!
+note_input 267 => resp 0 "O\\"

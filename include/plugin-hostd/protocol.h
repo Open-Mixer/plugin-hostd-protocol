@@ -1842,7 +1842,13 @@ static inline int phd_is_note_verb(const char *verb)
       "verdict:estimate-verdict reason:estimate-reason") \
     X(OMX_VERB_HELLO, "0", "version:int extensions:word...") \
     X(OMX_VERB_PARAM_GET_MANY, "0", "values:word...") \
-    X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...")
+    X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...") \
+    X(OMX_VERB_REMOTE_PAGES, "count", "") \
+    X(OMX_VERB_REMOTE_PAGE_GET, "0", "page_id:uint section:quoted-escaped page_name:quoted-escaped slots:word...") \
+    X(OMX_VERB_PROPERTY_LIST, "count", "") \
+    X(OMX_VERB_NOTE_INPUT, "0", "port:word") \
+    X(OMX_VERB_NOTE_DROPS, "0", "notes:uint releases:uint sysex:uint unmappable:uint") \
+    X(OMX_VERB_NOTE_OUT_DROPS, "0", "dropped:uint unmapped:uint midi_out_full:uint")
 
 /** @brief the printf format of the PHD_EVENT_WORKER_DIED line
  *
