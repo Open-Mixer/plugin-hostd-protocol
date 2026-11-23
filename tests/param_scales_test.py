@@ -10,13 +10,16 @@ its domain `param` (sorting pass, V21 PR 3, row M1): this package keeps no copy 
     names tests/fixtures/contract.d, the interface omx-contract's domain gives, until omx-contract 3.21.0 installs it) holds
     exactly those rows, and protocol.h is the generator's output (--check);
 (c) sabotage, in a scratch contract directory: a scale word removed, or changed, makes --check fail, and writing it changes
-    what the call expands to; no domain at all is a refusal naming the domain;
+    what the call expands to; no domain at all (the installed contract held out, tests/no_installed_contract.py) is a
+    refusal naming the domain;
 (d) no reader of the old home is left: tools/protocol-gen.c includes no omx-contract header and spells no OMX_PARAM_SCALES.
 
 Environment: CC. Exit 0 all green, 1 a FAIL line."""
 import json, os, re, shlex, shutil, subprocess, sys, tempfile
 
 sys.dont_write_bytecode = True
+import no_installed_contract  # noqa: E402  (tests/, beside this file)
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CC = shlex.split(os.environ.get("CC", "cc"))
 FIXTURE = os.path.join(ROOT, "tests", "fixtures", "contract.d")
@@ -50,8 +53,9 @@ def meaning(w):
     return text if any(c.isupper() for c in first[1:]) else text[0].lower() + text[1:]
 
 
-def gen(args, contract_path, cwd):
+def gen(args, contract_path, cwd, **extra):
     env = dict(os.environ, OMX_CONTRACT_PATH=contract_path)
+    env.update(extra)
     return subprocess.run([sys.executable, os.path.join(cwd, "tools", "param-scales-gen.py")] + args, cwd=cwd, env=env,
                           capture_output=True, text=True)
 
@@ -86,15 +90,11 @@ def main():
         empty = os.path.join(tmp, "empty")
         os.makedirs(empty)
         # the installed omx-contract is searched after OMX_CONTRACT_PATH (tools/domain_path.py): a box that installs one
-        # carrying the param domain would answer this arm, so pkg-config names the empty directory as the installed one
-        pc = os.path.join(tmp, "pc")
-        os.makedirs(pc)
-        open(os.path.join(pc, "omx-contract.pc"), "w").write("contractdir=%s\nName: omx-contract\nDescription: none\nVersion: 0\n" % empty)
-        os.environ["PKG_CONFIG_LIBDIR"] = pc
-        try:
-            c = gen(["--check"], empty, ROOT)
-        finally:
-            del os.environ["PKG_CONFIG_LIBDIR"]
+        # carrying the param domain would answer this arm, so it is held out, and that it is held out is read first (#146)
+        held_out = no_installed_contract.env(tmp, empty)
+        dirs = no_installed_contract.searched(empty, held_out)
+        check(dirs == [empty, empty], "(c) the installed contract is held out: the directories searched are the empty one %s" % dirs)
+        c = gen(["--check"], empty, ROOT, **held_out)
         check(c.returncode != 0 and "no domain param" in (c.stderr + c.stdout), "(c) no domain param in the contract directories is a refusal naming it")
     src = open(os.path.join(ROOT, "tools", "protocol-gen.c")).read()
     check("omxcontract/" not in src and "OMX_PARAM_SCALES" not in src, "(d) tools/protocol-gen.c reads no omx-contract header and spells no OMX_PARAM_SCALES")

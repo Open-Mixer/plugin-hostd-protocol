@@ -17,6 +17,8 @@ Exit 0 all green, 1 a FAIL line."""
 import importlib.util, json, os, re, shutil, subprocess, sys, tempfile
 
 sys.dont_write_bytecode = True
+import no_installed_contract  # noqa: E402  (tests/, beside this file)
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FIXTURE = os.path.join(ROOT, "tests", "fixtures", "contract.d")
 DOMAIN = os.path.join("plugin-hostd", "grouping", "grouping.json")
@@ -89,12 +91,12 @@ def main():
             check(not clients_are_golden(scratch), "(c) writing it changes what the clients hold (%s)" % what)
         empty = os.path.join(tmp, "empty")
         os.makedirs(empty)
-        # the installed place too: pkg-config answers a scratch omx-contract whose contractdir is empty, so a box where
-        # plugin-hostd is installed (its domain under the real contractdir) still has no domain anywhere
-        pc = os.path.join(tmp, "pc")
-        os.makedirs(pc)
-        open(os.path.join(pc, "omx-contract.pc"), "w").write("contractdir=%s\nName: omx-contract\nDescription: scratch\nVersion: 0\n" % empty)
-        c = gen(["--check"], empty, ROOT, PKG_CONFIG_LIBDIR=pc, PKG_CONFIG_PATH=pc)
+        # the installed place too: a box where plugin-hostd is installed (its domain under the real contractdir) still has no
+        # domain anywhere, and that the installed directory is held out is read first
+        held_out = no_installed_contract.env(tmp, empty)
+        dirs = no_installed_contract.searched(empty, held_out)
+        check(dirs == [empty, empty], "(c) the installed contract is held out: the directories searched are the empty one %s" % dirs)
+        c = gen(["--check"], empty, ROOT, **held_out)
         check(c.returncode != 0 and "no domain plugin-hostd/grouping" in (c.stderr + c.stdout), "(c) no domain in the contract directories is a refusal naming it")
     old = ["data/" + "grouping.json", "PLUGIN_HOSTD_" + "GROUPING_JSON"]
     hits = subprocess.run(["git", "grep", "-n", "-F", "-e", old[0], "-e", old[1]], cwd=ROOT, capture_output=True, text=True).stdout.strip()
