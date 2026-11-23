@@ -46,8 +46,8 @@ def ts_block(tree):
     return rows, re.findall(r"GroupingReason\.(\w+)", retry)
 
 
-def gen(args, contract_path, cwd):
-    env = dict(os.environ, OMX_CONTRACT_PATH=contract_path)
+def gen(args, contract_path, cwd, **extra):
+    env = dict(os.environ, OMX_CONTRACT_PATH=contract_path, **extra)
     return subprocess.run([sys.executable, os.path.join(cwd, "tools", "grouping-reasons.py")] + args, cwd=cwd, env=env, capture_output=True, text=True)
 
 
@@ -89,7 +89,12 @@ def main():
             check(not clients_are_golden(scratch), "(c) writing it changes what the clients hold (%s)" % what)
         empty = os.path.join(tmp, "empty")
         os.makedirs(empty)
-        c = gen(["--check"], empty, ROOT)
+        # the installed place too: pkg-config answers a scratch omx-contract whose contractdir is empty, so a box where
+        # plugin-hostd is installed (its domain under the real contractdir) still has no domain anywhere
+        pc = os.path.join(tmp, "pc")
+        os.makedirs(pc)
+        open(os.path.join(pc, "omx-contract.pc"), "w").write("contractdir=%s\nName: omx-contract\nDescription: scratch\nVersion: 0\n" % empty)
+        c = gen(["--check"], empty, ROOT, PKG_CONFIG_LIBDIR=pc, PKG_CONFIG_PATH=pc)
         check(c.returncode != 0 and "no domain plugin-hostd/grouping" in (c.stderr + c.stdout), "(c) no domain in the contract directories is a refusal naming it")
     old = ["data/" + "grouping.json", "PLUGIN_HOSTD_" + "GROUPING_JSON"]
     hits = subprocess.run(["git", "grep", "-n", "-F", "-e", old[0], "-e", old[1]], cwd=ROOT, capture_output=True, text=True).stdout.strip()
