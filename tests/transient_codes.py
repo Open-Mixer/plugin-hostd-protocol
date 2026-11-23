@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-"""tests/transient_codes.py <table> <verbs.json> <vocabulary header>: which refusals are transient is a property of the
-code (plugin-hostd-protocol#23, rulings D22 and D23), declared once in data/verbs.json and read by a client from the
+"""tests/transient_codes.py <table> <domain plugin-hostd> <vocabulary header>: which refusals are transient is a property of the
+code (plugin-hostd-protocol#23, rulings D22 and D23), declared once in contract.d/plugin-hostd/plugin-hostd.json and read by a client from the
 table, never a list of code names it keeps. A code declared transient reads transient in the table's reply_codes and
 has its _TRANSIENT macro in the rendered header; a code not declared so carries neither. Transient means an identical
 request may succeed later with no change by the caller: the worker not up, the storm bound spent, the verb dropped with
@@ -10,8 +10,12 @@ its worker. descriptor-absent and pin-refused, which say something about the plu
 dropped, one added, a macro missing) must be seen."""
 import copy
 import json
+import os
 import re
 import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+import protocol_words  # noqa: E402
 
 TRANSIENT = ("reply.plugin-hostd.worker-spawn", "reply.plugin-hostd.gave-up", "reply.plugin-hostd.verb-dropped")
 # a refused pin is a verdict about the plugin: it needs a different pin or a re-qualification, never the same request
@@ -36,7 +40,7 @@ def problems(table, verbs, header):
         if "transient" in r and r["transient"] is not True:
             out.append("%s carries transient %r: the table writes it only when it is true" % (r["code"], r["transient"]))
     if read != want:
-        out.append("the table's transient codes %s differ from data/verbs.json's %s" % (sorted(read), sorted(want)))
+        out.append("the table's transient codes %s differ from the domain plugin-hostd's %s" % (sorted(read), sorted(want)))
     for code in TRANSIENT:
         if code not in read:
             out.append("%s is not transient in the table" % code)
@@ -52,8 +56,7 @@ def problems(table, verbs, header):
 def main(argv):
     with open(argv[1]) as f:
         table = json.load(f)
-    with open(argv[2]) as f:
-        verbs = json.load(f)
+    verbs = protocol_words.items(argv[2])
     with open(argv[3]) as f:
         header = f.read()
     found = problems(table, verbs, header)

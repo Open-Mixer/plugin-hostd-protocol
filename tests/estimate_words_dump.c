@@ -2,7 +2,7 @@
 /* Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com> */
 /* estimate_words_dump: every row of PHD_ESTIMATE_VERDICTS and PHD_ESTIMATE_REASONS of protocol.h, one line each,
  * "<list> <index> <id> <word> <meaning>", in the header's order, then each word by its own name, "word <NAME> <value>",
- * the two patterns, the arg types the reply is typed with, the reply as data/verbs.json declares it and its row of
+ * the two patterns, the arg types the reply is typed with, the reply as contract.d/plugin-hostd/plugin-hostd.json declares it and its row of
  * PHD_REPLY_ARGS, then the CPU ceiling and its unit (tests/estimate_words_test.py compares it with tests/golden/estimate-words.txt). */
 #include <plugin-hostd/protocol.h>
 

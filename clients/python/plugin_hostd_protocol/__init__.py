@@ -215,18 +215,6 @@ def _read(path, what):
         raise ProtocolError("%s %s is not readable (%s)" % (what, path, e)) from e
 
 
-def _texts(node, out):
-    """Every reply code of a vocabulary file with its English sentence, wherever the file holds it."""
-    if isinstance(node, dict):
-        if isinstance(node.get("code"), str) and isinstance(node.get("text"), dict) and "en" in node["text"]:
-            out.setdefault(node["code"], node["text"]["en"])
-        for v in node.values():
-            _texts(v, out)
-    elif isinstance(node, list):
-        for v in node:
-            _texts(v, out)
-
-
 def _domain_texts(node, out):
     """Every word of a domain document with its English sentence: a word is its `const`, its sentence its `x-text`."""
     if isinstance(node, dict):
@@ -369,30 +357,21 @@ class Protocol:
             _pkg_config("--variable=datadir", "plugin-hostd-protocol") or \
             os.path.dirname(os.path.dirname(os.path.abspath(table)))
         self.sentences, self.owners = {}, {}
+        # the domains of each directory, <contractdir>/<domain>/<domain>.json one or two segments deep (_domains), and
+        # nothing else: the words plugin-hostd-protocol, omx-clap and the others declare are domains, and a
+        # <contractdir>/3/<package>/verbs.json (the old home of the protocol's words, before 0.8.0) is never read, so a
+        # stale one cannot shadow the domain's sentence; a word's owner is its domain's info.x-owner, else the domain
         for d in contract_dirs:
-            root = os.path.join(d, "3")
-            for package in sorted(os.listdir(root)) if os.path.isdir(root) else []:
-                path = os.path.join(root, package, "verbs.json")
-                if not os.path.isfile(path):
-                    continue
-                found = {}
-                _texts(_read(path, "the vocabulary"), found)
-                for code, text in found.items():
-                    if code in self.codes and code not in self.sentences:
-                        self.sentences[code] = text
-                        self.owners[code] = package
-            # the words a package keeps as a domain (omx-clap's host words, the domain host): their sentence is the word's
-            # x-text and their owner the domain's info.x-owner, whose catalog translates them
             for path in _domains(d):
                 doc = _read(path, "the domain")
-                owner = (doc.get("info") or {}).get("x-owner") if isinstance(doc, dict) else None
+                info = (doc.get("info") or {}) if isinstance(doc, dict) else {}
+                owner = info.get("x-owner") or os.path.basename(os.path.dirname(path))
                 found = {}
                 _domain_texts(doc, found)
                 for code, text in found.items():
                     if code in self.codes and code not in self.sentences:
                         self.sentences[code] = text
-                        if owner:
-                            self.owners[code] = owner
+                        self.owners[code] = owner
         self._catalogs = {}
         self._reader = None
 
