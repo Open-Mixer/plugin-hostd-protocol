@@ -241,7 +241,7 @@ __attribute__((noinline)) static void check_fresh(const char *got, size_t len)
    a code the protocol declares for n, is followed by that code. */
 __attribute__((noinline)) static void check_errors(const char *got, size_t len, const char *want)
 {
-    /* mutant: src/protocol.c:439 `granted(OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_ERRORS)` -> `1`
+    /* mutant: src/protocol.c:442 `granted(OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_ERRORS)` -> `1`
        input: errors */
     if (len != strlen(want) + 1 || memcmp(got, want, len) != 0)
         abort();

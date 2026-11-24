@@ -8,7 +8,7 @@ plugin-hostd-protocol (0.9.0) unstable; urgency=medium
     plugin-hostd's package and nested domains. No C macro changes.
   * The TypeScript codec reads the domains in one loop, as the Python codec.
 
- -- Pau Aliagas <linuxnow@gmail.com>  Tue, 24 Nov 2026 01:00:00 +0100
+ -- Pau Aliagas <linuxnow@gmail.com>  Tue, 24 Nov 2026 12:00:00 +0100
 
 plugin-hostd-protocol (0.8.1) unstable; urgency=medium
 

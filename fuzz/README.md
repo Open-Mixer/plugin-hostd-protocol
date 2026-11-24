@@ -47,7 +47,8 @@ sanitizer harness and runs every seed: at least one must abort, and every one th
 below its floor, or a check no seed reaches, turns `make fuzz-coverage` red. Raise a floor when coverage rises;
 lower one only with the change that removed the lines.
 
-When a change to `src/` moves a line a record names, `make fuzz-records` names the record; fix its line there.
+When a change to `src/` moves a line a record names, `make test-fuzz-record-lines` (part of `make test`, no
+compiler) and `make fuzz-records` name the record; fix its line there.
 
 One harness by hand: `build/fuzz/fuzz_dispatch fuzz/corpus/dispatch` (add `-max_total_time=60`).
 A crash leaves its input in `build/fuzz/artifacts/`; run the harness on that file to reproduce it.
