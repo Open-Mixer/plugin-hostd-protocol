@@ -6,6 +6,8 @@
 # so a header that says 1.x, or a 2.x the readers were not cut for, is a release they cannot read. protocol.h's
 # PHD_PROBE_FORMAT_MAJOR and PHD_PROBE_FORMAT_MINOR are held to 2 and 0 here; moving either is a deliberate change of
 # this test and of the readers together. The check proves it sees a major and a minor moved before it trusts the tree.
+# This tree defines the number and reads no probe output (no tool or client of it parses formatVersion), so a 1.x
+# document is refused where it is read: plugin-qualify's readProbeOutput, by the code probe.format.major-unknown.
 import os, re, sys
 
 ROOT = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

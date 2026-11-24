@@ -2120,7 +2120,7 @@ static inline int phd_is_note_verb(const char *verb)
       "xrun_windows_solo or xrun_windows_grouped of every member of the worker when the count rose in it; a line that " \
       "is not the word and one whole number is not a count") \
     X(PHD_EVENT_ABI_CLOBBER, "<instance> <mask> <registers> <call> <block>", \
-      "relayed from a worker (omx-clap-host 0.26.2 or later), and read by the daemon: the plugin returned from a call " \
+      "relayed from an omx-clap-host worker, and read by the daemon: the plugin returned from a call " \
       "with a callee-saved register changed, said once per instance. The worker put the registers back, so its own " \
       "frame is whole; the other members' state in the same process is not covered, so the daemon quarantines the " \
       "instance (instance_quarantined, and the history keeps it alone from then on) and, when it shares its worker or " \

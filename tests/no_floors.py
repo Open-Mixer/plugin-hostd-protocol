@@ -8,8 +8,10 @@
 # tree's own packages, `= %{version}-%{release}` and `(= ${source:Version})` / `(= ${binary:Version})`, and debhelper's
 # compatibility level. The Makefile asks pkg-config for a package by name: a version (`'x >= 1.0'`,
 # --atleast-version, --exact-version, --max-version) is refused. A domain's info.x-requires and a data file's requires
-# name packages and domains, never a version: the old map of floors is refused. packaging/deps.txt, the old home of
-# the floors, must not exist. Usage: no_floors.py [root].
+# name packages and domains, never a version: the old map of floors is refused. Prose is no exception: "<our package>
+# X.Y.Z or later" (or newer, or above) in the spec (outside %changelog), debian/control, the Makefile, the headers, the
+# sources, the tools, the domains, the protocol documents and doc/ is refused by file and line. packaging/deps.txt,
+# the old home of the floors, must not exist. Usage: no_floors.py [root].
 # The check proves it sees each fault before it trusts the tree.
 import glob, json, os, re, sys
 
@@ -25,8 +27,26 @@ PKG_CONFIG_LINE = re.compile(r"pkg-config|PKG_CONFIG\)")
 PKG_CONFIG_VERSION = re.compile(r"--(atleast|exact|max)-version|(>=|<=|<|>) *[0-9$]|[a-z0-9_.+-] += +[0-9$]")
 
 
-def problems(spec, control, packages, deps_txt, makefile="", domains=None):
+OUR = r"(?:omx-[a-z-]+|omxdsp|libomx[a-z-]*|plugin-hostd[a-z-]*|plugin-db[a-z-]*|plugin-qualif[a-z-]*|openmixer[a-z-]*)"
+PROSE_FLOOR = re.compile(r"\b%s[ -]+v?[0-9]+\.[0-9]+(?:\.[0-9]+)? +or +(?:later|newer|above)" % OUR, re.I)
+PROSE_GLOBS = ("include/*.h", "include/plugin-hostd/*.h", "src/*.c", "src/*.h", "tools/*.py", "tools/*.c",
+               "contract.d/*/*.json", "protocol/*.json", "doc/*.md")
+
+
+def prose(texts):
     out = []
+    for rel, text in sorted(texts.items()):
+        if rel.endswith(".spec"):
+            text = text.split("%changelog")[0]
+        for n, line in enumerate(text.splitlines(), 1):
+            m = PROSE_FLOOR.search(line)
+            if m:
+                out.append("%s:%d: a version in prose: %s" % (rel, n, m.group(0)))
+    return out
+
+
+def problems(spec, control, packages, deps_txt, makefile="", domains=None, texts=None):
+    out = prose(texts or {})
     for n, line in enumerate(makefile.splitlines(), 1):
         if not line.lstrip().startswith("#") and PKG_CONFIG_LINE.search(line) and PKG_CONFIG_VERSION.search(line):
             out.append("Makefile:%d: pkg-config asked for a version: %s" % (n, line.strip()[:120]))
@@ -75,6 +95,11 @@ def read(rel):
 spec, control, makefile = read(SPEC), read(CONTROL), read("Makefile")
 domains = {os.path.relpath(p, ROOT): read(os.path.relpath(p, ROOT))
            for p in sorted(glob.glob(os.path.join(ROOT, "contract.d/*/*.json")) + glob.glob(os.path.join(ROOT, "data/*.json")))}
+texts = {SPEC: spec, CONTROL: control, "Makefile": makefile}
+for pattern in PROSE_GLOBS:
+    for path in sorted(glob.glob(os.path.join(ROOT, pattern))):
+        texts[os.path.relpath(path, ROOT)] = read(os.path.relpath(path, ROOT))
+PROTOCOL_H = "include/plugin-hostd/protocol.h"
 domain = "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json"
 as_map = json.loads(domains[domain])
 as_map["info"]["x-requires"] = {n: ">= 1.0.0" for n in as_map["info"].get("x-requires", ["host"])}
@@ -92,13 +117,16 @@ seen = all(problems(*f) for f in (
     (spec, control, packages, False, makefile.replace("--cflags omxdsp ", "--cflags 'omxdsp >= 0.34.0' ", 1), domains),
     (spec, control, packages, False, makefile.replace("--cflags omxdsp ", "--atleast-version=0.34.0 --cflags omxdsp ", 1), domains),
     (spec, control, packages, False, makefile, dict(domains, **{domain: json.dumps(as_map)})),
-    (spec, control, packages, False, makefile, dict(domains, **{domain: json.dumps(as_empty)}))))
+    (spec, control, packages, False, makefile, dict(domains, **{domain: json.dumps(as_empty)})),
+    (spec, control, packages, False, makefile, domains, dict(texts, **{PROTOCOL_H: texts[PROTOCOL_H].replace(
+        "relayed from an omx-clap-host worker,", "relayed from a worker (omx-clap-host 0.26.2 or later),", 1)}))))
 print(("ok  " if seen else "FAIL") + " the check sees a typed version in the spec, a rich one, one in debian/control, an npm range,"
-      " a deps.txt, a pkg-config floor in the Makefile (two forms), an x-requires map and an empty x-requires")
-bad = problems(spec, control, packages, deps_txt, makefile, domains)
+      " a deps.txt, a pkg-config floor in the Makefile (two forms), an x-requires map, an empty x-requires and a"
+      " version in prose")
+bad = problems(spec, control, packages, deps_txt, makefile, domains, texts)
 for b in bad:
     print("FAIL " + b)
 if not bad:
     print("ok   no requirement types a version; the own-package relations are generated; no packaging/deps.txt;"
-          " pkg-config is asked by name; every x-requires is a list of names")
+          " pkg-config is asked by name; every x-requires is a list of names; no prose states a version")
 sys.exit(0 if seen and not bad else 1)
