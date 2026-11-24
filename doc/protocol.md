@@ -8,7 +8,7 @@ The plugin-hostd protocol
 
 The plugin-hostd protocol is a superset of mod-host's text protocol: any mod-host client works unchanged.
 
-Protocol `plugin-hostd`, version 1 of its JSON declaration (`protocol/plugin-hostd.json`); mod-host's protocol as the daemon models it is `protocol/mod-host.json`, version 1, written from the mod-host headers `mod-host.h`, `protocol.h`, `host-errors.h` the daemon is built against. The verbs the daemon adds are declared in `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json` (since 0.12.0, requiring omx-clap >= 0.34.0, host >= 0.35.0).
+Protocol `plugin-hostd`, version 1 of its JSON declaration (`protocol/plugin-hostd.json`); mod-host's protocol as the daemon models it is `protocol/mod-host.json`, version 1, written from the mod-host headers `mod-host.h`, `protocol.h`, `host-errors.h` the daemon is built against. The verbs the daemon adds are declared in `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json` (since 0.12.0, requiring host, omx-clap).
 
 1. Transport
 ------------

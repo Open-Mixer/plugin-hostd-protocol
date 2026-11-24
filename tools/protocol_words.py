@@ -4,7 +4,7 @@
 declaration of the verbs plugin-hostd adds, the protocol's own verbs, the reply codes only plugin-hostd answers and the
 extensions hello grants. Each item comes back in the form omx-contract's data reader gives it (kind, since, doc, then
 codes, verbs or words keyed as the data form keys them), so a tool reads `items()["PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS"]["verbs"]` as it
-read data/verbs.json; `requires()` is the floors the document names (info.x-requires). Nothing is read from a copy."""
+read data/verbs.json; `requires()` is the packages and domains the document may refer to (info.x-requires, a list of names). Nothing is read from a copy."""
 import json
 import os
 import sys
@@ -55,7 +55,7 @@ def items(path=None):
 
 
 def requires(path=None):
-    return document(path)["info"].get("x-requires", {})
+    return document(path)["info"].get("x-requires", [])
 
 
 def _word(kind, key, v, i):

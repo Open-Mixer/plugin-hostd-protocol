@@ -1,9 +1,10 @@
-# The dependency floors in this file are GENERATED from packaging/deps.txt by Open-Mixer/.github deps-render (render.sh --write).
+# No version is typed on a dependency (owner ruling 2026-11-24): the relations between this source's own packages are
+# generated (= ${source:Version}).
 Source: plugin-hostd-protocol
 Section: libs
 Priority: optional
 Maintainer: Pau Aliagas <linuxnow@gmail.com>
-Build-Depends: debhelper-compat (= 13), libomx-contract-dev (>= 3.21.0~), omx-clap-contract (>= 0.34.0~), omx-contract-data (>= 3.21.0~), plugin-db-contract (>= 0.4.4~), libomxdsp-dev (>= 0.34.0~), pkgconf, python3
+Build-Depends: debhelper-compat (= 13), libomx-contract-dev, omx-clap-contract, omx-contract-data, plugin-db-contract, libomxdsp-dev, pkgconf, python3
 Standards-Version: 4.6.2
 Homepage: https://github.com/Open-Mixer/plugin-hostd-protocol
 Vcs-Git: https://github.com/Open-Mixer/plugin-hostd-protocol.git
@@ -58,7 +59,7 @@ Package: python3-plugin-hostd-protocol
 Architecture: all
 Multi-Arch: foreign
 Section: python
-Depends: python3, libplugin-hostd-protocol0 (>= 0.5.8~), plugin-hostd-protocol-contract (>= 0.5.8~), omx-clap-contract (>= 0.34.0~), omx-contract (>= 3.21.0~), omx-contract-data (>= 3.21.0~), ${misc:Depends}
+Depends: python3, libplugin-hostd-protocol0 (= ${source:Version}), plugin-hostd-protocol-contract (= ${source:Version}), omx-clap-contract, omx-contract, omx-contract-data, ${misc:Depends}
 Description: plugin-hostd protocol, its Python codec
  plugin_hostd_protocol: one codec over the files plugin-hostd-protocol
  installs, which encodes and decodes every command the protocol declares,
@@ -72,7 +73,7 @@ Description: plugin-hostd protocol, its Python codec
 Package: plugin-hostd-protocol-contract
 Architecture: all
 Multi-Arch: foreign
-Depends: omx-contract (>= 3.21.0~), ${misc:Depends}
+Depends: omx-contract, ${misc:Depends}
 Description: plugin-hostd protocol, its verbs in omx-contract's contract directory
  The domain plugin-hostd-protocol, the verbs and reply codes
  plugin-hostd adds to mod-host's protocol, in omx-contract's contract directory,

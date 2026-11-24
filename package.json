@@ -53,7 +53,7 @@
     "plugin-hostd-codec": "clients/typescript/codec/dist/cli.js"
   },
   "dependencies": {
-    "@openmixer/omx-contract": ">=3.18.0"
+    "@openmixer/omx-contract": "*"
   },
   "scripts": {
     "prepack": "npm --prefix clients/typescript/codec ci --no-audit --no-fund && npm --prefix clients/typescript/codec run build"

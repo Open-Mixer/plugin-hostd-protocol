@@ -6,10 +6,9 @@
 # validator runs, names the code, and also holds what the validator cannot know:
 #   - the code is every reply.plugin-hostd.* word the protocol's table names (nothing declared in protocol.h goes without);
 #   - every code has its Catalan, which uses the same placeholders, and the catalog holds nothing else;
-#   - the sentence is one sentence, plain, with no code name inside it, and ca is no copy of en;
-#   - the installed omx-contract is the schema that has catalogs (>= 3.12.0), when a schema is given.
+#   - the sentence is one sentence, plain, with no code name inside it, and ca is no copy of en.
 #
-#   code_text.py <contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json> <protocol/plugin-hostd-protocol.json> <catalogs/ca.json> [<installed omx-contract.schema.json>]
+#   code_text.py <contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json> <protocol/plugin-hostd-protocol.json> <catalogs/ca.json>
 import json
 import os
 import re
@@ -18,7 +17,6 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
 import protocol_words  # noqa: E402
 
-FLOOR = (3, 12, 0)
 PLACEHOLDER = re.compile(r"\{([^{}]*)\}")
 LOWER_CAMEL = re.compile(r"^[a-z][A-Za-z0-9]*$")
 failures = []
@@ -29,21 +27,12 @@ def fail(message):
     print("FAIL " + message)
 
 
-def version(text):
-    return tuple(int(n) for n in re.findall(r"\d+", text)[:3])
-
-
 declaration = protocol_words.items(sys.argv[1])
 table = json.load(open(sys.argv[2]))
 catalog = json.load(open(sys.argv[3]))
 if (catalog.get("kind"), catalog.get("lang"), catalog.get("owner")) != ("catalog", "ca", "plugin-hostd-protocol"):
     fail("catalogs/ca.json is not the Catalan catalog of plugin-hostd-protocol: %r" % ([catalog.get(k) for k in ("kind", "lang", "owner")],))
 messages = catalog.get("messages", {})
-
-if len(sys.argv) > 4:
-    have = json.load(open(sys.argv[4])).get("x-omx-schema-version", "")
-    if version(have) < FLOOR:
-        fail("the installed omx-contract is schema %r: catalogs need %s" % (have, ".".join(map(str, FLOOR))))
 
 owned = {}
 for group, items in declaration.items():

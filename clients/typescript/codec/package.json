@@ -8,7 +8,7 @@
     "test": "node --test \"dist/test/*.test.js\""
   },
   "dependencies": {
-    "@openmixer/omx-contract": ">=3.18.0"
+    "@openmixer/omx-contract": "*"
   },
   "devDependencies": {
     "@types/node": "~22.15.0",

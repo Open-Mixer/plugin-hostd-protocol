@@ -692,7 +692,7 @@ def page():
       f"mod-host's protocol as the daemon models it is `protocol/{MOD['protocol']}.json`, version {MOD['version']}, written "
       f"from the mod-host headers {', '.join('`' + h + '`' for h in MOD['headers'])} the daemon is built against. "
       f"The verbs the daemon adds are declared in `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json` (since {SINCE}, requiring "
-      + ", ".join(f"{k} {v}" for k, v in protocol_words.requires().items()) + ").")
+      + ", ".join(protocol_words.requires()) + ").")
     w("")
 
     # 1. transport

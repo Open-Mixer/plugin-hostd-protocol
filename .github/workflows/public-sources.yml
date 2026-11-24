@@ -29,11 +29,11 @@ jobs:
     uses: Open-Mixer/.github/.github/workflows/public-sources-check.yml@openmixer-v1
     with:
       commit-identity: true
-  # the dependency floors: packaging/deps.txt is the one place a floor is written, and the spec, debian/control and the
-  # workflows state those floors and no ceiling. The engine is Open-Mixer/.github's deps-render, at the same openmixer-v1
-  # ref every shared action of this repository uses
+  # no ceiling anywhere: there is no packaging/deps.txt (no hand-kept floor, owner ruling 2026-11-24, held by make
+  # test-no-floors), so Open-Mixer/.github's deps-render renders nothing and refuses every ceiling in the spec,
+  # debian/control and the workflow install lines. Same openmixer-v1 ref as every shared action of this repository
   floors:
-    name: the floors are packaging/deps.txt's
+    name: no ceiling, no deps.txt
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

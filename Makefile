@@ -30,14 +30,13 @@ CFLAGS += -Werror=implicit-function-declaration -Werror=return-type
 ifeq ($(DEBUG), 1)
    CFLAGS += -O0 -g -DDEBUG
 endif
-# omx-dsp's curve function (omx_curve.h, header only), which the curve verbs draw with: at or above the minor that
-# declares it: the floor packaging/deps.txt declares, read back from the spec generated from it
-OMXDSP_FLOOR := $(shell sed -n 's/^BuildRequires: *omx-dsp-devel *>= *\([0-9][0-9.]*\) *$$/\1/p' packaging/plugin-hostd-protocol.spec)
-OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags 'omxdsp >= $(OMXDSP_FLOOR)' 2>/dev/null)
+# omx-dsp's curve function (omx_curve.h, header only), which the curve verbs draw with: the installed omx-dsp, the
+# lower level this tree builds against (no version is typed, owner ruling 2026-11-24)
+OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags omxdsp 2>/dev/null)
 # the shapes' targets read JSON and a generator, and the documentation targets read the headers as text: no header
-ifeq ($(filter clean version-check deps deps-check test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-no-backcompat test-no-fedora44 docs-site check-protocol-doc check-doxygen,$(MAKECMDGOALS)),)
+ifeq ($(filter clean version-check test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-no-backcompat test-no-fedora44 docs-site check-protocol-doc check-doxygen,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
-$(error no omx-dsp >= $(OMXDSP_FLOOR) for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
+$(error no omx-dsp for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
 endif
 INCS = -Iinclude $(OMXDSP_CFLAGS)
@@ -160,7 +159,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-no-floors test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -178,9 +177,10 @@ test-no-backcompat:
 test-same-pass:
 	python3 tests/same_pass_test.py .
 
-# every omx-clap-contract range admits the next omx-clap minor (the chain releases this protocol first)
-test-clap-core-range:
-	python3 tests/clap_core_range.py .
+# no hand-kept version: no requirement of the spec, debian/control or package.json types a version, the relations
+# between this tree's own packages are generated (= version), and there is no packaging/deps.txt (owner ruling 2026-11-24)
+test-no-floors:
+	python3 tests/no_floors.py .
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
 test-protocol: tests/protocol_test
@@ -511,10 +511,10 @@ test-default-lv2-worker:
 test-mod-host-json:
 	python3 tests/mod_host_json.py include
 
-# every code this repository owns has its source sentence, and its Catalan in catalogs/ca.json (tests/code_text.py); the installed
-# omx-contract must be the schema that has `text`, and test-code-text-sabotage takes each rule out in a scratch copy
+# every code this repository owns has its source sentence, and its Catalan in catalogs/ca.json (tests/code_text.py);
+# test-code-text-sabotage takes each rule out in a scratch copy
 test-code-text:
-	python3 tests/code_text.py contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json protocol/plugin-hostd-protocol.json catalogs/ca.json $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/omx-contract.schema.json)
+	python3 tests/code_text.py contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json protocol/plugin-hostd-protocol.json catalogs/ca.json
 
 test-code-text-sabotage:
 	sh tests/code-text-sabotage.sh
@@ -738,18 +738,6 @@ clean:
         test-golden-modhost golden-update golden-modhost test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-runner test-hello-sabotage test-bind-sabotage test-install test-abi \
         abi-symbols abi-stage abi-baseline abi-check version-check fuzz fuzz-run fuzz-corpus fuzz-corpus-check fuzz-abnf-corpus test-abnf-corpus fuzz-sabotage fuzz-records fuzz-coverage clean
 
-# The dependency floors are written once, in packaging/deps.txt; the spec and debian/control are generated from it with
-# Open-Mixer/.github's deps-render. make deps writes them, make deps-check refuses drift (name a checkout of that
-# repository: make deps-check DOTGITHUB=<dir>).
-DOTGITHUB ?=
-.PHONY: deps deps-check
-deps:
-	@test -n "$(DOTGITHUB)" || { echo "$@: name a checkout of Open-Mixer/.github: make $@ DOTGITHUB=<dir>" >&2; exit 2; }
-	$(DOTGITHUB)/.github/actions/deps-render/render.sh --write .
-deps-check:
-	@test -n "$(DOTGITHUB)" || { echo "$@: name a checkout of Open-Mixer/.github: make $@ DOTGITHUB=<dir>" >&2; exit 2; }
-	$(DOTGITHUB)/.github/actions/deps-render/render.sh --check .
-
 # the conf keys declare no qualification directory: the daemon reads qualifications through libplugin-qualification-db
 TEST_PROGS += tests/conf_keys_test
 tests/conf_keys_test: tests/conf_keys_test.c $(PROTOCOL_HEADERS)
@@ -807,8 +795,8 @@ test-protocol-domain:
 # render-domains writes them, check-domain-renders holds them byte for byte (check-generated runs it). They read this
 # tree's contract.d first, then the contract directories render-verbs reads (OMX_CONTRACT_PATH, then the installed
 # one): the domain plugin-hostd-protocol names omx-clap's HOST_REPLY_CODES, so omx-clap's package must be installed beside it, at
-# the floor the domain's info.x-requires states (omx-clap-contract, packaging/deps.txt; data only, the protocol <->
-# omx-clap cycle of a chain is bootstrapped from the clap chain head's contract)
+# the domain's info.x-requires names it (omx-clap-contract; data only, the protocol <-> omx-clap cycle of a chain is
+# bootstrapped from the clap chain head's contract)
 DOMAIN_RENDERS = pin estimate probe
 .PHONY: render-domains check-domain-renders test-domain-renders
 render-domains check-domain-renders:
