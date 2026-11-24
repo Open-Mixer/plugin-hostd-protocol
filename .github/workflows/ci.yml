@@ -149,11 +149,19 @@ jobs:
           dnf builddep -y --setopt=install_weak_deps=False packaging/plugin-hostd-protocol.spec
       # an ordinary run renders and builds against what consumers get, the channel: name where each omx package came
       # from, and refuse one from the staging channel (#27: a stale staged contract package outranked the channel)
+      # a pull request into devel builds against the staging channel (devel -> staging -> prod, Open-Mixer/.github
+      # add-openmixer): there a package from staging is expected; anywhere else one is refused as before
       - name: Every contract package comes from the channel
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.base_ref }}
         run: |
           set -euo pipefail
           dnf repoquery --installed --qf '%{name} %{version} %{from_repo}\n' 'omx-*' 'plugin-db-contract' | tee /tmp/from-repo
-          if grep staging /tmp/from-repo; then echo "a package above came from the staging channel: an ordinary run builds against the channel"; exit 1; fi
+          case $EVENT:$BASE in
+            pull_request*:devel) echo "a pull request into devel: a package from the staging channel is expected here" ;;
+            *) if grep staging /tmp/from-repo; then echo "a package above came from the staging channel: an ordinary run builds against the channel"; exit 1; fi ;;
+          esac
       - name: The python ABNF parser
         run: |
           python3 -m venv /opt/abnf
