@@ -61,7 +61,7 @@ tail             = *(SP word)
 ; the display's kind, its family and its terms, each <role>[.<index>]=<symbol>[:<unit>][@<shape>|<shape>...]. The role
 ; and shape words are omx-dsp's CURVE_ROLES and CURVE_SHAPES (omx_curve.h), held equal by tests/grammar_test.py; a
 ; family or a unit is a word, refused by its code when it has no closed form or its role does not take it; a unit is
-; spelled as omx-dsp's standard ids are (OMX_CURVE_UNITS_STANDARD: Hz, dB, dBFS, ...), so it takes either case
+; spelled as omx-dsp's standard ids are (OMX_CURVE_UNIT_WORDS: Hz, dB, dBFS, ...), so it takes either case
 curve-binding    = %s"clear" / (curve-kind SP curve-family 1*(SP curve-term))
 curve-kind       = %s"eq_response" / %s"transfer_curve" / %s"time_response"
 curve-family     = 1*(%x61-7A / "_")
