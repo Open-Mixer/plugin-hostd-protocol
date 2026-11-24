@@ -159,7 +159,8 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass \
+      test-fuzz-record-lines
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -680,6 +681,12 @@ fuzz-abnf-corpus:
 
 test-abnf-corpus:
 	$(PYTHON) tools/abnf-corpus.py --check $(ABNF_CORPUS)
+
+# every record's text is once on the line it names (fuzz/record-lines.sh): no compiler, so make test holds it, and a
+# change to src/ that moves a recorded line is red in its own pull request, not first at the tag's make fuzz-records
+.PHONY: test-fuzz-record-lines
+test-fuzz-record-lines:
+	sh fuzz/record-lines.sh
 
 # each fuzz/sabotage/ patch is a one-line bug the check_<property> it names must catch, and only that one
 fuzz-sabotage:

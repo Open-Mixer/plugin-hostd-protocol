@@ -264,7 +264,7 @@ __attribute__((noinline)) static void check_answered(void)
 /* One answer per command, sent with its NUL: the NUL is the last byte and the only one. */
 __attribute__((noinline)) static void check_one_answer(void)
 {
-    /* mutant: src/protocol.c:441 `proto.response_size+1` -> `proto.response_size`
+    /* mutant: src/protocol.c:444 `proto.response_size+1` -> `proto.response_size`
        input: scenario-1 */
     if (memchr(fuzz_reply, '\0', fuzz_reply_len) != fuzz_reply + fuzz_reply_len - 1)
         abort();
@@ -298,9 +298,9 @@ __attribute__((noinline)) static void check_shape(void)
     int known = 0;
     for (int i = 0; i < 4 && !known; i++)
         known = strcmp(fuzz_reply, texts[i]) == 0;
-    /* mutant: src/protocol.c:524 `g_error_messages[-code-1]` -> `g_error_messages[-code-1] + 1`
+    /* mutant: src/protocol.c:527 `g_error_messages[-code-1]` -> `g_error_messages[-code-1] + 1`
        input: extra-17
-       mutant: src/protocol.c:490 `"resp %i"` -> `"rsp %i"`
+       mutant: src/protocol.c:493 `"resp %i"` -> `"rsp %i"`
        input: extra-4 */
     if (!known && !is_resp_line(fuzz_reply))
         abort();
