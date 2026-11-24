@@ -229,7 +229,7 @@ if error_answers == 0:
 
 # ---- the curve verbs' words (core.abnf, curve-binding) ----
 # the role and shape words are omx-dsp's: the grammar's alternatives, the words omx_curve.h holds, one for one; a
-# unit is a word, and every standard id of omx-dsp's OMX_CURVE_UNITS_STANDARD (omxdsp_definitions.h) is one
+# unit is a word, and every id of omx-dsp's OMX_CURVE_UNIT_WORDS (omx_curve.h, the PARAM_UNITS ids by value) is one
 def header_words(table_name, header="omx_curve.h"):
     import subprocess
     try:
@@ -258,12 +258,12 @@ for rule, table_name in (("curve-role", "OMX_CURVE_ROLE_WORDS"), ("curve-shape",
     have, want = grammar_words(rule), header_words(table_name)
     if sorted(have) != sorted(want) or not want:
         fail(f"{rule} is {have}, omx_curve.h's {table_name} is {want}")
-units = header_words("OMX_CURVE_UNITS_STANDARD", "omxdsp_definitions.h")
+units = header_words("OMX_CURVE_UNIT_WORDS")
 if not units:
-    fail("omxdsp_definitions.h's OMX_CURVE_UNITS_STANDARD holds no unit")
+    fail("omx_curve.h's OMX_CURVE_UNIT_WORDS holds no unit")
 for unit in units:
     if not parses("curve-unit", unit):
-        fail(f"curve-unit refuses {unit!r}, a standard id of omx-dsp's OMX_CURVE_UNITS_STANDARD")
+        fail(f"curve-unit refuses {unit!r}, an id of omx-dsp's OMX_CURVE_UNIT_WORDS")
 for line in ("clear", "transfer_curve dynamics threshold=thr:dbfs ratio=ratio:ratio knee=k:db makeup=g:db",
              "eq_response eq band_freq.0=f_0:hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf",
              "eq_response eq band_type.31=t-31@-|bell band_freq.31=f.31:khz@notch hpf_on=:bypass",
