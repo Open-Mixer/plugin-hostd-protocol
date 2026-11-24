@@ -241,9 +241,9 @@ static inline int phd_has_display(void)
 /** @brief the format name of the document plugin-hostd-probe writes */
 #define PHD_PROBE_FORMAT "plugin-hostd.probe-output"
 /** @brief the major version of the probe output format; a removed or changed code is a major release */
-#define PHD_PROBE_FORMAT_MAJOR 1
+#define PHD_PROBE_FORMAT_MAJOR 2
 /** @brief the minor version of the probe output format; a new code is a minor release */
-#define PHD_PROBE_FORMAT_MINOR 4
+#define PHD_PROBE_FORMAT_MINOR 0
 /** @brief the name of the probe protocol the document records */
 #define PHD_PROBE_PROTOCOL_NAME "plugin-hostd.probe-protocol"
 /** @brief the version of the probe protocol */
