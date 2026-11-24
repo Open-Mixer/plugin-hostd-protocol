@@ -582,7 +582,14 @@ CONTRACT_DOMAINS = plugin-hostd-protocol host hosting-verb probe pin estimate
 CONTRACTDIR = $(or $(shell $(PKG_CONFIG) --variable=contractdir omx-contract 2>/dev/null),$(DATADIR)/omx-contract/contract.d)
 INSTALL_CONTRACT_DIR = $(firstword $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/install-contract-dir.sh) $(wildcard $(OMX_CONTRACT_DIR)/tools/install-contract-dir.sh))
 
-check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-grammar check-contract-dir test-abnf-corpus test-code-text-sabotage test-served-render-ci
+check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-grammar check-contract-dir test-abnf-corpus test-code-text-sabotage test-served-render-ci test-verb-hosts
+
+# HOSTING_VERB_HOSTS of the domain hosting-verb is exactly the three golden hosts, each with its word and text, with its
+# sabotage arms (tests/hosting-verb-hosts-check.mjs, which moved here with the item, ruling R5); node, as omx-contract's
+# command this target already runs
+.PHONY: test-verb-hosts
+test-verb-hosts:
+	node tests/hosting-verb-hosts-check.mjs --self-test contract.d/hosting-verb/hosting-verb.json
 
 # this package's domains as omx-contract's script installs a domain, <contractdir>/<domain>/, and no owner manifest: the
 # domain plugin-hostd-protocol is named after this package, and omx-contract's reader reads a domain as the package of its
