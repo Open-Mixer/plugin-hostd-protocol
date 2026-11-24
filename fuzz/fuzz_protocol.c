@@ -80,14 +80,16 @@ __attribute__((noinline)) static void check_called(int exact, int expect_called)
 }
 
 /* The parser answers once, with its NUL: the callback's "resp <words>", "few arguments" below the row's minimum, "many
-   arguments" above its maximum, or "not found" for a verb outside the table. */
+   arguments" above its maximum, or "not found" for a verb outside the table. An empty line, of blanks only (expect_reply
+   NULL), is not answered. */
 __attribute__((noinline)) static void check_reply(int exact, const char *expect_reply)
 {
     /* mutant: src/protocol.c:401 `result = PROTOCOL_FEW_ARGUMENTS;` -> `result = PROTOCOL_MANY_ARGUMENTS;`
        input: extra-14
        mutant: src/protocol.c:404 `result = PROTOCOL_MANY_ARGUMENTS;` -> `result = PROTOCOL_FEW_ARGUMENTS;`
        input: extra-16 */
-    if (exact && (fuzz_reply_len != strlen(expect_reply) + 1 || strcmp(fuzz_reply, expect_reply) != 0))
+    if (exact && (expect_reply == NULL ? fuzz_reply_len != 0
+                                       : fuzz_reply_len != strlen(expect_reply) + 1 || strcmp(fuzz_reply, expect_reply) != 0))
         abort();
 }
 
@@ -150,12 +152,16 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 
     free(buf);
     free(word);
+    /* an empty line, of blanks only (space, tab, CR, LF), runs no callback and gets no reply */
+    int blank = 1;
+    for (const char *p = msg.data; *p; p++)
+        blank = blank && (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n');
 
     protocol_parse(&msg);
     free(msg.data);
 
     check_messages();
     check_called(exact, expect_called);
-    check_reply(exact, expect_reply);
+    check_reply(exact, blank ? NULL : expect_reply);
     return 0;
 }

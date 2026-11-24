@@ -38,6 +38,9 @@ sabotage "hello grants what it was not asked for" src/protocol.c 'want\[i\] = 0;
 sabotage "a refused hello drops the grant" src/protocol.c \
     'protocol_response_int(ERR_INVALID_OPERATION, proto);' 'memset(g_granted, 0, sizeof(g_granted)); protocol_response_int(ERR_INVALID_OPERATION, proto);'
 sabotage "a tag takes an @" src/protocol.c "c == '.';" "c == '.' || c == '@';"
+sabotage "an empty line is answered" src/protocol.c 'const int blank = data\[strspn(' 'const int blank = 0 \&\& data[strspn('
+sabotage "a line whose first word is empty is not answered" src/protocol.c \
+    'if (proto.list_count == 0 || blank)' 'if (proto.list_count == 0 || blank || !*data)'
 sabotage "an error word without the grant" src/protocol.c \
     'if (granted(OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_ERRORS))' 'if (granted(OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_ERRORS) || 1)'
 sabotage "an error word after a reply with values" src/protocol.c 'if (strcmp(bare, proto->response) != 0)' 'if (0)'
