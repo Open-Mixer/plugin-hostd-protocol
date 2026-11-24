@@ -230,10 +230,11 @@ void host_dispatch_register_curve(const host_curve_t *curve);
  * mod-host verbs of mod-host.h no call here serves: preset_save, preset_show, param_monitor, patch_get, patch_set,
  * licensee, set_bpm, set_bpb, monitor, monitor_midi_program, midi_learn, midi_map, midi_unmap, cc_map, cc_value_set,
  * cc_unmap, cv_map, cv_unmap, hmi_map, hmi_unmap, load, save, bundle_add, bundle_remove, state_tmpdir,
- * feature_enable, transport, transport_sync, show_external_ui and output_data_ready. Each answers "resp -902" (ERR_INVALID_OPERATION). A verb a host registered
- * before this call keeps its callback, since the first form registered is the one run; so a host calls it last. The
- * result of protocol_add_command is not looked at: a verb the table of commands has no room for is not registered,
- * and stderr says which. Not thread-safe: it uses the table of commands.
+ * feature_enable, transport, transport_sync, show_external_ui and output_data_ready. Each answers "resp -902"
+ * (ERR_INVALID_OPERATION). A verb a host registered before this call keeps its callback, since the first form
+ * registered is the one run; so a host calls it last. The result of protocol_add_command is not looked at: a verb the
+ * table of commands has no room for is not registered, and stderr says which. Not thread-safe: it uses the table of
+ * commands.
  */
 void host_dispatch_register_unsupported(void);
 /** @brief the callback of a verb the host does not serve: it sets the response "resp -902" (ERR_INVALID_OPERATION)
