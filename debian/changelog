@@ -7,6 +7,17 @@ plugin-hostd-protocol (0.9.0) unstable; urgency=medium
     EXTENSIONS); it no longer shares <contractdir>/plugin-hostd/ with
     plugin-hostd's package and nested domains. No C macro changes.
   * The TypeScript codec reads the domains in one loop, as the Python codec.
+  * The build reads nothing of omx-clap-core (#67): what the two share is
+    this package's. The domains host (HOST_REPLY_CODES, HOST_TRACK_KINDS,
+    HOST_EVENTS) and hosting-verb (HOSTING_VERB_HOSTS) are installed with
+    this contract, and the verbs omx-clap-host shares with plugin-hostd and
+    the ones it adds are the items PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS and
+    PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS of the domain
+    plugin-hostd-protocol. Their macros are rendered into
+    plugin_hostd_protocol_host_verbs.h and
+    plugin_hostd_protocol_vocabulary.h; omx_clap_host_verbs.h and
+    omx_clap_vocabulary.h are gone, and so is the omx-clap-contract
+    dependency.
 
  -- Pau Aliagas <linuxnow@gmail.com>  Mon, 23 Nov 2026 22:00:00 +0100
 

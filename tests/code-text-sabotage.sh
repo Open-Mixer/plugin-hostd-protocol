@@ -18,19 +18,22 @@ scratch() {
     rm -rf "$work/tree"
     mkdir -p "$work/tree"
     cp -r Makefile VERSION contract.d protocol catalogs tools "$work/tree/"
-    $PYTHON - "$work/tree/contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json" "$work/tree/catalogs/ca.json" "$1" <<'PY'
+    $PYTHON - "$work/tree/contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json" "$work/tree/catalogs/ca.json" "$1" "$work/tree/contract.d/host/catalogs/ca.json" <<'PY'
 import json, os, sys
 sys.path.insert(0, "tools")
 import protocol_words
-path, catpath, edit = sys.argv[1], sys.argv[2], sys.argv[3]
+path, catpath, edit, hostpath = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 doc = protocol_words.document(path)
 d = protocol_words.items(path)
 c = d["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"]
 cat = json.load(open(catpath))
 m = cat["messages"]
+hcat = json.load(open(hostpath))
+hm = hcat["messages"]
 exec(edit)
 json.dump(protocol_words.domain_from(d, doc), open(path, "w"), indent=2, ensure_ascii=False)
 json.dump(cat, open(catpath, "w"), indent=2, ensure_ascii=False)
+json.dump(hcat, open(hostpath, "w"), indent=2, ensure_ascii=False)
 PY
 }
 
@@ -81,6 +84,10 @@ arm "two sentences in one text" 'c["noCell"]["text"]["en"] = "There is no cell. 
 arm "a code name inside the sentence" 'c["noCell"]["text"]["en"] = "The reply.plugin-hostd.no-cell code came back; try another."'
 arm "a new code of ours with no sentence" 'c["zzNew"] = {"code": "reply.plugin-hostd.zz-new", "resp": -599, "doc": "x"}'
 arm "a code of the table missing from the declaration" 'del c["unknownPlugin"]'
+arm "a code of the domain host with no Catalan" 'del hm["reply.host.instance-invalid"]'
+arm "a code of the domain host with another placeholder in Catalan" 'hm["reply.host.instance-invalid"]["text"] = "La instància {n} no és de l’amfitrió."'
+arm "a key of the domain host's catalog that is no code of it" 'hm["reply.host.zz-gone"] = "Ja no hi és."'
+arm "a code of the domain host in the protocol's catalog" 'm["reply.host.instance-invalid"] = hm["reply.host.instance-invalid"]'
 validator "the validator refuses a catalog key that is no code of ours" 'm["reply.plugin-hostd.zz-gone"] = "Ja no hi és."'
 validator "the validator refuses a catalog placeholder outside args" 'm["reply.plugin-hostd.no-cell"] = "Cap cel·la per a {plugin}; proveu-ne una altra."'
 validator "the validator refuses a placeholder outside args" 'c["noCell"]["text"]["en"] = "No cell for {plugin}; try another."'

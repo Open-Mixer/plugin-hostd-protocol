@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-"""The words of the protocol (the daemon's verbs, the protocol's own verbs, the reply codes only plugin-hostd answers and
-the extensions hello grants) are the domain plugin-hostd-protocol of this package, contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json,
+"""The words of the protocol (the daemon's verbs, the protocol's own verbs, the verbs omx-clap-host shares with plugin-hostd
+and the ones it adds (#67), the reply codes only plugin-hostd answers and the extensions hello grants) are the domain plugin-hostd-protocol of this package, contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json,
 and are read from there by every reader of this tree (plugin-hostd-protocol#26, the move out of data/verbs.json):
-  (a) the domain holds the four items, in the number of words they had, and data/verbs.json does not exist;
+  (a) the domain holds the six items, in the number of words they had, and data/verbs.json does not exist;
   (b) every reply code of the domain is in the protocol's table with its number, and every verb of it is a command of
       the table (the tools read the domain);
   (c) the Python codec, given a contract directory that holds nothing but this domain, gives a reply code its sentence and
@@ -31,7 +31,8 @@ except ImportError:  # the reader of the domain does not exist yet
 from plugin_hostd_protocol import Protocol  # noqa: E402
 
 GOLDEN = {"PLUGIN_HOSTD_PROTOCOL_REPLY_CODES": ("codes", 39), "PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS": ("verbs", 29),
-          "PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS": ("verbs", 6), "PLUGIN_HOSTD_PROTOCOL_EXTENSIONS": ("words", 3)}
+          "PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS": ("verbs", 6), "PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS": ("verbs", 14),
+          "PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS": ("verbs", 5), "PLUGIN_HOSTD_PROTOCOL_EXTENSIONS": ("words", 3)}
 TABLE = os.path.join(ROOT, "protocol", "plugin-hostd-protocol.json")
 
 
@@ -46,7 +47,7 @@ class ProtocolDomain(unittest.TestCase):
         if protocol_words is None:
             raise AssertionError("tools/protocol_words.py does not exist: no tool reads the domain")
 
-    def test_a_the_domain_holds_the_four_items_and_the_data_file_is_gone(self):
+    def test_a_the_domain_holds_the_six_items_and_the_data_file_is_gone(self):
         self.assertTrue(os.path.isfile(os.path.join(ROOT, DOMAIN)))
         self.assertFalse(os.path.exists(os.path.join(ROOT, "data", "verbs.json")), "data/verbs.json is the old home")
         items = protocol_words.items()
@@ -63,10 +64,14 @@ class ProtocolDomain(unittest.TestCase):
         for name, code in protocol_words.items()["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"].items():
             self.assertEqual(resp.get(code["code"]), code["resp"], name)
         commands = {c["verb"]: c for c in table["commands"]}
-        for group in ("PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS", "PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS"):
+        for group in ("PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS", "PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS",
+                      "PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS", "PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS"):
             for key, v in protocol_words.items()[group]["verbs"].items():
                 self.assertIn(v["verb"], commands, key)
-                self.assertIn(DOMAIN + " " + group + "." + key, text, key)
+                # a verb that extends mod-host's command of its word leaves the command mod-host's, extended by
+                # omx-clap; any other is declared from the domain, as the command or as a form of its own
+                self.assertTrue("omx-clap" in commands[v["verb"]]["extended_by"]
+                                or DOMAIN + " " + group + "." + key in text, key)
 
     def test_c_the_codec_reads_the_sentences_from_the_domain_alone(self):
         d = tempfile.mkdtemp(prefix="protocol-domain-")

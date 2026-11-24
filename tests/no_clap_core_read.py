@@ -12,7 +12,7 @@ here. Refused, by file and line:
   - an info.x-requires of a domain under contract.d that names a domain this tree does not ship;
   - a Makefile line (not a comment) or a workflow line that names omx-clap-core, its package or its contract
     (omx-clap, omx_clap, contract.d/omx-clap, CLAP_CORE_REF, clap-core-ref); the worker's name omx-clap-host is a
-    word of the protocol, not a read, and is allowed;
+    word of the protocol, not a read, and so is this check's own name;
   - a header rendered from omx-clap's package (include/plugin-hostd/omx_clap_*.h), or a C file that includes one;
   - a source of the table protocol/plugin-hostd-protocol.json that is no file of this tree.
 Usage: no_clap_core_read.py [root]. Each fault is planted in memory, and must be seen, as a finding the tree itself does not have, before the tree is
@@ -26,7 +26,8 @@ import sys
 
 ROOT = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CLAP_PACKAGE = re.compile(r"(?<![\w-])omx-clap(?:-[a-z0-9]+)*")
-CLAP_WORD = re.compile(r"omx[-_]clap(?!-host\b)|clap-core|CLAP_CORE")
+# the check's own name (test-no-clap-core-read, tests/no_clap_core_read.py) is no read of omx-clap-core
+CLAP_WORD = re.compile(r"omx[-_]clap(?!-host\b)|(?<!no-)clap-core|(?<!no_)clap_core|CLAP_CORE")
 failures = []
 
 

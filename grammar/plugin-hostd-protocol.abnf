@@ -292,35 +292,35 @@ cmd-track-info           = %s"track_info" SP int SP word SP word tail
 cmd-transport            = %s"transport" SP int SP float SP float
 ; mod-host: include/mod-host.h TRANSPORT_SYNC
 cmd-transport-sync       = %s"transport_sync" SP word
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS.allNotesOff
 cmd-all-notes-off        = %s"all_notes_off" SP int
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS.audioPorts
 cmd-audio-ports          = %s"audio_ports" SP int
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS.chainExpect; sent by the daemon to a worker
 cmd-chain-expect         = %s"chain_expect" SP int SP int
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS.hideExternalUi
 cmd-hide-external-ui     = %s"hide_external_ui" SP int
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS.idleHold
 cmd-idle-hold            = %s"idle_hold" tail
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS.noteDrops
 cmd-note-drops           = %s"note_drops" SP int
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS.noteInput
 cmd-note-input           = %s"note_input" SP int
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS.noteOff
 cmd-note-off             = %s"note_off" SP int SP int SP int SP int
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS.noteOn
 cmd-note-on              = %s"note_on" SP int SP int SP int SP int
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS.noteOutDrops
 cmd-note-out-drops       = %s"note_out_drops" SP int
-; omx-clap: contract.d/omx-clap/omx-clap.json ; sent by the daemon to a worker
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS.pinExpect; sent by the daemon to a worker
 cmd-pin-expect           = %s"pin_expect" SP int SP word
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS.propertyGet
 cmd-property-get         = %s"property_get" SP int SP word
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS.propertyInfo
 cmd-property-info        = %s"property_info" SP int SP int
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS.propertyList
 cmd-property-list        = %s"property_list" SP int
-; omx-clap: contract.d/omx-clap/omx-clap.json 
+; omx-clap: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS.propertySet
 cmd-property-set         = %s"property_set" SP int SP word SP quoted-escaped
 ; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.chain
 cmd-chain                = %s"chain" SP int SP int tail

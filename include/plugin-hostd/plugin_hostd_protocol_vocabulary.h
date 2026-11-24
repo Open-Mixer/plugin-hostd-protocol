@@ -14,6 +14,162 @@
  * @brief The vocabulary of plugin-hostd-protocol: every code and every word as a string define, with its sentence
  * where it carries one. */
 
+/* HOSTING_VERB_HOSTS (contract.d/hosting-verb/hosting-verb.json) */
+#define OMX_HOSTING_VERB_HOSTS_PLUGIN_HOSTD "plugin-hostd" ///< The daemon that places plugins in workers and answers the verbs it adds itself.
+/** The source sentence (English) of OMX_HOSTING_VERB_HOSTS_PLUGIN_HOSTD. */
+#define OMX_HOSTING_VERB_HOSTS_PLUGIN_HOSTD_TEXT_EN "The daemon that places plugins in workers and answers the verbs it adds itself."
+#define OMX_HOSTING_VERB_HOSTS_OMX_CLAP_HOST "omx-clap-host" ///< omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter.
+/** The source sentence (English) of OMX_HOSTING_VERB_HOSTS_OMX_CLAP_HOST. */
+#define OMX_HOSTING_VERB_HOSTS_OMX_CLAP_HOST_TEXT_EN "omx-clap-core's worker: a CLAP plugin's host, and an LV2 plugin's through its adapter."
+#define OMX_HOSTING_VERB_HOSTS_MOD_HOST "mod-host" ///< mod-host, the LV2 host whose protocol the others speak.
+/** The source sentence (English) of OMX_HOSTING_VERB_HOSTS_MOD_HOST. */
+#define OMX_HOSTING_VERB_HOSTS_MOD_HOST_TEXT_EN "mod-host, the LV2 host whose protocol the others speak."
+/** The number of words of HOSTING_VERB_HOSTS. */
+#define OMX_HOSTING_VERB_HOSTS_COUNT 3u
+/** The words of HOSTING_VERB_HOSTS in their declared order, as a C initializer list. */
+#define OMX_HOSTING_VERB_HOSTS_INIT { "plugin-hostd", "omx-clap-host", "mod-host" }
+/** Expands `X(code, "word", NAME)` once per word of HOSTING_VERB_HOSTS, in order, the code being its place in the order. The hosts a verb's implementedBy names (docs/contract-dir.md): the programs a controller sends mod-host's protocol to. A verb states what each one owes it; a host the verb leaves out owes it nothing. */
+#define OMX_HOSTING_VERB_HOSTS(X) \
+    X(0u, "plugin-hostd", PLUGIN_HOSTD) X(1u, "omx-clap-host", OMX_CLAP_HOST) X(2u, "mod-host", MOD_HOST)
+
+/* HOST_REPLY_CODES (contract.d/host/host.json) */
+#define OMX_REPLY_HOST_INSTANCE_INVALID "reply.host.instance-invalid" ///< mod-host's ERR_INSTANCE_INVALID: an instance number outside the host's table
+#define OMX_REPLY_HOST_INSTANCE_INVALID_RESP (-1)
+/** The source sentence (English) of OMX_REPLY_HOST_INSTANCE_INVALID. */
+#define OMX_REPLY_HOST_INSTANCE_INVALID_TEXT_EN "That instance number is not one of the host\342\200\231s. Use an instance the host actually has."
+#define OMX_REPLY_HOST_INSTANCE_ALREADY_EXISTS "reply.host.instance-already-exists" ///< mod-host's ERR_INSTANCE_ALREADY_EXISTS: add asked for an instance number the host already has
+#define OMX_REPLY_HOST_INSTANCE_ALREADY_EXISTS_RESP (-2)
+/** The source sentence (English) of OMX_REPLY_HOST_INSTANCE_ALREADY_EXISTS. */
+#define OMX_REPLY_HOST_INSTANCE_ALREADY_EXISTS_TEXT_EN "That instance number is already taken. Add the plugin under a number the host does not have yet."
+#define OMX_REPLY_HOST_INSTANCE_NON_EXISTS "reply.host.instance-non-exists" ///< mod-host's ERR_INSTANCE_NON_EXISTS: an instance no add made
+#define OMX_REPLY_HOST_INSTANCE_NON_EXISTS_RESP (-3)
+/** The source sentence (English) of OMX_REPLY_HOST_INSTANCE_NON_EXISTS. */
+#define OMX_REPLY_HOST_INSTANCE_NON_EXISTS_TEXT_EN "No add ever created that instance. Add it before using it."
+#define OMX_REPLY_HOST_URI_INVALID "reply.host.uri-invalid" ///< mod-host's ERR_LV2_INVALID_URI: add named a plugin the host does not find
+#define OMX_REPLY_HOST_URI_INVALID_RESP (-101)
+/** The source sentence (English) of OMX_REPLY_HOST_URI_INVALID. */
+#define OMX_REPLY_HOST_URI_INVALID_TEXT_EN "The host finds no plugin by that name. Check the plugin is installed and its name is spelt as the scan lists it."
+#define OMX_REPLY_HOST_INSTANTIATION_FAILED "reply.host.instantiation-failed" ///< mod-host's ERR_LV2_INSTANTIATION: the plugin refused to start
+#define OMX_REPLY_HOST_INSTANTIATION_FAILED_RESP (-102)
+/** The source sentence (English) of OMX_REPLY_HOST_INSTANTIATION_FAILED. */
+#define OMX_REPLY_HOST_INSTANTIATION_FAILED_TEXT_EN "The plugin was found but would not start. Try it again, or choose another plugin if it keeps refusing."
+#define OMX_REPLY_HOST_PARAM_SYMBOL_INVALID "reply.host.param-symbol-invalid" ///< mod-host's ERR_LV2_INVALID_PARAM_SYMBOL: a symbol that is not a parameter param_set takes, the plugin's own bypass included
+#define OMX_REPLY_HOST_PARAM_SYMBOL_INVALID_RESP (-103)
+/** The source sentence (English) of OMX_REPLY_HOST_PARAM_SYMBOL_INVALID. */
+#define OMX_REPLY_HOST_PARAM_SYMBOL_INVALID_TEXT_EN "That symbol is not one of this plugin\342\200\231s parameters, not even its bypass. Ask the plugin for its parameter list and use one of those symbols."
+#define OMX_REPLY_HOST_PRESET_URI_INVALID "reply.host.preset-uri-invalid" ///< mod-host's ERR_LV2_INVALID_PRESET_URI: a preset this plugin does not have, or a file it cannot take
+#define OMX_REPLY_HOST_PRESET_URI_INVALID_RESP (-104)
+/** The source sentence (English) of OMX_REPLY_HOST_PRESET_URI_INVALID. */
+#define OMX_REPLY_HOST_PRESET_URI_INVALID_TEXT_EN "That preset is not one this plugin can load. Choose a preset from the plugin\342\200\231s own list."
+#define OMX_REPLY_HOST_STATE_LOAD_FAILED "reply.host.state-load-failed" ///< mod-host's ERR_LV2_CANT_LOAD_STATE: the plugin refused its saved state
+#define OMX_REPLY_HOST_STATE_LOAD_FAILED_RESP (-105)
+/** The source sentence (English) of OMX_REPLY_HOST_STATE_LOAD_FAILED. */
+#define OMX_REPLY_HOST_STATE_LOAD_FAILED_TEXT_EN "The plugin would not take its saved state back. Load another preset, or set its values again."
+#define OMX_REPLY_HOST_JACK_CLIENT_CREATION "reply.host.jack-client-creation" ///< mod-host's ERR_JACK_CLIENT_CREATION: no audio client could be made for the plugin
+#define OMX_REPLY_HOST_JACK_CLIENT_CREATION_RESP (-201)
+/** The source sentence (English) of OMX_REPLY_HOST_JACK_CLIENT_CREATION. */
+#define OMX_REPLY_HOST_JACK_CLIENT_CREATION_TEXT_EN "The host could not connect the plugin to the audio server. Check the audio server is running, then add the plugin again."
+#define OMX_REPLY_HOST_JACK_CLIENT_ACTIVATION "reply.host.jack-client-activation" ///< mod-host's ERR_JACK_CLIENT_ACTIVATION: the plugin's audio client would not start
+#define OMX_REPLY_HOST_JACK_CLIENT_ACTIVATION_RESP (-202)
+/** The source sentence (English) of OMX_REPLY_HOST_JACK_CLIENT_ACTIVATION. */
+#define OMX_REPLY_HOST_JACK_CLIENT_ACTIVATION_TEXT_EN "The plugin\342\200\231s audio connection would not start. Check the audio server is running, then add the plugin again."
+#define OMX_REPLY_HOST_JACK_CLIENT_DEACTIVATION "reply.host.jack-client-deactivation" ///< mod-host's ERR_JACK_CLIENT_DEACTIVATION: the plugin's audio client would not stop
+#define OMX_REPLY_HOST_JACK_CLIENT_DEACTIVATION_RESP (-203)
+/** The source sentence (English) of OMX_REPLY_HOST_JACK_CLIENT_DEACTIVATION. */
+#define OMX_REPLY_HOST_JACK_CLIENT_DEACTIVATION_TEXT_EN "The plugin\342\200\231s audio connection would not stop. Remove the plugin, or restart the audio server if it stays."
+#define OMX_REPLY_HOST_JACK_PORT_REGISTER "reply.host.jack-port-register" ///< mod-host's ERR_JACK_PORT_REGISTER: a port of the plugin could not be made
+#define OMX_REPLY_HOST_JACK_PORT_REGISTER_RESP (-204)
+/** The source sentence (English) of OMX_REPLY_HOST_JACK_PORT_REGISTER. */
+#define OMX_REPLY_HOST_JACK_PORT_REGISTER_TEXT_EN "The host could not make one of the plugin\342\200\231s audio ports. Remove some plugins, then add this one again."
+#define OMX_REPLY_HOST_JACK_PORT_CONNECTION "reply.host.jack-port-connection" ///< mod-host's ERR_JACK_PORT_CONNECTION: two ports could not be connected
+#define OMX_REPLY_HOST_JACK_PORT_CONNECTION_RESP (-205)
+/** The source sentence (English) of OMX_REPLY_HOST_JACK_PORT_CONNECTION. */
+#define OMX_REPLY_HOST_JACK_PORT_CONNECTION_TEXT_EN "Those two ports could not be connected. Check both ports exist and carry the same kind of signal."
+#define OMX_REPLY_HOST_JACK_PORT_DISCONNECTION "reply.host.jack-port-disconnection" ///< mod-host's ERR_JACK_PORT_DISCONNECTION: two ports could not be disconnected
+#define OMX_REPLY_HOST_JACK_PORT_DISCONNECTION_RESP (-206)
+/** The source sentence (English) of OMX_REPLY_HOST_JACK_PORT_DISCONNECTION. */
+#define OMX_REPLY_HOST_JACK_PORT_DISCONNECTION_TEXT_EN "Those two ports could not be disconnected. Check they are connected to each other."
+#define OMX_REPLY_HOST_VALUE_OUT_OF_RANGE "reply.host.value-out-of-range" ///< mod-host's ERR_JACK_VALUE_OUT_OF_RANGE: a tempo or a beats-per-bar the transport does not take
+#define OMX_REPLY_HOST_VALUE_OUT_OF_RANGE_RESP (-207)
+/** The source sentence (English) of OMX_REPLY_HOST_VALUE_OUT_OF_RANGE. */
+#define OMX_REPLY_HOST_VALUE_OUT_OF_RANGE_TEXT_EN "That tempo or beats per bar is outside what the host accepts. Choose a value within the host\342\200\231s range."
+#define OMX_REPLY_HOST_EXTERNAL_UI_UNAVAILABLE "reply.host.external-ui-unavailable" ///< mod-host's ERR_EXTERNAL_UI_UNAVAILABLE: the plugin has no window of its own to show
+#define OMX_REPLY_HOST_EXTERNAL_UI_UNAVAILABLE_RESP (-404)
+/** The source sentence (English) of OMX_REPLY_HOST_EXTERNAL_UI_UNAVAILABLE. */
+#define OMX_REPLY_HOST_EXTERNAL_UI_UNAVAILABLE_TEXT_EN "This plugin has no window of its own to show. Use the host\342\200\231s controls for it instead."
+#define OMX_REPLY_HOST_MEMORY_ALLOCATION "reply.host.memory-allocation" ///< mod-host's ERR_MEMORY_ALLOCATION: the reply could not be built
+#define OMX_REPLY_HOST_MEMORY_ALLOCATION_RESP (-901)
+/** The source sentence (English) of OMX_REPLY_HOST_MEMORY_ALLOCATION. */
+#define OMX_REPLY_HOST_MEMORY_ALLOCATION_TEXT_EN "The host ran out of memory while building the reply. Try again once memory is free."
+#define OMX_REPLY_HOST_INVALID_OPERATION "reply.host.invalid-operation" ///< mod-host's ERR_INVALID_OPERATION: a word outside the verb's grammar, or a verb the host refuses on purpose
+#define OMX_REPLY_HOST_INVALID_OPERATION_RESP (-902)
+/** The source sentence (English) of OMX_REPLY_HOST_INVALID_OPERATION. */
+#define OMX_REPLY_HOST_INVALID_OPERATION_TEXT_EN "That word is not part of this verb, or the host refuses it on purpose. Check the verb\342\200\231s grammar and send a word it accepts."
+#define OMX_REPLY_HOST_PIN_ABSENT "reply.host.pin-absent" ///< a layout pin in a scheme this host does not know, refused as no pin at all
+#define OMX_REPLY_HOST_PIN_ABSENT_RESP (-508)
+/** The source sentence (English) of OMX_REPLY_HOST_PIN_ABSENT. */
+#define OMX_REPLY_HOST_PIN_ABSENT_TEXT_EN "This host does not know that layout pin\342\200\231s scheme, so it is refused as if no pin had been sent. Send a pin in a scheme this host knows."
+#define OMX_REPLY_HOST_PIN_LAYOUT_MISMATCH "reply.host.pin-layout-mismatch" ///< the add of an instance whose layout after init is not the one pin_expect named: the plugin is not activated
+#define OMX_REPLY_HOST_PIN_LAYOUT_MISMATCH_RESP (-510)
+/** The source sentence (English) of OMX_REPLY_HOST_PIN_LAYOUT_MISMATCH. */
+#define OMX_REPLY_HOST_PIN_LAYOUT_MISMATCH_TEXT_EN "After it started, the plugin\342\200\231s layout did not match the pin you expected, so it was not activated. Expect the layout the plugin actually has, or use a plugin built to that pin."
+#define OMX_REPLY_HOST_NO_PARAM_CONTRACT "reply.host.no-param-contract" ///< the host holds no checked unit and scale for this parameter: the controller falls back to the layout the scan gives
+#define OMX_REPLY_HOST_NO_PARAM_CONTRACT_RESP (-511)
+/** The source sentence (English) of OMX_REPLY_HOST_NO_PARAM_CONTRACT. */
+#define OMX_REPLY_HOST_NO_PARAM_CONTRACT_TEXT_EN "The host has no checked unit or scale for this parameter. Fall back to the layout the scan gave."
+#define OMX_REPLY_HOST_NO_NOTE_INPUT "reply.host.no-note-input" ///< the instance's plugin takes no notes
+#define OMX_REPLY_HOST_NO_NOTE_INPUT_RESP (-513)
+/** The source sentence (English) of OMX_REPLY_HOST_NO_NOTE_INPUT. */
+#define OMX_REPLY_HOST_NO_NOTE_INPUT_TEXT_EN "This plugin\342\200\231s instance takes no notes. Don\342\200\231t send it note events."
+#define OMX_REPLY_HOST_NOTES_BY_JACK "reply.host.notes-by-jack" ///< the instance's worker takes no notes on its socket (mod-host): the plugin is played through its jack MIDI input
+#define OMX_REPLY_HOST_NOTES_BY_JACK_RESP (-514)
+/** The source sentence (English) of OMX_REPLY_HOST_NOTES_BY_JACK. */
+#define OMX_REPLY_HOST_NOTES_BY_JACK_TEXT_EN "This instance\342\200\231s worker takes no notes on its socket; play it through its jack MIDI input instead."
+#define OMX_REPLY_HOST_NOTE_QUEUE_FULL "reply.host.note-queue-full" ///< the worker has no room for the line's notes before its next block: nothing of it is kept, and the line may be sent again
+#define OMX_REPLY_HOST_NOTE_QUEUE_FULL_RESP (-517)
+/** The source sentence (English) of OMX_REPLY_HOST_NOTE_QUEUE_FULL. */
+#define OMX_REPLY_HOST_NOTE_QUEUE_FULL_TEXT_EN "The worker had no room for these notes before its next block, so none of them were kept. Send the line again."
+#define OMX_REPLY_HOST_PROPERTY_SYMBOL_INVALID "reply.host.property-symbol-invalid" ///< a symbol that is not one of the instance's file or text properties (org.openmixer.properties/1), or an index past its last
+#define OMX_REPLY_HOST_PROPERTY_SYMBOL_INVALID_RESP (-106)
+/** The source sentence (English) of OMX_REPLY_HOST_PROPERTY_SYMBOL_INVALID. */
+#define OMX_REPLY_HOST_PROPERTY_SYMBOL_INVALID_TEXT_EN "That symbol is not one of this plugin\342\200\231s file or text properties. Ask the plugin for its property list and use one of those symbols."
+#define OMX_REPLY_HOST_PROPERTY_ACCESS "reply.host.property-access" ///< a set of a property that is not writable, or a get of one that is not readable
+#define OMX_REPLY_HOST_PROPERTY_ACCESS_RESP (-107)
+/** The source sentence (English) of OMX_REPLY_HOST_PROPERTY_ACCESS. */
+#define OMX_REPLY_HOST_PROPERTY_ACCESS_TEXT_EN "This property cannot be used that way: it is not writable, or not readable. Check the property's access before setting or reading it."
+#define OMX_REPLY_HOST_PROPERTY_VALUE_INVALID "reply.host.property-value-invalid" ///< a property value the host does not hand on: larger than OMX_CLAP_PROPERTY_VALUE_MAX with its NUL, not UTF-8, or a path that is not absolute
+#define OMX_REPLY_HOST_PROPERTY_VALUE_INVALID_RESP (-108)
+/** The source sentence (English) of OMX_REPLY_HOST_PROPERTY_VALUE_INVALID. */
+#define OMX_REPLY_HOST_PROPERTY_VALUE_INVALID_TEXT_EN "That value cannot be set: it is too long, not valid text, or a path that does not start with a slash. Send a shorter value, or an absolute path."
+#define OMX_REPLY_HOST_PROPERTY_QUEUE_FULL "reply.host.property-queue-full" ///< the instance's property ring has no room before its next block: nothing of the set is kept, and it may be sent again
+#define OMX_REPLY_HOST_PROPERTY_QUEUE_FULL_RESP (-109)
+/** The source sentence (English) of OMX_REPLY_HOST_PROPERTY_QUEUE_FULL. */
+#define OMX_REPLY_HOST_PROPERTY_QUEUE_FULL_TEXT_EN "The plugin had no room for this value before its next block, so it was not kept. Send it again."
+
+/* HOST_TRACK_KINDS (contract.d/host/host.json) */
+#define OMX_HOST_TRACK_KINDS_BUS "bus"
+#define OMX_HOST_TRACK_KINDS_RETURN "return"
+#define OMX_HOST_TRACK_KINDS_MASTER "master"
+/** The number of words of HOST_TRACK_KINDS. */
+#define OMX_HOST_TRACK_KINDS_COUNT 3u
+/** The words of HOST_TRACK_KINDS in their declared order, as a C initializer list. */
+#define OMX_HOST_TRACK_KINDS_INIT { "bus", "return", "master" }
+/** Expands `X(code, "word", NAME)` once per word of HOST_TRACK_KINDS, in order, the code being its place in the order. The kind of strip, the last word of track_info; a line without it is an input channel. */
+#define OMX_HOST_TRACK_KINDS(X) \
+    X(0u, "bus", BUS) X(1u, "return", RETURN) X(2u, "master", MASTER)
+
+/* HOST_EVENTS (contract.d/host/host.json) */
+#define OMX_HOST_EVENTS_REMOTE_PAGES_CHANGED "remote_pages_changed" ///< the plugin changed its remote pages: a controller reads remote_pages and remote_page_get again
+#define OMX_HOST_EVENTS_XRUNS "xruns" ///< the worker's JACK xrun count since its start, written when it changes and at most once a second; a worker that never writes it reports no xruns
+#define OMX_HOST_EVENTS_ABI_CLOBBER "abi_clobber" ///< the plugin returned from a call with a callee-saved register changed (0.26.2): the instance number, the registers as a hexadecimal mask with their names, the plugin function and the block, written once per instance. The worker put the registers back, so its own frame is whole; the other members' state in the same process is not covered, so the plugin is run only in a worker of its own
+/** The number of words of HOST_EVENTS. */
+#define OMX_HOST_EVENTS_COUNT 3u
+/** The words of HOST_EVENTS in their declared order, as a C initializer list. */
+#define OMX_HOST_EVENTS_INIT { "remote_pages_changed", "xruns", "abi_clobber" }
+/** Expands `X(code, "word", NAME)` once per word of HOST_EVENTS, in order, the code being its place in the order. The lines a host writes on its feedback port for these verbs, each followed by the instance number, but xruns, which is the worker's own and is followed by its count. */
+#define OMX_HOST_EVENTS(X) \
+    X(0u, "remote_pages_changed", REMOTE_PAGES_CHANGED) X(1u, "xruns", XRUNS) X(2u, "abi_clobber", ABI_CLOBBER)
+
 /* PLUGIN_HOSTD_PROTOCOL_REPLY_CODES (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json) */
 #define OMX_REPLY_PLUGIN_HOSTD_PLACEMENT_INVALID "reply.plugin-hostd.placement-invalid" ///< not a placement, or not valid here
 #define OMX_REPLY_PLUGIN_HOSTD_PLACEMENT_INVALID_RESP (-501)

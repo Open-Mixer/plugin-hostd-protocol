@@ -18,13 +18,12 @@ BuildRequires: libubsan
 BuildRequires: python3
 # %%{python3_sitelib}, where the Python client installs (python3-plugin-hostd-client)
 BuildRequires: python3-devel
-# The floors of every omx-contract, omx-clap, omx-dsp and plugin-hostd-protocol requirement below are GENERATED from
+# The floors of every omx-contract, omx-dsp and plugin-hostd-protocol requirement below are GENERATED from
 # packaging/deps.txt by Open-Mixer/.github deps-render (render.sh --write); edit that file, not these lines.
 # the declared protocol: protocol.h's parameter scales are written from omx-contract's domain param (omx-contract-data), and
 # install-contract writes the contract directory's package with omx-contract's script
 BuildRequires: omx-contract-devel >= 3.21.0
-# the codec's tests (make test-codec) read omx-clap's sentences and omx-contract's catalog reader
-BuildRequires: omx-clap-contract >= 0.34.0
+# the codec's tests (make test-codec) read omx-contract's catalog reader
 BuildRequires: omx-contract-data >= 3.21.0
 # plugin-db's package of the contract directory. The committed vocabulary header is the render of plugin-db 0.4.7, checked by ci's declared-protocol job against the served contract; the package build (make test: %check, debian/rules) reads none of its words, so the floor stays 0.4.4
 BuildRequires: plugin-db-contract >= 0.4.4
@@ -78,7 +77,6 @@ BuildArch: noarch
 Requires: python3
 Requires: plugin-hostd-protocol >= 0.5.8
 Requires: plugin-hostd-protocol-contract >= 0.5.8
-Requires: omx-clap-contract >= 0.34.0
 Requires: omx-contract >= 3.21.0
 # omx-contract's catalog reader, omx_contract_catalog.py, which reads a catalog entry whatever its shape
 Requires: omx-contract-data >= 3.21.0
@@ -102,7 +100,8 @@ Requires: omx-contract >= 3.21.0
 The domain plugin-hostd-protocol, the verbs and reply codes
 plugin-hostd adds to mod-host's protocol, in omx-contract's contract directory,
 under share/omx-contract/contract.d/plugin-hostd-protocol, beside its domains
-probe, pin and estimate.
+host (the refusals, track kinds and feedback lines every host of the protocol
+answers with), hosting-verb (the hosts a verb names), probe, pin and estimate.
 Its documentation is on openmixer.org.
 
 %prep
@@ -114,7 +113,7 @@ Its documentation is on openmixer.org.
 
 %install
 %make_install PREFIX=%{_prefix} LIBDIR=%{_libdir} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir}
-# the domains of plugin-hostd-protocol (contract.d/plugin-hostd-protocol, probe, pin, estimate), as omx-contract's contract directory holds them
+# the domains of plugin-hostd-protocol (contract.d/plugin-hostd-protocol, host, hosting-verb, probe, pin, estimate), as omx-contract's contract directory holds them
 %make_build install-contract DESTDIR=%{buildroot} PREFIX=%{_prefix}
 # the Python packages, python3-plugin-hostd-client and python3-plugin-hostd-protocol
 %make_build install-python DESTDIR=%{buildroot} PREFIX=%{_prefix} DATADIR=%{_datadir} PYTHON3_SITELIB=%{python3_sitelib}
@@ -161,6 +160,8 @@ make test
 %doc README.md
 %dir %{_datadir}/omx-contract/contract.d/plugin-hostd-protocol/
 %{_datadir}/omx-contract/contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json
+%{_datadir}/omx-contract/contract.d/host/
+%{_datadir}/omx-contract/contract.d/hosting-verb/
 %{_datadir}/omx-contract/contract.d/probe/
 %{_datadir}/omx-contract/contract.d/pin/
 %{_datadir}/omx-contract/contract.d/estimate/
@@ -261,6 +262,15 @@ shows the English source sentence.
   it no longer shares <contractdir>/plugin-hostd/ with plugin-hostd's package
   and nested domains. No C macro changes.
 - The TypeScript codec reads the domains in one loop, as the Python codec.
+- The build reads nothing of omx-clap-core (#67): what the two share is this
+  package's. The domains host (HOST_REPLY_CODES, HOST_TRACK_KINDS, HOST_EVENTS)
+  and hosting-verb (HOSTING_VERB_HOSTS) are installed with this contract, and
+  the verbs omx-clap-host shares with plugin-hostd and the ones it adds are the
+  items PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS and
+  PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS of the domain plugin-hostd-protocol.
+  Their macros are rendered into plugin_hostd_protocol_host_verbs.h and
+  plugin_hostd_protocol_vocabulary.h; omx_clap_host_verbs.h and
+  omx_clap_vocabulary.h are gone, and so is the omx-clap-contract dependency.
 
 * Sat Nov 21 2026 Pau Aliagas <linuxnow@gmail.com> - 0.8.0-1
 - The vocabulary sorting pass: the probe words (outcomes, reasons, steps, signals)
