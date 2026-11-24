@@ -75,10 +75,10 @@ def problems(files):
     domains = {rel.split("/")[1] for rel in files if re.match(r"contract\.d/[^/]+/[^/]+\.json$", rel)}
     for rel in sorted(files):
         if re.match(r"contract\.d/[^/]+/[^/]+\.json$", rel):
-            info = json.loads(files[rel]).get("info", {})
-            req = info.get("x-requires", [])
-            if not isinstance(req, list) or ("x-requires" in info and not req):
-                out.append("%s: info.x-requires is %s, not a non-empty list of names" % (rel, json.dumps(req)[:60]))
+            req = required_names(json.loads(files[rel]))
+            if req is None:
+                out.append("%s: info.x-requires is %s, not a non-empty list of names"
+                           % (rel, json.dumps(json.loads(files[rel])["info"]["x-requires"])[:60]))
                 continue
             for name in req:
                 if name not in domains:
@@ -107,14 +107,35 @@ def planted(files, rel, text):
     return copy
 
 
+def required_names(doc):
+    """the names of a domain's info.x-requires: [] when it is absent, None when it is not a non-empty list of names
+    (the old map of floors, [] or anything else), so nothing indexes a field that is not a list"""
+    info = doc.get("info", {})
+    if "x-requires" not in info:
+        return []
+    req = info["x-requires"]
+    if not isinstance(req, list) or not req or not all(isinstance(n, str) for n in req):
+        return None
+    return req
+
+
+# the refusal comes first: a domain whose x-requires is no list of names is named before any planted copy reads it
+check(required_names({"info": {"x-requires": {"host": ">= 1.0.0"}}}) is None
+      and required_names({"info": {"x-requires": []}}) is None and required_names({"info": {}}) == [],
+      "a map and [] are no list of names, an absent x-requires is none")
 files = tree()
+domain = "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json"
+names = required_names(json.loads(files[domain]))
+if names is None:
+    check(False, "%s: info.x-requires is %s, not a non-empty list of names"
+          % (domain, json.dumps(json.loads(files[domain])["info"]["x-requires"])[:60]))
+    sys.exit(1)
 table = json.loads(files["protocol/plugin-hostd-protocol.json"])
 table["sources"] = table.get("sources", []) + ["contract.d/omx-clap/omx-clap.json"]
-domain = "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json"
 requires = json.loads(files[domain])
-requires.setdefault("info", {})["x-requires"] = sorted(requires["info"].get("x-requires", []) + ["omx-clap"])
+requires.setdefault("info", {})["x-requires"] = sorted(names + ["omx-clap"])
 as_map = json.loads(files[domain])
-as_map.setdefault("info", {})["x-requires"] = {n: ">= 1.0.0" for n in as_map["info"].get("x-requires", ["host"])}
+as_map.setdefault("info", {})["x-requires"] = {n: ">= 1.0.0" for n in (names or ["host"])}
 as_empty = json.loads(files[domain])
 as_empty.setdefault("info", {})["x-requires"] = []
 faults = {
