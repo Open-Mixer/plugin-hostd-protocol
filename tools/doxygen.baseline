@@ -1,7 +1,0 @@
-include/host-dispatch.h: warning: Member host_dispatch_register_unsupported(void) (function) of file host-dispatch.h is not documented.
-include/socket.h: warning: Member SOCKET_HAS_ADOPT (macro definition) of file socket.h is not documented.
-include/utils.h: warning: Member clamp(int value, int min, int max) (function) of file utils.h is not documented.
-include/utils.h: warning: Member clampf(float value, float min, float max) (function) of file utils.h is not documented.
-include/utils.h: warning: Member doubles_differ_enough(double a, double b) (function) of file utils.h is not documented.
-include/utils.h: warning: Member floats_differ_enough(float a, float b) (function) of file utils.h is not documented.
-include/utils.h: warning: Member strarr_join(char **const str_array) (function) of file utils.h is not documented.
