@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-chain -90 2 !e)
-set_bpb -nan
-cc_value_set 8 !В! +nan
-@1 licensee -4
-@._. hide_external_ui -6
-@__ note_drops -1
-pool_config & -48
-pin_accept +!
-@.k feature_enable bwţ -893
-@6 preset_load 316 "å\""
-@.O pin_reload
-instance_info 143
+@5 patch_get -8 !4!
+@_Fl instance_info 062
+state_tmpdir A
+quit
+quit
+cv_unmap 382 σ
+@-.F note_input -178
+cc_value_set 45 "K " .2E+3
+help
+hmi_map -28 N5 -76 -1 716 -48 746 "" +.14 +8 -2
+@1 preset_list -570
+pin_changed "" !!q

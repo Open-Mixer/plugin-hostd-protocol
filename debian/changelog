@@ -7,6 +7,10 @@ plugin-hostd-protocol (0.9.0) unstable; urgency=medium
     EXTENSIONS); it no longer shares <contractdir>/plugin-hostd/ with
     plugin-hostd's package and nested domains. No C macro changes.
   * The TypeScript codec reads the domains in one loop, as the Python codec.
+  * The descriptions store's ask words (#128): add's optional last word
+    ask | no-ask, the verb description_get <uri> answered
+    <sha256> <lv2|clap> <uri> <base|system|user>, the event
+    description_changed <uri>; -529 and -530 also answer description_get.
 
  -- Pau Aliagas <linuxnow@gmail.com>  Mon, 23 Nov 2026 22:00:00 +0100
 

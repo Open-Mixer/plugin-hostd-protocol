@@ -1,10 +1,10 @@
-plan 034 -528 1ͭ) => resp 0 "\"y" rш
-plan -31 -9 => resp 0 ˍ!L 
-plan -929 907 v => resp 0 `ȁ! "ye"
-plan -6 7 "" => resp 0 !¡Ή ""
-plan -7 962 "̊" => resp 0 "" " "
-plan -5 -336 ! => resp 0 !9 ""
-plan 1 7 "p" " " => resp 0 "<" "p"
+plan 086 -0 => resp 0 "\\" "\\"
+plan -522 -410 "" => resp 0 o ""
+plan -22 -7 => resp 0 "" ""
+plan 7 6 ̝c! !! => resp 0 "<" "p"
 plan 03 51 "!\\" => resp 0 ;!Ȍ ""
 plan 687 6 => resp 0 "" Βg!
 plan 2 5 "!" => resp 0 "" !9Ϋ
+plan 07 -369 "t\"" => resp 0 £Ȕ͚ "\"\\"
+plan -4 500 X Z!! => resp 0 "\"y" ""
+plan -069 82 => resp 0 ! "\\"

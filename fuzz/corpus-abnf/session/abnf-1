@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-@_pi save иd
-@y property_info -369 967
-@. preset_show -791 "Ůg"
-@.k property_set 35 "" "\\"
-@l-_ cv_unmap 06 "!"
-midi_map 8 "\"5" -13 4 nan -inf
-@.-T load !Q
-@.._ cv_unmap -621 !ąİ
+@-- property_set 758 !! "ώ\\"
+plan 75 -9 t
+panel_get ""
+property_set -652 "!" "ɟ"
+track_info -06 üQ !͛ "\\"
+preset_get -954 281
+pool_config "\\\\" -13
+bundle_add !%!
+@_ history_clear " \\"
+@-7 hello 715 ! !ąİ
 @31 hmi_map -39 ) -67 -26 -1 8 -4 "Ⱦ" 108.97 +nan 71
-node_label -6 ""
-@E33 pool_config "i" 97
-transport -3 -.81e331 inf
+lv2_worker_set !N ""

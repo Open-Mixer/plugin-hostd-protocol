@@ -287,7 +287,7 @@ OURS_GROUPS = [
     ("Placement and supervision", r"^(worker_|instance_info$|supervisor_|quarantine_|policy_set$|pool_|lv2_worker_set$)"),
     ("Pins and qualification", r"^pin_"),
     ("Chains and plans", r"^((chain|plan)(_|$)|estimate$)"),
-    ("Descriptors, panels and the running history", r"^(descriptor_|panel_|history_)"),
+    ("Descriptors, panels, descriptions and the running history", r"^(descriptor_|panel_|description_|history_)"),
     ("Presets and notes, by instance", r"^(preset_|note_|all_notes_off$)"),
     ("The plugin's own window", r"^(show|hide)_external_ui$"),
     ("The node's name in the graph", r"^node_label$"),
@@ -863,7 +863,7 @@ def page():
             w(f"< {reply}")
             w("```")
             w("")
-        if title == "Descriptors, panels and the running history":
+        if title == "Descriptors, panels, descriptions and the running history":
             pf = PHD["panel_file"]
             w(f"The panel file `panel_get` answers ({code(pf['name'])} of descriptor_dir) is one JSON object with these "
               "keys; a key that is not required is additive, absent from a file written before its version:")

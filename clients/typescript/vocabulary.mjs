@@ -168,6 +168,10 @@ export const ARG_TYPES = {
     'pattern': '\\-|unavailable|(?:(?:[a-z_]+)=(?:[^, ]*))(?:,(?:(?:[a-z_]+)=(?:[^, ]*)))*',
     'rest': false,
   },
+  'ask|no-ask': {
+    'pattern': 'ask|no-ask',
+    'rest': false,
+  },
   'float': {
     'pattern': '[-+]?(?:[0-9]+(?:\\.[0-9]*)?(?:[eE][-+]?[0-9]+)?|\\.[0-9]+(?:[eE][-+]?[0-9]+)?|[nN][aA][nN]|[iI][nN][fF](?:[iI][nN][iI][tT][yY])?)',
     'rest': false,
@@ -203,6 +207,26 @@ export const VERBS = {
       {
         'args': ['word', 'int', 'placement', 'word'],
         'names': ['uri', 'instance', 'placement', 'client'],
+        'tail': false,
+      },
+      {
+        'args': ['word', 'int', 'ask|no-ask'],
+        'names': ['uri', 'instance', 'ask'],
+        'tail': false,
+      },
+      {
+        'args': ['word', 'int', 'placement', 'ask|no-ask'],
+        'names': ['uri', 'instance', 'placement', 'ask'],
+        'tail': false,
+      },
+      {
+        'args': ['word', 'int', 'word', 'ask|no-ask'],
+        'names': ['uri', 'instance', 'client', 'ask'],
+        'tail': false,
+      },
+      {
+        'args': ['word', 'int', 'placement', 'word', 'ask|no-ask'],
+        'names': ['uri', 'instance', 'placement', 'client', 'ask'],
         'tail': false,
       },
     ],
@@ -406,6 +430,17 @@ export const VERBS = {
     ],
     'codes': [],
     'reply': null,
+  },
+  'description_get': {
+    'forms': [
+      {
+        'args': ['word'],
+        'names': null,
+        'tail': false,
+      },
+    ],
+    'codes': [-529, -530, -901, -902],
+    'reply': 'resp 0 <sha256> <format> <uri> <layer>',
   },
   'descriptor_get': {
     'forms': [

@@ -1,1 +1,1 @@
-bundle_remove " " "w\\"
+bundle_remove "w\\" ""
