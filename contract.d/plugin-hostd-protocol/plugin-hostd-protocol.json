@@ -1,0 +1,1322 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/plugin-hostd-protocol",
+  "info": {
+    "title": "The words of the plugin-hostd protocol",
+    "version": "1.0.0",
+    "x-owner": "plugin-hostd-protocol",
+    "x-stability": "experimental",
+    "x-requires": {
+      "omx-clap": ">= 0.34.0",
+      "host": ">= 1.0.0"
+    }
+  },
+  "components": {
+    "schemas": {
+      "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES": {
+        "description": "The refusals only plugin-hostd answers by number (include/plugin-hostd/protocol.h PHD_ERRORS), and the curve verbs' own, which any host that registers them through this library answers. The numbers it answers in common with omx-clap-host are omx-clap's HOST_REPLY_CODES.",
+        "x-since": "0.12.0",
+        "x-kind": "codes",
+        "x-file": "verbs.json",
+        "oneOf": [
+          {
+            "const": "reply.plugin-hostd.placement-invalid",
+            "title": "placementInvalid",
+            "description": "not a placement, or not valid here",
+            "x-code": 0,
+            "x-text": "The plugin cannot be placed there; choose another place for it.",
+            "x-args": [],
+            "x-name": "placementInvalid",
+            "x-resp": -501
+          },
+          {
+            "const": "reply.plugin-hostd.no-backend",
+            "title": "noBackend",
+            "description": "no worker program for the scheme",
+            "x-code": 1,
+            "x-text": "No installed program can run this kind of plugin; install one, or choose a plugin of another kind.",
+            "x-args": [],
+            "x-name": "noBackend",
+            "x-resp": -502
+          },
+          {
+            "const": "reply.plugin-hostd.worker-spawn",
+            "title": "workerSpawn",
+            "description": "the worker is not up",
+            "x-code": 2,
+            "x-text": "The program that runs the plugin is not running; wait a moment and try again.",
+            "x-args": [],
+            "x-name": "workerSpawn",
+            "x-resp": -503,
+            "x-transient": true
+          },
+          {
+            "const": "reply.plugin-hostd.replay",
+            "title": "replay",
+            "description": "the name of a refused replay on stderr, never a reply",
+            "x-code": 3,
+            "x-text": "A plugin could not be put back after a restart and was left out; add it again.",
+            "x-args": [],
+            "x-name": "replay",
+            "x-resp": -504
+          },
+          {
+            "const": "reply.plugin-hostd.gave-up",
+            "title": "gaveUp",
+            "description": "the storm bound is spent for that placement",
+            "x-code": 4,
+            "x-text": "The plugin kept failing and was given up on; check it, then add it again.",
+            "x-args": [],
+            "x-name": "gaveUp",
+            "x-resp": -505,
+            "x-transient": true
+          },
+          {
+            "const": "reply.plugin-hostd.no-such-worker",
+            "title": "noSuchWorker",
+            "description": "no such worker",
+            "x-code": 5,
+            "x-text": "No plugin host with that name is running; refresh the list and choose another.",
+            "x-args": [],
+            "x-name": "noSuchWorker",
+            "x-resp": -506
+          },
+          {
+            "const": "reply.plugin-hostd.verb-dropped",
+            "title": "verbDropped",
+            "description": "the worker died on this very command and the daemon dropped it",
+            "x-code": 6,
+            "x-text": "The plugin stopped just as it was asked to do this, so the request was lost; try again.",
+            "x-args": [],
+            "x-name": "verbDropped",
+            "x-resp": -507,
+            "x-transient": true
+          },
+          {
+            "const": "reply.plugin-hostd.pin-binary-mismatch",
+            "title": "pinBinaryMismatch",
+            "description": "a pinned file is missing or its SHA-256 differs",
+            "x-code": 7,
+            "x-text": "The plugin's files are not the ones that were approved; install the approved version, or approve this one.",
+            "x-args": [],
+            "x-name": "pinBinaryMismatch",
+            "x-resp": -509
+          },
+          {
+            "const": "reply.plugin-hostd.lv2-adapter-refused",
+            "title": "lv2AdapterRefused",
+            "description": "the lv2-clap worker's LV2 adapter cannot run this plugin",
+            "x-code": 8,
+            "x-text": "This LV2 plugin cannot run here because the adapter does not support something it needs; choose another plugin.",
+            "x-args": [],
+            "x-name": "lv2AdapterRefused",
+            "x-resp": -512
+          },
+          {
+            "const": "reply.plugin-hostd.no-preset-list",
+            "title": "noPresetList",
+            "description": "the instance's worker cannot list the plugin's presets",
+            "x-code": 9,
+            "x-text": "This plugin cannot list its presets; load one by name, or choose one of your own.",
+            "x-args": [],
+            "x-name": "noPresetList",
+            "x-resp": -515
+          },
+          {
+            "const": "reply.plugin-hostd.pin-refused",
+            "title": "pinRefused",
+            "description": "the plugin's pin carries verdict=refused",
+            "x-code": 10,
+            "x-text": "This plugin failed its checks and is blocked; only you can allow it, by approving the plugin.",
+            "x-args": [],
+            "x-name": "pinRefused",
+            "x-resp": -516
+          },
+          {
+            "const": "reply.plugin-hostd.chain-unknown-instance",
+            "title": "chainUnknownInstance",
+            "description": "a member is an instance no add made",
+            "x-code": 11,
+            "x-text": "The chain includes a plugin that was never added; add it first, or take it out of the chain.",
+            "x-args": [],
+            "x-name": "chainUnknownInstance",
+            "x-resp": -518
+          },
+          {
+            "const": "reply.plugin-hostd.chain-duplicate",
+            "title": "chainDuplicate",
+            "description": "an instance is named twice in one chain",
+            "x-code": 12,
+            "x-text": "The chain includes the same plugin twice; keep it only once.",
+            "x-args": [],
+            "x-name": "chainDuplicate",
+            "x-resp": -519
+          },
+          {
+            "const": "reply.plugin-hostd.chain-instance-busy",
+            "title": "chainInstanceBusy",
+            "description": "a member is already in another chain",
+            "x-code": 13,
+            "x-text": "A plugin in this chain is already in another chain; clear that chain first, or use another plugin.",
+            "x-args": [],
+            "x-name": "chainInstanceBusy",
+            "x-resp": -520
+          },
+          {
+            "const": "reply.plugin-hostd.chain-mixed-format",
+            "title": "chainMixedFormat",
+            "description": "no one worker program runs every member",
+            "x-code": 14,
+            "x-text": "These plugins cannot run together as one chain because no single program can host them all; split the chain.",
+            "x-args": [],
+            "x-name": "chainMixedFormat",
+            "x-resp": -521
+          },
+          {
+            "const": "reply.plugin-hostd.no-such-chain",
+            "title": "noSuchChain",
+            "description": "a chain no chain line declared",
+            "x-code": 15,
+            "x-text": "There is no such chain; declare it first, or choose one that exists.",
+            "x-args": [],
+            "x-name": "noSuchChain",
+            "x-resp": -522
+          },
+          {
+            "const": "reply.plugin-hostd.preset-not-offered",
+            "title": "presetNotOffered",
+            "description": "a stable name the plugin does not offer",
+            "x-code": 16,
+            "x-text": "This plugin has no preset with that name; choose one from its list.",
+            "x-args": [],
+            "x-name": "presetNotOffered",
+            "x-resp": -523
+          },
+          {
+            "const": "reply.plugin-hostd.preset-invalid",
+            "title": "presetInvalid",
+            "description": "a preset file or path that is not the preset format",
+            "x-code": 17,
+            "x-text": "The preset file cannot be used because it is unreadable or not in the preset format; choose another file, or save the preset again.",
+            "x-args": [],
+            "x-name": "presetInvalid",
+            "x-resp": -524
+          },
+          {
+            "const": "reply.plugin-hostd.preset-needs-state",
+            "title": "presetNeedsState",
+            "description": "a preset file that carries state for a worker that cannot take state",
+            "x-code": 18,
+            "x-text": "This preset holds the plugin's saved state, which this plugin host cannot load yet; use a preset made by the plugin itself.",
+            "x-args": [],
+            "x-name": "presetNeedsState",
+            "x-resp": -525
+          },
+          {
+            "const": "reply.plugin-hostd.preset-plugin-changed",
+            "title": "presetPluginChanged",
+            "description": "the preset file's plugin id, version or fingerprint is not the instance's",
+            "x-code": 19,
+            "x-text": "The preset was made for another plugin, or another version of it, so nothing was applied; choose a preset made for this one.",
+            "x-args": [],
+            "x-name": "presetPluginChanged",
+            "x-resp": -526
+          },
+          {
+            "const": "reply.plugin-hostd.load-refused",
+            "title": "loadRefused",
+            "description": "the plugin refused the preset or the state its file carries",
+            "x-code": 20,
+            "x-text": "The plugin did not accept the contents of the preset; try another preset.",
+            "x-args": [],
+            "x-name": "loadRefused",
+            "x-resp": -527
+          },
+          {
+            "const": "reply.plugin-hostd.preset-not-applied",
+            "title": "presetNotApplied",
+            "description": "the plugin took the preset, and had not run once since, so had not applied it, when the host's wait for that ran out: its values may still be the previous ones",
+            "x-code": 21,
+            "x-text": "The plugin took the preset but had not applied it yet when the wait ran out; read its values again, or load the preset again.",
+            "x-args": [],
+            "x-name": "presetNotApplied",
+            "x-resp": -544
+          },
+          {
+            "const": "reply.plugin-hostd.label-invalid",
+            "title": "labelInvalid",
+            "description": "node_label's label is longer than PHD_NODE_LABEL_MAX bytes or is not UTF-8: the node keeps the label it had",
+            "x-code": 22,
+            "x-text": "That label is too long or not valid text, so the node keeps its previous name; use at most 64 bytes of UTF-8 text.",
+            "x-args": [],
+            "x-name": "labelInvalid",
+            "x-resp": -545
+          },
+          {
+            "const": "reply.plugin-hostd.dir-not-writable",
+            "title": "dirNotWritable",
+            "description": "descriptor_dir cannot be made or written",
+            "x-code": 23,
+            "x-text": "A folder the plugins need cannot be created or written to; check its location and permissions.",
+            "x-args": [],
+            "x-name": "dirNotWritable",
+            "x-resp": -528
+          },
+          {
+            "const": "reply.plugin-hostd.descriptor-absent",
+            "title": "descriptorAbsent",
+            "description": "no descriptor (panel) for the plugin's binary as it is now",
+            "x-code": 24,
+            "x-text": "There is no description of this plugin, so its panel cannot be shown; add the plugin again so it is scanned.",
+            "x-args": [],
+            "x-name": "descriptorAbsent",
+            "x-resp": -529
+          },
+          {
+            "const": "reply.plugin-hostd.descriptor-pending",
+            "title": "descriptorPending",
+            "description": "the scan its add started has not written the descriptor (panel) yet",
+            "x-code": 25,
+            "x-text": "The plugin is still being scanned; try again in a moment.",
+            "x-args": [],
+            "x-name": "descriptorPending",
+            "x-resp": -530
+          },
+          {
+            "const": "reply.plugin-hostd.descriptor-scan-failed",
+            "title": "descriptorScanFailed",
+            "description": "the plugin's last scan wrote no descriptor (panel)",
+            "x-code": 26,
+            "x-text": "The plugin could not be scanned, so its panel is not available; check that it works, then add it again.",
+            "x-args": [],
+            "x-name": "descriptorScanFailed",
+            "x-resp": -531
+          },
+          {
+            "const": "reply.plugin-hostd.no-such-plan",
+            "title": "noSuchPlan",
+            "description": "a chain no plan verb planned",
+            "x-code": 27,
+            "x-text": "There is no plan for this chain; make one first.",
+            "x-args": [],
+            "x-name": "noSuchPlan",
+            "x-resp": -532
+          },
+          {
+            "const": "reply.plugin-hostd.no-record",
+            "title": "noRecord",
+            "description": "no qualification record names the plugin",
+            "x-code": 28,
+            "x-text": "This plugin has not been measured yet, so its cost is not known; run its qualification first.",
+            "x-args": [],
+            "x-name": "noRecord",
+            "x-resp": -533
+          },
+          {
+            "const": "reply.plugin-hostd.no-cell",
+            "title": "noCell",
+            "description": "the plugin's qualification records hold no cost and latency at that rate and quantum",
+            "x-code": 29,
+            "x-text": "This plugin has no measurement at this sample rate and block size; measure it with these settings, or change them.",
+            "x-args": [],
+            "x-name": "noCell",
+            "x-resp": -534
+          },
+          {
+            "const": "reply.plugin-hostd.unknown-plugin",
+            "title": "unknownPlugin",
+            "description": "the uri names no plugin installed here",
+            "x-code": 30,
+            "x-text": "No plugin with that address is installed here; install it, or choose another.",
+            "x-args": [],
+            "x-name": "unknownPlugin",
+            "x-resp": -535
+          },
+          {
+            "const": "reply.plugin-hostd.curve-kind-unknown",
+            "title": "curveKindUnknown",
+            "description": "curve_bind of a family the display's kind is not drawn for (an eq_response is the eq family's, a time_response the delay's or the reverb's, a transfer_curve every other's), or curve_points of a binding whose values pick a band shape, a head filter slope, a reverb algorithm or a delay division with no closed form",
+            "x-code": 31,
+            "x-text": "This curve cannot be drawn for that kind of plugin or for the shape or slope it is set to; choose another shape or slope.",
+            "x-args": [],
+            "x-name": "curveKindUnknown",
+            "x-resp": -536
+          },
+          {
+            "const": "reply.plugin-hostd.curve-term-missing",
+            "title": "curveTermMissing",
+            "description": "curve_points of a display with no binding, or of a binding that lacks a term the model needs",
+            "x-code": 32,
+            "x-text": "The curve has nothing bound to draw from yet; bind the display to the plugin's controls first.",
+            "x-args": [],
+            "x-name": "curveTermMissing",
+            "x-resp": -537
+          },
+          {
+            "const": "reply.plugin-hostd.curve-unit-refused",
+            "title": "curveUnitRefused",
+            "description": "curve_bind of a term in a unit its role does not take",
+            "x-code": 33,
+            "x-text": "A control was bound in a unit that part of the curve does not take; bind it in the unit that part expects.",
+            "x-args": [],
+            "x-name": "curveUnitRefused",
+            "x-resp": -538
+          },
+          {
+            "const": "reply.plugin-hostd.curve-points-range",
+            "title": "curvePointsRange",
+            "description": "curve_points of fewer than 2 points or more than the most a curve carries, an EQ's three anchors a drawn band counted, or of a band index past what fits",
+            "x-code": 34,
+            "x-text": "The curve was asked for too few or too many points, or for a band that is not there; ask for fewer points or another band.",
+            "x-args": [],
+            "x-name": "curvePointsRange",
+            "x-resp": -539
+          },
+          {
+            "const": "reply.plugin-hostd.durable-write-failed",
+            "title": "durableWriteFailed",
+            "description": "the daemon's write of a file the verb changes (the history, a pin file) failed on its writer thread: the change is not on disk",
+            "x-code": 35,
+            "x-text": "The change could not be saved to disk, so it will not be there after a restart; check the free space and try again.",
+            "x-args": [],
+            "x-name": "durableWriteFailed",
+            "x-resp": -540
+          },
+          {
+            "const": "reply.plugin-hostd.writer-queue-full",
+            "title": "writerQueueFull",
+            "description": "the daemon's writer queue holds its most writes (64) or bytes (64 MiB): the write the verb needs was refused, and nothing of it changed",
+            "x-code": 36,
+            "x-text": "Too many changes are waiting to be saved, so this one was not made; wait a moment and try again.",
+            "x-args": [],
+            "x-name": "writerQueueFull",
+            "x-resp": -541
+          },
+          {
+            "const": "reply.plugin-hostd.curve-value-not-finite",
+            "title": "curveValueNotFinite",
+            "description": "curve_points of a binding whose value, as the instance holds it, is not finite, or of an instance that runs at no rate: no curve is drawn",
+            "x-code": 37,
+            "x-text": "The curve cannot be drawn because a value of the plugin is not a number, or the plugin is not running; start it or set the value again.",
+            "x-args": [],
+            "x-name": "curveValueNotFinite",
+            "x-resp": -542
+          },
+          {
+            "const": "reply.plugin-hostd.output-not-monitored",
+            "title": "outputNotMonitored",
+            "description": "monitor_output_off of an output this connection did not monitor: a monitor ends with the connection that set it, and only that connection ends it earlier",
+            "x-code": 38,
+            "x-text": "That output is not being watched on this connection, so there is nothing to stop.",
+            "x-args": [],
+            "x-name": "outputNotMonitored",
+            "x-resp": -543
+          }
+        ]
+      },
+      "PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS": {
+        "description": "The verbs plugin-hostd adds to mod-host's protocol and answers itself, and the ones it sends a worker (README.md, Verbs the daemon adds).",
+        "x-since": "0.12.0",
+        "x-kind": "verbs",
+        "x-file": "verbs.json",
+        "oneOf": [
+          {
+            "const": "worker_list",
+            "title": "workerList",
+            "description": "The workers, one record each: <core> is always -: the setting placement pins a worker to the whole set of audio cores, never to one core of its own, so no worker has a core to report; <pool> is on for a worker started with the CLAP thread pool (the pin of its plugin carries pool=cores, and no other plugin shares the worker), qualified for every other.",
+            "x-code": 0,
+            "x-format": "worker_list",
+            "x-reply": "resp <n> <worker>:<pid>:<format>:<state>:<core>:<pool>:<place>:<i>,<i>,...",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "instance_info",
+            "title": "instanceInfo",
+            "description": "Where an instance lives and what it has cost.",
+            "x-code": 1,
+            "x-format": "instance_info %i",
+            "x-reply": "resp 0 <worker> <pid> <state> <crashes> <quarantined>",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.instanceNonExists"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "supervisor_reset",
+            "title": "supervisorReset",
+            "description": "Re-arm the storm bound and the backoff of a given-up placement: [<worker> | all].",
+            "x-code": 2,
+            "x-format": "supervisor_reset ...",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noSuchWorker"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "quarantine_clear",
+            "title": "quarantineClear",
+            "description": "Let a quarantined instance go back where its placement says: <instance> | all.",
+            "x-code": 3,
+            "x-format": "quarantine_clear %s",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.instanceNonExists"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "policy_set",
+            "title": "policySet",
+            "description": "The placement of an add that says default: <format | *> own | pool:<name>.",
+            "x-code": 4,
+            "x-format": "policy_set %s %s",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.placementInvalid"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "pool_config",
+            "title": "poolConfig",
+            "description": "The instances a pool holds before a sibling opens: <name> <max_instances>.",
+            "x-code": 5,
+            "x-format": "pool_config %s %i",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.placementInvalid"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "worker_env",
+            "title": "workerEnv",
+            "description": "The cpu list and the nice value of the workers of a format, at spawn and on the ones running: <format | *> <cpu-list | -> <nice | ->.",
+            "x-code": 6,
+            "x-format": "worker_env %s %s %s",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "pin_set",
+            "title": "pinSet",
+            "description": "The pin of one plugin: <uri> <path>=<sha256>[,<path>=<sha256>...] <scheme>:<sha256> [verdict=<verdict>].",
+            "x-code": 7,
+            "x-format": "pin_set %s %s %s ...",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.pinRefused"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "pin_clear",
+            "title": "pinClear",
+            "description": "Forget the pin of one plugin, or of every one: <uri> | all.",
+            "x-code": 8,
+            "x-format": "pin_clear %s",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.durableWriteFailed"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.writerQueueFull"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "pin_reload",
+            "title": "pinReload",
+            "description": "Read the pin_file and the pins_dir files again and put the pins in at once; running instances keep running.",
+            "x-code": 9,
+            "x-format": "pin_reload",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "pin_changed",
+            "title": "pinChanged",
+            "description": "The sync's notice that the pin file was rewritten: the same as pin_reload, with or without the <uri> [files|layout] of the pin_changed event.",
+            "x-code": 10,
+            "x-format": "pin_changed ...",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "pin_accept",
+            "title": "pinAccept",
+            "description": "Under pin_mode first-use, take the plugin's files as they are now as its pin: <uri>.",
+            "x-code": 11,
+            "x-format": "pin_accept %s",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.pinAbsent"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.pinBinaryMismatch"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.pinRefused"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.durableWriteFailed"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.writerQueueFull"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "pin_layout",
+            "title": "pinLayout",
+            "description": "Sent by the daemon to a worker that checks layouts, after it accepted an add whose layout pin is unknown: the layout the worker found after init.",
+            "x-code": 12,
+            "x-format": "pin_layout %i",
+            "x-reply": "resp 0 <scheme>:<sha256>",
+            "x-implemented-by": {
+              "omx-clap-host": "optional",
+              "mod-host": "unsupported"
+            }
+          },
+          {
+            "const": "lv2_worker_set",
+            "title": "lv2WorkerSet",
+            "description": "The worker of one LV2 plugin, for its adds from now on: <uri> <mod-host | omx-clap-host | ->.",
+            "x-code": 13,
+            "x-format": "lv2_worker_set %s %s",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "chain",
+            "title": "chain",
+            "description": "The instances, in this order, are one chain run in one worker: <chain> <instance> [<instance> ...]; a worker that runs chains in one client is sent the line with the members it holds.",
+            "x-code": 14,
+            "x-format": "chain %i %i ...",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainUnknownInstance"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainDuplicate"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainInstanceBusy"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainMixedFormat"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.placementInvalid"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required",
+              "omx-clap-host": "required",
+              "mod-host": "unsupported"
+            }
+          },
+          {
+            "const": "chain_clear",
+            "title": "chainClear",
+            "description": "Forget the chain: each member goes to a worker of its own.",
+            "x-code": 15,
+            "x-format": "chain_clear %i",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noSuchChain"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "chain_get",
+            "title": "chainGet",
+            "description": "Read a chain back: its worker, its members in the declared order, and the members its worker runs now.",
+            "x-code": 16,
+            "x-format": "chain_get %i",
+            "x-reply": "resp 0 <worker> <instance>,... <instance>,...",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noSuchChain"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "descriptor_get",
+            "title": "descriptorGet",
+            "description": "The scanned descriptor of the plugin, answered from descriptor_dir: <uri>.",
+            "x-code": 17,
+            "x-format": "descriptor_get %s",
+            "x-reply": "resp 0 \"<path>\"",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.dirNotWritable"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorAbsent"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorPending"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorScanFailed"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "panel_get",
+            "title": "panelGet",
+            "description": "The panel the plugin publishes, answered from descriptor_dir: <uri>.",
+            "x-code": 18,
+            "x-format": "panel_get %s",
+            "x-reply": "resp 0 \"<path>\"",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.dirNotWritable"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorAbsent"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorPending"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorScanFailed"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "preset_list",
+            "title": "presetList",
+            "description": "The plugin's presets, the ones its preset discovery or its bundle lists.",
+            "x-code": 19,
+            "x-format": "preset_list %i",
+            "x-reply": "resp <count>",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noPresetList"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.instanceNonExists"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "optional",
+              "omx-clap-host": "optional",
+              "mod-host": "unsupported"
+            }
+          },
+          {
+            "const": "preset_get",
+            "title": "presetGet",
+            "description": "One preset, 0 to count - 1: the key preset_load takes for it, and its name.",
+            "x-code": 20,
+            "x-format": "preset_get %i %i",
+            "x-reply": "resp 0 <load_key> <name>",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noPresetList"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.instanceNonExists"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "optional",
+              "omx-clap-host": "optional",
+              "mod-host": "unsupported"
+            }
+          },
+          {
+            "const": "preset_show",
+            "title": "presetShow",
+            "description": "What a load of the preset would apply, on one line of JSON: the preset file's document with each state body's bytes replaced by its decoded size, or for a listed preset its name, loadKey and location. The instance form; mod-host's preset_show <uri> is its own verb.",
+            "x-code": 21,
+            "x-format": "preset_show %i %s",
+            "x-reply": "resp 0 <json>",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.presetNotOffered"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.presetInvalid"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.instanceNonExists"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "unsupported",
+              "omx-clap-host": "optional",
+              "mod-host": "unsupported"
+            }
+          },
+          {
+            "const": "history_get",
+            "title": "historyGet",
+            "description": "What the daemon kept of one plugin on this host class, for the binary its pin holds now: <uri>. The history is one word, digest=<sha256>,class=<host class>,crashed=<0|1>,raises_xruns=<0|1> and then every key=value of PLUGIN_HOSTD_HISTORY_KEYS, joined by commas; - when the plugin has no record or no pin, unavailable while the history file is blocked.",
+            "x-code": 22,
+            "x-format": "history_get %s",
+            "x-reply": "resp 0 <history>",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "history_clear",
+            "title": "historyClear",
+            "description": "Delete the history of one plugin, every binary and host class, or all of it: <uri> | all. Refused while the history file is blocked.",
+            "x-code": 23,
+            "x-format": "history_clear %s",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.durableWriteFailed"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.writerQueueFull"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "plan",
+            "title": "plan",
+            "description": "The instances, in signal order, are planned into the fewest workers their pins and costs allow: <chain> <instance> [<instance> ...]. Each run of consecutive members that may share a worker becomes a chain of place chain:<chain>.<k>, the others stay alone in a worker of their own; the reply names the segments in order, the members of a segment joined by commas and the segments by semicolons, then the same with each member replaced by -, the core field, which the setting placement leaves empty because it pins a worker to the whole set of audio cores and not to one core. With the setting grouping off the plan is answered and kept, and nothing moves.",
+            "x-code": 24,
+            "x-format": "plan %i %i ...",
+            "x-reply": "resp 0 <instance>,...;<instance>,...;... <core>,...;<core>,...;...",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainUnknownInstance"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainDuplicate"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.chainInstanceBusy"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.placementInvalid"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "plan_get",
+            "title": "planGet",
+            "description": "Read the last plan of a chain back: its segments as plan answered them, then the reason of each member that has one (a word of PLUGIN_HOSTD_GROUPING_REASONS, plan-refused followed by the refusal's number), instance:reason joined by commas, - for none, then the cores of the members as plan answers them.",
+            "x-code": 25,
+            "x-format": "plan_get %i",
+            "x-reply": "resp 0 <instance>,...;<instance>,...;... <instance>:<reason>,... <core>,...;<core>,...;...",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noSuchPlan"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "plan_clear",
+            "title": "planClear",
+            "description": "Forget the plan: each member goes to a worker of its own, as chain_clear does.",
+            "x-code": 26,
+            "x-format": "plan_clear %i",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noSuchPlan"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "estimate",
+            "title": "estimate",
+            "description": "What a chain of these plugins would cost at a rate and a quantum, read from the qualification records with no plugin loaded: <rate> <quantum> <uri> [<uri> ...], the uris as add takes them, in signal order. The reply is the latency in frames (each member's measured latency, else its declared one, added up), the CPU as percent of one core's cycle (each member's median nanoseconds per sample times the rate, added up), the RAM in bytes (the Pss each member's worker had running alone on this host class, added up; - unless every member has one), the workers plan would place the members in, and how many members have no figure at that rate and quantum; then each of those as its position in the line, from 0, and its code (noRecord, noCell or unknownPlugin), joined by commas, - for none. The latency and the CPU add up only the members that have a figure. Then the memory: what the workers hold now in bytes (- when one cannot be read), what the members would add in bytes from the qualification records, what instances of one plugin share counted once in a segment (- when no member has a figure), the host's ram_budget_mb in bytes (- when none is set), and how many members have no such figure. Last the host's insert verdict on the last uri, the candidate, added to the chain the others make: a word of ESTIMATE_VERDICTS and the word of ESTIMATE_REASONS that gave it (the domain estimate), the first that holds in this order: the candidate's unknownPlugin refuses, its noRecord or noCell is not measured; the CPU over the real-time admission ceiling of one core, the memory used and added over the budget, another member's code, a memory figure missing each warns; else recommend, within. A consumer shows the two words and computes no verdict.",
+            "x-code": 27,
+            "x-format": "estimate %i %i %s ...",
+            "x-reply": "resp 0 <latency_frames> <cpu_percent> <ram_bytes> <workers> <unknown_count> <member>:<code>,... <ram_used_bytes> <ram_added_bytes> <ram_budget_bytes> <ram_unknown_count> <verdict> <reason>",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noRecord"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.noCell"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.unknownPlugin"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
+          },
+          {
+            "const": "node_label",
+            "title": "nodeLabel",
+            "description": "Labels a hosted node for graph clients: <instance> [<label word> ...], answered resp 0. The label is the rest of the line, its words joined by one space, and the node's pretty-name becomes the labelled form of node_metadata (<label>: <plugin name> (<instance>)); no words clears the label, and the pretty-name is the plain form again. The node's client name stays effect_<instance>. The label lasts as long as the instance: plugin-hostd keeps it and sets it again on a respawned worker, and remove ends it. A label over PHD_NODE_LABEL_MAX bytes or not UTF-8 is refused (-545) and the node keeps its label; an instance with no node is refused (-3); a host that does not serve the verb answers invalid operation (plugin-hostd#35).",
+            "x-code": 28,
+            "x-format": "node_label %i ...",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.labelInvalid"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.instanceNonExists"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "optional",
+              "omx-clap-host": "optional",
+              "mod-host": "unsupported"
+            },
+            "x-since": "0.5.6"
+          }
+        ]
+      },
+      "PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS": {
+        "description": "The verbs of the protocol itself, which the library answers for any host that registers them: hello (protocol_add_hello), the bulk verbs, which host_dispatch_register() answers over the host's backend, and the curve verbs, which host_dispatch_register_curve() answers over it and the rate the host gives. A client that never sends one is answered exactly as mod-host answers it.",
+        "x-since": "0.3.0",
+        "x-kind": "verbs",
+        "x-file": "verbs.json",
+        "oneOf": [
+          {
+            "const": "hello",
+            "title": "hello",
+            "description": "Open a session: <version> [<extension> ...], the protocol version the client speaks and the extensions it asks for. The reply is the daemon's protocol version and, of the extensions asked for, the ones it grants, in the order of PLUGIN_HOSTD_PROTOCOL_EXTENSIONS; an extension the daemon does not know is not granted and is no error. Each hello replaces what the one before it granted, and a new connection starts with none. -902 for a version that is not a whole number of 1 or more, and nothing changes.",
+            "x-code": 0,
+            "x-format": "hello %i ...",
+            "x-reply": "resp 0 <version> <extension> ...",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "optional",
+              "omx-clap-host": "optional",
+              "mod-host": "unsupported"
+            },
+            "x-since": "0.3.0"
+          },
+          {
+            "const": "param_get_many",
+            "title": "paramGetMany",
+            "description": "The values of several parameters of one instance in one line: <instance> <symbol> [<symbol> ...], each value as param_get writes it, in the order asked. A symbol the instance does not have refuses the whole line with param_get's code (-103), an instance that does not exist with -3, and no value is answered then.",
+            "x-code": 1,
+            "x-format": "param_get_many %i %s ...",
+            "x-reply": "resp 0 <value> ...",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.instanceNonExists"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.paramSymbolInvalid"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "optional",
+              "omx-clap-host": "optional",
+              "mod-host": "unsupported"
+            },
+            "x-since": "0.3.0"
+          },
+          {
+            "const": "param_set_many",
+            "title": "paramSetMany",
+            "description": "Several parameters of one instance in one line, all or nothing: <instance> <symbol> <value> [<symbol> <value> ...]. Every pair is checked before any is set: a symbol the instance does not have (-103), an instance that does not exist (-3), a value that is not a number or a pair with no value (-902). The first pair refused refuses the line, answered resp <code> <position> with the pair's position from 1, and no value is set. Should the host refuse a value as it sets it, the values set before it are set back, and the line is refused the same way.",
+            "x-code": 2,
+            "x-format": "param_set_many %i %s %f ...",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.instanceNonExists"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.paramSymbolInvalid"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "optional",
+              "omx-clap-host": "optional",
+              "mod-host": "unsupported"
+            },
+            "x-since": "0.3.0"
+          },
+          {
+            "const": "curve_bind",
+            "title": "curveBind",
+            "description": "Bind a display of an instance's panel description to the instance's parameters, for curve_points: <instance> <display> clear, or <instance> <display> <kind> <family> <term> [<term> ...], the display's index in the description, its kind (eq_response, transfer_curve or time_response) and family (eq for an eq_response; delay or reverb for a time_response; any other for a transfer_curve), and each term <role>[.<index>]=<symbol>[:<unit>][@<shape>|<shape>...] as the description gives the role: the parameter that plays it, its unit, for a band_type the band shape of each choice value from 0 (a band_freq takes one shape, the band's fixed shape), and for a head filter's slope the dB per octave of each choice value from 0 (@12|24), the role's declared enumeration. The terms are added to the display's binding, a term of a role and index already bound replacing it; a line of another kind or family starts the binding again, and clear drops it. Every term is checked before any is kept: an instance that does not exist (-3), a symbol it does not have (-103), a family the kind is not drawn for (-536), a unit the role does not take (-538), a term the grammar does not take (-902). The binding lives with the instance and goes with its remove; it is never saved.",
+            "x-code": 3,
+            "x-format": "curve_bind %i %i %s ...",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.instanceNonExists"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.paramSymbolInvalid"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curveKindUnknown"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curveUnitRefused"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "optional",
+              "omx-clap-host": "optional",
+              "mod-host": "unsupported"
+            },
+            "x-since": "0.5.0"
+          },
+          {
+            "const": "curve_points",
+            "title": "curvePoints",
+            "description": "The points of a bound display: <instance> <display> <points>, the grid points asked for. Each bound symbol's value is read from the instance as it is now and the instance's rate with it, and omx-dsp's omx_curve_points_marked draws them: an eq_response x in Hz and y in dB, the bands' anchors added (three a drawn band), a transfer_curve input dB to output dB, a time_response of a reverb its decay envelope, time in ms to level in dB (no point at mix 0), and of a delay its taps. The reply is the count and each point x,y, x to four significant digits and y to 0.01 dB, ascending in x; at most curve_points_max (omx-dsp's CURVE_POINTS_MAX, 256) points. A delay has no point but taps, which follow the count as `stems <count> <t>,<dB>,<shade>,<leg> ...`: each tap's time in ms (four significant digits), its level in dB relative to the impulse (0.01), its brightness 0..1 (0.001) and the leg it lands on (both, left or right, omx-dsp's CURVE_LEGS), in time order, the dry tap first. After the points, and after a delay's stems, the reply ends with the count of marks and each one `<freq>,<depth>,<q>,<origin>`: a drawn eq_response band whose origin is not user, its frequency and depth at the same precision as a point, its Q to 0.01 and its origin, the word omx-dsp's OMX_CURVE_ORIGIN_WORDS spells for it (CURVE_ORIGINS, omx-dsp's curve domain); a host that gives every bound term the origin user, a transfer_curve and a time_response mark none (count 0). The origin comes from the host's backend alone. A delay whose sync is on needs the host's tempo, which this library is not given: it is -537, never a guessed tempo. A display with no binding, or a binding without a term the model needs (-537); a band shape or slope, a reverb algorithm or a delay division with no closed form (-536); points outside 2 to curve_points_max, the anchors counted (-539); a value that is not finite or an instance not running at a rate (-542).",
+            "x-code": 4,
+            "x-format": "curve_points %i %i %i",
+            "x-reply": "resp 0 <count> <x>,<y> ...",
+            "x-codes": [
+              {
+                "ref": "HOST_REPLY_CODES.instanceNonExists"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.paramSymbolInvalid"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curveKindUnknown"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curveTermMissing"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curvePointsRange"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.curveValueNotFinite"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "optional",
+              "omx-clap-host": "optional",
+              "mod-host": "unsupported"
+            },
+            "x-since": "0.5.0"
+          },
+          {
+            "const": "monitor_output_off",
+            "title": "monitorOutputOff",
+            "description": "Ends the monitor monitor_output set on an output: <instance> <symbol>, answered resp 0, and the output's feedback lines stop. A monitor ends with the connection that set it, so a controller that disconnects leaves none behind, and only the connection that set a monitor ends it earlier: an output this connection did not monitor (never monitored, monitored by an earlier connection, already ended, or its instance removed) is refused (-543), and a line that is not an instance and a symbol, or a host that does not serve the verb, is refused (-902). The output's ledger line goes with the monitor, so a respawn of the instance does not replay it.",
+            "x-code": 5,
+            "x-format": "monitor_output_off %i %s",
+            "x-reply": "resp 0",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.outputNotMonitored"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "optional",
+              "omx-clap-host": "optional",
+              "mod-host": "unsupported"
+            },
+            "x-since": "0.5.0"
+          }
+        ]
+      },
+      "PLUGIN_HOSTD_PROTOCOL_EXTENSIONS": {
+        "description": "The extensions hello can grant, each a word a client names after its version. A session that was granted none is answered as mod-host answers it.",
+        "x-since": "0.3.0",
+        "x-kind": "words",
+        "x-file": "verbs.json",
+        "oneOf": [
+          {
+            "const": "tags",
+            "title": "tags",
+            "description": "request tags: a line may start with @<tag>, and its answer then starts with the same @<tag>",
+            "x-code": 0
+          },
+          {
+            "const": "errors",
+            "title": "errors",
+            "description": "error words: a refusal resp <n> is followed by the stable word of its code, reply.<group>.<reason>, when the protocol declares one",
+            "x-code": 1
+          },
+          {
+            "const": "seq",
+            "title": "seq",
+            "description": "event sequence numbers: every feedback line starts with #<n>, 1 for the first after this hello and one more for each, so a gap is a missed line",
+            "x-code": 2
+          }
+        ]
+      }
+    }
+  }
+}

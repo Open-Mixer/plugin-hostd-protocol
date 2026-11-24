@@ -60,7 +60,8 @@ tail             = *(SP word)
 ; library reads the line by count as it reads any verb (cmd-curve-bind); these are the words a sender writes: clear, or
 ; the display's kind, its family and its terms, each <role>[.<index>]=<symbol>[:<unit>][@<shape>|<shape>...]. The role
 ; and shape words are omx-dsp's CURVE_ROLES and CURVE_SHAPES (omx_curve.h), held equal by tests/grammar_test.py; a
-; family or a unit is a word, refused by its code when it has no closed form or its role does not take it
+; family or a unit is a word, refused by its code when it has no closed form or its role does not take it; a unit is
+; spelled as omx-dsp's standard ids are (OMX_CURVE_UNITS_STANDARD: Hz, dB, dBFS, ...), so it takes either case
 curve-binding    = %s"clear" / (curve-kind SP curve-family 1*(SP curve-term))
 curve-kind       = %s"eq_response" / %s"transfer_curve" / %s"time_response"
 curve-family     = 1*(%x61-7A / "_")
@@ -74,7 +75,7 @@ curve-role       = %s"band_type" / %s"band_freq" / %s"band_gain" / %s"band_q" / 
                    %s"width" / %s"low_cut" / %s"high_cut"
 ; a parameter's symbol; a host's own control starts with ":" (:bypass)
 curve-symbol     = [":"] 1*(ALPHA / DIGIT / "_" / "-" / ".")
-curve-unit       = 1*(%x61-7A)
+curve-unit       = 1*ALPHA
 curve-shapes     = curve-shape *("|" curve-shape)
 curve-shape      = %s"off" / %s"bell" / %s"lowshelf" / %s"highshelf" / %s"highpass" / %s"lowpass" / %s"notch" / "-" /
                    %s"allpass1" / %s"allpass2"
@@ -251,7 +252,7 @@ cmd-monitor-output       = %s"monitor_output" SP int SP word
 cmd-output-data-ready    = %s"output_data_ready"
 ; mod-host: include/mod-host.h EFFECT_PARAM_GET
 cmd-param-get            = %s"param_get" SP int SP word
-; mod-host: include/mod-host.h PARAM_INFO; extended by omx-clap-core
+; mod-host: include/mod-host.h PARAM_INFO; extended by omx-clap
 cmd-param-info           = %s"param_info" SP int SP word
 ; mod-host: include/mod-host.h EFFECT_PARAM_MON
 cmd-param-monitor        = %s"param_monitor" SP int SP word SP word SP float
@@ -266,13 +267,13 @@ cmd-preset-load          = %s"preset_load" SP int SP word
 ; mod-host: include/mod-host.h EFFECT_PRESET_SAVE
 cmd-preset-save          = %s"preset_save" SP int SP word SP word SP word
 ; mod-host: include/mod-host.h EFFECT_PRESET_SHOW
-; form 1: mod-host; form 2: plugin-hostd (data/verbs.json PLUGIN_HOSTD_VERBS.presetShow)
+; form 1: mod-host; form 2: plugin-hostd (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.presetShow)
 cmd-preset-show          = (%s"preset_show" SP word) / (%s"preset_show" SP int SP word)
 ; mod-host: include/mod-host.h QUIT
 cmd-quit                 = %s"quit"
-; mod-host: include/mod-host.h REMOTE_PAGE_GET; extended by omx-clap-core
+; mod-host: include/mod-host.h REMOTE_PAGE_GET; extended by omx-clap
 cmd-remote-page-get      = %s"remote_page_get" SP int SP int
-; mod-host: include/mod-host.h REMOTE_PAGES; extended by omx-clap-core
+; mod-host: include/mod-host.h REMOTE_PAGES; extended by omx-clap
 cmd-remote-pages         = %s"remote_pages" SP int
 ; mod-host: include/mod-host.h EFFECT_REMOVE
 cmd-remove               = %s"remove" SP int
@@ -290,110 +291,110 @@ cmd-state-load           = %s"state_load" SP word
 cmd-state-save           = %s"state_save" SP word
 ; mod-host: include/mod-host.h STATE_TMPDIR
 cmd-state-tmpdir         = %s"state_tmpdir" SP word
-; mod-host: include/mod-host.h TRACK_INFO; extended by omx-clap-core
+; mod-host: include/mod-host.h TRACK_INFO; extended by omx-clap
 cmd-track-info           = %s"track_info" SP int SP word SP word tail
 ; mod-host: include/mod-host.h TRANSPORT
 cmd-transport            = %s"transport" SP int SP float SP float
 ; mod-host: include/mod-host.h TRANSPORT_SYNC
 cmd-transport-sync       = %s"transport_sync" SP word
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-all-notes-off        = %s"all_notes_off" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-audio-ports          = %s"audio_ports" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS; sent by the daemon to a worker
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-chain-expect         = %s"chain_expect" SP int SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-hide-external-ui     = %s"hide_external_ui" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-idle-hold            = %s"idle_hold" tail
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-note-drops           = %s"note_drops" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-note-input           = %s"note_input" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-note-off             = %s"note_off" SP int SP int SP int SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-note-on              = %s"note_on" SP int SP int SP int SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_HOST_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-note-out-drops       = %s"note_out_drops" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS; sent by the daemon to a worker
+; omx-clap: contract.d/omx-clap/omx-clap.json ; sent by the daemon to a worker
 cmd-pin-expect           = %s"pin_expect" SP int SP word
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-property-get         = %s"property_get" SP int SP word
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-property-info        = %s"property_info" SP int SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-property-list        = %s"property_list" SP int
-; omx-clap-core: omx-clap-core data/verbs.json OMX_CLAP_CORE_SHARED_VERBS
+; omx-clap: contract.d/omx-clap/omx-clap.json 
 cmd-property-set         = %s"property_set" SP int SP word SP quoted-escaped
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.chain
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.chain
 cmd-chain                = %s"chain" SP int SP int tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.chainClear
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.chainClear
 cmd-chain-clear          = %s"chain_clear" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.chainGet
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.chainGet
 cmd-chain-get            = %s"chain_get" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.descriptorGet
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.descriptorGet
 cmd-descriptor-get       = %s"descriptor_get" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.estimate
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.estimate
 cmd-estimate             = %s"estimate" SP int SP int SP word tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.historyClear
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.historyClear
 cmd-history-clear        = %s"history_clear" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.historyGet
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.historyGet
 cmd-history-get          = %s"history_get" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.instanceInfo
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.instanceInfo
 cmd-instance-info        = %s"instance_info" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.lv2WorkerSet
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.lv2WorkerSet
 cmd-lv2-worker-set       = %s"lv2_worker_set" SP word SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.nodeLabel
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.nodeLabel
 cmd-node-label           = %s"node_label" SP int tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.panelGet
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.panelGet
 cmd-panel-get            = %s"panel_get" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinAccept
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.pinAccept
 cmd-pin-accept           = %s"pin_accept" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinChanged
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.pinChanged
 cmd-pin-changed          = %s"pin_changed" tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinClear
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.pinClear
 cmd-pin-clear            = %s"pin_clear" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinLayout; sent by the daemon to a worker
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.pinLayout; sent by the daemon to a worker
 cmd-pin-layout           = %s"pin_layout" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinReload
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.pinReload
 cmd-pin-reload           = %s"pin_reload"
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.pinSet
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.pinSet
 cmd-pin-set              = %s"pin_set" SP word SP word SP word tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.plan
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.plan
 cmd-plan                 = %s"plan" SP int SP int tail
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.planClear
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.planClear
 cmd-plan-clear           = %s"plan_clear" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.planGet
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.planGet
 cmd-plan-get             = %s"plan_get" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.policySet
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.policySet
 cmd-policy-set           = %s"policy_set" SP word SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.poolConfig
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.poolConfig
 cmd-pool-config          = %s"pool_config" SP word SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.presetGet
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.presetGet
 cmd-preset-get           = %s"preset_get" SP int SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.presetList
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.presetList
 cmd-preset-list          = %s"preset_list" SP int
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.quarantineClear
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.quarantineClear
 cmd-quarantine-clear     = %s"quarantine_clear" SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.supervisorReset
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.supervisorReset
 ; form 1: plugin-hostd; form 2: plugin-hostd; form 3: plugin-hostd
 cmd-supervisor-reset     = (%s"supervisor_reset") / (%s"supervisor_reset" SP word) / (%s"supervisor_reset" SP %s"all")
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.workerEnv
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.workerEnv
 cmd-worker-env           = %s"worker_env" SP word SP word SP word
-; plugin-hostd: data/verbs.json PLUGIN_HOSTD_VERBS.workerList
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.workerList
 cmd-worker-list          = %s"worker_list"
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.curveBind
+; plugin-hostd-protocol: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS.curveBind
 cmd-curve-bind           = %s"curve_bind" SP int SP int SP word tail
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.curvePoints
+; plugin-hostd-protocol: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS.curvePoints
 cmd-curve-points         = %s"curve_points" SP int SP int SP int
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.hello
+; plugin-hostd-protocol: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS.hello
 cmd-hello                = %s"hello" SP int tail
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.monitorOutputOff
+; plugin-hostd-protocol: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS.monitorOutputOff
 cmd-monitor-output-off   = %s"monitor_output_off" SP int SP word
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.paramGetMany
+; plugin-hostd-protocol: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS.paramGetMany
 cmd-param-get-many       = %s"param_get_many" SP int SP word tail
-; plugin-hostd-protocol: data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.paramSetMany
+; plugin-hostd-protocol: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS.paramSetMany
 cmd-param-set-many       = %s"param_set_many" SP int SP word SP float tail
 
 ; words a client of mod-ui may send that no host answers; each is refused and has no rule: set_midi_program_change_pedalboard_bank_channel, set_midi_program_change_pedalboard_snapshot_channel
@@ -491,7 +492,7 @@ rp-property-get   = %s"resp" SP %s"0" SP quoted-escaped
 rp-property-info  = %s"resp" SP %s"0" SP word SP word SP word SP quoted-escaped
 rp-chain-get      = %s"resp" SP %s"0" SP word SP word SP word
 rp-descriptor-get = %s"resp" SP %s"0" SP quoted
-rp-estimate       = %s"resp" SP %s"0" SP word SP word SP word SP word SP word SP word SP word SP word SP word SP word
+rp-estimate       = %s"resp" SP %s"0" SP word SP word SP word SP word SP word SP word SP word SP word SP word SP word SP word SP word
 rp-history-get    = %s"resp" SP %s"0" SP word
 rp-instance-info  = %s"resp" SP %s"0" SP word SP int SP word SP word SP word
 rp-panel-get      = %s"resp" SP %s"0" SP quoted

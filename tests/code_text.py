@@ -7,13 +7,16 @@
 #   - the code is every reply.plugin-hostd.* word the protocol's table names (nothing declared in protocol.h goes without);
 #   - every code has its Catalan, which uses the same placeholders, and the catalog holds nothing else;
 #   - the sentence is one sentence, plain, with no code name inside it, and ca is no copy of en;
-#   - the declaration says it needs the schema that has catalogs (omx-contract-schema >= 3.12.0), and so does the
-#     installed omx-contract, when a schema is given.
+#   - the installed omx-contract is the schema that has catalogs (>= 3.12.0), when a schema is given.
 #
-#   code_text.py <data/verbs.json> <protocol/plugin-hostd-protocol.json> <catalogs/ca.json> [<installed omx-contract.schema.json>]
+#   code_text.py <contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json> <protocol/plugin-hostd-protocol.json> <catalogs/ca.json> [<installed omx-contract.schema.json>]
 import json
+import os
 import re
 import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+import protocol_words  # noqa: E402
 
 FLOOR = (3, 12, 0)
 PLACEHOLDER = re.compile(r"\{([^{}]*)\}")
@@ -30,16 +33,13 @@ def version(text):
     return tuple(int(n) for n in re.findall(r"\d+", text)[:3])
 
 
-declaration = json.load(open(sys.argv[1]))
+declaration = protocol_words.items(sys.argv[1])
 table = json.load(open(sys.argv[2]))
 catalog = json.load(open(sys.argv[3]))
 if (catalog.get("kind"), catalog.get("lang"), catalog.get("owner")) != ("catalog", "ca", "plugin-hostd-protocol"):
     fail("catalogs/ca.json is not the Catalan catalog of plugin-hostd-protocol: %r" % ([catalog.get(k) for k in ("kind", "lang", "owner")],))
 messages = catalog.get("messages", {})
 
-floor = declaration.get("requires", {}).get("omx-contract-schema", "")
-if version(floor) < FLOOR:
-    fail("data/verbs.json requires omx-contract-schema %r: `text` came with %s" % (floor, ".".join(map(str, FLOOR))))
 if len(sys.argv) > 4:
     have = json.load(open(sys.argv[4])).get("x-omx-schema-version", "")
     if version(have) < FLOOR:
@@ -55,7 +55,7 @@ for group, items in declaration.items():
 named = [c["code"] for c in table["reply_codes"] if c["code"].startswith("reply.plugin-hostd.")]
 for word in named:
     if word not in owned:
-        fail("%s is in the protocol's table and in no codes item of data/verbs.json" % word)
+        fail("%s is in the protocol's table and in no codes item of the domain plugin-hostd-protocol" % word)
 if not named:
     fail("the protocol's table names no reply.plugin-hostd code: the check read nothing")
 

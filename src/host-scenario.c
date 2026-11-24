@@ -43,9 +43,9 @@
 #include "protocol.h"
 #include "socket.h"
 #include "utils.h"
-// the declared verbs and what each host owes them (data/verbs.json, omx-clap-core's package)
+// the declared verbs and what each host owes them (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, omx-clap's package)
 #include "plugin-hostd/plugin_hostd_protocol_host_verbs.h"
-#include "plugin-hostd/omx_clap_core_host_verbs.h"
+#include "plugin-hostd/omx_clap_host_verbs.h"
 
 
 /*
@@ -129,8 +129,8 @@ enum { VERB_UNDECLARED, VERB_REQUIRED, VERB_NOT_REQUIRED };
 static int verb_level(const char *verb)
 {
     static const char *const hosts[] = OMX_HOST_VERB_HOSTS_INIT;
-    const struct omx_host_verb *tables[] = { plugin_hostd_protocol_host_verbs(), omx_clap_core_host_verbs() };
-    const unsigned counts[] = { PLUGIN_HOSTD_PROTOCOL_HOST_VERB_COUNT, OMX_CLAP_CORE_HOST_VERB_COUNT };
+    const struct omx_host_verb *tables[] = { plugin_hostd_protocol_host_verbs(), omx_clap_host_verbs() };
+    const unsigned counts[] = { PLUGIN_HOSTD_PROTOCOL_HOST_VERB_COUNT, OMX_CLAP_HOST_VERB_COUNT };
     unsigned t, i, h;
 
     for (t = 0; t < 2; t++)

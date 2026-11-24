@@ -4,8 +4,8 @@
 #
 # doc/protocol.md, the wire protocol as a reader outside this tree reads it, written from the data the tree already
 # holds and checks: the verb table (protocol/plugin-hostd-protocol.json) and what it is merged from,
-# protocol/plugin-hostd.json and protocol/mod-host.json (generated, check-generated), data/verbs.json and the headers
-# omx-contract renders from it and from omx-clap-core's package (check-rendered); the grammar written from the table
+# protocol/plugin-hostd.json and protocol/mod-host.json (generated, check-generated), contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json and the headers
+# omx-contract renders from it and from omx-clap's package (check-rendered); the grammar written from the table
 # (grammar/plugin-hostd-protocol.abnf), the JSON schema, the install rule of the Makefile, the overview's generated
 # host-verbs region, the Path A evidence of doc/mod-ui-verbs.tsv, and mod-host's own command reference
 # (doc/mod-host-commands.md, kept as mod-host wrote it). Nothing in the page is typed here but headings and sentences
@@ -18,6 +18,9 @@ import json
 import os
 import re
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import protocol_words  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = "doc/protocol.md"
@@ -45,14 +48,14 @@ def load(rel):
 
 PHD = load("protocol/plugin-hostd.json")
 MOD = load("protocol/mod-host.json")
-VERBS = load("data/verbs.json")
+VERBS = protocol_words.items()
 TABLE = load("protocol/plugin-hostd-protocol.json")
 FORMS = {c["verb"]: c["forms"] for c in TABLE["commands"]}
 GRAMMAR = "grammar/plugin-hostd-protocol.abnf"
 MOD_HOST_PAGE = "doc/mod-host-commands.md"
 SCHEMAS = ["protocol/plugin-hostd.schema.json"]
-VOCAB_H = "include/plugin-hostd/omx_clap_core_vocabulary.h"
-SHARED_H = "include/plugin-hostd/omx_clap_core_host_verbs.h"
+VOCAB_H = "include/plugin-hostd/omx_clap_vocabulary.h"
+SHARED_H = "include/plugin-hostd/omx_clap_host_verbs.h"
 EVIDENCE = "doc/mod-ui-verbs.tsv"
 
 
@@ -74,7 +77,7 @@ def table(head, rows):
 # ---- reply codes: one name and meaning per number, from the declarations that own it ----
 
 def host_codes():
-    """omx-clap-core's HOST_REPLY_CODES as rendered: camel name -> (resp, code word, meaning)"""
+    """omx-clap's HOST_REPLY_CODES as rendered: camel name -> (resp, code word, meaning)"""
     text = read(VOCAB_H)
     out = {}
     for m in re.finditer(r'#define OMX_REPLY_HOST_([A-Z0-9_]+) "([^"]+)"(?: ///< (.*))?\n#define OMX_REPLY_HOST_\1_RESP \((-?\d+)\)',
@@ -89,7 +92,7 @@ def host_codes():
 
 
 HOST_CODES = host_codes()
-PHD_CODES = VERBS["PLUGIN_HOSTD_REPLY_CODES"]["codes"]
+PHD_CODES = VERBS["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"]
 PHD_ERRORS = {e["code"]: e for e in PHD["errors"]}
 
 
@@ -108,15 +111,15 @@ def code_name(resp):
 
 def resolve(ref):
     group, name = ref.split(".", 1)
-    if group == "PLUGIN_HOSTD_REPLY_CODES":
+    if group == "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES":
         if name not in PHD_CODES:
-            fail(f"data/verbs.json: no {ref}")
+            fail(f"contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json: no {ref}")
         return PHD_CODES[name]["resp"]
     if group == "HOST_REPLY_CODES":
         if name not in HOST_CODES:
             fail(f"{VOCAB_H}: no {ref}")
         return HOST_CODES[name][0]
-    fail(f"data/verbs.json: a code ref of an unknown group, {ref}")
+    fail(f"contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json: a code ref of an unknown group, {ref}")
 
 
 def codes_cell(resps):
@@ -126,7 +129,7 @@ def codes_cell(resps):
 # ---- the verbs each declaration holds ----
 
 def shared_verbs():
-    """omx-clap-core's verbs as rendered: word -> {format, codes, levels by host}"""
+    """omx-clap's verbs as rendered: word -> {format, codes, levels by host}"""
     text = read(SHARED_H)
     hosts = re.search(r"#define OMX_HOST_VERB_HOSTS_INIT \{ (.*) \}", text)
     if not hosts:
@@ -151,8 +154,8 @@ def shared_verbs():
 
 
 SHARED = shared_verbs()
-DECLARED = {v["verb"]: v for v in VERBS["PLUGIN_HOSTD_VERBS"]["verbs"].values()}
-SINCE = VERBS["PLUGIN_HOSTD_VERBS"].get("since", "")
+DECLARED = {v["verb"]: v for v in VERBS["PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS"]["verbs"].values()}
+SINCE = VERBS["PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS"].get("since", "")
 DAEMON_VERBS = {v["name"]: v for v in PHD["verbs"]}
 INSTANCE_VERBS = {v["name"]: v for v in PHD["instance_verbs"]}
 HOST_VERBS = {v["name"]: v for v in PHD["host_verbs"]}
@@ -533,7 +536,7 @@ def sessions(w):
 
 def bulk(w):
     """the protocol's own verbs other than hello, from the table and their declaration"""
-    own = VERBS["PLUGIN_HOSTD_PROTOCOL_VERBS"]["verbs"]
+    own = VERBS["PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS"]["verbs"]
     rows = [c for c in TABLE["commands"] if c["origin"] == "plugin-hostd-protocol" and c["verb"] != "hello"
             and c["verb"] not in CURVE_VERBS and c["verb"] not in MONITOR_VERBS]
     if not rows:
@@ -576,7 +579,7 @@ CURVE_VERBS = ("curve_bind", "curve_points")
 
 def curves(w):
     """the curve verbs, from the table and their declaration"""
-    own = VERBS["PLUGIN_HOSTD_PROTOCOL_VERBS"]["verbs"]
+    own = VERBS["PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS"]["verbs"]
     rows = [c for c in TABLE["commands"] if c["verb"] in CURVE_VERBS]
     if len(rows) != len(CURVE_VERBS):
         fail("the curve verbs are not both in the table")
@@ -609,13 +612,13 @@ def curves(w):
       "a drawn band among them, so a caller asks for 256 less three times the drawn bands at most.")
     w("")
     w("```")
-    w("> curve_bind 3 0 eq_response eq band_freq.0=f_0:hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf")
+    w("> curve_bind 3 0 eq_response eq band_freq.0=f_0:Hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf")
     w("< resp 0")
-    w("> curve_bind 3 0 eq_response eq band_freq.1=f_1:hz band_gain.1=g_1:coef band_q.1=w_1:oct band_type.1=ft_1@off|bell|lowshelf|highshelf")
+    w("> curve_bind 3 0 eq_response eq band_freq.1=f_1:Hz band_gain.1=g_1:coef band_q.1=w_1:oct band_type.1=ft_1@off|bell|lowshelf|highshelf")
     w("< resp 0")
     w("> curve_points 3 0 128")
     w("< resp 0 134 20.00,0.00 20.54,0.00 ...")
-    w("> curve_bind 4 0 transfer_curve dynamics threshold=thr:dbfs ratio=ratio:ratio knee=knee:db makeup=gain:db")
+    w("> curve_bind 4 0 transfer_curve dynamics threshold=thr:dBFS ratio=ratio:ratio knee=knee:dB makeup=gain:dB")
     w("< resp 0")
     w("> curve_points 4 0 1")
     w("< resp -539")
@@ -640,7 +643,7 @@ MONITOR_VERBS = ("monitor_output_off",)
 
 def monitors(w):
     """monitor_output_off, from the table and its declaration, and what ends a monitor"""
-    own = VERBS["PLUGIN_HOSTD_PROTOCOL_VERBS"]["verbs"]
+    own = VERBS["PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS"]["verbs"]
     rows = [c for c in TABLE["commands"] if c["verb"] in MONITOR_VERBS]
     if len(rows) != len(MONITOR_VERBS):
         fail("monitor_output_off is not in the table")
@@ -675,7 +678,7 @@ def monitors(w):
 def page():
     o = []
     w = o.append
-    w("<!-- GENERATED by tools/protocol-doc.py from protocol/*.json, data/verbs.json, include/plugin-hostd/omx_clap_core_*.h,")
+    w("<!-- GENERATED by tools/protocol-doc.py from protocol/*.json, contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, include/plugin-hostd/omx_clap_*.h,")
     w("     grammar/plugin-hostd-protocol.abnf, the Makefile, doc/overview.md, doc/mod-ui-verbs.tsv and")
     w("     doc/mod-host-commands.md. Do not edit: `make protocol-doc` writes it, and `make check-protocol-doc` fails when")
     w("     it differs. -->")
@@ -688,8 +691,8 @@ def page():
     w(f"Protocol `{PHD['protocol']}`, version {PHD['version']} of its JSON declaration (`protocol/plugin-hostd.json`); "
       f"mod-host's protocol as the daemon models it is `protocol/{MOD['protocol']}.json`, version {MOD['version']}, written "
       f"from the mod-host headers {', '.join('`' + h + '`' for h in MOD['headers'])} the daemon is built against. "
-      f"The verbs the daemon adds are declared in `data/verbs.json` (since {SINCE}, requiring "
-      + ", ".join(f"{k} {v}" for k, v in VERBS["requires"].items()) + ").")
+      f"The verbs the daemon adds are declared in `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json` (since {SINCE}, requiring "
+      + ", ".join(f"{k} {v}" for k, v in protocol_words.requires().items()) + ").")
     w("")
 
     # 1. transport
@@ -778,7 +781,7 @@ def page():
       "types are mod-host's templates (`int` %i, `word` %s, `float` %f, `...` an optional tail); the declarations carry "
       "no unit per argument, and a range or a unit a verb has is in its meaning.")
     w("")
-    relayed = [PHD_ERRORS[resolve("PLUGIN_HOSTD_REPLY_CODES." + n)] for n in ("workerSpawn", "verbDropped")]
+    relayed = [PHD_ERRORS[resolve("PLUGIN_HOSTD_PROTOCOL_REPLY_CODES." + n)] for n in ("workerSpawn", "verbDropped")]
     w("mod-host's templates name no reply codes per verb: a relayed verb answers what its worker answers, or one of "
       + " or ".join(f"{e['code']} {e['name']} ({e['meaning']})" for e in relayed) + ".")
     w("")
@@ -826,8 +829,8 @@ def page():
     w("3. Verbs mod-host does not have")
     w("-------------------------------")
     w("")
-    w("Each is declared in `protocol/plugin-hostd.json`; the formats, codes and hosts come from `data/verbs.json`, or "
-      "from omx-clap-core's verb table for a verb the two hosts share. A verb whose meaning begins \"sent by the daemon "
+    w("Each is declared in `protocol/plugin-hostd.json`; the formats, codes and hosts come from `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json`, or "
+      "from omx-clap's verb table for a verb the two hosts share. A verb whose meaning begins \"sent by the daemon "
       "to a worker\" is the daemon's to a worker, never a controller's.")
     w("")
     ours = [v for v in list(PHD["verbs"]) + list(PHD["instance_verbs"]) if v["name"] not in MOD_COMMANDS]
@@ -914,7 +917,7 @@ def page():
     w("mod-host's reply codes (`host-errors.h`): " + "; ".join(
         f"{e['value']} {e['name']}" for e in MOD["host_errors"]) + ".")
     w("")
-    w("The codes omx-clap-host answers too (omx-clap-core's `reply.host.*`):")
+    w("The codes omx-clap-host answers too (omx-clap's `reply.host.*`):")
     w("")
     w("\n".join(table(["resp", "code", "meaning"],
                       [[str(r), code(word), cell(meaning)] for r, word, meaning in sorted(HOST_CODES.values(),

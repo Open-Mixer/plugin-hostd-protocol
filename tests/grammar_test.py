@@ -228,23 +228,24 @@ if error_answers == 0:
     fail("the golden transcript holds no refusal with its error word")
 
 # ---- the curve verbs' words (core.abnf, curve-binding) ----
-# the role and shape words are omx-dsp's: the grammar's alternatives, the words omx_curve.h holds, one for one
-def header_words(table_name):
+# the role and shape words are omx-dsp's: the grammar's alternatives, the words omx_curve.h holds, one for one; a
+# unit is a word, and every standard id of omx-dsp's OMX_CURVE_UNITS_STANDARD (omxdsp_definitions.h) is one
+def header_words(table_name, header="omx_curve.h"):
     import subprocess
     try:
         flags = subprocess.run(["pkg-config", "--cflags-only-I", "omxdsp"], capture_output=True, text=True,
                                check=True).stdout.split()
     except (OSError, subprocess.CalledProcessError):
-        fail("no omxdsp for pkg-config: the curve words cannot be held to omx_curve.h")
+        fail("no omxdsp for pkg-config: the curve words cannot be held to %s" % header)
         return []
     for d in [f[2:] for f in flags] + ["/usr/include"]:
-        h = os.path.join(d, "omxdsp", "omx_curve.h")
+        h = os.path.join(d, "omxdsp", header)
         if os.path.exists(h):
             text = open(h, encoding="utf-8").read()
             m = re.search(table_name + r"\[[A-Z_]+\] = \{([^}]*)\}", text)
             if m:
                 return re.findall(r'"([^"]*)"', m.group(1))
-    fail(f"omx_curve.h declares no {table_name}")
+    fail(f"{header} declares no {table_name}")
     return []
 
 
@@ -257,6 +258,12 @@ for rule, table_name in (("curve-role", "OMX_CURVE_ROLE_WORDS"), ("curve-shape",
     have, want = grammar_words(rule), header_words(table_name)
     if sorted(have) != sorted(want) or not want:
         fail(f"{rule} is {have}, omx_curve.h's {table_name} is {want}")
+units = header_words("OMX_CURVE_UNITS_STANDARD", "omxdsp_definitions.h")
+if not units:
+    fail("omxdsp_definitions.h's OMX_CURVE_UNITS_STANDARD holds no unit")
+for unit in units:
+    if not parses("curve-unit", unit):
+        fail(f"curve-unit refuses {unit!r}, a standard id of omx-dsp's OMX_CURVE_UNITS_STANDARD")
 for line in ("clear", "transfer_curve dynamics threshold=thr:dbfs ratio=ratio:ratio knee=k:db makeup=g:db",
              "eq_response eq band_freq.0=f_0:hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf",
              "eq_response eq band_type.31=t-31@-|bell band_freq.31=f.31:khz@notch hpf_on=:bypass",

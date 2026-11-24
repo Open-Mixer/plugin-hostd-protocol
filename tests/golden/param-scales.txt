@@ -1,0 +1,3 @@
+scales 0 LINEAR linear the value is linear in position
+scales 1 LOG log the value is geometric in position; both bounds are positive
+scales 2 STEPPED stepped the whole numbers from min to max, step 1

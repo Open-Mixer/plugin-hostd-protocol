@@ -1,0 +1,16 @@
+refused refused final
+noPin no-pin final
+noVerdict no-verdict retry
+verdictIsolated verdict-isolated final
+formatWorld format-world final
+historyCrashed history-crashed final
+historyXruns history-xruns final
+costOver cost-over final
+formatMixed format-mixed final
+groupFull group-full final
+groupCost group-cost final
+costAssumed cost-assumed final
+noNeighbour no-neighbour final
+groupingOff grouping-off final
+historyUnavailable history-unavailable final
+planRefused plan-refused retry

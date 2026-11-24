@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas
-# Floors only: no dependency of this tree carries a ceiling, omx-clap-core-contract's included. The protocol is released
-# first in the chain and the next omx-clap-core release reads it, so a ceiling at the current minor would make that
+# Floors only: no dependency of this tree carries a ceiling, omx-clap-contract's included. The protocol is released
+# first in the chain and the next omx-clap release reads it, so a ceiling at the current minor would make that
 # release uninstallable beside this package; the floors are packaging/deps.txt's. The spec's BuildRequires and Requires
 # and debian/control's Build-Depends and Depends are read; an upper bound (`with X < N`, `(<< N~)`, `(< N)`) is refused,
-# and the omx-clap-core-contract floor must be there. Usage: clap_core_range.py [root]. The check proves it sees each
+# and the omx-clap-contract floor must be there. Usage: clap_core_range.py [root]. The check proves it sees each
 # fault before it trusts the tree.
 import os, re, sys
 
 ROOT = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PKG = "omx-clap-core-contract"
+PKG = "omx-clap-contract"
 
 
 def problems(spec, control):

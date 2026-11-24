@@ -232,7 +232,7 @@ int main(void)
     host_dispatch_register(&g_backend);
     host_dispatch_register_unsupported();
     c = open_session();
-    expect(&c, "no curve hook", "curve_bind 3 0 transfer_curve dynamics threshold=p0:db ratio=p1:ratio", "resp -902");
+    expect(&c, "no curve hook", "curve_bind 3 0 transfer_curve dynamics threshold=p0:dB ratio=p1:ratio", "resp -902");
     expect(&c, "no curve hook", "curve_points 3 0 8", "resp -902");
     close_session(&c);
 
@@ -244,7 +244,7 @@ int main(void)
 
     /* -- a compressor: the reply is omx_curve_points over the values param_get reads, at the instance's rate */
     set(3, 0, -18.5f), set(3, 1, 4.0f), set(3, 2, 6.0f), set(3, 3, 2.5f);
-    expect(&c, "bind a compressor", "curve_bind 3 0 transfer_curve dynamics threshold=p0:dbfs ratio=p1:ratio knee=p2:db makeup=p3:db", "resp 0");
+    expect(&c, "bind a compressor", "curve_bind 3 0 transfer_curve dynamics threshold=p0:dBFS ratio=p1:ratio knee=p2:dB makeup=p3:dB", "resp 0");
     {
         struct omx_curve_term t[] = {
             {OMX_CURVE_ROLES_THRESHOLD, 0, -18.5f, OMX_CURVE_UNITS_DBFS, OMX_CURVE_NO_SHAPE, OMX_CURVE_ORIGINS_USER},
@@ -262,7 +262,7 @@ int main(void)
         expect_curve(&c, "the most points", "curve_points 3 0 256", &rq);
         /* a term of a bound role replaces it */
         set(3, 4, -30.0f);
-        expect(&c, "rebind the threshold", "curve_bind 3 0 transfer_curve dynamics threshold=p4:db", "resp 0");
+        expect(&c, "rebind the threshold", "curve_bind 3 0 transfer_curve dynamics threshold=p4:dB", "resp 0");
         t[0].value = -30.0f;
         t[0].unit = OMX_CURVE_UNITS_DB;
         rq.points = 9u;
@@ -273,8 +273,8 @@ int main(void)
     set(4, 0, 2.0f), set(4, 1, 1000.0f), set(4, 2, 2.0f), set(4, 3, 1.0f), set(4, 4, 1.0f);
     set(4, 5, 0.12f), set(4, 6, 24.0f);
     expect(&c, "bind an EQ",
-           "curve_bind 4 1 eq_response eq band_type.0=p0@off|bell|lowshelf|highshelf band_freq.0=p1:hz band_gain.0=p2:coef "
-           "band_q.0=p3:oct band_on.0=p4 hpf_freq=p5:khz hpf_slope=p6:db", "resp 0");
+           "curve_bind 4 1 eq_response eq band_type.0=p0@off|bell|lowshelf|highshelf band_freq.0=p1:Hz band_gain.0=p2:coef "
+           "band_q.0=p3:oct band_on.0=p4 hpf_freq=p5:kHz hpf_slope=p6:dB", "resp 0");
     {
         struct omx_curve_term t[] = {
             {OMX_CURVE_ROLES_BAND_TYPE, 0, 2.0f, OMX_CURVE_UNITS_NONE, OMX_CURVE_SHAPES_LOWSHELF, OMX_CURVE_ORIGINS_USER},
@@ -317,7 +317,7 @@ int main(void)
     /* -- a band a corrector planted (param_origin names it) draws a mark; one it did not names none */
     set(4, 30, 1000.0f), set(4, 31, 6.0f), set(4, 32, 2.0f);
     expect(&c, "bind a band a corrector planted",
-           "curve_bind 4 4 eq_response eq band_freq.0=p30:hz@bell band_gain.0=p31:db band_q.0=p32", "resp 0");
+           "curve_bind 4 4 eq_response eq band_freq.0=p30:Hz@bell band_gain.0=p31:dB band_q.0=p32", "resp 0");
     {
         struct omx_curve_term t[] = {
             {OMX_CURVE_ROLES_BAND_FREQ, 0, 1000.0f, OMX_CURVE_UNITS_HZ, OMX_CURVE_SHAPES_BELL, OMX_CURVE_ORIGINS_FBS_FIXED},
@@ -332,7 +332,7 @@ int main(void)
     }
     set(4, 33, 500.0f);
     expect(&c, "bind a band on p33: param_origin names it none",
-           "curve_bind 4 5 eq_response eq band_freq.0=p33:hz@bell band_gain.0=p31:db band_q.0=p32", "resp 0");
+           "curve_bind 4 5 eq_response eq band_freq.0=p33:Hz@bell band_gain.0=p31:dB band_q.0=p32", "resp 0");
     {
         struct omx_curve_term t[] = {
             {OMX_CURVE_ROLES_BAND_FREQ, 0, 500.0f, OMX_CURVE_UNITS_HZ, OMX_CURVE_SHAPES_BELL, OMX_CURVE_ORIGINS_USER},
@@ -346,7 +346,7 @@ int main(void)
     /* -- a head filter's slope from its declared enumeration: the choice value picks the dB per octave */
     set(4, 20, 1000.0f), set(4, 21, 100.0f), set(4, 22, 1.0f);
     expect(&c, "bind a high-pass whose slope is a choice of 12 or 24",
-           "curve_bind 4 2 eq_response eq band_freq.0=p20:hz@bell band_gain.0=p0:db band_q.0=p3 hpf_freq=p21:hz hpf_slope=p22@12|24", "resp 0");
+           "curve_bind 4 2 eq_response eq band_freq.0=p20:Hz@bell band_gain.0=p0:dB band_q.0=p3 hpf_freq=p21:Hz hpf_slope=p22@12|24", "resp 0");
     {
         set(4, 0, 2.0f), set(4, 3, 1.0f);
         struct omx_curve_term t[] = {
@@ -363,7 +363,7 @@ int main(void)
         expect_curve(&c, "choice 0 of 12|24 is 12 dB per octave", "curve_points 4 2 40", &rq);
         set(4, 22, 2.0f);
         expect(&c, "a choice past the enumeration is no slope", "curve_points 4 2 40", "resp -537");
-        expect(&c, "a slope with no enumeration and no dB unit", "curve_bind 4 3 eq_response eq hpf_freq=p21:hz hpf_slope=p22", "resp 0");
+        expect(&c, "a slope with no enumeration and no dB unit", "curve_bind 4 3 eq_response eq hpf_freq=p21:Hz hpf_slope=p22", "resp 0");
         expect(&c, "is term-missing", "curve_points 4 3 40", "resp -537");
         expect(&c, "a slope enumeration of no number", "curve_bind 4 3 eq_response eq hpf_slope=p22@12|x", "resp -902");
         expect(&c, "a shape word on a slope", "curve_bind 4 3 eq_response eq hpf_slope=p22@bell", "resp -902");
@@ -386,7 +386,7 @@ int main(void)
             pos = (size_t)snprintf(line, sizeof(line), "curve_bind 3 2 eq_response eq");
             for (b = k * 11; b < 32 && b < (k + 1) * 11; b++)
                 pos += (size_t)snprintf(line + pos, sizeof(line) - pos,
-                                        " band_freq.%d=p%d:hz band_gain.%d=p%d:db band_q.%d=p%d band_type.%d=p%d@bell|lowshelf|highshelf",
+                                        " band_freq.%d=p%d:Hz band_gain.%d=p%d:dB band_q.%d=p%d band_type.%d=p%d@bell|lowshelf|highshelf",
                                         b, 10 + 4 * b, b, 11 + 4 * b, b, 12 + 4 * b, b, 13 + 4 * b);
             expect(&c, "a third of a 32-band binding", line, "resp 0");
         }
@@ -409,7 +409,7 @@ int main(void)
     }
 
     /* -- a line of another kind or family starts the binding again; clear drops it */
-    expect(&c, "a gate where the compressor was", "curve_bind 3 0 transfer_curve gate threshold=p4:db range=p5:db", "resp 0");
+    expect(&c, "a gate where the compressor was", "curve_bind 3 0 transfer_curve gate threshold=p4:dB range=p5:dB", "resp 0");
     expect(&c, "the compressor's ratio is not the gate's", "curve_points 3 0 9", "resp -537");
     set(3, 7, 3.0f);
     expect(&c, "the gate's ratio", "curve_bind 3 0 transfer_curve gate ratio=p7:coef", "resp 0");
@@ -423,8 +423,8 @@ int main(void)
     expect(&c, "clear an unbound display", "curve_bind 3 5 clear", "resp 0");
 
     /* -- every term checked before any is kept */
-    expect(&c, "bind", "curve_bind 3 0 transfer_curve dynamics threshold=p0:db ratio=p1:ratio", "resp 0");
-    expect(&c, "a refused term in the line", "curve_bind 3 0 transfer_curve dynamics threshold=p4:db ratio=nope:ratio", "resp -103");
+    expect(&c, "bind", "curve_bind 3 0 transfer_curve dynamics threshold=p0:dB ratio=p1:ratio", "resp 0");
+    expect(&c, "a refused term in the line", "curve_bind 3 0 transfer_curve dynamics threshold=p4:dB ratio=nope:ratio", "resp -103");
     set(3, 0, -10.0f), set(3, 1, 4.0f);
     {
         struct omx_curve_term t[] = {
@@ -470,51 +470,54 @@ int main(void)
         expect(&c, "a synced delay has no tempo", "curve_points 3 1 8", "resp -537");
     }
     /* each display kind takes the families its model draws, and no other */
-    expect(&c, "a time response of an EQ", "curve_bind 3 2 time_response eq band_freq.0=p0:hz", "resp -536");
-    expect(&c, "a time response of a compressor", "curve_bind 3 2 time_response dynamics threshold=p0:db", "resp -536");
+    expect(&c, "a time response of an EQ", "curve_bind 3 2 time_response eq band_freq.0=p0:Hz", "resp -536");
+    expect(&c, "a time response of a compressor", "curve_bind 3 2 time_response dynamics threshold=p0:dB", "resp -536");
     expect(&c, "a transfer curve of a delay", "curve_bind 3 2 transfer_curve delay time=p10:ms", "resp -536");
     expect(&c, "an EQ response of a reverb", "curve_bind 3 2 eq_response reverb size=p0:coef", "resp -536");
-    expect(&c, "a time role in a unit it does not take", "curve_bind 3 2 time_response delay time=p10:hz", "resp -538");
+    expect(&c, "a time role in a unit it does not take", "curve_bind 3 2 time_response delay time=p10:Hz", "resp -538");
 
     /* -- each refusal by its code */
-    expect(&c, "no such instance", "curve_bind 9 0 transfer_curve dynamics threshold=p0:db", "resp -3");
+    expect(&c, "no such instance", "curve_bind 9 0 transfer_curve dynamics threshold=p0:dB", "resp -3");
     expect(&c, "no such instance", "curve_points 9 0 9", "resp -3");
     expect(&c, "no such instance", "curve_bind 9 0 clear", "resp -3");
-    expect(&c, "no such symbol", "curve_bind 3 0 transfer_curve dynamics threshold=nope:db", "resp -103");
-    expect(&c, "a time family on a transfer curve", "curve_bind 3 0 transfer_curve reverb threshold=p0:db", "resp -536");
-    expect(&c, "an EQ family on a transfer curve", "curve_bind 3 0 transfer_curve eq threshold=p0:db", "resp -536");
-    expect(&c, "a dynamics family on an EQ response", "curve_bind 3 0 eq_response dynamics band_freq=p0:hz", "resp -536");
-    expect(&c, "a unit the role does not take", "curve_bind 3 0 transfer_curve dynamics threshold=p0:hz", "resp -538");
+    expect(&c, "no such symbol", "curve_bind 3 0 transfer_curve dynamics threshold=nope:dB", "resp -103");
+    expect(&c, "a time family on a transfer curve", "curve_bind 3 0 transfer_curve reverb threshold=p0:dB", "resp -536");
+    expect(&c, "an EQ family on a transfer curve", "curve_bind 3 0 transfer_curve eq threshold=p0:dB", "resp -536");
+    expect(&c, "a dynamics family on an EQ response", "curve_bind 3 0 eq_response dynamics band_freq=p0:Hz", "resp -536");
+    expect(&c, "a unit the role does not take", "curve_bind 3 0 transfer_curve dynamics threshold=p0:Hz", "resp -538");
     expect(&c, "a unit no role takes", "curve_bind 3 0 transfer_curve dynamics threshold=p0:furlong", "resp -538");
+    expect(&c, "the standard ids Hz and dB", "curve_bind 3 2 eq_response eq band_freq.0=p10:Hz band_gain.0=p11:dB", "resp 0");
+    expect(&c, "the old spelling hz is no standard id", "curve_bind 3 2 eq_response eq band_freq.0=p10:hz band_gain.0=p11:dB", "resp -538");
+    expect(&c, "the old spelling db is no standard id", "curve_bind 3 2 eq_response eq band_freq.0=p10:Hz band_gain.0=p11:db", "resp -538");
     expect(&c, "no unit where the role needs one", "curve_bind 3 0 transfer_curve dynamics threshold=p0", "resp -538");
     expect(&c, "no binding", "curve_points 3 7 9", "resp -537");
     expect(&c, "one point", "curve_points 3 0 1", "resp -539");
     expect(&c, "257 points", "curve_points 3 0 257", "resp -539");
     /* a malformed line of each shape */
     expect(&c, "no kind", "curve_bind 3 0", "few arguments");
-    expect(&c, "a kind the grammar does not take", "curve_bind 3 0 bar_graph dynamics threshold=p0:db", "resp -902");
+    expect(&c, "a kind the grammar does not take", "curve_bind 3 0 bar_graph dynamics threshold=p0:dB", "resp -902");
     expect(&c, "a kind and no term", "curve_bind 3 0 transfer_curve dynamics", "resp -902");
-    expect(&c, "clear with more", "curve_bind 3 0 clear threshold=p0:db", "resp -902");
+    expect(&c, "clear with more", "curve_bind 3 0 clear threshold=p0:dB", "resp -902");
     expect(&c, "a term with no =", "curve_bind 3 0 transfer_curve dynamics threshold", "resp -902");
     expect(&c, "a role the curve does not read", "curve_bind 3 0 transfer_curve dynamics attack=p0:ms", "resp -902");
-    expect(&c, "an index that is not a number", "curve_bind 3 0 eq_response eq band_freq.x=p0:hz", "resp -902");
-    expect(&c, "an empty index", "curve_bind 3 0 eq_response eq band_freq.=p0:hz", "resp -902");
+    expect(&c, "an index that is not a number", "curve_bind 3 0 eq_response eq band_freq.x=p0:Hz", "resp -902");
+    expect(&c, "an empty index", "curve_bind 3 0 eq_response eq band_freq.=p0:Hz", "resp -902");
     expect(&c, "no symbol", "curve_bind 3 0 transfer_curve dynamics threshold=", "resp -902");
     expect(&c, "a host's own control is a symbol: :db with no unit", "curve_bind 3 0 transfer_curve dynamics threshold=:db", "resp -538");
-    expect(&c, "a host's own control the instance does not have", "curve_bind 3 0 transfer_curve dynamics threshold=:db:db", "resp -103");
+    expect(&c, "a host's own control the instance does not have", "curve_bind 3 0 transfer_curve dynamics threshold=:db:dB", "resp -103");
     expect(&c, "an empty unit", "curve_bind 3 0 transfer_curve dynamics threshold=p0:", "resp -902");
-    expect(&c, "a shape on a role with none", "curve_bind 3 0 transfer_curve dynamics threshold=p0:db@bell", "resp -902");
-    expect(&c, "two fixed shapes", "curve_bind 3 0 eq_response eq band_freq.0=p0:hz@bell|notch", "resp -902");
+    expect(&c, "a shape on a role with none", "curve_bind 3 0 transfer_curve dynamics threshold=p0:dB@bell", "resp -902");
+    expect(&c, "two fixed shapes", "curve_bind 3 0 eq_response eq band_freq.0=p0:Hz@bell|notch", "resp -902");
     expect(&c, "a shape the grammar does not take", "curve_bind 3 0 eq_response eq band_type.0=p0@bell|wobble", "resp -902");
     expect(&c, "an empty shape", "curve_bind 3 0 eq_response eq band_type.0=p0@bell||notch", "resp -902");
     expect(&c, "a character no symbol has", "curve_bind 3 0 transfer_curve dynamics threshold=p0/x:db", "resp -902");
     expect(&c, "points that are no number", "curve_points 3 0 many", "resp -902");
-    expect(&c, "an instance that is no number", "curve_bind 3x 0 transfer_curve dynamics threshold=p0:db", "resp -902");
+    expect(&c, "an instance that is no number", "curve_bind 3x 0 transfer_curve dynamics threshold=p0:dB", "resp -902");
     expect(&c, "curve_points with too many words", "curve_points 3 0 9 1", "many arguments");
 
     /* -- remove drops every binding of its instance */
-    expect(&c, "bind 3", "curve_bind 3 0 transfer_curve dynamics threshold=p0:db ratio=p1:ratio", "resp 0");
-    expect(&c, "bind 4", "curve_bind 4 0 transfer_curve dynamics threshold=p0:db ratio=p1:ratio", "resp 0");
+    expect(&c, "bind 3", "curve_bind 3 0 transfer_curve dynamics threshold=p0:dB ratio=p1:ratio", "resp 0");
+    expect(&c, "bind 4", "curve_bind 4 0 transfer_curve dynamics threshold=p0:dB ratio=p1:ratio", "resp 0");
     expect(&c, "remove 3", "remove 3", "resp 0");
     expect(&c, "3's binding went with it", "curve_points 3 0 9", "resp -537");
     expect(&c, "3's other display went with it", "curve_points 3 2 32", "resp -537");

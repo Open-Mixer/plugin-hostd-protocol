@@ -14,7 +14,7 @@
  * @brief The vocabulary of plugin-db: every code and every word as a string define, with its sentence
  * where it carries one. */
 
-/* PLUGIN_DB_BUNDLE_RULES (data/db.json) */
+/* PLUGIN_DB_BUNDLE_RULES (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_BUNDLE_RULES_NEWEST_VERSION "newest-version" ///< of the candidates, the one whose manifest gives the plugin the highest lv2:minorVersion, then the highest lv2:microVersion, a version not stated counting as 0; of equal versions the first in the search path, its directories in order and the bundles of one directory in byte order of their names. This is lilv's rule, so the host loads the bundle plugin-db pins.
 /** The number of words of PLUGIN_DB_BUNDLE_RULES. */
 #define OMX_PLUGIN_DB_BUNDLE_RULES_COUNT 1u
@@ -24,7 +24,7 @@
 #define OMX_PLUGIN_DB_BUNDLE_RULES(X) \
     X(0u, "newest-version", NEWEST_VERSION)
 
-/* PLUGIN_DB_LAYERS (data/db.json) */
+/* PLUGIN_DB_LAYERS (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_LAYERS_DECLARED "declared" ///< meaning, units, travel and defaults, installed with the package by the plugin's owner, read only
 #define OMX_PLUGIN_DB_LAYERS_SCANNED "scanned" ///< identity, controls, ports, presets and GUI evidence, written by plugin-qualify under its runner
 #define OMX_PLUGIN_DB_LAYERS_PINNED "pinned" ///< the files of the plugin with their digests and the layout fingerprint, written through plugin-db
@@ -44,7 +44,7 @@
     X(4u, "judged", JUDGED) X(5u, "reference", REFERENCE) X(6u, "corrected", CORRECTED) X(7u, "warned-override", WARNED_OVERRIDE) \
     X(8u, "observed", OBSERVED)
 
-/* PLUGIN_DB_FILES (data/db.json) */
+/* PLUGIN_DB_FILES (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_FILES_SAME "same" ///< every file the plugin loads is held by the pin and has the digest the pin holds
 #define OMX_PLUGIN_DB_FILES_CHANGED "changed" ///< a file differs from its digest, is gone, is new, or another bundle is now the plugin
 #define OMX_PLUGIN_DB_FILES_ABSENT "absent" ///< the plugin is in no file of the search path any more, or its pinned file is gone
@@ -57,7 +57,7 @@
 #define OMX_PLUGIN_DB_FILES(X) \
     X(0u, "same", SAME) X(1u, "changed", CHANGED) X(2u, "absent", ABSENT) X(3u, "could-not-test", COULD_NOT_TEST)
 
-/* PLUGIN_DB_LAYOUT (data/db.json) */
+/* PLUGIN_DB_LAYOUT (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_LAYOUT_SAME "same" ///< the layout has the pinned fingerprint: the files are the pinned bytes, or a host found the pinned fingerprint
 #define OMX_PLUGIN_DB_LAYOUT_CHANGED "changed" ///< a host found another fingerprint than the pinned one
 #define OMX_PLUGIN_DB_LAYOUT_NOT_YET_KNOWN "not-yet-known" ///< the pin holds no layout, or the files changed and no host has found their layout yet
@@ -69,7 +69,7 @@
 #define OMX_PLUGIN_DB_LAYOUT(X) \
     X(0u, "same", SAME) X(1u, "changed", CHANGED) X(2u, "not-yet-known", NOT_YET_KNOWN)
 
-/* PLUGIN_DB_RECORD (data/db.json) */
+/* PLUGIN_DB_RECORD (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_RECORD_CURRENT "current" ///< it was written for the pinned bytes and layout, and nothing of PLUGIN_DB_RECORD_CHANGES makes it stale
 /** The source sentence (English) of OMX_PLUGIN_DB_RECORD_CURRENT. */
 #define OMX_PLUGIN_DB_RECORD_CURRENT_TEXT_EN "Its record is current."
@@ -87,7 +87,7 @@
 #define OMX_PLUGIN_DB_RECORD(X) \
     X(0u, "current", CURRENT) X(1u, "stale", STALE) X(2u, "none", NONE)
 
-/* PLUGIN_DB_RECORD_ACTIONS (data/db.json) */
+/* PLUGIN_DB_RECORD_ACTIONS (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_RECORD_ACTIONS_FULL_PATH "full-path" ///< scan, pin, measure and judge again
 /** The source sentence (English) of OMX_PLUGIN_DB_RECORD_ACTIONS_FULL_PATH. */
 #define OMX_PLUGIN_DB_RECORD_ACTIONS_FULL_PATH_TEXT_EN "Scan, measure and judge it again."
@@ -112,7 +112,7 @@
     X(0u, "full-path", FULL_PATH) X(1u, "measure-here", MEASURE_HERE) X(2u, "convert", CONVERT) X(3u, "rejudge", REJUDGE) \
     X(4u, "remeasure-background", REMEASURE_BACKGROUND)
 
-/* PLUGIN_DB_RECORD_CHANGES (data/db.json) */
+/* PLUGIN_DB_RECORD_CHANGES (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_RECORD_CHANGES_FILES "files" ///< the plugin's files are not the bytes the record was written for, or could not be tested
 /** The source sentence (English) of OMX_PLUGIN_DB_RECORD_CHANGES_FILES. */
 #define OMX_PLUGIN_DB_RECORD_CHANGES_FILES_TEXT_EN "Its files changed."
@@ -143,7 +143,7 @@
     X(0u, "files", FILES) X(1u, "layout", LAYOUT) X(2u, "hosting-change", HOSTING_CHANGE) X(3u, "machine-class", MACHINE_CLASS) \
     X(4u, "schema", SCHEMA) X(5u, "rules", RULES) X(6u, "host-version", HOST_VERSION)
 
-/* PLUGIN_DB_STATES (data/db.json) */
+/* PLUGIN_DB_STATES (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_STATES_UNQUALIFIED "unqualified" ///< no current record, for any reason: runs alone in its own limited worker, never grouped; shown as not qualified, with the reason
 /** The source sentence (English) of OMX_PLUGIN_DB_STATES_UNQUALIFIED. */
 #define OMX_PLUGIN_DB_STATES_UNQUALIFIED_TEXT_EN "Not qualified: it runs alone, in a worker of its own."
@@ -171,7 +171,7 @@
     X(0u, "unqualified", UNQUALIFIED) X(1u, "qualified", QUALIFIED) X(2u, "isolated-only", ISOLATED_ONLY) X(3u, "conditions-unmet", CONDITIONS_UNMET) \
     X(4u, "refused", REFUSED) X(5u, "absent", ABSENT)
 
-/* PLUGIN_DB_RUNS (data/db.json) */
+/* PLUGIN_DB_RUNS (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_RUNS_SHARED "shared" ///< as the verdict and the placement rules allow, in a worker other plugins may share
 /** The source sentence (English) of OMX_PLUGIN_DB_RUNS_SHARED. */
 #define OMX_PLUGIN_DB_RUNS_SHARED_TEXT_EN "Runs in a shared worker."
@@ -189,7 +189,7 @@
 #define OMX_PLUGIN_DB_RUNS(X) \
     X(0u, "shared", SHARED) X(1u, "alone", ALONE) X(2u, "not-loaded", NOT_LOADED)
 
-/* PLUGIN_DB_REASONS (data/db.json) */
+/* PLUGIN_DB_REASONS (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_REASONS_NEVER_PINNED "never-pinned" ///< there is no pinned layer: never scanned or never pinned
 /** The source sentence (English) of OMX_PLUGIN_DB_REASONS_NEVER_PINNED. */
 #define OMX_PLUGIN_DB_REASONS_NEVER_PINNED_TEXT_EN "It has never been scanned."
@@ -249,7 +249,7 @@
     X(8u, "verdict-allows", VERDICT_ALLOWS) X(9u, "verdict-isolated", VERDICT_ISOLATED) X(10u, "reference-only", REFERENCE_ONLY) X(11u, "no-cell", NO_CELL) \
     X(12u, "condition-fails", CONDITION_FAILS) X(13u, "record-refused", RECORD_REFUSED) X(14u, "shipped-refusal", SHIPPED_REFUSAL) X(15u, "files-gone", FILES_GONE)
 
-/* PLUGIN_DB_ISOLATION_HOSTS (data/db.json) */
+/* PLUGIN_DB_ISOLATION_HOSTS (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_ISOLATION_HOSTS_PLUGIN_HOSTD "plugin-hostd" ///< the daemon that hosts plugins for use, in workers of their own
 /** The number of words of PLUGIN_DB_ISOLATION_HOSTS. */
 #define OMX_PLUGIN_DB_ISOLATION_HOSTS_COUNT 1u
@@ -259,7 +259,7 @@
 #define OMX_PLUGIN_DB_ISOLATION_HOSTS(X) \
     X(0u, "plugin-hostd", PLUGIN_HOSTD)
 
-/* PLUGIN_DB_SOURCES (data/db.json) */
+/* PLUGIN_DB_SOURCES (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_SOURCES_NONE "none" ///< no record answers
 /** The source sentence (English) of OMX_PLUGIN_DB_SOURCES_NONE. */
 #define OMX_PLUGIN_DB_SOURCES_NONE_TEXT_EN "No record."
@@ -277,7 +277,7 @@
 #define OMX_PLUGIN_DB_SOURCES(X) \
     X(0u, "none", NONE) X(1u, "local", LOCAL) X(2u, "reference", REFERENCE)
 
-/* PLUGIN_DB_BAR (data/db.json) */
+/* PLUGIN_DB_BAR (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_BAR_QUALIFIED_ONLY "qualified-only" ///< only plugins whose state is qualified are offered by default
 /** The source sentence (English) of OMX_PLUGIN_DB_BAR_QUALIFIED_ONLY. */
 #define OMX_PLUGIN_DB_BAR_QUALIFIED_ONLY_TEXT_EN "Offer qualified plugins only."
@@ -295,7 +295,7 @@
 #define OMX_PLUGIN_DB_BAR(X) \
     X(0u, "qualified-only", QUALIFIED_ONLY) X(1u, "warn-on-crashes", WARN_ON_CRASHES) X(2u, "load-all", LOAD_ALL)
 
-/* PLUGIN_DB_LATENCY (data/db.json) */
+/* PLUGIN_DB_LATENCY (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_LATENCY_WITHIN "within" ///< the figure is at or under the line
 /** The source sentence (English) of OMX_PLUGIN_DB_LATENCY_WITHIN. */
 #define OMX_PLUGIN_DB_LATENCY_WITHIN_TEXT_EN "Latency within the line."
@@ -313,32 +313,9 @@
 #define OMX_PLUGIN_DB_LATENCY(X) \
     X(0u, "within", WITHIN) X(1u, "over", OVER) X(2u, "unmeasured", UNMEASURED)
 
-/* PLUGIN_DB_PIN_VERDICTS (data/pin.json) */
-#define OMX_PLUGIN_DB_PIN_VERDICTS_IN_PROCESS "in-process" ///< qualified to run in a worker that other plugins share
-#define OMX_PLUGIN_DB_PIN_VERDICTS_ISOLATED "isolated" ///< qualified to run, in a worker of its own
-#define OMX_PLUGIN_DB_PIN_VERDICTS_REFUSED "refused" ///< failed qualification: the pin records the bytes, a host should not load them
-/** The number of words of PLUGIN_DB_PIN_VERDICTS. */
-#define OMX_PLUGIN_DB_PIN_VERDICTS_COUNT 3u
-/** The words of PLUGIN_DB_PIN_VERDICTS in their declared order, as a C initializer list. */
-#define OMX_PLUGIN_DB_PIN_VERDICTS_INIT { "in-process", "isolated", "refused" }
-/** Expands `X(code, "word", NAME)` once per word of PLUGIN_DB_PIN_VERDICTS, in order, the code being its place in the order. What the qualification of the pinned bytes said: the value of a pin's verdict key. A pin with no verdict was learned on first use and carries no judgment. A word outside these is not a pin's. */
-#define OMX_PLUGIN_DB_PIN_VERDICTS(X) \
-    X(0u, "in-process", IN_PROCESS) X(1u, "isolated", ISOLATED) X(2u, "refused", REFUSED)
-
-/* PLUGIN_DB_PIN_POOLS (data/pin.json) */
-#define OMX_PLUGIN_DB_PIN_POOLS_CORES "cores" ///< its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker
-#define OMX_PLUGIN_DB_PIN_POOLS_OFF "off" ///< measured, and not faster or not safe with the pool: the worker keeps no option
-/** The number of words of PLUGIN_DB_PIN_POOLS. */
-#define OMX_PLUGIN_DB_PIN_POOLS_COUNT 2u
-/** The words of PLUGIN_DB_PIN_POOLS in their declared order, as a C initializer list. */
-#define OMX_PLUGIN_DB_PIN_POOLS_INIT { "cores", "off" }
-/** Expands `X(code, "word", NAME)` once per word of PLUGIN_DB_PIN_POOLS, in order, the code being its place in the order. Whether the plugin's qualification measured the CLAP thread pool real-time safe and faster at the quantum: the value of a pin's pool key. A plugin with no word runs serial. A word outside these is not a pin's. */
-#define OMX_PLUGIN_DB_PIN_POOLS(X) \
-    X(0u, "cores", CORES) X(1u, "off", OFF)
-
-/* PLUGIN_DB_PIN_KEYS (data/pin.json) */
-#define OMX_PLUGIN_DB_PIN_KEYS_VERDICT "verdict" ///< the qualification verdict of the pinned bytes, a word of PLUGIN_DB_PIN_VERDICTS
-#define OMX_PLUGIN_DB_PIN_KEYS_POOL "pool" ///< the thread pool word of the pinned bytes, a word of PLUGIN_DB_PIN_POOLS
+/* PLUGIN_DB_PIN_KEYS (contract.d/plugin-db/plugin-db.json) */
+#define OMX_PLUGIN_DB_PIN_KEYS_VERDICT "verdict" ///< the qualification verdict of the pinned bytes, a word of PIN_VERDICTS of plugin-hostd-protocol's domain pin
+#define OMX_PLUGIN_DB_PIN_KEYS_POOL "pool" ///< the thread pool word of the pinned bytes, a word of PIN_POOLS of plugin-hostd-protocol's domain pin
 /** The number of words of PLUGIN_DB_PIN_KEYS. */
 #define OMX_PLUGIN_DB_PIN_KEYS_COUNT 2u
 /** The words of PLUGIN_DB_PIN_KEYS in their declared order, as a C initializer list. */
@@ -347,7 +324,7 @@
 #define OMX_PLUGIN_DB_PIN_KEYS(X) \
     X(0u, "verdict", VERDICT) X(1u, "pool", POOL)
 
-/* PLUGIN_DB_PIN_CHANGES (data/pin.json) */
+/* PLUGIN_DB_PIN_CHANGES (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_PIN_CHANGES_FILES "files" ///< a pinned file is gone, or its bytes no longer have the digest the pin holds
 #define OMX_PLUGIN_DB_PIN_CHANGES_LAYOUT "layout" ///< the plugin's parameter layout no longer has the fingerprint the pin holds
 /** The number of words of PLUGIN_DB_PIN_CHANGES. */
@@ -358,7 +335,7 @@
 #define OMX_PLUGIN_DB_PIN_CHANGES(X) \
     X(0u, "files", FILES) X(1u, "layout", LAYOUT)
 
-/* PLUGIN_DB_PIN_LAYOUT_FORMATS (data/pin.json) */
+/* PLUGIN_DB_PIN_LAYOUT_FORMATS (contract.d/plugin-db/plugin-db.json) */
 #define OMX_PLUGIN_DB_PIN_LAYOUT_FORMATS_CLAP "clap" ///< every parameter clap.params gives, sorted by id
 #define OMX_PLUGIN_DB_PIN_LAYOUT_FORMATS_LV2 "lv2" ///< every control port, sorted by index
 /** The number of words of PLUGIN_DB_PIN_LAYOUT_FORMATS. */

@@ -187,6 +187,7 @@ def main():
     plant("curve_points", "a point that is a word", lambda d: d["points"].append({"x": "1", "y": 2.0}))
     plant("hello", "a version that is a word", lambda d: d.update(version="1"))
     plant("estimate", "a ram key that is not a number or -", lambda d: d.update(ram_bytes="lots"))
+    plant("estimate", "a verdict that is no word of the domain estimate", lambda d: d.update(verdict="fits"))
     plant("pin_layout", "a sha256 that is short", lambda d: d["layout"].update(sha256="ab"))
     plant("plan", "a segment instance that is a word", lambda d: d.update(segments=[["x"]]))
     for f in failures:
