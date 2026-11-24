@@ -11,9 +11,34 @@ export interface CurvePointsReply {
    */
   count: number;
   /**
+   * The bands a corrector planted, in band order: none when the host gives every bound term the origin user.
+   */
+  marks: Mark[];
+  /**
    * The curve's points, ascending in x.
    */
   points: Point[];
+}
+/**
+ * A band a corrector planted.
+ */
+export interface Mark {
+  /**
+   * The band's frequency in Hz.
+   */
+  freq: number;
+  /**
+   * The band's depth in dB.
+   */
+  depth: number;
+  /**
+   * The band's Q.
+   */
+  q: number;
+  /**
+   * Where the band comes from, omx-dsp's CURVE_ORIGINS word.
+   */
+  origin: string;
 }
 /**
  * One point of a curve.

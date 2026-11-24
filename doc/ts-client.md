@@ -13,7 +13,7 @@ Three things and no more.
 |---|---|---|
 | the transport | `clients/typescript/client.mjs` | `connect`, then `send(line)`: one command line out, its one reply line back, as the Python client does |
 | the generated vocabulary | `clients/typescript/vocabulary.mjs`, `vocabulary.d.mts` | every verb with its forms (argument types, names, tail), its refusal codes and its reply; the argument types; the reply codes and their words; the parse refusals. Written by `tools/ts-client-gen.py` from `protocol/plugin-hostd-protocol.json`, the table `make gen` writes from the headers; never typed by hand |
-| one call | `curvePoints(instance, display, n)` | sends `curve_points <instance> <display> <n>` and answers the points, `[{ x, y }]`, which plugin-hostd drew with omx-dsp's `omx_curve_points` |
+| one call | `curvePoints(instance, display, n)` | sends `curve_points <instance> <display> <n>` and answers the points and the marks, `{ points: [{ x, y }], marks: [{ freq, depth, q, origin }] }`, which plugin-hostd drew with omx-dsp's `omx_curve_points_marked`, a mark each band a feedback corrector planted |
 
 The words of a line come from the vocabulary: `call(verb, ...args)` finds the verb's form by the number of arguments,
 refuses an argument that is not of its declared type, and writes the line; `curvePoints` is `call('curve_points', ...)`

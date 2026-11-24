@@ -15,7 +15,10 @@ export declare class HostdError extends Error {
 }
 export interface Reply { readonly code: number; readonly data: readonly string[]; readonly reply: string }
 export interface Point { readonly x: number; readonly y: number }
+/** a band a corrector planted: its frequency in Hz, depth in dB, Q and omx-dsp's origin word (CURVE_ORIGINS) */
+export interface Mark { readonly freq: number; readonly depth: number; readonly q: number; readonly origin: string }
+export interface Curve { readonly points: Point[]; readonly marks: Mark[] }
 export declare function encodeWord(value: string | number): string;
 export declare function encode(verb: Verb, ...args: ReadonlyArray<string | number>): string;
 export declare function parseReply(line: string): Reply;
-export declare function parseCurvePoints(result: Reply): Point[];
+export declare function parseCurvePoints(result: Reply): Curve;

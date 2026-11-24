@@ -10,6 +10,41 @@
       "minimum": 0,
       "description": "The number of points that follow."
     },
+    "marks": {
+      "type": "array",
+      "description": "The bands a corrector planted, in band order: none when the host gives every bound term the origin user.",
+      "items": {
+        "type": "object",
+        "title": "Mark",
+        "description": "A band a corrector planted.",
+        "properties": {
+          "freq": {
+            "type": "number",
+            "description": "The band's frequency in Hz."
+          },
+          "depth": {
+            "type": "number",
+            "description": "The band's depth in dB."
+          },
+          "q": {
+            "type": "number",
+            "description": "The band's Q."
+          },
+          "origin": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Where the band comes from, omx-dsp's CURVE_ORIGINS word."
+          }
+        },
+        "required": [
+          "freq",
+          "depth",
+          "q",
+          "origin"
+        ],
+        "additionalProperties": false
+      }
+    },
     "points": {
       "type": "array",
       "description": "The curve's points, ascending in x.",
@@ -37,6 +72,7 @@
   },
   "required": [
     "count",
+    "marks",
     "points"
   ],
   "additionalProperties": false

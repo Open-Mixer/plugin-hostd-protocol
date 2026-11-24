@@ -1,4 +1,4 @@
-history_get "\\\"" => resp 0 !!
+history_get !ǧΔ => resp 0 !
 history_get "Ƙ\\" => resp 0 !Ē
 history_get "ɽ\\" => resp 0 Тј!
 history_get "Č" => resp 0 "϶\""

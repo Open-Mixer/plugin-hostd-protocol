@@ -20,13 +20,15 @@ const { VERBS, REPLY_CODES, MESSAGE_MAX } = await import(join(ROOT, 'clients/typ
 
 // line -> reply: the daemon's own answers, from tests/golden/plugin-hostd-protocol.txt and doc/protocol.md (Curves)
 const SCRIPT = new Map([
-  ['curve_points 3 0 3', 'resp 0 3 20.00,0.00 1000,3.18 20000,-0.02'],
+  ['curve_points 3 0 3', 'resp 0 3 - 20.00,0.00 1000,3.18 20000,-0.02'],
+  ['curve_points 4 4 2', 'resp 0 2 1000,-6.50,2.00,fbs-fixed;250,-3.00,4.50,hrp 20.00,0.00 1000,-6.50'],
+  ['curve_points 8 0 2', 'resp 0 2 1000,-6.50,2.00 20.00,0.00 1000,-6.50'],
   ['curve_points 3 1 3', 'resp -3'],
   ['curve_points 9 0 3', 'resp -537'],
   ['curve_points 4 0 1', 'resp -539'],
   ['curve_points 5 0 3', 'not found'],
   ['curve_points 6 0 3', 'resp -3 reply.host.instance-non-exists'],
-  ['curve_points 7 0 3', 'resp 0 2 20.00,0.00'],
+  ['curve_points 7 0 3', 'resp 0 2 - 20.00,0.00'],
   ['ping', 'resp 0'],
 ]);
 
@@ -80,7 +82,7 @@ test('the transport sends a line and reads its reply, the feedback port opened f
   const p = await peer();
   const c = await connect({ port: p.port, timeout: 2000 });
   assert.equal(await c.send('ping'), 'resp 0');
-  assert.equal(await c.send('curve_points 3 0 3'), 'resp 0 3 20.00,0.00 1000,3.18 20000,-0.02');
+  assert.equal(await c.send('curve_points 3 0 3'), 'resp 0 3 - 20.00,0.00 1000,3.18 20000,-0.02');
   assert.deepEqual(p.seen, ['ping', 'curve_points 3 0 3']);
   c.close(); p.stop();
 });
@@ -141,12 +143,15 @@ test('the committed vocabulary is what the generator writes, and a hand edit is 
   } finally { rmSync(dir, { recursive: true }); }
 });
 
-test('curvePoints sends the words the table declares and parses the reply into points', async () => {
+test('curvePoints sends the words the table declares and parses the reply into points and marks', async () => {
   const p = await peer();
   const c = await connect({ port: p.port, timeout: 2000 });
   const pts = await c.curvePoints(3, 0, 3);
   assert.deepEqual(p.seen, ['curve_points 3 0 3']);
-  assert.deepEqual(pts, [{ x: 20, y: 0 }, { x: 1000, y: 3.18 }, { x: 20000, y: -0.02 }]);
+  assert.deepEqual(pts, { points: [{ x: 20, y: 0 }, { x: 1000, y: 3.18 }, { x: 20000, y: -0.02 }], marks: [] });
+  assert.deepEqual(await c.curvePoints(4, 4, 2), { points: [{ x: 20, y: 0 }, { x: 1000, y: -6.5 }],
+    marks: [{ freq: 1000, depth: -6.5, q: 2, origin: 'fbs-fixed' }, { freq: 250, depth: -3, q: 4.5, origin: 'hrp' }] });
+  await assert.rejects(c.curvePoints(8, 0, 2), (e) => e instanceof HostdError && e.kind === 'malformed');
   await assert.rejects(c.curvePoints(7, 0, 3), (e) => e instanceof HostdError && e.kind === 'malformed');
   await assert.rejects(c.curvePoints(3, 0, 'x'), TypeError);
   await assert.rejects(c.call('curve_points', 3, 0), TypeError);
