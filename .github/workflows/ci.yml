@@ -7,10 +7,6 @@ on:
   schedule:
     - cron: '17 4 * * *'
   workflow_dispatch:
-    inputs:
-      clap-core-ref:
-        description: the omx-clap branch, tag or commit whose data/ the declared-protocol job reads
-        default: main
 permissions:
   contents: read
 concurrency:
@@ -90,7 +86,7 @@ jobs:
       # omx-contract's C headers, which the declared protocol's generator is built against, are the OpenMixer channel's
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
-      # and the codec's tests read the sentences of omx-clap's package and omx-contract's catalog reader (issue 46)
+      # and the codec's tests read omx-contract's catalog reader (issue 46)
       - name: omx-contract's headers, and omx-dsp's curve function
         run: |
           set -euo pipefail
@@ -121,12 +117,11 @@ jobs:
           make test-ts-codec
 
   # The declared protocol with the tools a package build does not carry: the rendered headers are what the installed
-  # omx-contract renders from contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json and from omx-clap's package (and a header changed by hand is red), the
-  # staged contract package validates, protocol/plugin-hostd.json satisfies its schema, and the grammar holds the
-  # scenario corpus, the golden transcript and the table, read by python's abnf parser (and a broken rule is red).
-  # omx-clap's contract (contract.d/omx-clap/omx-clap.json, the shared verbs protocol/plugin-hostd-protocol.json imports) is read from
-  # its source at CLAP_CORE_REF, not from the channel: a protocol release comes before the omx-clap release that
-  # needs it, so the package of the verbs it declares is not served yet when this job runs.
+  # omx-contract renders from this tree's domains plugin-hostd-protocol, host and hosting-verb (contract.d) and from
+  # plugin-db's served domain (and a header changed by hand is red), the staged contract package validates,
+  # protocol/plugin-hostd.json satisfies its schema, and the grammar holds the scenario corpus, the golden transcript
+  # and the table, read by python's abnf parser (and a broken rule is red). Nothing of omx-clap-core is read: the
+  # chain publishes this protocol first, and omx-clap-core reads its domains host and hosting-verb from here (#67).
   protocol:
     name: declared protocol (render, contract directory, schema, grammar) (${{ matrix.cell.image }})
     needs: checks
@@ -139,8 +134,6 @@ jobs:
         cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
     container:
       image: ${{ matrix.cell.image }}
-    env:
-      CLAP_CORE_REF: ${{ inputs.clap-core-ref || 'main' }}
     steps:
       - name: Toolchain
         run: dnf -y install gcc make git pkgconf-pkg-config diffutils python3 python3-jsonschema python3-pyyaml
@@ -161,28 +154,6 @@ jobs:
           set -euo pipefail
           dnf repoquery --installed --qf '%{name} %{version} %{from_repo}\n' 'omx-*' 'plugin-db-contract' | tee /tmp/from-repo
           if grep staging /tmp/from-repo; then echo "a package above came from the staging channel: an ordinary run builds against the channel"; exit 1; fi
-      # one fetch of omx-clap at CLAP_CORE_REF, resolved to its commit and named; its data/ and its domains host and omx-clap are staged as the package
-      # omx-clap of a contract directory of its own, ahead of the installed one on OMX_CONTRACT_PATH, which every
-      # make target that renders, validates or translates reads
-      - name: omx-clap's domains host and omx-clap (contract.d) from its source
-        run: |
-          set -euo pipefail
-          url=https://github.com/Open-Mixer/omx-clap-core
-          sha=$(git ls-remote "$url" "$CLAP_CORE_REF" "refs/tags/$CLAP_CORE_REF^{}" | awk 'END { print $1 }')
-          if [ -z "$sha" ] && printf '%s' "$CLAP_CORE_REF" | grep -qxE '[0-9a-f]{40}'; then sha=$CLAP_CORE_REF; fi
-          [ -n "$sha" ] || { echo "omx-clap has no ref $CLAP_CORE_REF"; exit 1; }
-          src=$RUNNER_TEMP/omx-clap
-          git init -q "$src"
-          git -C "$src" fetch -q --depth 1 "$url" "$sha"
-          git -C "$src" checkout -q FETCH_HEAD -- data VERSION contract.d
-          test "$(git -C "$src" rev-parse FETCH_HEAD)" = "$sha"
-          echo "omx-clap contract.d/omx-clap/omx-clap.json read at $sha ($CLAP_CORE_REF)" | tee -a /tmp/from-repo
-          dir=$RUNNER_TEMP/clap-core-contract
-          (cd "$src" && sh "$(pkg-config --variable=datadir omx-contract)/install-contract-dir.sh" omx-clap "$(cat VERSION)" 3 data "$dir" data)
-          for n in host omx-clap; do sh "$(pkg-config --variable=datadir omx-contract)/install-contract-dir.sh" --domain "$src/contract.d/$n" "$dir"; done
-          # the shared verbs live in the domain omx-clap, and no data file holds them: a source without them is refused by name
-          grep -q '"OMX_CLAP_HOST_VERBS"' "$dir/omx-clap/omx-clap.json" || { echo "omx-clap at $sha: the domain omx-clap declares no OMX_CLAP_HOST_VERBS item (the verbs the protocol table imports)"; exit 1; }
-          echo "OMX_CONTRACT_PATH=$dir" >> "$GITHUB_ENV"
       - name: The python ABNF parser
         run: |
           python3 -m venv /opt/abnf

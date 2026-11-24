@@ -41,8 +41,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "omx_clap_host_verbs.h"
-#include "omx_clap_vocabulary.h"
 #include "plugin_hostd_protocol_host_verbs.h"
 #include "plugin_hostd_protocol_vocabulary.h"
 
@@ -442,8 +440,9 @@ static inline int phd_pool_name_valid(const char *name)
  *
  * The codes are the -5xx hundred; a reply is "resp \<code\>". resp is the rendered number of the code. Each number has
  * one name in the contract, rendered as OMX_REPLY_\<GROUP\>_\<REASON\>_RESP: the ones omx-clap-host answers too are
- * omx-clap's reply.host.* codes (its HOST_REPLY_CODES, omx_clap_vocabulary.h), the others plugin-hostd's
- * reply.plugin-hostd.* (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_REPLY_CODES, plugin_hostd_vocabulary.h); the header defines none.
+ * the reply.host.* codes (contract.d/host/host.json HOST_REPLY_CODES), the others plugin-hostd's
+ * reply.plugin-hostd.* (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_REPLY_CODES); both
+ * are rendered into plugin_hostd_protocol_vocabulary.h, and the header defines none.
  *
  * @param X the macro each row is passed to.
  */
@@ -557,8 +556,8 @@ static inline int phd_pool_name_valid(const char *name)
 
 /** @brief the word of mod-host's add verb, which the daemon extends with a placement
  *
- * Every verb of its own is OMX_VERB_\<VERB\> of plugin_hostd_host_verbs.h, and pin_expect is omx-clap's,
- * OMX_VERB_PIN_EXPECT.
+ * Every verb of its own is OMX_VERB_\<VERB\> of plugin_hostd_protocol_host_verbs.h, pin_expect too (a verb the daemon
+ * shares with omx-clap-host), OMX_VERB_PIN_EXPECT.
  */
 #define PHD_VERB_ADD              "add"
 
@@ -1068,8 +1067,8 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * worker of a format whose workers answer them from the plugin; for a format whose worker does not, it answers them
  * itself and never forwards them. A string word is quoted when it is not a plain word, and always in a reply, with \" inside it
  * for a quote: mod-host's own tokenizer reads them. */
-/* The words and the lines of these verbs, and of the note verbs below, are omx-clap's declarations (its HOST_VERBS,
- * omx_clap_host_verbs.h): OMX_VERB_<VERB> and OMX_VERB_<VERB>_FMT. preset_list and preset_get are the daemon's,
+/* The words and the lines of these verbs, and of the note verbs below, are the verbs omx-clap-host shares with
+ * plugin-hostd (PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS, plugin_hostd_protocol_host_verbs.h): OMX_VERB_<VERB> and OMX_VERB_<VERB>_FMT. preset_list and preset_get are the daemon's,
  * OMX_VERB_PRESET_LIST and OMX_VERB_PRESET_GET */
 
 /* Notes, played on an instance by a controller that is not a jack client: the worker delivers each one as a MIDI
@@ -1163,7 +1162,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * back every symbol it was given, each the latest set of it, in the order they were first set). Replayed after the add. */
 /** @brief the word of the show_external_ui verb
  *
- * mod-host.h declares it as the format SHOW_EXTERNAL_UI, and omx-clap's verb table does not.
+ * mod-host.h declares it as the format SHOW_EXTERNAL_UI, and the verb table of the contract does not.
  */
 #define PHD_VERB_SHOW_EXTERNAL_UI "show_external_ui"
 /** @brief the ledger keeps nothing of the verb */
@@ -1677,7 +1676,7 @@ static inline int phd_is_note_verb(const char *verb)
  * Relayed from a worker: the user took hold of a control of the plugin's own, or let it go.
  */
 #define PHD_EVENT_PARAM_GESTURE           "param_gesture"
-/* a worker's own count, not an instance's: omx-clap's HOST_EVENTS word xruns (tests/verbs_declared.py holds this to it) */
+/* a worker's own count, not an instance's: the HOST_EVENTS word xruns (tests/verbs_declared.py holds this to it) */
 /** @brief the name of the feedback event xruns
  *
  * Relayed from a worker and read by the daemon: the JACK xruns the worker has counted since it started.

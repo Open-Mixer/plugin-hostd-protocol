@@ -50,12 +50,11 @@ HEADERS = include/host-backend.h include/host-dispatch.h include/host-errors.h i
           include/host-scenario.h include/protocol.h include/socket.h include/utils.h
 
 # the declared protocol (doc/protocol.md): plugin-hostd's protocol.h and the headers it includes, rendered by
-# omx-contract from contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json and from omx-clap's package and the domains of omx-clap and
-# plugin-db in the contract directory; installed under
+# omx-contract from this tree's domains plugin-hostd-protocol, host and hosting-verb and from the domain plugin-db in the
+# contract directory; installed under
 # <includedir>/plugin-hostd-protocol/plugin-hostd/, so a consumer includes <plugin-hostd/protocol.h> with this package's
 # Cflags. src/protocol.c reads the protocol version, hello's line and the extensions hello grants from them.
 RENDERED = include/plugin-hostd/plugin_hostd_protocol_host_verbs.h include/plugin-hostd/plugin_hostd_protocol_vocabulary.h \
-           include/plugin-hostd/omx_clap_host_verbs.h include/plugin-hostd/omx_clap_vocabulary.h \
            include/plugin-hostd/plugin_db_vocabulary.h
 # the probe domain's codes header (the render of the items of contract.d/probe marked x-c-codes), committed
 PROBE_CODES = include/plugin-hostd/probe_codes.h
@@ -159,7 +158,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-no-floors test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass \
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-no-floors test-no-clap-core-read test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass \
       test-fuzz-record-lines
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
@@ -182,6 +181,11 @@ test-same-pass:
 # between this tree's own packages are generated (= version), and there is no packaging/deps.txt (owner ruling 2026-11-24)
 test-no-floors:
 	python3 tests/no_floors.py .
+
+# this tree's build reads nothing of omx-clap-core: the release chain publishes this protocol first (#67)
+.PHONY: test-no-clap-core-read
+test-no-clap-core-read:
+	python3 tests/no_clap_core_read.py .
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
 test-protocol: tests/protocol_test
@@ -526,19 +530,20 @@ test-generated-sabotage:
 	sh tests/generated-sabotage.sh
 
 # The checks that need tools a package build does not: run by CI (.github/workflows/ci.yml, job protocol).
-#   check-rendered   the four rendered headers are what omx-contract renders from contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json (staged as the
-#                    package plugin-hostd-protocol of the contract directory) and from omx-clap's installed package;
+#   check-rendered   the three rendered headers are what omx-contract renders from this tree's domains
+#                    plugin-hostd-protocol, host and hosting-verb (contract.d) and from plugin-db's installed domain;
 #                    test-rendered-sabotage holds it to failing. A contract directory named first on OMX_CONTRACT_PATH
-#                    outranks the installed one: CI stages omx-clap's data/ from its source there
+#                    outranks the installed one
 #   check-contract-dir  that staged package validates with the installed contract directory
 #   check-schema     protocol/plugin-hostd.json against its schema (python3-jsonschema)
 #   test-grammar     the grammar against the scenario corpus, the golden transcript and the table (python abnf)
 OMX_CONTRACT ?= omx-contract
 PYTHON ?= python3
 CONTRACT_SCHEMA_MAJOR = 3
-# the domains this package's contract is (no data file, no owner manifest): the words of the protocol, the probe's, the pin's
-# and the estimate's
-CONTRACT_DOMAINS = plugin-hostd-protocol probe pin estimate
+# the domains this package's contract is (no data file, no owner manifest): the words of the protocol, the host words its
+# verbs answer with (host), the hosts a verb names (hosting-verb), the probe's, the pin's and the estimate's. host and
+# hosting-verb are this package's because the release chain publishes it before omx-clap-core, which reads them (#67)
+CONTRACT_DOMAINS = plugin-hostd-protocol host hosting-verb probe pin estimate
 CONTRACTDIR = $(or $(shell $(PKG_CONFIG) --variable=contractdir omx-contract 2>/dev/null),$(DATADIR)/omx-contract/contract.d)
 INSTALL_CONTRACT_DIR = $(firstword $(wildcard $(shell $(PKG_CONFIG) --variable=datadir omx-contract 2>/dev/null)/install-contract-dir.sh) $(wildcard $(OMX_CONTRACT_DIR)/tools/install-contract-dir.sh))
 
@@ -562,13 +567,14 @@ check-contract-dir:
 	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) validate --installed --catalogs catalogs
 
 # the catalogs through omx-contract's release gate (translate --check, 3.16.0): every listed language has its catalog,
-# no key is missing and no entry is stale. This tree's items name omx-clap's reply codes, so they are read from
-# its contract staged as check-contract-dir stages it (#15). The words are the domain plugin-hostd-protocol (V16), named
+# no key is missing and no entry is stale. The contract is staged as check-contract-dir stages it (#15). The words are the domain plugin-hostd-protocol (V16), named
 # after the package that owns it, so the --package translate keeps the items of is the domain (ruling V16, 2026-11-23).
+# The domain host carries its own catalogs (contract.d/host/catalogs, installed with it), held the same way.
 check-catalogs:
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
 	$(MAKE) --no-print-directory install-contract DESTDIR=$$tmp >/dev/null; \
-	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) translate --check --installed --catalogs catalogs --package plugin-hostd-protocol
+	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) translate --check --installed --catalogs catalogs --package plugin-hostd-protocol; \
+	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) translate --check --installed --catalogs contract.d/host/catalogs --package host
 
 # a served contract package that changes the render turns main red when it is served: ci.yml's schedule (#27)
 test-served-render-ci:
@@ -582,16 +588,7 @@ render-verbs check-rendered:
 	@command -v $(OMX_CONTRACT) >/dev/null || { echo "$@: no $(OMX_CONTRACT) command: install omx-contract" >&2; exit 1; }
 	@set -e; \
 	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
-	  $(OMX_CONTRACT) render --target c --package $(NAME) --installed --with-domain contract.d/plugin-hostd-protocol --out include/plugin-hostd $(if $(filter check-rendered,$@),--check)
-	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
-	wd=""; for n in host omx-clap; do for d in $$(printf %s "$(OMX_CONTRACT_PATH)" | tr : ' ') $(CONTRACTDIR); do \
-	  if [ -f $$d/$$n/$$n.json ]; then wd="$$wd --with-domain $$d/$$n"; break; fi; done; done; \
-	test -n "$$wd" || { echo "$@: no domain host or omx-clap of omx-clap's package in the contract directories" >&2; exit 1; }; \
-	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
-	  $(OMX_CONTRACT) render --target c --package omx-clap --installed $$wd --out $$tmp; \
-	for f in omx_clap_host_verbs.h omx_clap_vocabulary.h; do \
-	  $(if $(filter check-rendered,$@),diff -u include/plugin-hostd/$$f $$tmp/$$f >&2 || { echo "include/plugin-hostd/$$f is not the render of omx-clap's package" >&2; exit 1; },cp $$tmp/$$f include/plugin-hostd/$$f); \
-	done
+	  $(OMX_CONTRACT) render --target c --package $(NAME) --installed $(foreach d,plugin-hostd-protocol host hosting-verb,--with-domain contract.d/$(d)) --out include/plugin-hostd $(if $(filter check-rendered,$@),--check)
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
 	wd=""; for d in $$(printf %s "$(OMX_CONTRACT_PATH)" | tr : ' ') $(CONTRACTDIR); do \
 	  if [ -f $$d/plugin-db/plugin-db.json ]; then wd="--with-domain $$d/plugin-db"; break; fi; done; \
@@ -802,9 +799,8 @@ test-protocol-domain:
 # the C renders of this tree's own domains pin, estimate and probe (include/plugin-hostd/{pin,estimate,probe}_codes.h):
 # render-domains writes them, check-domain-renders holds them byte for byte (check-generated runs it). They read this
 # tree's contract.d first, then the contract directories render-verbs reads (OMX_CONTRACT_PATH, then the installed
-# one): the domain plugin-hostd-protocol names omx-clap's HOST_REPLY_CODES, so omx-clap's package must be installed beside it, at
-# the domain's info.x-requires names it (omx-clap-contract; data only, the protocol <-> omx-clap cycle of a chain is
-# bootstrapped from the clap chain head's contract)
+# one): the domain plugin-hostd-protocol names HOST_REPLY_CODES and HOSTING_VERB_HOSTS, which this tree's domains host and
+# hosting-verb declare, so the read needs no other package's domain (#67)
 DOMAIN_RENDERS = pin estimate probe
 .PHONY: render-domains check-domain-renders test-domain-renders
 render-domains check-domain-renders:
@@ -814,8 +810,8 @@ render-domains check-domain-renders:
 	    $(OMX_CONTRACT) render --target c --package $$p --installed --out include/plugin-hostd $(if $(filter check-domain-renders,$@),--check); \
 	done
 
-# check-domain-renders resolves a reference of this tree's domains to an installed owner's domain (the domain
-# plugin-hostd names omx-clap's HOST_REPLY_CODES), and refuses one whose owner is not installed by name
+# check-domain-renders resolves the domain plugin-hostd-protocol's HOST_REPLY_CODES in this tree's domain host, with or
+# without an installed contract directory, and refuses it by name in a copy of the tree without that domain
 test-domain-renders:
 	sh tests/domain-renders-test.sh
 

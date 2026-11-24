@@ -3,7 +3,7 @@
  *
  * tests/feedback_lines.c: one line of each shape plugin-hostd writes on its feedback port, printed through the formats
  * it prints them with (PHD_EVENT_*_FMT of protocol.h), so tests/feedback_args.py decodes what the daemon writes, not a
- * copy of it. abi_clobber and xruns are omx-clap's worker lines (HOST_EVENT_*_FMT of its src/host_verbs.h, not
+ * copy of it. abi_clobber and xruns are omx-clap-host's worker lines (HOST_EVENT_*_FMT of its src/host_verbs.h, not
  * installed), relayed as the worker wrote them: their formats are the two written here. */
 #include <stdio.h>
 
