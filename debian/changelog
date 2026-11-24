@@ -1,5 +1,9 @@
 plugin-hostd-protocol (0.9.0) unstable; urgency=medium
 
+  * plugin-db's package is no longer rendered here (#163):
+    plugin_db_vocabulary.h, its render, its check and its install are gone,
+    and the build depends on no plugin-db package. The pin words are this
+    package's domain pin (#164).
   * V16 as ruled 2026-11-23: the protocol's words are the domain
     plugin-hostd-protocol, installed as
     contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, every item

@@ -41,10 +41,6 @@ arm "the reply codes header by hand" include/plugin-hostd/plugin_hostd_protocol_
 arm "the shared verbs by hand" include/plugin-hostd/plugin_hostd_protocol_host_verbs.h '"note_on %i %i %i %i"' '"note_on %i %i %i"'
 arm "the domain host not rendered" contract.d/host/host.json '"x-resp": -109' '"x-resp": -199'
 arm "the domain hosting-verb not rendered" contract.d/hosting-verb/hosting-verb.json '"const": "mod-host"' '"const": "mod-hostd"'
-arm "plugin-db's words header by hand" include/plugin-hostd/plugin_db_vocabulary.h '"newest-version"' '"newest"'
-# plugin-db 0.4.7 moved the address-format words to its domain document (#47), which renders no words: a render that
-# takes them from plugin-db's old db file again leaves this define in the header
-arm "address-format words taken from db.json" include/plugin-hostd/plugin_db_vocabulary.h '\/\* PLUGIN_DB_BUNDLE_RULES' '#define OMX_PLUGIN_DB_ADDRESS_FORMATS_CLAP "clap"\n\/* PLUGIN_DB_BUNDLE_RULES'
 arm "the domain not rendered" contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json '"x-format": "chain_get %i"' '"x-format": "chain_get %i %i"'
 
 [ "$failed" = 0 ] && echo "rendered sabotage ok" || { echo "rendered sabotage FAILED"; exit 1; }

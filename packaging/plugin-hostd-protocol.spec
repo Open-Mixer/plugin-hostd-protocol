@@ -25,8 +25,6 @@ BuildRequires: python3-devel
 BuildRequires: omx-contract-devel
 # the codec's tests (make test-codec) read omx-contract's catalog reader
 BuildRequires: omx-contract-data
-# plugin-db's package of the contract directory. The committed vocabulary header is its render, checked by ci's declared-protocol job against the served contract; the package build (make test: %check, debian/rules) reads none of its words
-BuildRequires: plugin-db-contract
 # omx_curve.h, the curve function the curve verbs draw with (header only)
 BuildRequires: omx-dsp-devel
 
@@ -255,6 +253,9 @@ shows the English source sentence.
 
 %changelog
 * Tue Nov 24 2026 Pau Aliagas <linuxnow@gmail.com> - 0.9.0-1
+- plugin-db's package is no longer rendered here (#163): plugin_db_vocabulary.h,
+  its render, its check and its install are gone, and the build requires no
+  plugin-db package. The pin words are this package's domain pin (#164).
 - V16 as ruled 2026-11-23: the protocol's words are the domain
   plugin-hostd-protocol, installed as
   contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, every item named
