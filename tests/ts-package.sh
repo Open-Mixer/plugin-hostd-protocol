@@ -22,9 +22,12 @@ n=$(find "$dep/ts/shapes" -name 'reply_*.d.ts' | wc -l)
 s=$(find "$dep/shapes" -name 'reply_*.schema.json' | wc -l)
 [ "$n" -ge 1 ] && [ "$n" = "$s" ] || fail "the tarball holds $n renders and $s schemas"
 find "$root/shapes" -name 'reply_*.schema.json' | wc -l | grep -qx "$s" || fail "the tarball does not hold every schema of shapes/"
-for f in client.mjs client.d.mts lines.mjs lines.d.mts vocabulary.mjs vocabulary.d.mts; do
+for f in client.mjs client.d.mts codec/dist/index.js codec/dist/index.d.ts; do
     [ -f "$dep/clients/typescript/$f" ] || fail "the tarball holds no clients/typescript/$f"
 done
+# the codec reads omx-contract's catalogs: the consumer's dependency, here the checkout the types are compiled with
+mkdir -p "$work/app/node_modules/@openmixer"
+ln -s "$OMX_CONTRACT_DIR" "$work/app/node_modules/@openmixer/omx-contract"
 
 cat > "$work/app/good.ts" <<'T'
 import type { InstanceInfoReply } from '@openmixer/plugin-hostd-protocol/shapes/reply_instance_info';
@@ -36,12 +39,13 @@ const w: WorkerRecord = { worker: 'w3', pid: 4242, format: 'lv2', state: 'up', c
 const list: WorkerListReply = { workers: [w] };
 const curve: CurvePointsReply = { count: 1, marks: [{ freq: 1000, depth: 6, q: 2, origin: 'fbs-fixed' }], points: [{ x: 20, y: 0 }] };
 export const used = [info.pid + list.workers.length + curve.points[0]!.x];
-import type { Client, Curve, Point } from '@openmixer/plugin-hostd-protocol/client';
-import { VERBS } from '@openmixer/plugin-hostd-protocol/vocabulary';
+import type { Client, ConnectOptions, Curve, Point } from '@openmixer/plugin-hostd-protocol/client';
+import type { Protocol } from '@openmixer/plugin-hostd-protocol';
 declare const c: Client;
+declare const protocol: Protocol;
 export const pts: Promise<Curve> = c.curvePoints(3, 0, 128);
 export const first = (k: Curve): Point | undefined => k.points[0];
-export const forms = VERBS.curve_points.forms;
+export const options: ConnectOptions = { protocol, port: protocol.constant('default_command_port') };
 T
 sed '0,/pid: 4242/s//pid: "4242"/' "$work/app/good.ts" > "$work/app/bad.ts"
 for f in good bad; do
@@ -55,10 +59,13 @@ fi
 grep -q "^bad.ts(5,.*TS2322" "$work/log" || { cat "$work/log"; fail "bad.ts is refused, but not at its pid (line 5, TS2322)"; }
 echo "ok   bad.ts, a pid that is a string, is refused: $(head -n1 "$work/log" | head -c 100)"
 (cd "$work/app" && node --input-type=module -e "
-import { connect, HostdError } from '@openmixer/plugin-hostd-protocol/client';
-import { VERBS } from '@openmixer/plugin-hostd-protocol/vocabulary';
-import { encode } from '@openmixer/plugin-hostd-protocol/lines';
-if (typeof connect !== 'function' || typeof HostdError !== 'function' || !VERBS.curve_points) process.exit(1);
-if (encode('curve_points', 3, 0, 128) !== 'curve_points 3 0 128') process.exit(2);
-") || fail "the client does not import from the packed tarball, or does not write curve_points"
-echo "ok   the client imports from the packed tarball and writes curve_points 3 0 128"
+import { connect, HostdError, Protocol as Same } from '@openmixer/plugin-hostd-protocol/client';
+import { Protocol } from '@openmixer/plugin-hostd-protocol';
+if (typeof connect !== 'function' || typeof HostdError !== 'function' || Same !== Protocol) process.exit(1);
+const p = new Protocol({ table: '$root/protocol/plugin-hostd-protocol.json', contractDirs: [] });
+if (p.encode('curve_points', [3, 0, 128]) !== 'curve_points 3 0 128') process.exit(2);
+for (const gone of ['lines', 'vocabulary']) {
+  try { await import('@openmixer/plugin-hostd-protocol/' + gone); process.exit(3); } catch (e) { if (e.code !== 'ERR_PACKAGE_PATH_NOT_EXPORTED') throw e; }
+}
+") || fail "the client does not import from the packed tarball with the codec's Protocol, the codec does not write curve_points, or ./lines or ./vocabulary is still exported"
+echo "ok   the client imports from the packed tarball with the codec's Protocol, which writes curve_points 3 0 128; no ./lines, no ./vocabulary"

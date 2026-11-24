@@ -1,5 +1,10 @@
 plugin-hostd-protocol (0.9.0) unstable; urgency=medium
 
+  * One TypeScript encoder (#106): the npm package's ./client writes and
+    reads its lines through the codec's Protocol, its command port and reply
+    cap the table's constants (message_max, from SOCKET_MSG_MAX_SIZE, is one
+    now); the ./lines and ./vocabulary exports, their files and
+    tools/ts-client-gen.py are gone.
   * V16 as ruled 2026-11-23: the protocol's words are the domain
     plugin-hostd-protocol, installed as
     contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, every item
