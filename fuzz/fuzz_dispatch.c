@@ -252,12 +252,12 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
     return 0;
 }
 
-/* Each command gets a reply: the callback's, or a protocol error message. */
-__attribute__((noinline)) static void check_answered(void)
+/* Each command gets a reply: the callback's, or a protocol error message; an empty line, of blanks only, gets none. */
+__attribute__((noinline)) static void check_answered(int blank)
 {
     /* mutant: src/host-dispatch.c:131 `protocol_response_int(resp, proto);` -> `(void)resp;`
        input: scenario-1 */
-    if (fuzz_reply_len == 0)
+    if (blank ? fuzz_reply_len != 0 : fuzz_reply_len == 0)
         abort();
 }
 
@@ -336,13 +336,21 @@ int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         modeled = modeled && expected_reply(expect, sizeof(expect), words, count);
     }
 
+    /* an empty line, of blanks only (space, tab, CR, LF): no answer, so nothing of one to check */
+    int blank = 1;
+    for (const char *p = msg.data; *p; p++)
+        blank = blank && (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n');
+
     protocol_parse(&msg);
     free(msg.data);
 
-    check_answered();
-    check_one_answer();
-    check_shape();
-    check_value(modeled, expect);
+    check_answered(blank);
+    if (!blank)
+    {
+        check_one_answer();
+        check_shape();
+        check_value(modeled, expect);
+    }
     free(copy);
     return 0;
 }
