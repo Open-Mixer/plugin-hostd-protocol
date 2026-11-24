@@ -240,6 +240,13 @@ struct omx_host_verb {
 #define OMX_VERB_NODE_LABEL_CODES_COUNT 3u
 #define OMX_VERB_NODE_LABEL_CODES_INIT { -545, -3, -902 } /* reply.plugin-hostd.label-invalid, reply.host.instance-non-exists, reply.host.invalid-operation */
 
+/* PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.descriptionGet (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json): The key a client reads the plugin's description by in the descriptions store (omx-panel docs/descriptions-store.md): <uri>, answered <sha256> <format> <uri> <layer>, the layer that holds it; -529 when no layer holds it, -530 while its ask runs. */
+#define OMX_VERB_DESCRIPTION_GET "description_get"
+#define OMX_VERB_DESCRIPTION_GET_FMT "description_get %s"
+#define OMX_VERB_DESCRIPTION_GET_REPLY "resp 0 <sha256> <format> <uri> <layer>"
+#define OMX_VERB_DESCRIPTION_GET_CODES_COUNT 4u
+#define OMX_VERB_DESCRIPTION_GET_CODES_INIT { -529, -530, -901, -902 } /* reply.plugin-hostd.descriptor-absent, reply.plugin-hostd.descriptor-pending, reply.host.memory-allocation, reply.host.invalid-operation */
+
 /* PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS.hello (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json): Open a session: <version> [<extension> ...], the protocol version the client speaks and the extensions it asks for. The reply is the daemon's protocol version and, of the extensions asked for, the ones it grants, in the order of PLUGIN_HOSTD_PROTOCOL_EXTENSIONS; an extension the daemon does not know is not granted and is no error. Each hello replaces what the one before it granted, and a new connection starts with none. -902 for a version that is not a whole number of 1 or more, and nothing changes. */
 #define OMX_VERB_HELLO "hello"
 #define OMX_VERB_HELLO_FMT "hello %i ..."
@@ -282,7 +289,7 @@ struct omx_host_verb {
 #define OMX_VERB_MONITOR_OUTPUT_OFF_CODES_COUNT 2u
 #define OMX_VERB_MONITOR_OUTPUT_OFF_CODES_INIT { -543, -902 } /* reply.plugin-hostd.output-not-monitored, reply.host.invalid-operation */
 
-#define PLUGIN_HOSTD_PROTOCOL_HOST_VERB_COUNT 35u
+#define PLUGIN_HOSTD_PROTOCOL_HOST_VERB_COUNT 36u
 
 /* Every verb, in the order of its items, with what each host owes it. */
 static inline const struct omx_host_verb *plugin_hostd_protocol_host_verbs(void) {
@@ -316,6 +323,7 @@ static inline const struct omx_host_verb *plugin_hostd_protocol_host_verbs(void)
     { OMX_VERB_PLAN_CLEAR, OMX_VERB_PLAN_CLEAR_FMT, OMX_VERB_PLAN_CLEAR_REPLY, { OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_ESTIMATE, OMX_VERB_ESTIMATE_FMT, OMX_VERB_ESTIMATE_REPLY, { OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_NODE_LABEL, OMX_VERB_NODE_LABEL_FMT, OMX_VERB_NODE_LABEL_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },
+    { OMX_VERB_DESCRIPTION_GET, OMX_VERB_DESCRIPTION_GET_FMT, OMX_VERB_DESCRIPTION_GET_REPLY, { OMX_HOST_VERB_REQUIRED, OMX_HOST_VERB_UNSUPPORTED, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_HELLO, OMX_VERB_HELLO_FMT, OMX_VERB_HELLO_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_PARAM_GET_MANY, OMX_VERB_PARAM_GET_MANY_FMT, OMX_VERB_PARAM_GET_MANY_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },
     { OMX_VERB_PARAM_SET_MANY, OMX_VERB_PARAM_SET_MANY_FMT, OMX_VERB_PARAM_SET_MANY_REPLY, { OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_OPTIONAL, OMX_HOST_VERB_UNSUPPORTED } },
