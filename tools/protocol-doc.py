@@ -593,8 +593,9 @@ def curves(w):
       "each choice value. A binding may take more than one line, as a line is at most 64 words and a 32-band EQ's "
       "binding is 160 terms: each line adds its terms, and a line of another kind or family starts the binding again. "
       "Then each `curve_points` reads every bound parameter from the instance as it is at that moment, with the rate "
-      "the instance runs at, and answers the points omx-dsp's `omx_curve_points` draws, the one curve function every "
-      "surface calls. The host keeps the binding with the instance, drops it with the instance's remove and never "
+      "the instance runs at, and answers the points omx-dsp's `omx_curve_points_marked` draws, the one curve function every "
+      "surface calls, with the marks of the bands a feedback corrector planted, as the host's backend names their "
+      "origin (`param_origin`). The host keeps the binding with the instance, drops it with the instance's remove and never "
       "saves it; it judges nothing of it. A host built on this library answers both verbs once it calls "
       "`host_dispatch_register_curve()` with the rate of its instances; one that does not answers -902, and mod-host "
       "answers `not found`: a surface then draws the display's frame alone.")
@@ -617,7 +618,7 @@ def curves(w):
     w("> curve_bind 3 0 eq_response eq band_freq.1=f_1:Hz band_gain.1=g_1:coef band_q.1=w_1:oct band_type.1=ft_1@off|bell|lowshelf|highshelf")
     w("< resp 0")
     w("> curve_points 3 0 128")
-    w("< resp 0 134 20.00,0.00 20.54,0.00 ...")
+    w("< resp 0 134 - 20.00,0.00 20.54,0.00 ...")
     w("> curve_bind 4 0 transfer_curve dynamics threshold=thr:dBFS ratio=ratio:ratio knee=knee:dB makeup=gain:dB")
     w("< resp 0")
     w("> curve_points 4 0 1")
@@ -627,11 +628,11 @@ def curves(w):
     w("> curve_bind 4 2 time_response reverb size=size:coef mix=mix:coef algorithm=algo:none predelay=pre:ms")
     w("< resp 0")
     w("> curve_points 4 2 64")
-    w("< resp 0 64 0,0.00 ...")
+    w("< resp 0 64 - 0,0.00 ...")
     w("> curve_bind 4 3 time_response delay time=time:ms feedback=fb:coef tone=tone:coef mix=mix:coef pingpong=pp:none sync=sync:none")
     w("< resp 0")
     w("> curve_points 4 3 64")
-    w("< resp 0 0 stems 4 0,-4.44,1.000,both 250.0,-7.96,1.000,left 500.0,-13.98,0.538,right 750.0,-20.00,0.290,left")
+    w("< resp 0 0 - stems 4 0,-4.44,1.000,both 250.0,-7.96,1.000,left 500.0,-13.98,0.538,right 750.0,-20.00,0.290,left")
     w("> curve_bind 4 4 transfer_curve reverb mix=mix:coef")
     w("< resp -536     (a reverb is drawn as a time_response)")
     w("```")

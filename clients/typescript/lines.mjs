@@ -76,12 +76,21 @@ export function parseReply(line) {
   throw new HostdError('malformed', line);
 }
 
-/** curve_points' success reply, `resp 0 <count> <x>,<y> ...`, as `[{ x, y }]`; its count must be the number of points. */
+/** curve_points' success reply, `resp 0 <count> <marks> <x>,<y> ...`, as `{ points: [{ x, y }], marks: [{ freq, depth, q,
+ * origin }] }`; its count must be the number of points. The marks are one word, `-` when none, else each band a corrector
+ * planted as `<freq>,<depth>,<q>,<origin>` joined by `;`, its origin omx-dsp's word (CURVE_ORIGINS). */
 export function parseCurvePoints(result) {
-  const [count, ...pairs] = result.data;
+  const [count, word, ...pairs] = result.data;
   const points = pairs.map((p) => p.split(',').map(Number));
-  if (!/^[0-9]+$/.test(count ?? '') || Number(count) !== points.length || points.some((p) => p.length !== 2 || !p.every(Number.isFinite))) {
+  // the marks word is the table's list type marks (protocol.h): its pattern, whole, or the reply is malformed
+  const marksOk = word !== undefined && new RegExp(`^(?:${ARG_TYPES.marks.pattern})$`).test(word);
+  const marks = !marksOk || word === '-' ? [] : word.split(';').map((m) => m.split(','));
+  if (!/^[0-9]+$/.test(count ?? '') || !marksOk || Number(count) !== points.length
+      || points.some((p) => p.length !== 2 || !p.every(Number.isFinite)) || marks.some((m) => m.length !== 4)) {
     throw new HostdError('malformed', result.reply);
   }
-  return points.map(([x, y]) => ({ x, y }));
+  return {
+    points: points.map(([x, y]) => ({ x, y })),
+    marks: marks.map(([freq, depth, q, origin]) => ({ freq: Number(freq), depth: Number(depth), q: Number(q), origin })),
+  };
 }

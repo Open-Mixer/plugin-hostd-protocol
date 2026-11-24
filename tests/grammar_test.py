@@ -285,19 +285,27 @@ for line in ("", "clear threshold=t:db", "bar_graph dynamics threshold=t:db", "t
     must_not("curve-binding", line, "not a curve binding")
 curve_replies = 0
 for a in answers:
-    if re.match(r"resp 0 \d+ \S+,", a):
+    if re.match(r"resp 0 \d+ \S+ \S+,", a):
         must("curve-points-reply", a, "golden transcript, curve_points' reply")
         curve_replies += 1
 if curve_replies == 0:
     fail("the golden transcript holds no curve_points reply")
-# a reverb at mix 0 draws no point (resp 0 0); a delay's reply carries its taps after the points: `stems <count> <t>,<dB>,<shade>,<leg> ...`
-for line in ("resp 0 0", "resp 0 3 20.00,1.00 40.0,2.00 80.0,0.00",
-             "resp 0 0 stems 2 0,-4.44,1.000,both 250.0,-8.00,0.870,left",
-             "resp 0 2 0,-80.00 500.0,-80.00 stems 1 0,0.00,1.000,right"):
+# the marks follow the count as one word, `-` when none, else each `<freq>,<depth>,<q>,<origin>` joined by `;`; a
+# reverb at mix 0 draws no point (resp 0 0 -); a delay's reply carries its taps after the points:
+# `stems <count> <t>,<dB>,<shade>,<leg> ...`
+for line in ("resp 0 0 -", "resp 0 3 - 20.00,1.00 40.0,2.00 80.0,0.00",
+             "resp 0 3 1000,-6.00,2.00,fbs-fixed 20.00,1.00 40.0,2.00 80.0,0.00",
+             "resp 0 2 1000,-6.00,2.00,fbs-live;250.0,-3.50,4.50,room-mode 20.00,1.00 80.0,0.00",
+             "resp 0 1 63.00,-12.00,8.00,hrp 20.00,1.00",
+             "resp 0 0 - stems 2 0,-4.44,1.000,both 250.0,-8.00,0.870,left",
+             "resp 0 2 - 0,-80.00 500.0,-80.00 stems 1 0,0.00,1.000,right"):
     must("curve-points-reply", line, "a curve_points reply")
-for line in ("resp 0 1 20,0.0", "resp 0 2 20.00,1", "resp 0 3 x,0.00", "resp 0 0 stems", "resp 0 0 stems 0",
-             "resp 0 0 stems 1 0,0.00,1.000", "resp 0 0 stems 1 0,0.00,1.000,middle", "resp 0 0 stems 1 0,0.00,1.0,both",
-             "resp 0 0 stems 1 0,0.00,1.000,both 5"):
+for line in ("resp 0 0", "resp 0 3 20.00,1.00 40.0,2.00 80.0,0.00", "resp 0 1 - 20,0.0", "resp 0 2 - 20.00,1",
+             "resp 0 3 - x,0.00", "resp 0 0 - stems", "resp 0 0 - stems 0",
+             "resp 0 0 - stems 1 0,0.00,1.000", "resp 0 0 - stems 1 0,0.00,1.000,middle",
+             "resp 0 0 - stems 1 0,0.00,1.0,both", "resp 0 0 - stems 1 0,0.00,1.000,both 5",
+             "resp 0 1 1000,-6.00,2.00,user 20.00,1.00", "resp 0 1 1000,-6.00,2.00 20.00,1.00",
+             "resp 0 1 1000,-6.00,2.00,hrp; 20.00,1.00", "resp 0 1 1000,-6.00,2.00,hrp;- 20.00,1.00", "resp 0 0 - -"):
     must_not("curve-points-reply", line, "not a curve_points reply")
 with open(os.path.join(ROOT, "tests", "golden", "plugin-hostd-protocol.txt"), encoding="utf-8") as f:
     golden = f.read().split("\n")

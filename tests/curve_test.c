@@ -26,6 +26,7 @@
 #include <omxdsp/omx_curve.h>
 
 #include <host-backend.h>
+#include <plugin-hostd/protocol.h>
 #include <host-dispatch.h>
 #include <host-errors.h>
 #include <protocol.h>
@@ -138,8 +139,9 @@ static void write_x(char *xs, size_t size, double x)
         snprintf(xs, size, "%.*f", decimals, xv);
 }
 
-/* the reply curve_points must give: omx_curve_points_marked over the request, written as the verb writes it: the count
-   and each point, then, when the request is a delay's, `stems <count> <t>,<level>,<shade>,<leg> ...` */
+/* the reply curve_points must give: omx_curve_points_marked over the request, written as the verb writes it: the count,
+   the marks as one word (each <freq>,<depth>,<q>,<origin> joined by ';', or PHD_WORD_NONE), each point, then, when the
+   request is a delay's, `stems <count> <t>,<level>,<shade>,<leg> ...` */
 static void reply_of(const struct omx_curve_request *rq, char *out, size_t size)
 {
     double x[OMX_CURVE_POINTS_MAX], y[OMX_CURVE_POINTS_MAX];
@@ -161,7 +163,18 @@ static void reply_of(const struct omx_curve_request *rq, char *out, size_t size)
         snprintf(out, size, "omx_curve_points code %d", code);
         return;
     }
-    pos = (size_t)snprintf(out, size, "resp 0 %u", n);
+    pos = (size_t)snprintf(out, size, "resp 0 %u ", n);
+    if (ex.nmarks == 0)
+        pos += (size_t)snprintf(out + pos, size - pos, "%s", PHD_WORD_NONE);
+    for (uint32_t i = 0; i < ex.nmarks; i++)
+    {
+        char xs[32];
+        const struct omx_curve_mark *m = &ex.marks[i];
+
+        write_x(xs, sizeof(xs), m->freq_hz);
+        pos += (size_t)snprintf(out + pos, size - pos, "%s%s,%.2f,%.2f,%s", i ? ";" : "", xs,
+                                fabs(m->depth_db) < 0.005 ? 0.0 : m->depth_db, m->q, OMX_CURVE_ORIGIN_WORDS[m->origin]);
+    }
     for (uint32_t i = 0; i < n; i++)
     {
         char xs[32];
@@ -182,16 +195,22 @@ static void reply_of(const struct omx_curve_request *rq, char *out, size_t size)
                                     OMX_CURVE_LEG_WORDS[stems[i].leg]);
         }
     }
-    pos += (size_t)snprintf(out + pos, size - pos, " %u", ex.nmarks);
-    for (uint32_t i = 0; i < ex.nmarks; i++)
-    {
-        char xs[32];
-        const struct omx_curve_mark *m = &ex.marks[i];
+}
 
-        write_x(xs, sizeof(xs), m->freq_hz);
-        pos += (size_t)snprintf(out + pos, size - pos, " %s,%.2f,%.2f,%s", xs, fabs(m->depth_db) < 0.005 ? 0.0 : m->depth_db,
-                                m->q, OMX_CURVE_ORIGIN_WORDS[m->origin]);
+/* the marks word of a curve_points reply, the third, spelt out here and not by reply_of(): what a reader of the wire sees */
+static void expect_marks(conn_t *c, const char *what, const char *command, const char *want)
+{
+    static char got[REPLY_MAX];
+    char word[REPLY_MAX];
+
+    exchange(c, command, got, sizeof(got));
+    if (sscanf(got, "resp 0 %*u %s", word) != 1 || strcmp(word, want) != 0)
+    {
+        printf("FAIL %s '%.120s': got '%.200s', want its marks '%s'\n", what, command, got, want);
+        g_failures++;
+        return;
     }
+    printf("ok   %s '%.80s' -> marks '%s'\n", what, command, word);
 }
 
 static void expect_curve(conn_t *c, const char *what, const char *command, const struct omx_curve_request *rq)
@@ -326,6 +345,7 @@ int main(void)
         };
         struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_EQ_RESPONSE, OMX_CURVE_FAMILIES_EQ, 48000.0, 40u, 0, 0, 0, t, 3u, 0, 0.0};
         expect_curve(&c, "the corrector's band marked", "curve_points 4 4 40", &rq);
+        expect_marks(&c, "the corrector's band, as the wire spells it", "curve_points 4 4 40", "1000,6.00,2.00,fbs-fixed");
         set(4, 30, 2000.0f);
         t[0].value = 2000.0f;
         expect_curve(&c, "the mark follows the band's frequency", "curve_points 4 4 40", &rq);
@@ -341,6 +361,7 @@ int main(void)
         };
         struct omx_curve_request rq = {OMX_CURVE_DISPLAYS_EQ_RESPONSE, OMX_CURVE_FAMILIES_EQ, 48000.0, 40u, 0, 0, 0, t, 3u, 0, 0.0};
         expect_curve(&c, "a plugin's own band draws no mark", "curve_points 4 5 40", &rq);
+        expect_marks(&c, "no mark, as the wire spells it", "curve_points 4 5 40", "-");
     }
 
     /* -- a head filter's slope from its declared enumeration: the choice value picks the dB per octave */
@@ -414,7 +435,7 @@ int main(void)
     set(3, 7, 3.0f);
     expect(&c, "the gate's ratio", "curve_bind 3 0 transfer_curve gate ratio=p7:coef", "resp 0");
     exchange(&c, "curve_points 3 0 9", got, sizeof(got));
-    if (strncmp(got, "resp 0 9 -80.00,", 16) != 0)
+    if (strncmp(got, "resp 0 9 - -80.00,", 18) != 0)
         printf("FAIL the gate draws: got '%.80s'\n", got), g_failures++;
     else
         printf("ok   the gate draws once its terms are bound: '%.60s'\n", got);
@@ -450,7 +471,7 @@ int main(void)
         set(4, 1, 0.0f);
         t[1].value = 0.0f;
         expect_curve(&c, "a reverb at mix 0 draws nothing", "curve_points 4 0 32", &rq);
-        expect(&c, "a reverb at mix 0", "curve_points 4 0 32", "resp 0 0 0");
+        expect(&c, "a reverb at mix 0", "curve_points 4 0 32", "resp 0 0 -");
     }
     set(3, 10, 250.0f), set(3, 11, 0.5f), set(3, 12, 0.3f), set(3, 13, 0.4f), set(3, 14, 1.0f), set(3, 15, 0.0f);
     expect(&c, "bind a delay", "curve_bind 3 1 time_response delay time=p10:ms feedback=p11:coef tone=p12:coef mix=p13:coef pingpong=p14:none sync=p15:none", "resp 0");

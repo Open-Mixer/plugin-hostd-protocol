@@ -23,6 +23,7 @@
 #include "host-dispatch.h"
 #include "host-errors.h"
 #include "mod-host.h"
+#include "plugin-hostd/protocol.h"
 #include "plugin-hostd/plugin_hostd_protocol_host_verbs.h"
 #include "plugin-hostd/plugin_hostd_protocol_vocabulary.h"
 
@@ -374,8 +375,9 @@ int host_curve_code(int omx_code)
     }
 }
 
-/* curve_points <instance> <display> <points>. A reply is the count and each point, `resp 0 <count> <x>,<y> ...`; a delay's
-   time_response has no point but taps, which follow as `stems <count> <t>,<dB>,<shade>,<leg> ...` (doc/protocol.md) */
+/* curve_points <instance> <display> <points>. A reply is the count, the marks and each point,
+   `resp 0 <count> <marks> <x>,<y> ...`; a delay's time_response has no point but taps, which follow as
+   `stems <count> <t>,<dB>,<shade>,<leg> ...` (doc/protocol.md) */
 static void curve_points_cb(proto_t *proto)
 {
     int instance, display, points;
@@ -483,7 +485,19 @@ static void curve_points_cb(proto_t *proto)
         protocol_response_int(host_curve_code(code), proto);
         return;
     }
-    pos = (size_t)snprintf(buffer, sizeof(buffer), "resp 0 %u", n);
+    pos = (size_t)snprintf(buffer, sizeof(buffer), "resp 0 %u ", n);
+    /* the marks, one word after the count (protocol.h's list type marks): each band a corrector planted as
+       <freq>,<depth>,<q>,<origin> joined by ';', its origin the word omx-dsp spells, or PHD_WORD_NONE when none is */
+    if (ex.nmarks == 0 && pos < sizeof(buffer))
+        pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, "%s", PHD_WORD_NONE);
+    for (i = 0; i < ex.nmarks && pos < sizeof(buffer); i++)
+    {
+        const struct omx_curve_mark *m = &ex.marks[i];
+
+        format_x(xs, sizeof(xs), m->freq_hz);
+        pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, "%s%s,%.2f,%.2f,%s", i ? ";" : "", xs,
+                                fabs(m->depth_db) < 0.005 ? 0.0 : m->depth_db, m->q, OMX_CURVE_ORIGIN_WORDS[m->origin]);
+    }
     for (i = 0; i < n && pos < sizeof(buffer); i++)
     {
         format_x(xs, sizeof(xs), x[i]);
@@ -498,17 +512,6 @@ static void curve_points_cb(proto_t *proto)
         pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, " %s,%.2f,%.3f,%s", xs,
                                 fabs(stems[i].level_db) < 0.005 ? 0.0 : stems[i].level_db, stems[i].shade,
                                 OMX_CURVE_LEG_WORDS[stems[i].leg]);
-    }
-    if (pos < sizeof(buffer))
-        pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, " %u", ex.nmarks);
-    for (i = 0; i < ex.nmarks && pos < sizeof(buffer); i++)
-    {
-        const struct omx_curve_mark *m = &ex.marks[i];
-
-        format_x(xs, sizeof(xs), m->freq_hz);
-        pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, " %s,%.2f,%.2f,%s", xs,
-                                 fabs(m->depth_db) < 0.005 ? 0.0 : m->depth_db, m->q,
-                                 OMX_CURVE_ORIGIN_WORDS[m->origin]);
     }
     if (pos >= sizeof(buffer))
         protocol_response_int(ERR_MEMORY_ALLOCATION, proto);

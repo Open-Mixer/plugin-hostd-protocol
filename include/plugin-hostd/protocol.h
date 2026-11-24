@@ -1798,6 +1798,7 @@ static inline int phd_is_note_verb(const char *verb)
     X("segments", "instance-list", ";", "", "a plan's segments, each its instances") \
     X("core-segments", "core-list", ";", "", "each segment's cores") \
     X("reason-list", "reason", ",", PHD_WORD_NONE, "each member's reason") \
+    X("marks", "mark", ";", PHD_WORD_NONE, "the marks of a curve, the bands a corrector planted, in band order") \
     X("member-codes", "member-code", ",", PHD_WORD_NONE, "each member with no figure: its position and its code") \
     X("history", "history-entry", ",", PHD_WORD_NONE "|" PHD_WORD_UNAVAILABLE, \
       "a plugin's history: digest, class, crashed, raises_xruns and the history keys; " PHD_WORD_UNAVAILABLE \
@@ -1816,6 +1817,8 @@ static inline int phd_is_note_verb(const char *verb)
     X("member-code", ":", "position:uint code:int", "a member's position in the line and its code") \
     X("layout", PHD_PIN_SCHEME_SEPARATOR, "scheme:word sha256:sha256", "a layout pin, <scheme>:<sha256>") \
     X("point", ",", "x:number y:number", "a point of a curve") \
+    X("mark", ",", "freq:number depth:number q:number origin:word", \
+      "a band a corrector planted: its frequency, depth, Q and omx-dsp's origin word") \
     X("history-entry", "=", "key:key value:value", "a key=value of a history")
 
 /** @brief the replies of this tree's verbs, typed and named (#19), as rows X(verb, resp, args)
@@ -1847,7 +1850,7 @@ static inline int phd_is_note_verb(const char *verb)
       "verdict:estimate-verdict reason:estimate-reason") \
     X(OMX_VERB_HELLO, "0", "version:int extensions:word...") \
     X(OMX_VERB_PARAM_GET_MANY, "0", "values:word...") \
-    X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...")
+    X(OMX_VERB_CURVE_POINTS, "0", "count:uint marks:marks points:point...")
 
 /** @brief the printf format of the PHD_EVENT_WORKER_DIED line
  *

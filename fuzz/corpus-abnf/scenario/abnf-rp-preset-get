@@ -1,10 +1,10 @@
-preset_get 5 69 => resp 0 "!"
-preset_get -9 36 => resp 0 ϹǳS "" !!Χ
-preset_get 02 8 => resp 0 "ư"  !w!
-preset_get 69 8 => resp 0 Ν
-preset_get 300 -1 => resp 0 "P" ""
-preset_get -078 -6 => resp 0 "\""
-preset_get 71 74 => resp 0 s
-preset_get 693 259 => resp 0 Ы
+preset_get 6 -1 => resp 0 1у !s
+preset_get -69 -25 => resp 0 Ы
 preset_get -5 11 => resp 0 ˪ ˥!
 preset_get -207 0 => resp 0 "" p !Aς
+preset_get -131 231 => resp 0 "{\""
+preset_get 7 -88 => resp 0 P! !! "\"ϡ"
+preset_get 500 -006 => resp 0 ".Ǖ" ȗL ""
+preset_get 239 2 => resp 0 !rǭ ""
+preset_get 0 158 => resp 0 =!_ ""
+preset_get -168 69 => resp 0 ȝϙ "1\""
