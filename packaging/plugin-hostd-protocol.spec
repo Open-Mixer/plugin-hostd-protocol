@@ -265,6 +265,9 @@ shows the English source sentence.
   ask | no-ask, the verb description_get <uri> answered
   <sha256> <lv2|clap> <uri> <base|system|user>, the event description_changed
   <uri>; -529 and -530 also answer description_get.
+- The setting ask_unknown (#157): auto (the default), 1 or 0, a word of
+  PHD_CONF_STRINGS with its words in PHD_ASK_UNKNOWN_MODES; the add word
+  ask | no-ask overrides it for that add.
 
 * Sat Nov 21 2026 Pau Aliagas <linuxnow@gmail.com> - 0.8.0-1
 - The vocabulary sorting pass: the probe words (outcomes, reasons, steps, signals)

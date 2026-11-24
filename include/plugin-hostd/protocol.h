@@ -842,6 +842,27 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(OFF, PHD_GROUPING_OFF, OMX_VERB_PLAN " answers the plan it would make and applies none") \
     X(ON, PHD_GROUPING_ON, OMX_VERB_PLAN " applies its plan")
 
+/** @brief the ask_unknown setting that asks when plugin-qualify-sync is on the path */
+#define PHD_ASK_UNKNOWN_AUTO "auto"
+/** @brief the ask_unknown setting that always asks */
+#define PHD_ASK_UNKNOWN_ON   "1"
+/** @brief the ask_unknown setting that never asks */
+#define PHD_ASK_UNKNOWN_OFF  "0"
+/** @brief the words of ask_unknown, the descriptions store's ask (omx-panel docs/descriptions-store.md section 7), as rows
+ * X(id, name, meaning)
+ *
+ * The ask is for a plugin no layer of the store holds, once per key while the daemon runs. An add's last word, ask or
+ * no-ask, overrides the setting for that add either way.
+ *
+ * @param X the macro each row is passed to.
+ */
+#define PHD_ASK_UNKNOWN_MODES(X) \
+    X(AUTO, PHD_ASK_UNKNOWN_AUTO, "ask when plugin-qualify-sync is on the path; when it is absent, ask nothing and " \
+      "report nothing") \
+    X(ON, PHD_ASK_UNKNOWN_ON, "always ask, as the add word " PHD_ADD_ASK " does: when plugin-qualify-sync is absent no " \
+      "child runs and the reason is logged once") \
+    X(OFF, PHD_ASK_UNKNOWN_OFF, "never ask, as the add word " PHD_ADD_NO_ASK " does")
+
 /** @brief the placement setting that pins each new worker to the audio core that has the least load */
 #define PHD_CORE_PLACEMENT_SPREAD "spread"
 /** @brief the placement setting that pins nothing: the workers run where the daemon may */
@@ -2206,6 +2227,8 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_DEFAULT_POOL_MAX          8
 /** @brief the default of the grouping setting */
 #define PHD_DEFAULT_GROUPING          PHD_GROUPING_OFF
+/** @brief the default of the ask_unknown setting: ask when plugin-qualify-sync is on the path */
+#define PHD_DEFAULT_ASK_UNKNOWN       PHD_ASK_UNKNOWN_AUTO
 /** @brief the default of the placement setting */
 #define PHD_DEFAULT_PLACEMENT         PHD_CORE_PLACEMENT_SPREAD
 /** @brief the default of the bind_address setting */
@@ -2383,7 +2406,12 @@ static inline int phd_is_note_verb(const char *verb)
       "host class; empty is $XDG_STATE_HOME/" PHD_HISTORY_NAME ", else $HOME/.local/state/" PHD_HISTORY_NAME "; local to " \
       "this machine, mode 0600, written by the daemon alone, and deleted by history_clear") \
     X(host_class, word, "", "", "the host class the history is kept under, as arch/cores/clock (x86_64/5-8/2.5-3.5GHz); " \
-      "empty is the class of this machine, as the probe writes it; no white space")
+      "empty is the class of this machine, as the probe writes it; no white space") \
+    X(ask_unknown, word, PHD_DEFAULT_ASK_UNKNOWN, "", "auto, 1 or 0: whether an add of a plugin no layer of the " \
+      "descriptions store holds asks for its qualification and description (plugin-qualify-sync, then omx-panel describe " \
+      "and the generators, as children at idle priority, once per key while the daemon runs); auto asks when " \
+      "plugin-qualify-sync is on the path and does nothing when it is absent, 1 always asks, 0 never does; the add's last " \
+      "word, " PHD_ADD_ASK " or " PHD_ADD_NO_ASK ", overrides it for that add")
 
 /** @brief the whole-number settings, as rows X(key, default, unit, meaning)
  *
