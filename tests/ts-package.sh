@@ -34,12 +34,13 @@ import type { CurvePointsReply } from '@openmixer/plugin-hostd-protocol/shapes/r
 const info: InstanceInfoReply = { worker: 'w3', pid: 4242, state: 'up', crashes: 0, quarantined: 0 };
 const w: WorkerRecord = { worker: 'w3', pid: 4242, format: 'lv2', state: 'up', core: '-', pool: 'on', place: 'own', instances: ['7', '8!'] };
 const list: WorkerListReply = { workers: [w] };
-const curve: CurvePointsReply = { count: 1, points: [{ x: 20, y: 0 }] };
+const curve: CurvePointsReply = { count: 1, marks: [{ freq: 1000, depth: 6, q: 2, origin: 'fbs-fixed' }], points: [{ x: 20, y: 0 }] };
 export const used = [info.pid + list.workers.length + curve.points[0]!.x];
-import type { Client, Point } from '@openmixer/plugin-hostd-protocol/client';
+import type { Client, Curve, Point } from '@openmixer/plugin-hostd-protocol/client';
 import { VERBS } from '@openmixer/plugin-hostd-protocol/vocabulary';
 declare const c: Client;
-export const pts: Promise<Point[]> = c.curvePoints(3, 0, 128);
+export const pts: Promise<Curve> = c.curvePoints(3, 0, 128);
+export const first = (k: Curve): Point | undefined => k.points[0];
 export const forms = VERBS.curve_points.forms;
 T
 sed '0,/pid: 4242/s//pid: "4242"/' "$work/app/good.ts" > "$work/app/bad.ts"

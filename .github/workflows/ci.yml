@@ -186,29 +186,37 @@ jobs:
           gate: make check-catalogs
 
   # The reply shapes (doc/reply-shapes.md): shapes/ held to the table and to the replies, ts/shapes/ the render omx-contract
-  # writes with its pinned json-schema-to-typescript, and the npm package as a consumer imports it. Each guard is broken
-  # in a scratch copy and must go red (test-shapes-sabotage). omx-contract is read from its source at the commit that
-  # merged the shapes facility (omx-contract#69), not from the channel: the generator is a dev dependency there (npm ci)
-  # and no served package carries it. Move OMX_CONTRACT_REF with the render when a newer generator is wanted.
+  # writes with its json-schema-to-typescript, and the npm package as a consumer imports it. Each guard is broken in a
+  # scratch copy and must go red (test-shapes-sabotage). omx-contract is read from its source, not from the channel: the
+  # generator is a dev dependency there (npm ci) and no served package carries it. Its branch is the one this run's
+  # packages come from, never a hand-kept commit: a pull request's base (devel -> staging, main -> the channel), a push
+  # or dispatch on main main, anything else devel. The commit read is printed.
   shapes:
     name: reply shapes (schemas, TypeScript render, npm package)
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      OMX_CONTRACT_REF: 608ce65cb73aa9d7fe0ed4a39363c237200305f1
     steps:
       - uses: actions/checkout@v4
       - name: Toolchain
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-jsonschema
-      - name: omx-contract at its pinned commit, with its generator
+      - name: omx-contract from its source on this run's branch, with its generator
+        env:
+          BASE: ${{ github.base_ref }}
+          REF: ${{ github.ref_name }}
         run: |
           set -euo pipefail
+          case "$BASE" in
+            main|devel) branch=$BASE ;;
+            '') if [ "$REF" = main ]; then branch=main; else branch=devel; fi ;;
+            *) echo "a pull request into $BASE: omx-contract has no branch for it (main or devel)" >&2; exit 1 ;;
+          esac
           src=$RUNNER_TEMP/omx-contract
           git init -q "$src"
-          git -C "$src" fetch -q --depth 1 https://github.com/Open-Mixer/omx-contract "$OMX_CONTRACT_REF"
-          git -C "$src" checkout -q FETCH_HEAD
-          test "$(git -C "$src" rev-parse HEAD)" = "$OMX_CONTRACT_REF"
+          git -C "$src" fetch -q --depth 1 https://github.com/Open-Mixer/omx-contract "refs/heads/$branch"
+          sha=$(git -C "$src" rev-parse -q --verify 'FETCH_HEAD^{commit}') || { echo "omx-contract's $branch did not resolve" >&2; exit 1; }
+          git -C "$src" checkout -q "$sha"
+          echo "omx-contract $branch at $sha"
           (cd "$src" && npm ci --no-audit --no-fund)
           echo "OMX_CONTRACT_DIR=$src" >> "$GITHUB_ENV"
       - name: The schemas against the table and the replies
