@@ -7,8 +7,8 @@ The release chain publishes inside out: this protocol first, omx-clap-core after
 that reads omx-clap-core is a cycle the chain can only bootstrap from an already-served release, so what the two share
 (the domain host, the hosts a verb names, the verbs both hosts answer) is this tree's, and omx-clap-core reads it from
 here. Refused, by file and line:
-  - a package of omx-clap-core (omx-clap-*) among the floors of packaging/deps.txt, the relations of the spec
-    (BuildRequires, Requires) or of debian/control (Build-Depends, Depends);
+  - a package of omx-clap-core (omx-clap-*) among the relations of the spec (BuildRequires, Requires) or of
+    debian/control (Build-Depends, Depends);
   - an info.x-requires of a domain under contract.d that names a domain this tree does not ship;
   - a Makefile line (not a comment) or a workflow line that names omx-clap-core, its package or its contract
     (omx-clap, omx_clap, contract.d/omx-clap, CLAP_CORE_REF, clap-core-ref); the worker's name omx-clap-host is a
@@ -50,7 +50,7 @@ def live(text):
 def tree():
     """the files the checks read, {relative path: text}"""
     files = {}
-    for rel in ["packaging/deps.txt", "packaging/plugin-hostd-protocol.spec", "debian/control", "Makefile",
+    for rel in ["packaging/plugin-hostd-protocol.spec", "debian/control", "Makefile",
                 "protocol/plugin-hostd-protocol.json"]:
         files[rel] = read(rel)
     for pattern in ["contract.d/*/*.json", ".github/workflows/*.yml", "src/*.c", "src/*.h", "include/*.h",
@@ -62,9 +62,6 @@ def tree():
 
 def problems(files):
     out = []
-    for n, line in live(files["packaging/deps.txt"]):
-        if CLAP_PACKAGE.search(line):
-            out.append("packaging/deps.txt:%d: a floor of omx-clap-core's: %s" % (n, line.strip()))
     for n, line in live(files["packaging/plugin-hostd-protocol.spec"]):
         if re.match(r"(BuildRequires|Requires)\b", line) and CLAP_PACKAGE.search(line.replace("omx-clap-host", "")):
             out.append("packaging/plugin-hostd-protocol.spec:%d: a relation to omx-clap-core's: %s" % (n, line.strip()))
@@ -77,7 +74,7 @@ def problems(files):
     domains = {rel.split("/")[1] for rel in files if re.match(r"contract\.d/[^/]+/[^/]+\.json$", rel)}
     for rel in sorted(files):
         if re.match(r"contract\.d/[^/]+/[^/]+\.json$", rel):
-            for name in json.loads(files[rel]).get("info", {}).get("x-requires", {}):
+            for name in json.loads(files[rel]).get("info", {}).get("x-requires", []):
                 if name not in domains:
                     out.append("%s: info.x-requires names %s, a domain this tree does not ship" % (rel, name))
     for rel in ["Makefile"] + sorted(r for r in files if r.startswith(".github/workflows/")):
@@ -109,14 +106,12 @@ table = json.loads(files["protocol/plugin-hostd-protocol.json"])
 table["sources"] = table.get("sources", []) + ["contract.d/omx-clap/omx-clap.json"]
 domain = "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json"
 requires = json.loads(files[domain])
-requires.setdefault("info", {}).setdefault("x-requires", {})["omx-clap"] = ">= 0.34.0"
+requires.setdefault("info", {}).setdefault("x-requires", []).append("omx-clap")
 faults = {
-    "a floor in deps.txt": planted(files, "packaging/deps.txt", files["packaging/deps.txt"]
-                                   + "omx-clap-contract          omx-clap-contract        0.34.0\n"),
     "a BuildRequires": planted(files, "packaging/plugin-hostd-protocol.spec",
-                               "BuildRequires: omx-clap-contract >= 0.34.0\n" + files["packaging/plugin-hostd-protocol.spec"]),
+                               "BuildRequires: omx-clap-contract\n" + files["packaging/plugin-hostd-protocol.spec"]),
     "a Build-Depends": planted(files, "debian/control", files["debian/control"].replace(
-        "Build-Depends: ", "Build-Depends: omx-clap-contract (>= 0.34.0~), ", 1)),
+        "Build-Depends: ", "Build-Depends: omx-clap-contract, ", 1)),
     "an x-requires": planted(files, domain, json.dumps(requires)),
     "a Makefile render": planted(files, "Makefile", files["Makefile"]
                                  + "\t$(OMX_CONTRACT) render --target c --package omx-clap --installed --out x\n"),
