@@ -3,7 +3,7 @@ Source: plugin-hostd-protocol
 Section: libs
 Priority: optional
 Maintainer: Pau Aliagas <linuxnow@gmail.com>
-Build-Depends: debhelper-compat (= 13), libomx-contract-dev (>= 3.21.0~), omx-clap-contract (>= 0.34.0~), omx-contract-data (>= 3.21.0~), plugin-db-contract (>= 0.4.4~), libomxdsp-dev (>= 0.34.0~), pkgconf, python3
+Build-Depends: debhelper-compat (= 13), libomx-contract-dev (>= 3.22.0~), omx-clap-contract (>= 0.34.0~), omx-contract-data (>= 3.21.0~), plugin-db-contract (>= 0.4.4~), libomxdsp-dev (>= 0.34.0~), pkgconf, python3
 Standards-Version: 4.6.2
 Homepage: https://github.com/Open-Mixer/plugin-hostd-protocol
 Vcs-Git: https://github.com/Open-Mixer/plugin-hostd-protocol.git
