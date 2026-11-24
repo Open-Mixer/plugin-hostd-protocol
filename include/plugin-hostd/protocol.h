@@ -1074,8 +1074,9 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 /** @brief the most characters of a user preset's alias, its short label for a small display (preset.schema.json
  * maxLength) */
 #define PHD_PRESET_ALIAS_MAX  12
-/** @brief the size bound of a user-preset file the protocol declares, in bytes: 64 MiB; a reader may hold a lower
- * bound of its own */
+/** @brief the protocol's ceiling on a user-preset file, in bytes: a reader refuses a longer one. A daemon may hold a
+ * stricter limit of its own and must assert at build time that it is at most this one (ruled 2026-11-23 on #70:
+ * omx-clap-core keeps 3 MiB with a static assert against this, Open-Mixer/omx-clap-core#182) */
 #define PHD_PRESET_FILE_MAX   (64 * 1024 * 1024)
 /** @brief the parameters on one remote page */
 #define PHD_REMOTE_PAGE_SLOTS 8
