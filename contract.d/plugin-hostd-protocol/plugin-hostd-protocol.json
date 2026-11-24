@@ -130,7 +130,8 @@
             "x-text": "This plugin failed its checks and is blocked; only you can allow it, by approving the plugin.",
             "x-args": [],
             "x-name": "pinRefused",
-            "x-resp": -516
+            "x-resp": -516,
+            "x-leaves-no-mark": true
           },
           {
             "const": "reply.plugin-hostd.chain-unknown-instance",

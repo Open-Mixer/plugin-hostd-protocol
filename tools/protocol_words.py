@@ -35,7 +35,8 @@ def _item(it):
     if out["kind"] == "codes":
         out["codes"] = {w["x-name"]: _drop({"code": w["const"], "doc": w.get("description"),
                                             "text": {"en": w["x-text"]} if "x-text" in w else None, "args": w.get("x-args"),
-                                            "resp": w.get("x-resp"), "transient": w.get("x-transient")}) for w in words}
+                                            "resp": w.get("x-resp"), "transient": w.get("x-transient"),
+                                            "leavesNoMark": w.get("x-leaves-no-mark")}) for w in words}
     elif out["kind"] == "verbs":
         out["verbs"] = {w["title"]: _drop({"verb": w["const"], "doc": w.get("description"), "format": w.get("x-format"),
                                            "reply": w.get("x-reply"), "codes": w.get("x-codes"),
@@ -79,7 +80,7 @@ def _word(kind, key, v, i):
     if kind == "codes":
         w = {"const": v["code"], "title": key, "description": v.get("doc"), "x-code": i,
              "x-text": v.get("text", {}).get("en"), "x-args": v.get("args"), "x-name": key, "x-resp": v.get("resp"),
-             "x-transient": v.get("transient")}
+             "x-transient": v.get("transient"), "x-leaves-no-mark": v.get("leavesNoMark")}
     elif kind == "verbs":
         w = {"const": v["verb"], "title": key, "description": v.get("doc"), "x-code": i, "x-format": v.get("format"),
              "x-reply": v.get("reply"), "x-codes": v.get("codes"), "x-implemented-by": v.get("implementedBy"),
