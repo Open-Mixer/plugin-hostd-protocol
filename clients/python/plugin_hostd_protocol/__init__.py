@@ -341,6 +341,9 @@ class Protocol:
         # the codes an identical request may pass later with no change by the caller (#23, D22, D23): the table's
         # declaration, never a list of names
         self._transient = frozenset(r["resp"] for r in t["reply_codes"] if r.get("transient") is True)
+        # the codes that leave no mark on the plugin, no verdict and no history (the pin-refused class, ruled
+        # 2026-11-15): the table's declaration too
+        self._leaves_no_mark = frozenset(r["resp"] for r in t["reply_codes"] if r.get("leaves_no_mark") is True)
         # the verbs and the reply codes as constants (#24); two codes of one last segment would be one name: refused
         self.verb = Names("verb", {w: w for w in list(self.commands) + list(self.feedback)})
         short = {}
@@ -651,6 +654,15 @@ class Protocol:
         if resp not in self.names:
             raise ProtocolError("the protocol declares no code %s" % code)
         return resp in self._transient
+
+    def leaves_no_mark(self, code):
+        """Whether a refusal leaves no mark on the plugin, by its number or its name: no verdict and no history is
+        written for it, as the table declares it (a refused pin: the plugin is not marked, and the same request is
+        refused again until the pin changes, so it is not transient). ProtocolError for a code the table lacks."""
+        resp = self._code(code) if isinstance(code, str) else code
+        if resp not in self.names:
+            raise ProtocolError("the protocol declares no code %s" % code)
+        return resp in self._leaves_no_mark
 
     def name(self, code):
         """The name of a reply code, or None for a number the table gives no name."""
