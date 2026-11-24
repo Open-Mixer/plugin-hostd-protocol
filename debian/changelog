@@ -1,3 +1,15 @@
+plugin-hostd-protocol (0.9.0) unstable; urgency=medium
+
+  * V16 as ruled 2026-11-23: the protocol's words are the domain
+    plugin-hostd-protocol, installed as
+    contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, every item
+    named PLUGIN_HOSTD_PROTOCOL_* (REPLY_CODES, DAEMON_VERBS, LIBRARY_VERBS,
+    EXTENSIONS); it no longer shares <contractdir>/plugin-hostd/ with
+    plugin-hostd's package and nested domains. No C macro changes.
+  * The TypeScript codec reads the domains in one loop, as the Python codec.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Tue, 24 Nov 2026 12:00:00 +0100
+
 plugin-hostd-protocol (0.8.1) unstable; urgency=medium
 
   * tests: the empty-contract arms of param_scales_test and

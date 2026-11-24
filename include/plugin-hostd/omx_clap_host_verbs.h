@@ -25,7 +25,7 @@ enum omx_host_verb_level {
   OMX_HOST_VERB_OPTIONAL = 1,
   OMX_HOST_VERB_REQUIRED = 2,
 };
-/* The hosts of VERB_HOSTS, a column each of a verb's level, in this order. */
+/* The hosts of HOSTING_VERB_HOSTS, a column each of a verb's level, in this order. */
 #define OMX_HOST_VERB_HOST_PLUGIN_HOSTD 0u
 #define OMX_HOST_VERB_HOST_OMX_CLAP_HOST 1u
 #define OMX_HOST_VERB_HOST_MOD_HOST 2u

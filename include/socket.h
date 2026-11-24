@@ -109,6 +109,7 @@ int socket_set_bind_address(const char *address);
  *     stays open until socket_finish.
  */
 int socket_start(int socket_port, int feedback_port, int buffer_size);
+/** @brief 1: this header declares socket_adopt, so a caller can test for it with \#ifdef */
 #define SOCKET_HAS_ADOPT 1
 /** @brief serves listening sockets the caller already bound, in place of the ports socket_start binds
  *

@@ -130,7 +130,16 @@ char** strarr_split(char *str);
  * @return how many strings come before the NULL; 0 for NULL.
  */
 uint32_t strarr_length(char **str_array);
-// joins a string array in a single string
+/** @brief turns the words strarr_split cut back into one line, in place, and returns it
+ *
+ * The byte before each word after the first becomes a space. That byte is the NUL strarr_split wrote over a single
+ * space; after a run of spaces it is the last space of the run, so the NUL over the first one stays, and the line
+ * returned ends at the word before the run. A quoted word keeps the NUL over its closing quote, and the line ends
+ * there too. The array is not freed.
+ *
+ * @param[in] str_array the array strarr_split returned, or NULL.
+ * @return the first word, now the line; NULL when str_array is NULL.
+ */
 char* strarr_join(char** const str_array);
 /** @brief copies a string into memory allocated with MALLOC
  *
@@ -142,27 +151,52 @@ char* strarr_join(char** const str_array);
  */
 char *str_duplicate(const char *str);
 
-// safely compare 2 float values, inlined for speed
+/** @brief tells two floats apart by more than rounding near 1
+ *
+ * @param a one value.
+ * @param b the other.
+ * @return true when |a - b| is FLT_EPSILON or more, an absolute difference whatever the values' size.
+ */
 static inline
 bool floats_differ_enough(float a, float b)
 {
     return fabsf(a - b) >= FLT_EPSILON;
 }
 
+/** @brief tells two doubles apart by more than rounding near 1
+ *
+ * @param a one value.
+ * @param b the other.
+ * @return true when |a - b| is DBL_EPSILON or more, an absolute difference whatever the values' size.
+ */
 static inline
 bool doubles_differ_enough(double a, double b)
 {
     return fabs(a - b) >= DBL_EPSILON;
 }
 
-// clamp a value to be within a certain range
+/** @brief holds an int to a range
+ *
+ * @pre min <= max.
+ * @param value the value.
+ * @param min the lowest value returned.
+ * @param max the highest value returned.
+ * @return min when value is below it, max when value is above it, value otherwise.
+ */
 static inline
 int clamp(int value, int min, int max)
 {
     return value < min ? min : (value > max ? max : value);
 }
 
-// clamp a value to be within a certain range (float version)
+/** @brief holds a float to a range
+ *
+ * @pre min <= max, neither a NaN.
+ * @param value the value; a NaN is returned as it is.
+ * @param min the lowest value returned.
+ * @param max the highest value returned.
+ * @return min when value is below it, max when value is above it, value otherwise.
+ */
 static inline
 float clampf(float value, float min, float max)
 {

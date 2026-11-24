@@ -42,7 +42,7 @@
 #include "mod-host.h"
 #include "session.h"
 #include "socket.h"
-// the bulk verbs, declared with the protocol's own (data/verbs.json)
+// the bulk verbs, declared with the protocol's own (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json)
 #include "plugin-hostd/omx_clap_host_verbs.h"
 #include "plugin-hostd/plugin_hostd_protocol_host_verbs.h"
 #include "plugin-hostd/protocol.h"
