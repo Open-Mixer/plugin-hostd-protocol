@@ -159,7 +159,8 @@ test-doc-gates:
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
       check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-ask-unknown test-code-text test-client test-codec test-nul test-no-floors test-no-clap-core-read test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass \
-      test-fuzz-record-lines
+      test-fuzz-record-lines \
+      test-client-installed
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -471,6 +472,17 @@ test-reply-args:
 .PHONY: test-client
 test-client:
 	python3 tests/client_test.py
+
+# the client as its consumers get it (issue 45): install-python's two packages staged alone, imported by python3 -I
+# with no tree and no plugin-hostd on the path, a command sent and a reply parsed; then the sabotage of each way out
+.PHONY: test-client-installed
+test-client-installed:
+	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
+	$(MAKE) --no-print-directory install-python install-contract DESTDIR=$$tmp PYTHON3_SITELIB=/site >/dev/null; \
+	export PLUGIN_HOSTD_PROTOCOL_TABLE=$(CURDIR)/protocol/plugin-hostd-protocol.json \
+	  PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR); \
+	(cd $$tmp && python3 -I $(CURDIR)/tests/client_installed_test.py $$tmp/site $(CURDIR)); \
+	sh tests/client-installed-sabotage.sh $$tmp/site
 
 # the Python client and codec refuse a NUL at their doors, and the sabotage that turns each off
 .PHONY: test-nul
