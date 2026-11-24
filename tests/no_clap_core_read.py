@@ -9,7 +9,8 @@ that reads omx-clap-core is a cycle the chain can only bootstrap from an already
 here. Refused, by file and line:
   - a package of omx-clap-core (omx-clap-*) among the relations of the spec (BuildRequires, Requires) or of
     debian/control (Build-Depends, Depends);
-  - an info.x-requires of a domain under contract.d that names a domain this tree does not ship;
+  - an info.x-requires of a domain under contract.d that names a domain this tree does not ship, or that is no
+    non-empty list of names (the old map of floors, or []);
   - a Makefile line (not a comment) or a workflow line that names omx-clap-core, its package or its contract
     (omx-clap, omx_clap, contract.d/omx-clap, CLAP_CORE_REF, clap-core-ref); the worker's name omx-clap-host is a
     word of the protocol, not a read, and so is this check's own name;
@@ -74,7 +75,12 @@ def problems(files):
     domains = {rel.split("/")[1] for rel in files if re.match(r"contract\.d/[^/]+/[^/]+\.json$", rel)}
     for rel in sorted(files):
         if re.match(r"contract\.d/[^/]+/[^/]+\.json$", rel):
-            for name in json.loads(files[rel]).get("info", {}).get("x-requires", []):
+            info = json.loads(files[rel]).get("info", {})
+            req = info.get("x-requires", [])
+            if not isinstance(req, list) or ("x-requires" in info and not req):
+                out.append("%s: info.x-requires is %s, not a non-empty list of names" % (rel, json.dumps(req)[:60]))
+                continue
+            for name in req:
                 if name not in domains:
                     out.append("%s: info.x-requires names %s, a domain this tree does not ship" % (rel, name))
     for rel in ["Makefile"] + sorted(r for r in files if r.startswith(".github/workflows/")):
@@ -106,13 +112,19 @@ table = json.loads(files["protocol/plugin-hostd-protocol.json"])
 table["sources"] = table.get("sources", []) + ["contract.d/omx-clap/omx-clap.json"]
 domain = "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json"
 requires = json.loads(files[domain])
-requires.setdefault("info", {}).setdefault("x-requires", []).append("omx-clap")
+requires.setdefault("info", {})["x-requires"] = sorted(requires["info"].get("x-requires", []) + ["omx-clap"])
+as_map = json.loads(files[domain])
+as_map.setdefault("info", {})["x-requires"] = {n: ">= 1.0.0" for n in as_map["info"].get("x-requires", ["host"])}
+as_empty = json.loads(files[domain])
+as_empty.setdefault("info", {})["x-requires"] = []
 faults = {
     "a BuildRequires": planted(files, "packaging/plugin-hostd-protocol.spec",
                                "BuildRequires: omx-clap-contract\n" + files["packaging/plugin-hostd-protocol.spec"]),
     "a Build-Depends": planted(files, "debian/control", files["debian/control"].replace(
         "Build-Depends: ", "Build-Depends: omx-clap-contract, ", 1)),
     "an x-requires": planted(files, domain, json.dumps(requires)),
+    "an x-requires map": planted(files, domain, json.dumps(as_map)),
+    "an empty x-requires": planted(files, domain, json.dumps(as_empty)),
     "a Makefile render": planted(files, "Makefile", files["Makefile"]
                                  + "\t$(OMX_CONTRACT) render --target c --package omx-clap --installed --out x\n"),
     "a workflow clone": planted(files, ".github/workflows/ci.yml", files.get(".github/workflows/ci.yml", "")

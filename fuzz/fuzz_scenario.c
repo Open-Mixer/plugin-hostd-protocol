@@ -71,7 +71,7 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
 /* A load keeps the lines that are neither blank nor a comment, and answers -1 for a line it cannot read. */
 __attribute__((noinline)) static void check_kept(int in_domain, int n, int want)
 {
-    /* mutant: src/host-scenario.c:238 `*text == '#'` -> `*text == '#' || *text == '@'`
+    /* mutant: src/host-scenario.c:231 `*text == '#'` -> `*text == '#' || *text == '@'`
        input: guarded */
     if (in_domain && n != want)
         abort();
@@ -80,7 +80,7 @@ __attribute__((noinline)) static void check_kept(int in_domain, int n, int want)
 /* A load answers the number of lines it kept, and never keeps more than the list holds. */
 __attribute__((noinline)) static void check_count(int n, const host_scenario_list_t *list)
 {
-    /* mutant: src/host-scenario.c:273 `return list->count;` -> `return list->count + 1;`
+    /* mutant: src/host-scenario.c:266 `return list->count;` -> `return list->count + 1;`
        input: nul */
     if (n != list->count || n > HOST_SCENARIO_MAX_LINES)
         abort();
@@ -92,7 +92,7 @@ __attribute__((noinline)) static void check_whole(int n, const host_scenario_lis
     int whole = 0;
     for (int i = 0; i < n; i++)
         whole += list->lines[i].command != NULL && list->lines[i].reply != NULL;
-    /* mutant: src/host-scenario.c:269 `sc->reply = substitute(trim(arrow + 2), vars, var_count);` -> `sc->reply = NULL;`
+    /* mutant: src/host-scenario.c:262 `sc->reply = substitute(trim(arrow + 2), vars, var_count);` -> `sc->reply = NULL;`
        input: host-scenarios */
     if (whole != n)
         abort();
@@ -102,7 +102,7 @@ __attribute__((noinline)) static void check_whole(int n, const host_scenario_lis
    $URI, $PORT_A and $EMPTY replaced. */
 __attribute__((noinline)) static void check_text(const host_scenario_t *line, const char *command, const char *reply)
 {
-    /* mutant: src/host-scenario.c:269 `trim(arrow + 2)` -> `trim(text)`
+    /* mutant: src/host-scenario.c:262 `trim(arrow + 2)` -> `trim(text)`
        input: guarded */
     if (strcmp(line->command, command) != 0 || strcmp(line->reply, reply) != 0)
         abort();

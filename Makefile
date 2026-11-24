@@ -158,7 +158,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-ask-unknown test-code-text test-client test-codec test-nul test-no-floors test-no-clap-core-read test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass \
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-ask-unknown test-code-text test-client test-codec test-nul test-no-floors test-requires-list test-probe-format test-no-clap-core-read test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass \
       test-fuzz-record-lines \
       test-client-installed \
       test-curve-words
@@ -183,6 +183,17 @@ test-same-pass:
 # between this tree's own packages are generated (= version), and there is no packaging/deps.txt (owner ruling 2026-11-24)
 test-no-floors:
 	python3 tests/no_floors.py .
+
+# info.x-requires is a sorted list of names or absent: the one reader refuses the old map of floors, [] and an unsorted
+# list by name (tests/requires_list_test.py)
+.PHONY: test-requires-list
+test-requires-list:
+	python3 tests/requires_list_test.py
+
+# the probe output is format 2.0, the one its readers read (#172): protocol.h's major and minor are pinned
+.PHONY: test-probe-format
+test-probe-format:
+	python3 tests/probe_format_test.py .
 
 # this tree's build reads nothing of omx-clap-core: the release chain publishes this protocol first (#67)
 .PHONY: test-no-clap-core-read
@@ -578,7 +589,7 @@ check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-gr
 # name, so a <contractdir>/<schema major>/plugin-hostd-protocol/ beside it would hide it (`lists the domain
 # plugin-hostd-protocol, which is not installed`); plugin-db's domains are installed the same way (ruling V16, 2026-11-23)
 install-contract:
-	@test -n "$(INSTALL_CONTRACT_DIR)" || { echo "install-contract: no install-contract-dir.sh: install omx-contract-devel 3.22.0 or later (its --domain mode names the installing package), or set OMX_CONTRACT_DIR to a checkout" >&2; exit 1; }
+	@test -n "$(INSTALL_CONTRACT_DIR)" || { echo "install-contract: no install-contract-dir.sh: install omx-contract-devel (its --domain mode names the installing package), or set OMX_CONTRACT_DIR to a checkout" >&2; exit 1; }
 	for d in $(CONTRACT_DOMAINS); do sh $(INSTALL_CONTRACT_DIR) --domain contract.d/$$d $(DESTDIR)$(CONTRACTDIR) $(NAME) || exit 1; done
 	install -d $(DESTDIR)$(DATADIR)/$(NAME)/catalogs
 	install -m 644 catalogs/*.json $(DESTDIR)$(DATADIR)/$(NAME)/catalogs/

@@ -268,22 +268,22 @@ if not units:
 for unit in units:
     if not parses("curve-unit", unit):
         fail(f"curve-unit refuses {unit!r}, an id of omx-dsp's OMX_CURVE_UNIT_WORDS")
-for line in ("clear", "transfer_curve dynamics threshold=thr:dbfs ratio=ratio:ratio knee=k:db makeup=g:db",
-             "eq_response eq band_freq.0=f_0:hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf",
-             "eq_response eq band_type.31=t-31@-|bell band_freq.31=f.31:khz@notch hpf_on=:bypass",
-             "eq_response eq band_type.0=t@bell|allpass1|allpass2 band_freq.0=f:hz hpf_slope=s@12|24 lpf_slope=l:db",
-             "transfer_curve gate threshold=t:db range=r:db knee_start=a:db knee_end=b:db ratio=q:coef",
-             "transfer_curve drive drive=d:db tone=t:coef mix=m:pc output=o:db model=k:none",
+for line in ("clear", "transfer_curve dynamics threshold=thr:dBFS ratio=ratio:ratio knee=k:dB makeup=g:dB",
+             "eq_response eq band_freq.0=f_0:Hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf",
+             "eq_response eq band_type.31=t-31@-|bell band_freq.31=f.31:kHz@notch hpf_on=:bypass",
+             "eq_response eq band_type.0=t@bell|allpass1|allpass2 band_freq.0=f:Hz hpf_slope=s@12|24 lpf_slope=l:dB",
+             "transfer_curve gate threshold=t:dB range=r:dB knee_start=a:dB knee_end=b:dB ratio=q:coef",
+             "transfer_curve drive drive=d:dB tone=t:coef mix=m:percent output=o:dB model=k:none",
              "time_response reverb size=s:coef mix=m:coef algorithm=a:none predelay=p:ms decay=d:s damping=g:coef width=w:coef",
              "time_response delay time=t:ms feedback=f:coef tone=o:coef mix=m:coef pingpong=p:none sync=s:none division=d:none",
-             "time_response reverb low_cut=l:hz high_cut=h:khz"):
+             "time_response reverb low_cut=l:Hz high_cut=h:kHz"):
     must("curve-binding", line, "a curve binding")
     must("cmd-curve-bind", "curve_bind 3 0 " + line, "a curve_bind line")
-for line in ("", "clear threshold=t:db", "bar_graph dynamics threshold=t:db", "transfer_curve dynamics",
-             "transfer_curve dynamics threshold", "transfer_curve dynamics attack=a:ms", "eq_response eq band_freq.x=f:hz",
-             "eq_response eq band_freq.=f:hz", "transfer_curve dynamics threshold=", "transfer_curve dynamics threshold=t:",
+for line in ("", "clear threshold=t:dB", "bar_graph dynamics threshold=t:dB", "transfer_curve dynamics",
+             "transfer_curve dynamics threshold", "transfer_curve dynamics attack=a:ms", "eq_response eq band_freq.x=f:Hz",
+             "eq_response eq band_freq.=f:Hz", "transfer_curve dynamics threshold=", "transfer_curve dynamics threshold=t:",
              "eq_response eq band_type.0=t@bell|wobble", "eq_response eq band_type.0=t@bell||notch",
-             "transfer_curve dynamics threshold=t/x:db", "transfer_curve Dynamics threshold=t:db",
+             "transfer_curve dynamics threshold=t/x:dB", "transfer_curve Dynamics threshold=t:dB",
              "time_response", "time_response reverb", "time_response reverb size", "Time_response reverb size=s:coef",
              "eq_response eq hpf_slope=s@0|24", "eq_response eq hpf_slope=s@12|", "eq_response eq hpf_slope=s@1234"):
     must_not("curve-binding", line, "not a curve binding")

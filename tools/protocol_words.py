@@ -55,7 +55,24 @@ def items(path=None):
 
 
 def requires(path=None):
-    return document(path)["info"].get("x-requires", [])
+    """The packages and domains the document may refer to: info.x-requires, a sorted list of distinct names with no
+    version, or [] when the field is absent. A map (the old floors form), an empty list or anything but such a list
+    is refused by name."""
+    return check_requires(document(path)["info"], path or DOMAIN)
+
+
+def check_requires(info, where):
+    if "x-requires" not in info:
+        return []
+    req = info["x-requires"]
+    if not isinstance(req, list):
+        sys.exit("protocol_words: %s: info.x-requires is a %s, not a list of names (no version is kept by hand)"
+                 % (where, type(req).__name__))
+    if not req:
+        sys.exit("protocol_words: %s: info.x-requires is [], write no x-requires at all" % where)
+    if not all(isinstance(n, str) and n for n in req) or req != sorted(set(req)):
+        sys.exit("protocol_words: %s: info.x-requires %r is not a sorted list of distinct names" % (where, req))
+    return req
 
 
 def _word(kind, key, v, i):

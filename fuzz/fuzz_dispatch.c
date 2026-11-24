@@ -255,7 +255,7 @@ int LLVMFuzzerInitialize(int *argc, char ***argv)
 /* Each command gets a reply: the callback's, or a protocol error message; an empty line, of blanks only, gets none. */
 __attribute__((noinline)) static void check_answered(int blank)
 {
-    /* mutant: src/host-dispatch.c:131 `protocol_response_int(resp, proto);` -> `(void)resp;`
+    /* mutant: src/host-dispatch.c:130 `protocol_response_int(resp, proto);` -> `(void)resp;`
        input: scenario-1 */
     if (blank ? fuzz_reply_len != 0 : fuzz_reply_len == 0)
         abort();
@@ -274,17 +274,17 @@ __attribute__((noinline)) static void check_one_answer(void)
    included. */
 __attribute__((noinline)) static void check_value(int modeled, const char *expect)
 {
-    /* mutant: src/host-dispatch.c:211 `resp, value);` -> `resp, 0.0);`
+    /* mutant: src/host-dispatch.c:210 `resp, value);` -> `resp, 0.0);`
        input: param-get
-       mutant: src/host-dispatch.c:613 `info.max` -> `info.min`
+       mutant: src/host-dispatch.c:612 `info.max` -> `info.min`
        input: extra-8
-       mutant: src/host-dispatch.c:544 `"Infinity"` -> `"inf"`
+       mutant: src/host-dispatch.c:543 `"Infinity"` -> `"inf"`
        input: param-info-inf
        mutant: src/utils.c:215 `quote = 0;` -> ``
        input: track-info-quoted
-       mutant: src/host-dispatch.c:422 ` && *p >= 0xc2` -> ``
+       mutant: src/host-dispatch.c:421 ` && *p >= 0xc2` -> ``
        input: track-info-overlong
-       mutant: src/host-dispatch.c:434 `if (*p == 0xc2 && p[1] < 0xa0)` -> `if (0)`
+       mutant: src/host-dispatch.c:433 `if (*p == 0xc2 && p[1] < 0xa0)` -> `if (0)`
        input: track-info-c1 */
     if (modeled && strcmp(fuzz_reply, expect) != 0)
         abort();

@@ -326,7 +326,7 @@ int main(void)
         expect_curve(&c, "a choice value past the shapes is a band not drawn (the high-pass alone)", "curve_points 4 1 64", &rq);
         set(4, 0, 1.0f);
         set(4, 6, 18.0f);
-        expect(&c, "an 18 dB/oct head filter", "curve_points 4 1 64", "resp -536");
+        expect(&c, "an 18 dBPerOct head filter", "curve_points 4 1 64", "resp -536");
         set(4, 6, 24.0f);
         set(4, 2, NAN);
         expect(&c, "a gain that is not a number", "curve_points 4 1 64", "resp -542");
@@ -531,7 +531,7 @@ int main(void)
     expect(&c, "two fixed shapes", "curve_bind 3 0 eq_response eq band_freq.0=p0:Hz@bell|notch", "resp -902");
     expect(&c, "a shape the grammar does not take", "curve_bind 3 0 eq_response eq band_type.0=p0@bell|wobble", "resp -902");
     expect(&c, "an empty shape", "curve_bind 3 0 eq_response eq band_type.0=p0@bell||notch", "resp -902");
-    expect(&c, "a character no symbol has", "curve_bind 3 0 transfer_curve dynamics threshold=p0/x:db", "resp -902");
+    expect(&c, "a character no symbol has", "curve_bind 3 0 transfer_curve dynamics threshold=p0/x:dB", "resp -902");
     expect(&c, "points that are no number", "curve_points 3 0 many", "resp -902");
     expect(&c, "an instance that is no number", "curve_bind 3x 0 transfer_curve dynamics threshold=p0:dB", "resp -902");
     expect(&c, "curve_points with too many words", "curve_points 3 0 9 1", "many arguments");
