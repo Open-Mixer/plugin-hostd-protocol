@@ -45,7 +45,6 @@
 #include "omx_clap_vocabulary.h"
 #include "plugin_hostd_protocol_host_verbs.h"
 #include "plugin_hostd_protocol_vocabulary.h"
-#include "plugin_db_vocabulary.h"
 
 /** @brief the version of the protocol this header declares
  *
@@ -741,11 +740,25 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * A pin of the store, of a pins file or learned by the daemon may hold it, pin_set may not.
  */
 #define PHD_PIN_LAYOUT_UNKNOWN   "-"
+/* The keys of a pin line's optional words, each the key, an equals sign and its value, at most once and in either order.
+ * The words are the domain pin's (contract.d/pin). */
+/* BEGIN GENERATED PHD_PIN_KEYS: tools/pin-words-gen.py, from contract.d/pin/pin.json */
+#define PHD_PIN_KEY_VERDICT "verdict" ///< the qualification verdict of the pinned bytes, a word of PIN_VERDICTS
+#define PHD_PIN_KEY_POOL "pool" ///< the thread pool word of the pinned bytes, a word of PIN_POOLS
+/** @brief the rows of the list: X(id, word, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
+#define PHD_PIN_KEYS(X) \
+    X(VERDICT, PHD_PIN_KEY_VERDICT, "the qualification verdict of the pinned bytes, a word of PIN_VERDICTS") \
+    X(POOL, PHD_PIN_KEY_POOL, "the thread pool word of the pinned bytes, a word of PIN_POOLS")
+/* END GENERATED PHD_PIN_KEYS */
+
 /** @brief the optional last word of a pin line: the qualification verdict of the pinned bytes.
  *
- * The key is plugin-db's (its domain plugin-db, rendered beside this header); the verdict words are the domain pin's
+ * Its key and the verdict words are the domain pin's.
  */
-#define PHD_PIN_VERDICT_KEY      OMX_PLUGIN_DB_PIN_KEYS_VERDICT "="
+#define PHD_PIN_VERDICT_KEY      PHD_PIN_KEY_VERDICT "="
 
 /* The verdict words of a pin and what each means. Only in-process lets a plugin share a worker under pin_mode first-use.
  * The words are the domain pin's (contract.d/pin), the wire words of pin_set. */
@@ -768,7 +781,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * The word tells whether the plugin's qualification measured the CLAP thread pool (docs/thread-pool.md of
  * omx-clap) real-time safe and faster at the quantum; a plugin with no word runs serial.
  */
-#define PHD_PIN_POOL_KEY   OMX_PLUGIN_DB_PIN_KEYS_POOL "="
+#define PHD_PIN_POOL_KEY   PHD_PIN_KEY_POOL "="
 /* The pool words of a pin and what each means; cores: no other plugin shares the worker. The words are the domain pin's
  * (contract.d/pin). */
 /* BEGIN GENERATED PHD_PIN_POOLS: tools/pin-words-gen.py, from contract.d/pin/pin.json */
@@ -783,10 +796,19 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(OFF, PHD_PIN_POOL_OFF, "measured, and not faster or not safe with the pool: the worker keeps no option")
 /* END GENERATED PHD_PIN_POOLS */
 
-/** @brief what pin_changed names when the plugin's files changed */
-#define PHD_PIN_CHANGED_FILES  OMX_PLUGIN_DB_PIN_CHANGES_FILES
-/** @brief what pin_changed names when the plugin's layout changed */
-#define PHD_PIN_CHANGED_LAYOUT OMX_PLUGIN_DB_PIN_CHANGES_LAYOUT
+/* What the pin_changed event names as changed: only the plugin's files and its parameter layout change a pin. The words
+ * are the domain pin's (contract.d/pin). */
+/* BEGIN GENERATED PHD_PIN_CHANGES: tools/pin-words-gen.py, from contract.d/pin/pin.json */
+#define PHD_PIN_CHANGED_FILES "files" ///< a pinned file is gone, or its bytes no longer have the digest the pin holds
+#define PHD_PIN_CHANGED_LAYOUT "layout" ///< the plugin's parameter layout no longer has the fingerprint the pin holds
+/** @brief the rows of the list: X(id, word, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
+#define PHD_PIN_CHANGES(X) \
+    X(FILES, PHD_PIN_CHANGED_FILES, "a pinned file is gone, or its bytes no longer have the digest the pin holds") \
+    X(LAYOUT, PHD_PIN_CHANGED_LAYOUT, "the plugin's parameter layout no longer has the fingerprint the pin holds")
+/* END GENERATED PHD_PIN_CHANGES */
 
 /** @brief the pin_mode in which add admits only a plugin that has a pin */
 #define PHD_PIN_MODE_STRICT    "strict"
