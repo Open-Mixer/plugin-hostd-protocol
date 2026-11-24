@@ -445,10 +445,10 @@ static void curve_points_cb(proto_t *proto)
         if (t->nslopes)
         {
             /* the slope the choice value selects, in dB per octave; a value past the enumeration is no slope. The unit is
-             * omx-dsp's generated name for the id dB, OMX_CURVE_UNITS_D_B, until Open-Mixer/omx-contract#206 spells it _DB */
+             * omx-dsp's generated name for the id dB, OMX_CURVE_UNITS_DB (the PARAM_UNITS title, omx-contract#206) */
             const double c = nearbyint((double)value);
             if (c >= 0.0 && c < (double)t->nslopes)
-                rqt[i].value = t->slopes[(uint32_t)c], rqt[i].unit = OMX_CURVE_UNITS_D_B;
+                rqt[i].value = t->slopes[(uint32_t)c], rqt[i].unit = OMX_CURVE_UNITS_DB;
             else
                 rqt[i].unit = OMX_CURVE_UNITS_NONE;
         }
