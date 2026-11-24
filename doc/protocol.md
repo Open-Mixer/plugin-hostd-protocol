@@ -8,7 +8,7 @@ The plugin-hostd protocol
 
 The plugin-hostd protocol is a superset of mod-host's text protocol: any mod-host client works unchanged.
 
-Protocol `plugin-hostd`, version 1 of its JSON declaration (`protocol/plugin-hostd.json`); mod-host's protocol as the daemon models it is `protocol/mod-host.json`, version 1, written from the mod-host headers `mod-host.h`, `protocol.h`, `host-errors.h` the daemon is built against. The verbs the daemon adds are declared in `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json` (since 0.12.0, requiring omx-clap >= 0.34.0, host >= 1.0.0).
+Protocol `plugin-hostd`, version 1 of its JSON declaration (`protocol/plugin-hostd.json`); mod-host's protocol as the daemon models it is `protocol/mod-host.json`, version 1, written from the mod-host headers `mod-host.h`, `protocol.h`, `host-errors.h` the daemon is built against. The verbs the daemon adds are declared in `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json` (since 0.12.0, requiring omx-clap >= 0.34.0, host >= 0.35.0).
 
 1. Transport
 ------------
@@ -41,7 +41,7 @@ Discovery: the daemon declares itself in files, not on the socket. The verb tabl
 The verb table and the grammar
 ------------------------------
 
-`protocol/plugin-hostd-protocol.json` is the one table of the protocol: every command, each once, with its origin, its argument types, its reply and its refusals, and every feedback line. It is merged from `protocol/mod-host.json`, `protocol/plugin-hostd.json`, `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json`, `contract.d/omx-clap/omx-clap.json`, `include/plugin-hostd/omx_clap_host_verbs.h` by `tools/protocol-table.py`; 48 commands of origin mod-host, 28 commands of origin plugin-hostd, 15 commands of origin omx-clap, 6 commands of origin plugin-hostd-protocol, 22 feedback lines.
+`protocol/plugin-hostd-protocol.json` is the one table of the protocol: every command, each once, with its origin, its argument types, its reply and its refusals, and every feedback line. It is merged from `protocol/mod-host.json`, `protocol/plugin-hostd.json`, `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json`, `contract.d/omx-clap/omx-clap.json`, `include/plugin-hostd/omx_clap_host_verbs.h` by `tools/protocol-table.py`; 48 commands of origin mod-host, 29 commands of origin plugin-hostd, 15 commands of origin omx-clap, 6 commands of origin plugin-hostd-protocol, 23 feedback lines.
 
 `grammar/plugin-hostd-protocol.abnf` is the grammar of a line, in ABNF (RFC 5234, with RFC 7405's case-sensitive strings): the lexical core, written once by hand (`grammar/core.abnf`), and a rule per command, per feedback line and per parse refusal generated from the table by `tools/abnf-gen.py`. Every line of the scenario corpus and every reply the library writes in the golden transcript is held to it (`make test-grammar`).
 
@@ -54,6 +54,10 @@ A word of another origin that mod-host also has either extends mod-host's comman
 | `add` | `add word int placement` | plugin-hostd | as mod-host answers it | - |
 | `add` | `add word int word` | plugin-hostd | as mod-host answers it | - |
 | `add` | `add word int placement word` | plugin-hostd | as mod-host answers it | - |
+| `add` | `add word int ask\|no-ask` | plugin-hostd | as mod-host answers it | - |
+| `add` | `add word int placement ask\|no-ask` | plugin-hostd | as mod-host answers it | - |
+| `add` | `add word int word ask\|no-ask` | plugin-hostd | as mod-host answers it | - |
+| `add` | `add word int placement word ask\|no-ask` | plugin-hostd | as mod-host answers it | - |
 | `preset_show` | `preset_show word` | mod-host | as mod-host answers it | - |
 | `preset_show` | `preset_show int word` | plugin-hostd | resp 0 <json> | -523 PRESET_NOT_OFFERED; -524 PRESET_INVALID; -3 reply.host.instance-non-exists; -901 reply.host.memory-allocation; -902 reply.host.invalid-operation |
 | `supervisor_reset` | `supervisor_reset` | plugin-hostd | as mod-host answers it | - |
@@ -233,7 +237,7 @@ mod-host's templates name no reply codes per verb: a relayed verb answers what i
 
 | verb | mod-host arguments | levels | answer | what the data says |
 |---|---|---|---|---|
-| `add` | word int ... | required (every profile) | differs | plugin-hostd declares it: `<uri> <instance> [own \| pool:<name> \| chain:<chain> \| default] [client_name]` → `resp <instance>`; mod-host's add with a placement; a token after the instance that is not a placement is the jack client name<br>Path A: none; no<br>a second form, `add word int` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int placement` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int word` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int placement word` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar) |
+| `add` | word int ... | required (every profile) | differs | plugin-hostd declares it: `<uri> <instance> [own \| pool:<name> \| chain:<chain> \| default] [client_name] [ask \| no-ask]` → `resp <instance>`; mod-host's add with a placement; a token after the instance that is not a placement is the jack client name; a last word ask or no-ask asks, or does not ask, for that add, for the qualification and the description of a plugin no layer of the descriptions store holds, whatever ask_unknown says<br>Path A: none; no<br>a second form, `add word int` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int placement` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int word` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int placement word` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int ask\|no-ask` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int placement ask\|no-ask` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int word ask\|no-ask` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar)<br>a second form, `add word int placement word ask\|no-ask` (plugin-hostd), told apart by its number of arguments: [The verb table and the grammar](#the-verb-table-and-the-grammar) |
 | `remove` | int | required (every profile) | same | Path A: none; no |
 | `preset_load` | int word | required (every profile) | differs | Path A: LV2: user presets fail after a pedalboard reload; CLAP: yes, presets |
 | `preset_save` | int word word word | required (every profile) | same | Path A: CLAP: user presets cannot be saved |
@@ -539,12 +543,13 @@ A path of a pin, and the path of a `clap:` uri, is written percent-encoded (`PHD
 < resp 0 <latency_frames> <cpu_percent> <ram_bytes> <workers> <unknown_count> <member>:<code>,... <ram_used_bytes> <ram_added_bytes> <ram_budget_bytes> <ram_unknown_count> <verdict> <reason>
 ```
 
-### Descriptors, panels and the running history
+### Descriptors, panels, descriptions and the running history
 
 | verb | arguments | types | reply | codes | since (the group's) | hosts | meaning |
 |---|---|---|---|---|---|---|---|
 | `descriptor_get` | `<uri>` | word | `resp 0 "<path>"` | -528 DIR_NOT_WRITABLE; -529 DESCRIPTOR_ABSENT; -530 DESCRIPTOR_PENDING; -531 DESCRIPTOR_SCAN_FAILED; -901 reply.host.memory-allocation; -902 reply.host.invalid-operation | 0.12.0 | plugin-hostd required | the scanned descriptor of the plugin, answered from descriptor_dir: the file named for its binary as it is now (<id>@<version>-<hash>.json), written by the scan the plugin's add ran. -529 when there is none, -530 while its scan runs, -531 when its last scan wrote nothing, -528 when the directory could not be written |
 | `panel_get` | `<uri>` | word | `resp 0 "<path>"` | -528 DIR_NOT_WRITABLE; -529 DESCRIPTOR_ABSENT; -530 DESCRIPTOR_PENDING; -531 DESCRIPTOR_SCAN_FAILED; -901 reply.host.memory-allocation; -902 reply.host.invalid-operation | 0.12.0 | plugin-hostd required | the panel the plugin publishes (org.openmixer.panel-description/1), answered from descriptor_dir: the file panels/<id>@<version>-<hash>.json, named as its descriptor, which the same scan writes once the descriptor is in place, {"plugin": {"format", "id"}, "panel": <the panel object omx-clap-scan --json prints for the plugin, null when it serves none>, "meters": [<the clap.meters/1 meters the panel's displays index, each a row of descriptor_get's meters[], same ids>]} (the keys of PHD_PANEL_FILE_KEYS; meters is optional, absent from a file written before it); an LV2 plugin's panel is null and its meters empty. The codes are descriptor_get's: -529 when there is none, -530 while its scan runs, -531 when its last scan wrote nothing, -528 when the directory could not be written |
+| `description_get` | `<uri>` | word | `resp 0 <sha256> <format> <uri> <layer>` | -529 DESCRIPTOR_ABSENT; -530 DESCRIPTOR_PENDING; -901 reply.host.memory-allocation; -902 reply.host.invalid-operation | 0.12.0 | plugin-hostd required | the key a client reads the plugin's description by in the descriptions store (omx-panel docs/descriptions-store.md): the SHA-256 of its binary, its format (lv2 or clap), its uri and the layer that holds it (user, system or base, the first that does in that order, a stale entry absent); -529 when no layer holds it, -530 while its ask runs. The daemon answers the key, never the description: the client reads it from the store |
 | `history_get` | `<uri>` | word | `resp 0 <history>` | -901 reply.host.memory-allocation; -902 reply.host.invalid-operation | 0.12.0 | plugin-hostd required | what the daemon kept of the plugin on this host class, for the binary its pin holds now (the running history: the windows it ran alone and in a group, its crashes, restarts and quarantines): one word of comma-joined digest=<sha256>, class=<host class>, crashed=<0\|1>, raises_xruns=<0\|1> and then every key=value of the record (domain plugin-hostd/history, contract.d/plugin-hostd/history/history.json); - when the plugin has no pin or no record, unavailable while the history file is blocked or history_window_s is 0, -902 for a line that is not one word |
 | `history_clear` | `<uri> \| all` | word | `resp 0` | -901 reply.host.memory-allocation; -902 reply.host.invalid-operation; -540 DURABLE_WRITE_FAILED; -541 WRITER_QUEUE_FULL | 0.12.0 | plugin-hostd required | delete the history of one plugin (every binary and host class of it), or all of it, from memory and from the file at once; -902 while the history is blocked or off, or for a line that is not one word |
 
@@ -560,6 +565,13 @@ A path of a pin, and the path of a `clap:` uri, is written percent-encoded (`PHD
 ```
 > panel_get clap:/usr/lib/clap/omx-comp.clap#org.openmixer.comp
 < resp 0 "<path>"
+```
+
+`description_get`:
+
+```
+> description_get clap:/usr/lib/clap/omx-comp.clap#org.openmixer.comp
+< resp 0 <sha256> <format> <uri> <layer>
 ```
 
 `history_get`:
@@ -733,6 +745,7 @@ The daemon's events and the worker lines it relays:
 | `qualify_requested` | `<uri>` | a plugin with no verdict was added under require_pins with pin_mode first-use: its insert is bypassed, no worker holds it, and one request for its quick qualification is in the spool (qualify); said at most once for a plugin until a verdict lands |
 | `supervisor_gave_up` | `<worker> <deaths> <window_ms>` | the storm bound is spent; respawning ends |
 | `pin_changed` | `<uri> files \| layout` | an add or a replay of a plugin was refused because its files, or the layout the worker found, differ from its pin; the pin is as it was until pin_accept or pin_set |
+| `description_changed` | `<uri>` | the ask of a plugin no layer of the descriptions store held has ended, and the daemon read the store's entry of it again: the next remote_page_get and panel_get answer from it, and description_get names its key; read them again |
 | `lv2_adapter_refused` | `<uri> <reason> omx-clap-host` | the LV2 adapter of the lv2-clap worker refused a plugin: <reason> is the hosting.* code after -102 on the worker's reply to that add (- when it named none); the last word is the lv2_worker in force, omx-clap-host, and the add is answered (-512) |
 | `remote_pages_changed` | `<instance>` | relayed from a worker: the plugin changed its remote pages; read them again |
 | `remote_page_suggest` | `<instance> <page_id>` | relayed from a worker: the plugin suggests the remote page of that id (a page_id of remote_page_get); a surface may follow it |
@@ -840,8 +853,8 @@ The codes the daemon adds. A transient one says nothing about the plugin or the 
 | -527 | `LOAD_REFUSED` |  | the worker: the plugin refused the preset or the state its file carries |
 | -544 | `PRESET_NOT_APPLIED` |  | the worker: the plugin took the preset and had not run once since when the host's wait for that ran out |
 | -528 | `DIR_NOT_WRITABLE` |  | descriptor_dir cannot be made or written: the daemon does not start, and says which key and which path on stderr with this code; a directory that turns read-only later makes the scan of an add write nothing, and descriptor_get and panel_get of that plugin answer this code |
-| -529 | `DESCRIPTOR_ABSENT` |  | descriptor_get (panel_get) of a plugin that has no descriptor (panel) in descriptor_dir for its binary as it is now, and none being written: no add since it changed, or a binary that cannot be found |
-| -530 | `DESCRIPTOR_PENDING` |  | descriptor_get (panel_get) of a plugin whose scan, started by its add, has not written its descriptor (panel) yet: ask again |
+| -529 | `DESCRIPTOR_ABSENT` |  | descriptor_get (panel_get) of a plugin that has no descriptor (panel) in descriptor_dir for its binary as it is now, and none being written: no add since it changed, or a binary that cannot be found; description_get of a plugin no layer of the descriptions store holds, and whose ask is not running |
+| -530 | `DESCRIPTOR_PENDING` |  | descriptor_get (panel_get) of a plugin whose scan, started by its add, has not written its descriptor (panel) yet, or description_get of a plugin whose ask, started by its add, still runs: ask again |
 | -531 | `DESCRIPTOR_SCAN_FAILED` |  | descriptor_get (panel_get) of a plugin whose last scan wrote no descriptor (panel): the scanner refused the plugin, made no dump or no panel, or is not installed; the add it ran for stands, and stderr and the scan's log say why. The next add scans again |
 | -532 | `NO_SUCH_PLAN` |  | plan_get or plan_clear of a chain no plan planned |
 | -533 | `NO_RECORD` |  | a member of estimate that no qualification record names: never a reply, the code of the member in the reply's list |
@@ -864,7 +877,7 @@ The codes the daemon adds. A transient one says nothing about the plugin or the 
 |---|---|---|---|---|---|
 | `protocol/plugin-hostd.schema.json` | `/usr/share/plugin-hostd-protocol/plugin-hostd.schema.json` | `https://openmixer.org/schema/plugin-hostd-protocol/plugin-hostd.schema.json` | The protocol surface plugin-hostd owns | - | Generated from include/plugin-hostd/protocol.h, which is the declaration; this file says the shape of the JSON. |
 
-Counts: 48 mod-host commands, 34 same, 9 differs, 5 refused; 38 verbs mod-host does not have.
+Counts: 48 mod-host commands, 34 same, 9 differs, 5 refused; 39 verbs mod-host does not have.
 
 Appendix: mod-host's command reference
 --------------------------------------

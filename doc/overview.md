@@ -139,6 +139,7 @@ What each host profile owes each verb a controller sends:
 | `plan_clear` | daemon | required | required | required | required |
 | `descriptor_get` | daemon | required | required | required | required |
 | `panel_get` | daemon | required | required | required | required |
+| `description_get` | daemon | required | required | required | required |
 | `history_get` | daemon | required | required | required | required |
 | `history_clear` | daemon | required | required | required | required |
 | `estimate` | daemon | required | required | required | required |

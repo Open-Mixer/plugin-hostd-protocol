@@ -161,6 +161,7 @@ command          = cmd-add
                  / cmd-chain
                  / cmd-chain-clear
                  / cmd-chain-get
+                 / cmd-description-get
                  / cmd-descriptor-get
                  / cmd-estimate
                  / cmd-history-clear
@@ -194,8 +195,8 @@ command          = cmd-add
                  / cmd-param-set-many
 
 ; mod-host: include/mod-host.h EFFECT_ADD; extended by plugin-hostd
-; form 1: mod-host; form 2: plugin-hostd; form 3: plugin-hostd; form 4: plugin-hostd; form 5: plugin-hostd
-cmd-add                  = (%s"add" SP word SP int tail) / (%s"add" SP word SP int) / (%s"add" SP word SP int SP word) / (%s"add" SP word SP int SP word) / (%s"add" SP word SP int SP word SP word)
+; form 1: mod-host; form 2: plugin-hostd; form 3: plugin-hostd; form 4: plugin-hostd; form 5: plugin-hostd; form 6: plugin-hostd; form 7: plugin-hostd; form 8: plugin-hostd; form 9: plugin-hostd
+cmd-add                  = (%s"add" SP word SP int tail) / (%s"add" SP word SP int) / (%s"add" SP word SP int SP word) / (%s"add" SP word SP int SP word) / (%s"add" SP word SP int SP word SP word) / (%s"add" SP word SP int SP (%s"ask" / %s"no-ask")) / (%s"add" SP word SP int SP word SP (%s"ask" / %s"no-ask")) / (%s"add" SP word SP int SP word SP (%s"ask" / %s"no-ask")) / (%s"add" SP word SP int SP word SP word SP (%s"ask" / %s"no-ask"))
 ; mod-host: include/mod-host.h BUNDLE_ADD
 cmd-bundle-add           = %s"bundle_add" SP word
 ; mod-host: include/mod-host.h BUNDLE_REMOVE
@@ -327,6 +328,8 @@ cmd-chain                = %s"chain" SP int SP int tail
 cmd-chain-clear          = %s"chain_clear" SP int
 ; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.chainGet
 cmd-chain-get            = %s"chain_get" SP int
+; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.descriptionGet
+cmd-description-get      = %s"description_get" SP word
 ; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.descriptorGet
 cmd-descriptor-get       = %s"descriptor_get" SP word
 ; plugin-hostd: contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.estimate
@@ -399,6 +402,7 @@ feedback         = fb-output-set
                  / fb-chain-formed
                  / fb-chain-refused
                  / fb-chain-stalled
+                 / fb-description-changed
                  / fb-instance-quarantined
                  / fb-instance-replay-refused
                  / fb-instance-restored
@@ -428,6 +432,8 @@ fb-chain-formed            = %s"chain_formed" SP word SP word SP word
 fb-chain-refused           = %s"chain_refused" SP word SP int
 ; plugin-hostd: <chain> <instance | -> <step> <code>
 fb-chain-stalled           = %s"chain_stalled" SP word SP word SP word SP int
+; plugin-hostd: <uri>
+fb-description-changed     = %s"description_changed" SP word
 ; plugin-hostd: <instance> <worker>
 fb-instance-quarantined    = %s"instance_quarantined" SP int SP word
 ; plugin-hostd: <instance> <code>
@@ -472,6 +478,7 @@ typed-reply      = rp-preset-show
                  / rp-property-info
                  / rp-property-list
                  / rp-chain-get
+                 / rp-description-get
                  / rp-descriptor-get
                  / rp-estimate
                  / rp-history-get
@@ -497,6 +504,7 @@ rp-property-get    = %s"resp" SP %s"0" SP quoted-escaped
 rp-property-info   = %s"resp" SP %s"0" SP word SP word SP word SP quoted-escaped
 rp-property-list   = %s"resp" SP int
 rp-chain-get       = %s"resp" SP %s"0" SP word SP word SP word
+rp-description-get = %s"resp" SP %s"0" SP word SP (%s"lv2" / %s"clap") SP word SP (%s"base" / %s"system" / %s"user")
 rp-descriptor-get  = %s"resp" SP %s"0" SP quoted
 rp-estimate        = %s"resp" SP %s"0" SP word SP word SP word SP word SP word SP word SP word SP word SP word SP word SP word SP word
 rp-history-get     = %s"resp" SP %s"0" SP word

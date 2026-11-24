@@ -30,7 +30,7 @@ except ImportError:  # the reader of the domain does not exist yet
     protocol_words = None
 from plugin_hostd_protocol import Protocol  # noqa: E402
 
-GOLDEN = {"PLUGIN_HOSTD_PROTOCOL_REPLY_CODES": ("codes", 39), "PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS": ("verbs", 29),
+GOLDEN = {"PLUGIN_HOSTD_PROTOCOL_REPLY_CODES": ("codes", 39), "PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS": ("verbs", 30),
           "PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS": ("verbs", 6), "PLUGIN_HOSTD_PROTOCOL_EXTENSIONS": ("words", 3)}
 TABLE = os.path.join(ROOT, "protocol", "plugin-hostd-protocol.json")
 

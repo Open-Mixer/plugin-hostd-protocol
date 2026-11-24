@@ -261,6 +261,10 @@ shows the English source sentence.
   it no longer shares <contractdir>/plugin-hostd/ with plugin-hostd's package
   and nested domains. No C macro changes.
 - The TypeScript codec reads the domains in one loop, as the Python codec.
+- The descriptions store's ask words (#128): add's optional last word
+  ask | no-ask, the verb description_get <uri> answered
+  <sha256> <lv2|clap> <uri> <base|system|user>, the event description_changed
+  <uri>; -529 and -530 also answer description_get.
 
 * Sat Nov 21 2026 Pau Aliagas <linuxnow@gmail.com> - 0.8.0-1
 - The vocabulary sorting pass: the probe words (outcomes, reasons, steps, signals)

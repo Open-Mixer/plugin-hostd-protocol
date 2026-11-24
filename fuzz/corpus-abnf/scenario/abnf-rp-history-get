@@ -1,10 +1,10 @@
-history_get "" => resp 0 "\"\""
-history_get ̴Μ => resp 0 " "
-history_get " " => resp 0 ę!
-history_get yǉx => resp 0 u!ћ
-history_get ! => resp 0 !
-history_get "\"" => resp 0 ù
-history_get ϭ! => resp 0 "\\"
-history_get f!! => resp 0 "\"ƪ"
-history_get dp~ => resp 0 ""
-history_get z => resp 0 !
+history_get "\\\"" => resp 0 !!
+history_get "Ƙ\\" => resp 0 !Ē
+history_get "ɽ\\" => resp 0 Тј!
+history_get "Č" => resp 0 "϶\""
+history_get ! => resp 0 ĕ
+history_get !Щ => resp 0 /(=
+history_get "\"" => resp 0 p
+history_get "\"" => resp 0 9
+history_get &N => resp 0 "\\"
+history_get "g" => resp 0 "\\\\"

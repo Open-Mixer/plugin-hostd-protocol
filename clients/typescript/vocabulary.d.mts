@@ -23,6 +23,7 @@ export type Verb =
   | 'curve_points'
   | 'cv_map'
   | 'cv_unmap'
+  | 'description_get'
   | 'descriptor_get'
   | 'disconnect'
   | 'estimate'
@@ -144,6 +145,7 @@ export type ArgType =
   | 'reason-list'
   | 'member-codes'
   | 'history'
+  | 'ask|no-ask'
   | 'float'
   | 'all'
 ;

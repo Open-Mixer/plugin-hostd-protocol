@@ -8,7 +8,7 @@
     "x-stability": "experimental",
     "x-requires": {
       "omx-clap": ">= 0.34.0",
-      "host": ">= 1.0.0"
+      "host": ">= 0.35.0"
     }
   },
   "components": {
@@ -265,9 +265,9 @@
           {
             "const": "reply.plugin-hostd.descriptor-absent",
             "title": "descriptorAbsent",
-            "description": "no descriptor (panel) for the plugin's binary as it is now",
+            "description": "no descriptor (panel) for the plugin's binary as it is now; of description_get, no layer of the descriptions store holds the plugin",
             "x-code": 24,
-            "x-text": "There is no description of this plugin, so its panel cannot be shown; add the plugin again so it is scanned.",
+            "x-text": "There is no description of this plugin yet, so its panel cannot be shown; add the plugin again so it is scanned and described.",
             "x-args": [],
             "x-name": "descriptorAbsent",
             "x-resp": -529
@@ -275,9 +275,9 @@
           {
             "const": "reply.plugin-hostd.descriptor-pending",
             "title": "descriptorPending",
-            "description": "the scan its add started has not written the descriptor (panel) yet",
+            "description": "the scan its add started has not written the descriptor (panel) yet; of description_get, the plugin's ask still runs",
             "x-code": 25,
-            "x-text": "The plugin is still being scanned; try again in a moment.",
+            "x-text": "The plugin is still being scanned or described; try again in a moment.",
             "x-args": [],
             "x-name": "descriptorPending",
             "x-resp": -530
@@ -1109,6 +1109,31 @@
               "mod-host": "unsupported"
             },
             "x-since": "0.5.6"
+          },
+          {
+            "const": "description_get",
+            "title": "descriptionGet",
+            "description": "The key a client reads the plugin's description by in the descriptions store (omx-panel docs/descriptions-store.md): <uri>, answered <sha256> <format> <uri> <layer>, the layer that holds it; -529 when no layer holds it, -530 while its ask runs.",
+            "x-code": 29,
+            "x-format": "description_get %s",
+            "x-reply": "resp 0 <sha256> <format> <uri> <layer>",
+            "x-codes": [
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorAbsent"
+              },
+              {
+                "ref": "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES.descriptorPending"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.memoryAllocation"
+              },
+              {
+                "ref": "HOST_REPLY_CODES.invalidOperation"
+              }
+            ],
+            "x-implemented-by": {
+              "plugin-hostd": "required"
+            }
           }
         ]
       },

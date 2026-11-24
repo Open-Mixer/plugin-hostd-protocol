@@ -1,13 +1,13 @@
-hello 1 errors seq tags
-@.. chain_get -9
-@.r pool_config ! 4
-@4 cc_value_set 8 ˇ inf
-@8NC note_off 98 -73 6 -5
-@R curve_bind 44 68 ( ""
-output_data_ready
-hide_external_ui -11
-param_monitor -7 "\\\\" ! +.87
-@- worker_list
-@-.- policy_set "ǯr" ƭ*
-cc_map 054 Κ 55 -74 "" +infinity +73.E-842 -nan 9 -8 ʓ 5 "\""
-@-1 pin_reload
+hello 1 seq tags
+midi_learn -2 CȖѪ +nan -inf
+@-. plan -2 331
+@d_1 chain 99 9
+panel_get " "
+monitor_midi_program 9 -02
+@_8- property_info 82 0
+@s chain_expect 98 -73
+param_monitor 8 "#" "n\\" nan
+@.1 midi_map -25 "" 1 -7 -nan +88.82
+audio_ports 044
+@t-8 remove -925
+@__. midi_learn -090 $Κ inf +.43e+18
