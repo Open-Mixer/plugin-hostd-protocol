@@ -54,10 +54,21 @@ ESCAPE = "%"
 EXCLUDED = ",= \t\r\n"
 
 
+def _no_nul(text):
+    """Return text itself, or raise ProtocolError when it holds a NUL.
+
+    A NUL is the protocol's line end, so one command would be two and every reply after it would answer the wrong one.
+    """
+    if "\0" in text:
+        raise ProtocolError("a NUL is the end of a line, it is in no word")
+    return text
+
+
 def words(line):
     """The words of a line as the daemon reads them: split at whitespace; a word that starts with a quotation mark
     runs to the next one no backslash escapes, \\" in it is a quote, the marks are not part of it; a quoted word that
-    never closes runs to the end of the line."""  # noqa: D205, D209, D301
+    never closes runs to the end of the line. ProtocolError for a line that holds a NUL."""  # noqa: D205, D209, D301
+    _no_nul(line)
     out, i, n = [], 0, len(line)
     while i < n:
         if line[i] in SPACE:
@@ -83,11 +94,12 @@ def words(line):
 
 def quote(value):
     """A value as one quoted word: in quotation marks, \\" for a quote (the grammar's only escape)."""  # noqa: D301
-    return '"' + value.replace('"', '\\"') + '"'
+    return '"' + _no_nul(value).replace('"', '\\"') + '"'
 
 
 def _word(value):
     """A string as one word: bare when it can be, quoted when it is empty or holds whitespace or a quote."""
+    _no_nul(value)
     if value and not any(c in SPACE or c == '"' for c in value):
         return value
     return quote(value)
@@ -203,16 +215,31 @@ def _read(path, what):
         raise ProtocolError("%s %s is not readable (%s)" % (what, path, e)) from e
 
 
-def _texts(node, out):
-    """Every reply code of a vocabulary file with its English sentence, wherever the file holds it."""
+def _domain_texts(node, out):
+    """Every word of a domain document with its English sentence: a word is its `const`, its sentence its `x-text`."""
     if isinstance(node, dict):
-        if isinstance(node.get("code"), str) and isinstance(node.get("text"), dict) and "en" in node["text"]:
-            out.setdefault(node["code"], node["text"]["en"])
+        if isinstance(node.get("const"), str) and isinstance(node.get("x-text"), str):
+            out.setdefault(node["const"], node["x-text"])
         for v in node.values():
-            _texts(v, out)
+            _domain_texts(v, out)
     elif isinstance(node, list):
         for v in node:
-            _texts(v, out)
+            _domain_texts(v, out)
+
+
+def _domains(d):
+    """The domain documents of a contract directory, by name: <d>/<name>/<last segment>.json, one or two segments deep."""
+    out = []
+    for name in sorted(os.listdir(d)) if os.path.isdir(d) else []:
+        top = os.path.join(d, name)
+        if name == "3" or not os.path.isdir(top):
+            continue
+        if os.path.isfile(os.path.join(top, name + ".json")):
+            out.append(os.path.join(top, name + ".json"))
+        for sub in sorted(os.listdir(top)):
+            if os.path.isfile(os.path.join(top, sub, sub + ".json")):
+                out.append(os.path.join(top, sub, sub + ".json"))
+    return out
 
 
 # a figure or a list the daemon has none for
@@ -220,8 +247,7 @@ NONE = "-"
 # the largest count both clients hold exactly (a double's whole numbers)
 _SAFE = 2 ** 53 - 1
 
-# the reasons a plan gives: plugin-hostd declares them (PLUGIN_HOSTD_GROUPING_REASONS in its data/grouping.json) and
-# its tests hold this block to that file, each declared reason to its constant and each constant to a declared reason
+# BEGIN GENERATED grouping-reasons (tools/grouping-reasons.py, from plugin-hostd's domain plugin-hostd/grouping): do not edit
 class GroupingReason:
     """The reasons a plan gives (PLUGIN_HOSTD_GROUPING_REASONS): a controller compares against these and writes no
     reason word of its own. plan_get answers them as instance:reason; a plan-refused is followed by a colon and the
@@ -246,8 +272,9 @@ class GroupingReason:
 
 
 # the reasons of a plan that a later plan may not give again with the chain as it is: the reasons that declare
-# the group retry in the file, read from it and chosen nowhere in code
+# the group retry in the domain, read from it and chosen nowhere in code
 RETRY_REASONS = (GroupingReason.NO_VERDICT, GroupingReason.PLAN_REFUSED)
+# END GENERATED grouping-reasons
 
 
 class Names:
@@ -330,18 +357,21 @@ class Protocol:
             _pkg_config("--variable=datadir", "plugin-hostd-protocol") or \
             os.path.dirname(os.path.dirname(os.path.abspath(table)))
         self.sentences, self.owners = {}, {}
+        # the domains of each directory, <contractdir>/<domain>/<domain>.json one or two segments deep (_domains), and
+        # nothing else: the words plugin-hostd-protocol, omx-clap and the others declare are domains, and a
+        # <contractdir>/3/<package>/verbs.json (the old home of the protocol's words, before 0.8.0) is never read, so a
+        # stale one cannot shadow the domain's sentence; a word's owner is its domain's info.x-owner, else the domain
         for d in contract_dirs:
-            root = os.path.join(d, "3")
-            for package in sorted(os.listdir(root)) if os.path.isdir(root) else []:
-                path = os.path.join(root, package, "verbs.json")
-                if not os.path.isfile(path):
-                    continue
+            for path in _domains(d):
+                doc = _read(path, "the domain")
+                info = (doc.get("info") or {}) if isinstance(doc, dict) else {}
+                owner = info.get("x-owner") or os.path.basename(os.path.dirname(path))
                 found = {}
-                _texts(_read(path, "the vocabulary"), found)
+                _domain_texts(doc, found)
                 for code, text in found.items():
                     if code in self.codes and code not in self.sentences:
                         self.sentences[code] = text
-                        self.owners[code] = package
+                        self.owners[code] = owner
         self._catalogs = {}
         self._reader = None
 
@@ -592,10 +622,13 @@ class Protocol:
     def read_estimate(self, data):
         """What estimate answers after resp 0, as words, read by the table's reply_forms, each figure by the name the
         protocol gives it; None for one the daemon has no figure for (-). members: the members no figure could be read for, counted from 0 in the order
-        they were asked, each with the reply code that says why and its name."""  # noqa: D205, D209
+        they were asked, each with the reply code that says why and its name. verdict and reason: the host's insert
+        verdict on the last member, the candidate, and the reason word that gave it, the domain estimate's words; a
+        client shows them and computes no verdict."""  # noqa: D205, D209
         r = self.read_reply("estimate", data)
         out = {k: r[k] for k in ("latency_frames", "cpu_percent", "ram_bytes", "workers", "unknown_count",
-                                    "ram_used_bytes", "ram_added_bytes", "ram_budget_bytes", "ram_unknown_count")}
+                                    "ram_used_bytes", "ram_added_bytes", "ram_budget_bytes", "ram_unknown_count",
+                                    "verdict", "reason")}
         out["members"] = [{"member": u["position"], "code": u["code"], "name": self.names.get(u["code"])}
                           for u in r["unknown"]]
         return out

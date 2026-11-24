@@ -1,0 +1,29 @@
+verdicts 0 RECOMMEND recommend nothing the host knows speaks against adding the candidate
+verdicts 1 WARN warn the candidate is measured, but the chain would pass the CPU ceiling or the memory budget, or a figure the judgement needs is missing: it may still be added
+verdicts 2 NOT_MEASURED not-measured the candidate is installed but has no figure at that rate and quantum: the host cannot judge it
+verdicts 3 REFUSE refuse the candidate names no plugin installed on this host: it cannot be added here
+reasons 0 UNKNOWN_PLUGIN unknown-plugin a member names no plugin installed on this host: the candidate's refuses, another member's warns
+reasons 1 NO_RECORD no-record a member has no qualification record: the candidate's is not measured, another member's warns
+reasons 2 NO_CELL no-cell a member's qualification records hold no figure at that rate and quantum: the candidate's is not measured, another member's warns
+reasons 3 CPU_OVER_BUDGET cpu-over-budget the chain's CPU, percent of one core, is over the real-time admission ceiling of one core
+reasons 4 RAM_OVER_BUDGET ram-over-budget what the workers hold now plus what the members would add is over the host's ram_budget_mb
+reasons 5 RAM_UNKNOWN ram-unknown a member has no memory figure, or what the workers hold now cannot be read
+reasons 6 WITHIN within every member is measured, and the chain is within the CPU ceiling and the memory budget
+word PHD_ESTIMATE_VERDICT_RECOMMEND recommend
+word PHD_ESTIMATE_VERDICT_WARN warn
+word PHD_ESTIMATE_VERDICT_NOT_MEASURED not-measured
+word PHD_ESTIMATE_VERDICT_REFUSE refuse
+word PHD_ESTIMATE_REASON_UNKNOWN_PLUGIN unknown-plugin
+word PHD_ESTIMATE_REASON_NO_RECORD no-record
+word PHD_ESTIMATE_REASON_NO_CELL no-cell
+word PHD_ESTIMATE_REASON_CPU_OVER_BUDGET cpu-over-budget
+word PHD_ESTIMATE_REASON_RAM_OVER_BUDGET ram-over-budget
+word PHD_ESTIMATE_REASON_RAM_UNKNOWN ram-unknown
+word PHD_ESTIMATE_REASON_WITHIN within
+pattern verdict recommend|warn|not-measured|refuse
+pattern reason unknown-plugin|no-record|no-cell|cpu-over-budget|ram-over-budget|ram-unknown|within
+type estimate-verdict recommend|warn|not-measured|refuse
+type estimate-reason unknown-plugin|no-record|no-cell|cpu-over-budget|ram-over-budget|ram-unknown|within
+reply resp 0 <latency_frames> <cpu_percent> <ram_bytes> <workers> <unknown_count> <member>:<code>,... <ram_used_bytes> <ram_added_bytes> <ram_budget_bytes> <ram_unknown_count> <verdict> <reason>
+args 0 latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint unknown:member-codes ram_used_bytes:amount ram_added_bytes:amount ram_budget_bytes:amount ram_unknown_count:uint verdict:estimate-verdict reason:estimate-reason
+ceiling 60 percent

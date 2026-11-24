@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openmixer.org/schema/plugin-hostd-protocol/reply_estimate.schema.json",
   "title": "EstimateReply",
-  "description": "The parsed form of a estimate reply (a chain's cost estimate): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "description": "The parsed form of a estimate reply (a chain's cost estimate and the host's insert verdict on its last member): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
   "type": "object",
   "properties": {
     "latency_frames": {
@@ -73,6 +73,16 @@
       "type": "integer",
       "minimum": 0,
       "description": "How many members have no memory figure."
+    },
+    "verdict": {
+      "type": "string",
+      "pattern": "^(?:recommend|warn|not-measured|refuse)$",
+      "description": "The host's insert verdict on the candidate, the last member: a word of the domain estimate's ESTIMATE_VERDICTS."
+    },
+    "reason": {
+      "type": "string",
+      "pattern": "^(?:unknown-plugin|no-record|no-cell|cpu-over-budget|ram-over-budget|ram-unknown|within)$",
+      "description": "The word of the domain estimate's ESTIMATE_REASONS that gave the verdict."
     }
   },
   "required": [
@@ -85,7 +95,9 @@
     "ram_used_bytes",
     "ram_added_bytes",
     "ram_budget_bytes",
-    "ram_unknown_count"
+    "ram_unknown_count",
+    "verdict",
+    "reason"
   ],
   "additionalProperties": false
 }
