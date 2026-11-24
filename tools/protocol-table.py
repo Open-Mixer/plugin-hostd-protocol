@@ -10,7 +10,7 @@
 #   protocol/plugin-hostd.json    what include/plugin-hostd/protocol.h declares (check-generated)
 #   data/verbs.json               the verbs plugin-hostd adds, the protocol's own (hello) and the extensions hello
 #                                 grants, as omx-contract declares them (check-rendered)
-#   include/plugin-hostd/omx_clap_core_host_verbs.h   omx-clap-core's verbs, as omx-contract renders them
+#   include/plugin-hostd/omx_clap_host_verbs.h   omx-clap's verbs, as omx-contract renders them
 #
 # A word of ours never shadows or changes a mod-host word. A verb of another origin that has a mod-host word either
 # extends mod-host's command (takes mod-host's arguments, in its types, as its own first arguments, and more only where
@@ -28,7 +28,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = "protocol/plugin-hostd-protocol.json"
-SHARED_H = "include/plugin-hostd/omx_clap_core_host_verbs.h"
+SHARED_H = "include/plugin-hostd/omx_clap_host_verbs.h"
 
 TYPES = {"%i": "int", "%s": "word", "%f": "float"}
 
@@ -79,7 +79,7 @@ def parse_format(fmt, where):
 
 
 def shared_verbs():
-    """omx-clap-core's verbs as rendered: word -> {format, reply, codes, hosts, item}"""
+    """omx-clap's verbs as rendered: word -> {format, reply, codes, hosts, item}"""
     text = read(SHARED_H)
     hosts = re.search(r"#define OMX_HOST_VERB_HOSTS_INIT \{ (.*) \}", text)
     if not hosts:
@@ -114,7 +114,7 @@ def table():
     verbs = load("data/verbs.json")
     shared = shared_verbs()
 
-    vocab = read("include/plugin-hostd/omx_clap_core_vocabulary.h")
+    vocab = read("include/plugin-hostd/omx_clap_vocabulary.h")
     host_codes, words = {}, {}
     for m in re.finditer(r'#define OMX_REPLY_HOST_([A-Z0-9_]+) "([^"]+)"(?: ///< .*)?\n#define OMX_REPLY_HOST_\1_RESP \((-?\d+)\)',
                          vocab):
@@ -174,7 +174,7 @@ def table():
         entries.append(ours(v["verb"], "plugin-hostd-protocol", f"data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.{key}",
                             v["format"], v["reply"], [resolve(c["ref"]) for c in v.get("codes", [])], v.get("doc", "")))
     for word, v in shared.items():
-        entries.append(ours(word, "omx-clap-core", f"omx-clap-core data/verbs.json {v['item']}", v["format"],
+        entries.append(ours(word, "omx-clap", f"contract.d/omx-clap/omx-clap.json {v['item']}", v["format"],
                             v["reply"], v["codes"], v["doc"]))
     # a verb protocol.h declares that neither declaration holds is mod-host's (add) or a fault
     for word in meaning:
@@ -338,7 +338,7 @@ def table():
         "protocol": "plugin-hostd-protocol",
         "version": phd["version"],
         "superset_of": "mod-host",
-        "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "data/verbs.json", SHARED_H],
+        "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "data/verbs.json", "contract.d/omx-clap/omx-clap.json", SHARED_H],
         "commands": sorted(commands.values(), key=lambda e: (e["origin"] != "mod-host", e["origin"], e["verb"])),
         "refused": mod_ui,
         "feedback": sorted(feedback.values(), key=lambda e: (e["origin"] != "mod-host", e["line"])),

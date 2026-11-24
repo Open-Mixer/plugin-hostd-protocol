@@ -51,13 +51,19 @@ HEADERS = include/host-backend.h include/host-dispatch.h include/host-errors.h i
           include/host-scenario.h include/protocol.h include/socket.h include/utils.h
 
 # the declared protocol (doc/protocol.md): plugin-hostd's protocol.h and the headers it includes, rendered by
-# omx-contract from data/verbs.json and from omx-clap-core's and plugin-db's packages of the contract directory; installed under
+# omx-contract from data/verbs.json and from omx-clap's package and the domains of omx-clap and plugin-db in the contract directory; installed under
 # <includedir>/plugin-hostd-protocol/plugin-hostd/, so a consumer includes <plugin-hostd/protocol.h> with this package's
 # Cflags. src/protocol.c reads the protocol version, hello's line and the extensions hello grants from them.
 RENDERED = include/plugin-hostd/plugin_hostd_protocol_host_verbs.h include/plugin-hostd/plugin_hostd_protocol_vocabulary.h \
-           include/plugin-hostd/omx_clap_core_host_verbs.h include/plugin-hostd/omx_clap_core_vocabulary.h \
+           include/plugin-hostd/omx_clap_host_verbs.h include/plugin-hostd/omx_clap_vocabulary.h \
            include/plugin-hostd/plugin_db_vocabulary.h
-PROTOCOL_HEADERS = include/plugin-hostd/protocol.h include/plugin-hostd/search_paths.h $(RENDERED)
+# the probe domain's codes header (the render of the items of contract.d/probe marked x-c-codes), committed
+PROBE_CODES = include/plugin-hostd/probe_codes.h
+# the pin domain's codes header, the same way
+PIN_CODES = include/plugin-hostd/pin_codes.h
+# the estimate domain's codes header (the insert verdict's words), the same way
+ESTIMATE_CODES = include/plugin-hostd/estimate_codes.h
+PROTOCOL_HEADERS = include/plugin-hostd/protocol.h include/plugin-hostd/search_paths.h $(PROBE_CODES) $(PIN_CODES) $(ESTIMATE_CODES) $(RENDERED)
 
 PC_LIBDIR = $(patsubst $(PREFIX)/%,$${prefix}/%,$(LIBDIR))
 PC_INCLUDEDIR = $(patsubst $(PREFIX)/%,$${prefix}/%,$(INCLUDEDIR))
@@ -153,7 +159,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-nul test-codec test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -171,7 +177,7 @@ test-no-backcompat:
 test-same-pass:
 	python3 tests/same_pass_test.py .
 
-# every omx-clap-core-contract range admits the next omx-clap-core minor (the chain releases this protocol first)
+# every omx-clap-contract range admits the next omx-clap minor (the chain releases this protocol first)
 test-clap-core-range:
 	python3 tests/clap_core_range.py .
 
@@ -354,15 +360,13 @@ abi-check: abi-stage
 #   doc/overview.md                       the region host-verbs, tools/protocol-gen splice
 #   doc/protocol.md                       tools/protocol-doc.py, from all of the above
 #
-# protocol-gen holds the parameter scales of protocol.h to omx-contract's PARAM_SCALES, so it builds against
-# omx-contract's C headers (omx-contract-devel, libomx-contract-dev; CONTRACT_CFLAGS=-I<dir> for headers that are not
-# installed).
-CONTRACT_CFLAGS ?= $(shell $(PKG_CONFIG) --cflags omx-contract 2>/dev/null)
+# the parameter scales of protocol.h (PHD_PARAM_SCALES) are written by tools/param-scales-gen.py from omx-contract's domain
+# param, read from the contract directory (OMX_CONTRACT_PATH, then the installed one): protocol-gen needs no omx-contract header.
 GEN = build/protocol-gen
 
 $(GEN): tools/protocol-gen.c $(PROTOCOL_HEADERS)
 	@mkdir -p $(dir $@)
-	$(CC) -Wall -Wextra -Werror -std=gnu99 -Iinclude $(CONTRACT_CFLAGS) -o $@ tools/protocol-gen.c
+	$(CC) -Wall -Wextra -Werror -std=gnu99 -Iinclude -o $@ tools/protocol-gen.c
 
 gen: $(GEN)
 	$(GEN) json > protocol/plugin-hostd.json.new && mv protocol/plugin-hostd.json.new protocol/plugin-hostd.json
@@ -373,6 +377,12 @@ gen: $(GEN)
 	    mv grammar/plugin-hostd-protocol.abnf.new grammar/plugin-hostd-protocol.abnf
 	python3 tools/reply-words.py > src/reply-words.h.new && mv src/reply-words.h.new src/reply-words.h
 	python3 tools/ts-client-gen.py
+	python3 tools/probe-words-gen.py
+	python3 tools/pin-words-gen.py
+	python3 tools/param-scales-gen.py
+	$(OMX_CONTRACT) render --target c --package pin --contract-dir contract.d --out include/plugin-hostd
+	python3 tools/estimate-words-gen.py
+	$(OMX_CONTRACT) render --target c --package estimate --contract-dir contract.d --out include/plugin-hostd
 	$(GEN) splice doc/overview.md > doc/overview.md.new && mv doc/overview.md.new doc/overview.md
 	$(MAKE) --no-print-directory protocol-doc
 
@@ -384,6 +394,13 @@ check-generated: $(GEN)
 	python3 tools/abnf-gen.py --check; \
 	python3 tools/reply-words.py --check; \
 	python3 tools/ts-client-gen.py --check; \
+	python3 tools/probe-words-gen.py --check; \
+	python3 tools/param-scales-gen.py --check; \
+	python3 tools/pin-words-gen.py --check; \
+	$(OMX_CONTRACT) render --target c --package pin --contract-dir contract.d --out include/plugin-hostd --check; \
+	python3 tools/estimate-words-gen.py --check; \
+	$(OMX_CONTRACT) render --target c --package estimate --contract-dir contract.d --out include/plugin-hostd --check; \
+	$(OMX_CONTRACT) render --target c --package probe --contract-dir contract.d --out include/plugin-hostd --check; \
 	$(GEN) splice doc/overview.md > $$tmp/readme; cmp $$tmp/readme doc/overview.md; \
 	sha256sum -c --quiet $(ABNF_CORPUS)/GRAMMAR.sha256 || { echo "$(ABNF_CORPUS) is not written from this grammar: run make fuzz-abnf-corpus"; exit 1; }; \
 	$(GEN) regions > $$tmp/regions; test -s $$tmp/regions; \
@@ -493,9 +510,9 @@ test-generated-sabotage:
 
 # The checks that need tools a package build does not: run by CI (.github/workflows/ci.yml, job protocol).
 #   check-rendered   the four rendered headers are what omx-contract renders from data/verbs.json (staged as the
-#                    package plugin-hostd-protocol of the contract directory) and from omx-clap-core's installed package;
+#                    package plugin-hostd-protocol of the contract directory) and from omx-clap's installed package;
 #                    test-rendered-sabotage holds it to failing. A contract directory named first on OMX_CONTRACT_PATH
-#                    outranks the installed one: CI stages omx-clap-core's data/ from its source there
+#                    outranks the installed one: CI stages omx-clap's data/ from its source there
 #   check-contract-dir  that staged package validates with the installed contract directory
 #   check-schema     protocol/plugin-hostd.json against its schema (python3-jsonschema)
 #   test-grammar     the grammar against the scenario corpus, the golden transcript and the table (python abnf)
@@ -512,6 +529,9 @@ check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-gr
 install-contract:
 	@test -n "$(INSTALL_CONTRACT_DIR)" || { echo "install-contract: no install-contract-dir.sh: install omx-contract-devel, or set OMX_CONTRACT_DIR to a checkout" >&2; exit 1; }
 	sh $(INSTALL_CONTRACT_DIR) $(NAME) $(VERSION) $(CONTRACT_SCHEMA_MAJOR) data $(DESTDIR)$(CONTRACTDIR) data
+	sh $(INSTALL_CONTRACT_DIR) --domain contract.d/probe $(DESTDIR)$(CONTRACTDIR)
+	sh $(INSTALL_CONTRACT_DIR) --domain contract.d/pin $(DESTDIR)$(CONTRACTDIR)
+	sh $(INSTALL_CONTRACT_DIR) --domain contract.d/estimate $(DESTDIR)$(CONTRACTDIR)
 	install -d $(DESTDIR)$(DATADIR)/$(NAME)/catalogs
 	install -m 644 catalogs/*.json $(DESTDIR)$(DATADIR)/$(NAME)/catalogs/
 
@@ -523,7 +543,7 @@ check-contract-dir:
 	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) validate --installed --catalogs catalogs
 
 # the catalogs through omx-contract's release gate (translate --check, 3.16.0): every listed language has its catalog,
-# no key is missing and no entry is stale. This tree's items name omx-clap-core's reply codes, so they are read from
+# no key is missing and no entry is stale. This tree's items name omx-clap's reply codes, so they are read from
 # its contract staged as check-contract-dir stages it (#15).
 check-catalogs:
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
@@ -546,14 +566,20 @@ render-verbs check-rendered:
 	OMX_CONTRACT_PATH=$$tmp$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) \
 	  $(OMX_CONTRACT) render --target c --package $(NAME) --installed --out include/plugin-hostd $(if $(filter check-rendered,$@),--check)
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
+	wd=""; for n in host omx-clap; do for d in $$(printf %s "$(OMX_CONTRACT_PATH)" | tr : ' ') $(CONTRACTDIR); do \
+	  if [ -f $$d/$$n/$$n.json ]; then wd="$$wd --with-domain $$d/$$n"; break; fi; done; done; \
+	test -n "$$wd" || { echo "$@: no domain host or omx-clap of omx-clap's package in the contract directories" >&2; exit 1; }; \
 	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
-	  $(OMX_CONTRACT) render --target c --package omx-clap-core --installed --out $$tmp; \
-	for f in omx_clap_core_host_verbs.h omx_clap_core_vocabulary.h; do \
-	  $(if $(filter check-rendered,$@),diff -u include/plugin-hostd/$$f $$tmp/$$f >&2 || { echo "include/plugin-hostd/$$f is not the render of omx-clap-core's package" >&2; exit 1; },cp $$tmp/$$f include/plugin-hostd/$$f); \
+	  $(OMX_CONTRACT) render --target c --package omx-clap --installed $$wd --out $$tmp; \
+	for f in omx_clap_host_verbs.h omx_clap_vocabulary.h; do \
+	  $(if $(filter check-rendered,$@),diff -u include/plugin-hostd/$$f $$tmp/$$f >&2 || { echo "include/plugin-hostd/$$f is not the render of omx-clap's package" >&2; exit 1; },cp $$tmp/$$f include/plugin-hostd/$$f); \
 	done
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
+	wd=""; for d in $$(printf %s "$(OMX_CONTRACT_PATH)" | tr : ' ') $(CONTRACTDIR); do \
+	  if [ -f $$d/plugin-db/plugin-db.json ]; then wd="--with-domain $$d/plugin-db"; break; fi; done; \
+	test -n "$$wd" || { echo "$@: no domain plugin-db of plugin-db's contract in the contract directories" >&2; exit 1; }; \
 	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
-	  $(OMX_CONTRACT) render --target c --package plugin-db --installed --out $$tmp; \
+	  $(OMX_CONTRACT) render --target c --package plugin-db --installed $$wd --out $$tmp; \
 	$(if $(filter check-rendered,$@),diff -u include/plugin-hostd/plugin_db_vocabulary.h $$tmp/plugin_db_vocabulary.h >&2 || { echo "include/plugin-hostd/plugin_db_vocabulary.h is not the render of plugin-db's package" >&2; exit 1; },cp $$tmp/plugin_db_vocabulary.h include/plugin-hostd/plugin_db_vocabulary.h); \
 	echo "the rendered headers are current"
 
@@ -590,8 +616,8 @@ test-ts-client:
 
 # the table-driven TypeScript codec (clients/typescript/codec, the package's `.` export, moved from plugin-hostd's clients/ts):
 # built with its locked toolchain, then run on clients/fixtures/codec.json, the file the Python codec runs on, reading the
-# table of this tree and the vocabulary and catalogs this tree stages, as test-codec does. PLUGIN_HOSTD_GROUPING_JSON, when
-# set (CI sets it), also holds GroupingReason to plugin-hostd's data/grouping.json until plugin-hostd#175
+# table of this tree and the vocabulary and catalogs this tree stages, as test-codec does. GroupingReason and RETRY_REASONS are
+# held to the 16 golden reasons (clients/fixtures/grouping-reasons.txt)
 .PHONY: test-ts-codec
 test-ts-codec:
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
@@ -717,3 +743,43 @@ test-conf-keys: tests/conf_keys_test
 
 test: test-conf-keys
 .PHONY: test-conf-keys
+
+# the probe words of protocol.h (PHD_PROBE_REASONS, PHD_PROBE_OUTCOMES, PHD_PROBE_STEPS) are generated from the package's
+# domain probe (contract.d/probe), meanings included, and held to the 34 golden rows (tests/probe_words_test.py)
+.PHONY: test-probe-words
+test-probe-words:
+	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/probe_words_test.py
+
+# the pin words of protocol.h (PHD_PIN_VERDICT_*, PHD_PIN_POOL_*, PHD_PIN_VERDICTS, PHD_PIN_POOLS) are generated from the
+# package's domain pin (contract.d/pin), meanings included, and held to the 10 golden rows (tests/pin_words_test.py)
+.PHONY: test-pin-words
+test-pin-words:
+	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/pin_words_test.py
+
+# the parameter scales of protocol.h (PHD_PARAM_SCALES) are generated from omx-contract's domain param, and held to the
+# 3 golden rows (tests/param_scales_test.py); OMX_CONTRACT_PATH names the contract directories the domain is read from
+# (tests/fixtures/contract.d until omx-contract 3.21.0 installs it)
+.PHONY: test-param-scales
+test-param-scales:
+	CC='$(CC)' OMX_CONTRACT_PATH='$(CURDIR)/tests/fixtures/contract.d' python3 tests/param_scales_test.py
+
+# GroupingReason and RETRY_REASONS of both clients are written by tools/grouping-reasons.py from plugin-hostd's domain
+# plugin-hostd/grouping, and held to the 16 golden reasons (tests/grouping_reasons_test.py, which reads
+# tests/fixtures/contract.d, the interface of the domain, until plugin-hostd installs it).
+#   grouping-reasons         writes both blocks from the installed domain (OMX_CONTRACT_PATH, then the installed directory)
+#   check-grouping-domain    both blocks are what the INSTALLED domain gives; not part of `make test`: plugin-hostd builds against
+#                            this package, so the installed plugin-hostd-contract carries the domain only after plugin-hostd's release
+.PHONY: test-grouping-reasons grouping-reasons check-grouping-domain
+test-grouping-reasons:
+	OMX_CONTRACT_PATH='$(CURDIR)/tests/fixtures/contract.d' python3 tests/grouping_reasons_test.py
+grouping-reasons:
+	python3 tools/grouping-reasons.py
+check-grouping-domain:
+	python3 tools/grouping-reasons.py --check
+
+# the insert verdict of estimate (PHD_ESTIMATE_VERDICTS, PHD_ESTIMATE_REASONS, their words and patterns) is generated from
+# the package's domain estimate (contract.d/estimate), meanings included, and the reply ends with the two words
+# (tests/estimate_words_test.py)
+.PHONY: test-estimate-words
+test-estimate-words:
+	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/estimate_words_test.py

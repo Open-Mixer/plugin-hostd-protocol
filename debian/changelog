@@ -1,3 +1,24 @@
+plugin-hostd-protocol (0.8.1) unstable; urgency=medium
+
+  * tests: the empty-contract arms of param_scales_test and
+    grouping_reasons_test hold the installed omx-contract out by
+    PKG_CONFIG_PATH as well as PKG_CONFIG_LIBDIR, and check that they did, so
+    the build's tests pass on a box with omx-contract installed (#146).
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Tue, 24 Nov 2026 00:30:00 +0100
+
+plugin-hostd-protocol (0.8.0) unstable; urgency=medium
+
+  * The vocabulary sorting pass: the probe words (outcomes, reasons, steps,
+    signals) and the pin verdict and pool words are domains of this package
+    (probe, pin) and protocol.h generates its lists from them; the parameter
+    scales are read from omx-contract's domain param; GroupingReason and
+    RETRY_REASONS of both clients are written from plugin-hostd's domain
+    plugin-hostd/grouping; the shared verbs and host words are read from
+    omx-clap's domains, under the new omx-clap names.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Sat, 21 Nov 2026 00:30:00 +0100
+
 plugin-hostd-protocol (0.7.0) unstable; urgency=medium
 
   * The backward-compatibility removal: the ERR_LV2_* spellings of the error

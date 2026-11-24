@@ -1,1 +1,1 @@
-curve_bind 9 0 transfer_curve dynamics threshold=gain:db
+curve_bind 9 0 transfer_curve dynamics threshold=gain:dB

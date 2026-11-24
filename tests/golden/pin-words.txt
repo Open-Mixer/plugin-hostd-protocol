@@ -1,0 +1,10 @@
+verdicts 0 IN_PROCESS in-process qualified to run in a worker that other plugins share
+verdicts 1 ISOLATED isolated qualified to run, in a worker of its own
+verdicts 2 REFUSED refused failed qualification: the pin records the bytes, a host should not load them
+pools 0 CORES cores its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker
+pools 1 OFF off measured, and not faster or not safe with the pool: the worker keeps no option
+word PHD_PIN_VERDICT_IN_PROCESS in-process
+word PHD_PIN_VERDICT_ISOLATED isolated
+word PHD_PIN_VERDICT_REFUSED refused
+word PHD_PIN_POOL_CORES cores
+word PHD_PIN_POOL_OFF off

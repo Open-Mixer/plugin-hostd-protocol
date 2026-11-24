@@ -32,9 +32,9 @@ What plugin-hostd declares of the protocol is installed with the development pac
 - `<plugin-hostd/protocol.h>` (under `<includedir>/plugin-hostd-protocol/`, found with this package's Cflags): the
   verbs, the placement, the reply codes, the events, the host verb table and the settings, with the headers omx-contract
   renders from `data/verbs.json` (`plugin_hostd_protocol_host_verbs.h`, `plugin_hostd_protocol_vocabulary.h`) and from
-  omx-clap-core's package of the contract directory (`omx_clap_core_host_verbs.h`, `omx_clap_core_vocabulary.h`), and from plugin-db's (`plugin_db_vocabulary.h`, the words of a pin);
+  omx-clap's package of the contract directory (`omx_clap_host_verbs.h`, `omx_clap_vocabulary.h`), and from plugin-db's (`plugin_db_vocabulary.h`, the words of a pin);
 - the one verb table, `plugin-hostd-protocol.json`: every command, each once, with its origin (mod-host, plugin-hostd or
-  omx-clap-core), its argument types, its reply and its refusals, and every feedback line
+  omx-clap), its argument types, its reply and its refusals, and every feedback line
   (`pkg-config --variable=table plugin-hostd-protocol`);
 - the grammar of a line, in ABNF, generated from that table (`--variable=grammar`);
 - `plugin-hostd.json`, what `protocol.h` declares as JSON, and its schema (`--variable=protocoljson`,
@@ -181,7 +181,7 @@ omx-contract's C headers (omx-contract-devel, libomx-contract-dev). It runs:
   rule of the host verb table broken in a scratch copy of the header.
 
 `make check-protocol-tools` runs what needs tools a package build does not carry, as CI does: the rendered headers
-against the installed omx-contract and omx-clap-core-contract (`check-rendered`, and `test-rendered-sabotage`), the
+against the installed omx-contract and omx-clap-contract (`check-rendered`, and `test-rendered-sabotage`), the
 staged contract package (`check-contract-dir`), the JSON against its schema (`check-schema`, python3-jsonschema), and
 the grammar against the scenario corpus, the golden transcript and the table (`test-grammar`, python's `abnf` module,
 `PYTHON=<an interpreter that has it>`), each with its sabotage.
