@@ -391,7 +391,13 @@
     {"verb": "estimate", "resp": "0", "args": "latency_frames:uint cpu_percent:number ram_bytes:amount workers:uint unknown_count:uint unknown:member-codes ram_used_bytes:amount ram_added_bytes:amount ram_budget_bytes:amount ram_unknown_count:uint verdict:estimate-verdict reason:estimate-reason"},
     {"verb": "hello", "resp": "0", "args": "version:int extensions:word..."},
     {"verb": "param_get_many", "resp": "0", "args": "values:word..."},
-    {"verb": "curve_points", "resp": "0", "args": "count:uint points:point..."}
+    {"verb": "curve_points", "resp": "0", "args": "count:uint points:point..."},
+    {"verb": "remote_pages", "resp": "count", "args": ""},
+    {"verb": "remote_page_get", "resp": "0", "args": "page_id:uint section:quoted-escaped page_name:quoted-escaped slots:word..."},
+    {"verb": "property_list", "resp": "count", "args": ""},
+    {"verb": "note_input", "resp": "0", "args": "port:word"},
+    {"verb": "note_drops", "resp": "0", "args": "notes:uint releases:uint sysex:uint unmappable:uint"},
+    {"verb": "note_out_drops", "resp": "0", "args": "dropped:uint unmapped:uint midi_out_full:uint"}
   ],
   "pin_limits": [
     {"name": "PATH", "meaning": "a path is pinned percent-encoded (%XX): ',', '=', whitespace, '%', a quote, a backslash and a control byte are escaped, so any file name is one word; a path holding one of them as it is, or a stray %, is refused by pin_set as a token outside its grammar"},

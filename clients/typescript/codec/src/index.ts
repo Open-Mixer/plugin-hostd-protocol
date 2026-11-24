@@ -11,7 +11,7 @@
  */
 import { loadCatalog, sentenceOf, type Catalog } from '@openmixer/omx-contract/catalog';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 
 /** A line the table does not declare, an argument no form takes, a reply that is no reply. */
 export class ProtocolError extends Error {
@@ -111,7 +111,7 @@ export interface Estimate {
   readonly reason: string;
 }
 
-// ---- the words of a line, as plugin-hostd-protocol's grammar (core.abnf: word, quoted, escaped-quote) writes them,
+// ---- the words of a line, as plugin-hostd-protocol's grammar (core.abnf: word, quoted, escaped-char) writes them,
 // and the percent-encoded path of a clap: uri, as its pin section does (PHD_PIN_PATH_EXCLUDED, PHD_PIN_PATH_ESCAPE)
 
 /** The daemon's tokenizer splits at C's isspace(): these six, and no other character. */
@@ -122,8 +122,8 @@ const EXCLUDED = ',= \t\r\n';
 
 /**
  * The words of a line as the daemon reads them: split at whitespace; a word that starts with a quotation mark runs to
- * the next one no backslash escapes, \" in it is a quote, the marks are not part of it; a quoted word that never
- * closes runs to the end of the line.
+ * the next one no backslash escapes, \" in it is a quote and \\ a backslash, the marks are not part of it; a
+ * quoted word that never closes runs to the end of the line.
  */
 export function words(line: string): string[] {
   const out: string[] = [];
@@ -136,7 +136,7 @@ export function words(line: string): string[] {
       i += 1;
       let word = '';
       while (i < n && line[i] !== '"') {
-        if (line[i] === '\\' && i + 1 < n && line[i + 1] === '"') i += 1;
+        if (line[i] === '\\' && i + 1 < n && (line[i + 1] === '"' || line[i + 1] === '\\')) i += 1;
         word += line[i];
         i += 1;
       }
@@ -152,9 +152,9 @@ export function words(line: string): string[] {
   return out;
 }
 
-/** A value as one quoted word: in quotation marks, \" for a quote (the grammar's only escape). */
+/** A value as one quoted word: in quotation marks, \\ for a backslash and \" for a quote (core.abnf's quoted). */
 export function quote(value: string): string {
-  return '"' + value.replaceAll('"', '\\"') + '"';
+  return '"' + value.replaceAll('\\', '\\\\').replaceAll('"', '\\"') + '"';
 }
 
 /** A string as one word: bare when it can be, quoted when it is empty or holds whitespace or a quote. */
@@ -261,20 +261,6 @@ function read(path: string, what: string): unknown {
     return JSON.parse(readFileSync(path, 'utf8'));
   } catch (e) {
     throw new ProtocolError(`${what} ${path} is not readable (${e instanceof Error ? e.message : String(e)})`);
-  }
-}
-
-/** Every reply code of a vocabulary file with its English sentence, wherever the file holds it. */
-function texts(node: unknown, out: Map<string, string>): void {
-  if (Array.isArray(node)) {
-    for (const v of node) texts(v, out);
-  } else if (node && typeof node === 'object') {
-    const o = node as Record<string, unknown>;
-    const text = o['text'] as Record<string, unknown> | undefined;
-    if (typeof o['code'] === 'string' && text && typeof text === 'object' && typeof text['en'] === 'string' && !out.has(o['code'])) {
-      out.set(o['code'], text['en']);
-    }
-    for (const v of Object.values(o)) texts(v, out);
   }
 }
 
@@ -445,32 +431,20 @@ export class Protocol {
     this.code = namesOf('code', short, (name) => this.codeOf(name));
     const contractDirs = options.contractDirs ?? INSTALLED.contractDirs;
     this.datadir = options.datadir ?? INSTALLED.datadir;
+    // the domains of each directory, <contractdir>/<domain>/<domain>.json one or two segments deep (domains), and nothing
+    // else: the words plugin-hostd-protocol, omx-clap and the others declare are domains, and a <contractdir>/3/<package>/verbs.json
+    // (the old home of the protocol's words, before 0.8.0) is never read, so a stale one cannot shadow the domain's sentence;
+    // a word's owner is its domain's info.x-owner, else the domain, whose catalog translates it (as the Python codec reads them)
     for (const d of contractDirs) {
-      const root = join(d, '3');
-      const packages = existsSync(root) ? readdirSync(root).sort() : [];
-      for (const pkg of packages) {
-        const path = join(root, pkg, 'verbs.json');
-        if (!existsSync(path)) continue;
-        const found = new Map<string, string>();
-        texts(read(path, 'the vocabulary'), found);
-        for (const [code, text] of found) {
-          if (this.codes.has(code) && !this.sentences.has(code)) {
-            this.sentences.set(code, text);
-            this.owners.set(code, pkg);
-          }
-        }
-      }
-      // the words a package keeps as a domain (omx-clap's host words, the domain host): their sentence is the word's
-      // x-text and their owner the domain's info.x-owner, whose catalog translates them
       for (const path of domains(d)) {
         const doc = read(path, 'the domain') as { info?: { 'x-owner'?: unknown } };
-        const owner = typeof doc?.info?.['x-owner'] === 'string' ? doc.info['x-owner'] : undefined;
+        const owner = typeof doc?.info?.['x-owner'] === 'string' ? doc.info['x-owner'] : basename(dirname(path));
         const found = new Map<string, string>();
         domainTexts(doc, found);
         for (const [code, text] of found) {
           if (this.codes.has(code) && !this.sentences.has(code)) {
             this.sentences.set(code, text);
-            if (owner) this.owners.set(code, owner);
+            this.owners.set(code, owner);
           }
         }
       }
@@ -637,8 +611,8 @@ export class Protocol {
   }
 
   /**
-   * One word as its declared type: a leaf by its pattern, a list as a list (one of its none words an empty one), a
-   * record as {field: value}, its fields found by the record's own pattern, so a field may hold the separator; literal
+   * One word as its declared type: a leaf by its pattern, a list as a list (its first none word an empty one, a
+   * further none word itself: history's unavailable is not its "-", #86), a record as {field: value}, its fields found by the record's own pattern, so a field may hold the separator; literal
    * words a|b as the word. ProtocolError when the word is not of the type.
    */
   readWord(kind: string, word: string): Value {
@@ -650,7 +624,8 @@ export class Protocol {
     }
     if (t.items) {
       const items = t.items;
-      if (items.none && items.none.split('|').includes(word)) return [];
+      const nones = items.none ? items.none.split('|') : [];
+      if (nones.includes(word)) return word === nones[0] ? [] : word;
       return word.split(items.separator).map((w) => this.readWord(items.type, w));
     }
     if (t.fields) {

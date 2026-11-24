@@ -17,6 +17,10 @@ generated from it, the meaning texts included (sorting pass V12).
 Environment: OMX_CONTRACT (the command, default omx-contract), CC. Exit 0 all green, 1 a FAIL line."""
 import json, os, re, shlex, shutil, subprocess, sys, tempfile
 
+sys.dont_write_bytecode = True
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools"))
+from domain_path import render_env  # noqa: E402  the renders read contract.d, then the installed contract directory
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OMX = shlex.split(os.environ.get("OMX_CONTRACT", "omx-contract"))
 CC = shlex.split(os.environ.get("CC", "cc"))
@@ -74,8 +78,9 @@ def main():
                 w = [w for w in doc["components"]["schemas"][item]["oneOf"] if w["title"] == title][0]
                 rows.append("word %s %s" % (macro, w["const"]))
             check("\n".join(rows) + "\n" == gold, "(b) the domain holds exactly the golden rows, meanings included")
-            r = subprocess.run(OMX + ["render", "--target", "c", "--package", "pin", "--contract-dir", "contract.d",
-                                      "--out", "include/plugin-hostd", "--check"], cwd=ROOT, capture_output=True, text=True)
+            r = subprocess.run(OMX + ["render", "--target", "c", "--package", "pin", "--installed",
+                                      "--out", "include/plugin-hostd", "--check"], cwd=ROOT, env=render_env(ROOT),
+                                     capture_output=True, text=True)
             check(r.returncode == 0, "(b) include/plugin-hostd/pin_codes.h is the render of the domain: %s" % (r.stderr.strip() or r.stdout.strip())[-200:])
         gen = os.path.join(ROOT, "tools", "pin-words-gen.py")
         r = subprocess.run([sys.executable, gen, "--check"], cwd=ROOT, capture_output=True, text=True) if os.path.isfile(gen) else None

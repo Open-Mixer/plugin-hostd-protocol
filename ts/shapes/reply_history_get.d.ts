@@ -7,9 +7,9 @@
  */
 export interface HistoryGetReply {
   /**
-   * The history's key=value entries; empty when it is blocked (unavailable) or has no entry.
+   * The plugin's history: its entries, or unavailable while the history file is blocked or history_window_s is 0.
    */
-  history: HistoryEntry[];
+  history: HistoryEntry[] | "unavailable";
 }
 /**
  * One key=value of a plugin's history.

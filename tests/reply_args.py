@@ -21,8 +21,9 @@ def decode_word(word, kind, types):
     if t is None:
         return word if word in kind.split("|") else None
     if "items" in t:
-        if t["items"].get("none") and word in t["items"]["none"].split("|"):
-            return []
+        nones = t["items"]["none"].split("|") if t["items"].get("none") else []
+        if word in nones:
+            return [] if word == nones[0] else word
         parts = [decode_word(w, t["items"]["type"], types) for w in word.split(t["items"]["separator"])]
         return None if any(p is None for p in parts) else parts
     if "fields" in t:

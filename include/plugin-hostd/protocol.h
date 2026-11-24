@@ -23,7 +23,7 @@
  * (make gen; make check-generated fails on drift). A consumer includes this header and reads nothing else, or reads the
  * JSON when it is not C. The mod-host protocol itself, which the daemon speaks unchanged, is not declared here.
  *
- * The daemon's own verbs are declared in its contract directory (data/verbs.json, docs/contract-dir.md of omx-contract)
+ * The daemon's own verbs are declared in its contract directory (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, docs/contract-dir.md of omx-contract)
  * and rendered into plugin_hostd_host_verbs.h beside this header: a verb is OMX_VERB_<VERB>, its line OMX_VERB_<VERB>_FMT,
  * its reply OMX_VERB_<VERB>_REPLY and its refusals OMX_VERB_<VERB>_CODES_INIT. The tables below take the words and the
  * replies from there and add the prose of the README. */
@@ -444,7 +444,7 @@ static inline int phd_pool_name_valid(const char *name)
  * The codes are the -5xx hundred; a reply is "resp \<code\>". resp is the rendered number of the code. Each number has
  * one name in the contract, rendered as OMX_REPLY_\<GROUP\>_\<REASON\>_RESP: the ones omx-clap-host answers too are
  * omx-clap's reply.host.* codes (its HOST_REPLY_CODES, omx_clap_vocabulary.h), the others plugin-hostd's
- * reply.plugin-hostd.* (data/verbs.json PLUGIN_HOSTD_REPLY_CODES, plugin_hostd_vocabulary.h); the header defines none.
+ * reply.plugin-hostd.* (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_REPLY_CODES, plugin_hostd_vocabulary.h); the header defines none.
  *
  * @param X the macro each row is passed to.
  */
@@ -1071,7 +1071,9 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_PRESET_FORMAT_1   "org.openmixer.preset/1"
 /** @brief the format word of a user-preset file that adds the state body */
 #define PHD_PRESET_FORMAT_2   "org.openmixer.preset/2"
-#define PHD_PRESET_ALIAS_MAX  12
+/** @brief the protocol's ceiling on a user-preset file, in bytes: a reader refuses a longer one. A daemon may hold a stricter
+ * limit of its own and must assert at build time that it is at most this one (ruled 2026-11-23 on #70: omx-clap-core keeps
+ * 3 MiB with a static assert against this, Open-Mixer/omx-clap-core#182) */
 #define PHD_PRESET_FILE_MAX   (64 * 1024 * 1024)
 /** @brief the parameters on one remote page */
 #define PHD_REMOTE_PAGE_SLOTS 8
@@ -1782,7 +1784,8 @@ static inline int phd_is_note_verb(const char *verb)
  * X(name, item, separator, none, spelling) and X(name, separator, fields, spelling) */
 /** @brief the list types of the table, as rows X(name, item, separator, none, spelling)
  *
- * A list is items of one type joined by a separator, or one of its none words.
+ * A list is items of one type joined by a separator, or one of its none words: the first is the empty list, a further
+ * one is itself, so a reader tells history's unavailable from its "-" (#86).
  *
  * @param X the macro each row is passed to.
  */
@@ -1842,7 +1845,13 @@ static inline int phd_is_note_verb(const char *verb)
       "verdict:estimate-verdict reason:estimate-reason") \
     X(OMX_VERB_HELLO, "0", "version:int extensions:word...") \
     X(OMX_VERB_PARAM_GET_MANY, "0", "values:word...") \
-    X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...")
+    X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...") \
+    X(OMX_VERB_REMOTE_PAGES, "count", "") \
+    X(OMX_VERB_REMOTE_PAGE_GET, "0", "page_id:uint section:quoted-escaped page_name:quoted-escaped slots:word...") \
+    X(OMX_VERB_PROPERTY_LIST, "count", "") \
+    X(OMX_VERB_NOTE_INPUT, "0", "port:word") \
+    X(OMX_VERB_NOTE_DROPS, "0", "notes:uint releases:uint sysex:uint unmappable:uint") \
+    X(OMX_VERB_NOTE_OUT_DROPS, "0", "dropped:uint unmapped:uint midi_out_full:uint")
 
 /** @brief the printf format of the PHD_EVENT_WORKER_DIED line
  *

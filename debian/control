@@ -74,10 +74,10 @@ Architecture: all
 Multi-Arch: foreign
 Depends: omx-contract (>= 3.21.0~), ${misc:Depends}
 Description: plugin-hostd protocol, its verbs in omx-contract's contract directory
- data/verbs.json of plugin-hostd-protocol, the verbs and reply codes
- plugin-hostd adds to mod-host's protocol, as the package plugin-hostd-protocol
- of omx-contract's contract directory, under
- /usr/share/omx-contract/contract.d/3/plugin-hostd-protocol.
+ The domain plugin-hostd-protocol, the verbs and reply codes
+ plugin-hostd adds to mod-host's protocol, in omx-contract's contract directory,
+ under /usr/share/omx-contract/contract.d/plugin-hostd-protocol, beside its
+ domains probe, pin and estimate.
  .
  Its documentation is on openmixer.org.
 

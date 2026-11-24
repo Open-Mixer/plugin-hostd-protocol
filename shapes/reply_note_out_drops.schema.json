@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/schema/plugin-hostd-protocol/reply_note_out_drops.schema.json",
+  "title": "NoteOutDropsReply",
+  "description": "The parsed form of a note_out_drops reply (the plugin's note output counters since add): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "dropped": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The events the ring had no room for."
+    },
+    "unmapped": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The events with no MIDI form."
+    },
+    "midi_out_full": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The messages midi_out had no room for."
+    }
+  },
+  "required": [
+    "dropped",
+    "unmapped",
+    "midi_out_full"
+  ],
+  "additionalProperties": false
+}

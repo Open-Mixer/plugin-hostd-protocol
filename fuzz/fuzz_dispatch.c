@@ -69,7 +69,7 @@ static int f_param_info(int instance, const char *symbol, host_param_info_t *inf
 {
     if (instance < 0)
         return answer(instance);
-    info->unit = "hz"; info->scale = "log";
+    info->unit = "Hz"; info->scale = "log";
     info->min = 20; info->max = 20000; info->def = 440; info->step = (double)(instance % 3);
     /* a port's range or default need not be finite: a range times the sample rate can overflow a float */
     if (strcmp(symbol, "inf") == 0)
@@ -224,7 +224,7 @@ static int expected_reply(char *out, size_t size, char *const *w, unsigned n)
         if (instance < 0)
             snprintf(out, size, "resp %i", answer(instance));
         else
-            snprintf(out, size, "resp 0 hz log %s %s %s %i stable", strcmp(w[2], "-inf") == 0 ? "-Infinity" : "20",
+            snprintf(out, size, "resp 0 Hz log %s %s %s %i stable", strcmp(w[2], "-inf") == 0 ? "-Infinity" : "20",
                      strcmp(w[2], "inf") == 0 ? "Infinity" : "20000", strcmp(w[2], "nan") == 0 ? "NaN" : "440",
                      instance % 3);
     }

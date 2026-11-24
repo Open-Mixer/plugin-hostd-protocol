@@ -158,7 +158,7 @@ static int b_param_info(int instance, const char *symbol, host_param_info_t *inf
     record("param_info(%d,%s)", instance, symbol);
     if (answer(instance) != SUCCESS)
         return answer(instance);
-    info->unit = "hz";
+    info->unit = "Hz";
     info->scale = "log";
     info->min = 20;
     info->max = 20000;

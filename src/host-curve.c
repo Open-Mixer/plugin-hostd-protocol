@@ -168,7 +168,7 @@ static int parse_term(const char *w, curve_term_t *t)
             ;
         if (end == p)
             return ERR_INVALID_OPERATION;
-        v = word_in(OMX_CURVE_UNITS_STANDARD, OMX_CURVE_UNITS_COUNT, p, end);
+        v = word_in(OMX_CURVE_UNIT_WORDS, OMX_CURVE_UNITS_COUNT, p, end);
         if (v < 0)
             return OMX_REPLY_PLUGIN_HOSTD_CURVE_UNIT_REFUSED_RESP;
         t->unit = (enum omx_curve_units)v;
@@ -444,10 +444,11 @@ static void curve_points_cb(proto_t *proto)
             rqt[i].shape = t->shapes[0];
         if (t->nslopes)
         {
-            /* the slope the choice value selects, in dB per octave; a value past the enumeration is no slope */
+            /* the slope the choice value selects, in dB per octave; a value past the enumeration is no slope. The unit is
+             * omx-dsp's generated name for the id dB, OMX_CURVE_UNITS_D_B, until Open-Mixer/omx-contract#206 spells it _DB */
             const double c = nearbyint((double)value);
             if (c >= 0.0 && c < (double)t->nslopes)
-                rqt[i].value = t->slopes[(uint32_t)c], rqt[i].unit = OMX_CURVE_UNITS_DB;
+                rqt[i].value = t->slopes[(uint32_t)c], rqt[i].unit = OMX_CURVE_UNITS_D_B;
             else
                 rqt[i].unit = OMX_CURVE_UNITS_NONE;
         }

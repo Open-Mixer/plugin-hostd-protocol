@@ -180,11 +180,11 @@
 = remote_pages(9)
 # scenario-46 answer 0
 > remote_page_get 9 0
-< resp 0 0 "Main \\"A\\"\\" "Page" gain - gain - gain - gain -
+< resp 0 0 "Main \\"A\\"\\\\" "Page" gain - gain - gain - gain -
 = remote_page_get(9,0)
 # scenario-47 answer 0
 > param_info 9 gain
-< resp 0 hz log 20 20000 440.125 0 stable
+< resp 0 Hz log 20 20000 440.125 0 stable
 = param_info(9,gain)
 # scenario-48 answer 0
 > param_info 3 no_such_symbol
@@ -508,7 +508,7 @@
 = param_info(3,no_such_symbol)
 # fuzz/corpus/protocol/scenario-29 answer 0
 > param_info 9 gain
-< resp 0 hz log 20 20000 440.125 0 stable
+< resp 0 Hz log 20 20000 440.125 0 stable
 = param_info(9,gain)
 # fuzz/corpus/protocol/scenario-3 answer 0
 > bypass 3 0
@@ -548,7 +548,7 @@
 = 
 # fuzz/corpus/protocol/scenario-38 answer 0
 > remote_page_get 9 0
-< resp 0 0 "Main \\"A\\"\\" "Page" gain - gain - gain - gain -
+< resp 0 0 "Main \\"A\\"\\\\" "Page" gain - gain - gain - gain -
 = remote_page_get(9,0)
 # fuzz/corpus/protocol/scenario-39 answer 0
 > remote_pages 9
@@ -840,7 +840,7 @@
 = param_info(3,no_such_symbol)
 # dispatch:fuzz/corpus/dispatch/scenario-29 answer 0
 > param_info 9 gain
-< resp 0 hz log 20 20000 440.125 0 stable
+< resp 0 Hz log 20 20000 440.125 0 stable
 = param_info(9,gain)
 # dispatch:fuzz/corpus/dispatch/scenario-3 answer 0
 > bypass 3 0
@@ -880,7 +880,7 @@
 = 
 # dispatch:fuzz/corpus/dispatch/scenario-38 answer 0
 > remote_page_get 9 0
-< resp 0 0 "Main \\"A\\"\\" "Page" gain - gain - gain - gain -
+< resp 0 0 "Main \\"A\\"\\\\" "Page" gain - gain - gain - gain -
 = remote_page_get(9,0)
 # dispatch:fuzz/corpus/dispatch/scenario-39 answer 0
 > remote_pages 9
@@ -5996,11 +5996,11 @@
 = param_info(9,gain)
 # scenario-48 answer 6
 > param_info 3 no_such_symbol
-< resp 0 hz log 20 20000 440.125 0 stable
+< resp 0 Hz log 20 20000 440.125 0 stable
 = param_info(3,no_such_symbol)
 # scenario-49 answer 6
 > param_info 3 :bypass
-< resp 0 hz log 20 20000 440.125 0 stable
+< resp 0 Hz log 20 20000 440.125 0 stable
 = param_info(3,:bypass)
 # scenario-50 answer 6
 > remove 3
@@ -6216,11 +6216,11 @@
 = remote_pages(3)
 # fuzz/corpus/protocol/extra-7 answer 6
 > remote_page_get 3 0
-< resp 0 0 "Main \\"A\\"\\" "Page" gain - gain - gain - gain -
+< resp 0 0 "Main \\"A\\"\\\\" "Page" gain - gain - gain - gain -
 = remote_page_get(3,0)
 # fuzz/corpus/protocol/extra-8 answer 6
 > param_info 3 cutoff
-< resp 0 hz log 20 20000 440.125 0 stable
+< resp 0 Hz log 20 20000 440.125 0 stable
 = param_info(3,cutoff)
 # fuzz/corpus/protocol/extra-9 answer 6
 > connect system:capture_1 system:playback_1
@@ -6308,11 +6308,11 @@
 = param_get(9,gain)
 # fuzz/corpus/protocol/scenario-27 answer 6
 > param_info 3 :bypass
-< resp 0 hz log 20 20000 440.125 0 stable
+< resp 0 Hz log 20 20000 440.125 0 stable
 = param_info(3,:bypass)
 # fuzz/corpus/protocol/scenario-28 answer 6
 > param_info 3 no_such_symbol
-< resp 0 hz log 20 20000 440.125 0 stable
+< resp 0 Hz log 20 20000 440.125 0 stable
 = param_info(3,no_such_symbol)
 # fuzz/corpus/protocol/scenario-29 answer 6
 > param_info 9 gain
@@ -6536,11 +6536,11 @@
 = remote_pages(3)
 # dispatch:fuzz/corpus/dispatch/extra-7 answer 6
 > remote_page_get 3 0
-< resp 0 0 "Main \\"A\\"\\" "Page" gain - gain - gain - gain -
+< resp 0 0 "Main \\"A\\"\\\\" "Page" gain - gain - gain - gain -
 = remote_page_get(3,0)
 # dispatch:fuzz/corpus/dispatch/extra-8 answer 6
 > param_info 3 cutoff
-< resp 0 hz log 20 20000 440.125 0 stable
+< resp 0 Hz log 20 20000 440.125 0 stable
 = param_info(3,cutoff)
 # dispatch:fuzz/corpus/dispatch/extra-9 answer 6
 > connect system:capture_1 system:playback_1
@@ -6552,15 +6552,15 @@
 = param_get(3,gain)
 # dispatch:fuzz/corpus/dispatch/param-info-inf answer 6
 > param_info 3 inf
-< resp 0 hz log 20 Infinity 440.125 0 stable
+< resp 0 Hz log 20 Infinity 440.125 0 stable
 = param_info(3,inf)
 # dispatch:fuzz/corpus/dispatch/param-info-nan answer 6
 > param_info 3 nan
-< resp 0 hz log 20 20000 NaN 0 stable
+< resp 0 Hz log 20 20000 NaN 0 stable
 = param_info(3,nan)
 # dispatch:fuzz/corpus/dispatch/param-info-neg-inf answer 6
 > param_info 3 -inf
-< resp 0 hz log -Infinity 20000 440.125 0 stable
+< resp 0 Hz log -Infinity 20000 440.125 0 stable
 = param_info(3,-inf)
 # dispatch:fuzz/corpus/dispatch/scenario-1 answer 6
 > add http://example.org/plugin 3
@@ -6640,11 +6640,11 @@
 = param_get(9,gain)
 # dispatch:fuzz/corpus/dispatch/scenario-27 answer 6
 > param_info 3 :bypass
-< resp 0 hz log 20 20000 440.125 0 stable
+< resp 0 Hz log 20 20000 440.125 0 stable
 = param_info(3,:bypass)
 # dispatch:fuzz/corpus/dispatch/scenario-28 answer 6
 > param_info 3 no_such_symbol
-< resp 0 hz log 20 20000 440.125 0 stable
+< resp 0 Hz log 20 20000 440.125 0 stable
 = param_info(3,no_such_symbol)
 # dispatch:fuzz/corpus/dispatch/scenario-29 answer 6
 > param_info 9 gain

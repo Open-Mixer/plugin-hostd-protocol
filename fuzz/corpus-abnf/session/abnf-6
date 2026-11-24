@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-preset_save 96 "B" !! "\""
-hmi_map -8 f!ê -85 -5 -30 -294 1 "\"" infinity inf -30
-@.._ param_monitor -2 "!U" ">\"" -84
-@. quarantine_clear s!
-patch_get 2 "\"ĉ"
-@30 monitor_output -6 !7
-param_get -06 !
-load !
-all_notes_off -7
-@Nd8 patch_set 769 "" "\"@"
-@.-. quarantine_clear ""
-@_ monitor \ -083 -65
+pin_changed
+track_info -6 =!! ̙u
+@3 estimate -53 -100 "\\\"" "j\\"
+@.1 hmi_map 54 "" 804 -8 93 -75 7 !!e +.74E387 infinity 40
+quarantine_clear MĠƸ
+state_load "3"
+@.8. monitor_output_off -027 "\\\\"
+@-t state_tmpdir ""
+@-15 set_bpm 435.
+@-q pin_set "\"'" "\"" " \"" "łw" "!"
+@b2 panel_get "\""
+panel_get 1!Ѿ

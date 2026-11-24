@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/schema/plugin-hostd-protocol/reply_note_input.schema.json",
+  "title": "NoteInputReply",
+  "description": "The parsed form of a note_input reply (whether the instance takes notes): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "port": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^ ]+$",
+      "description": "The name of the instance's note input on its worker's jack client, - for a plugin that takes none."
+    }
+  },
+  "required": [
+    "port"
+  ],
+  "additionalProperties": false
+}

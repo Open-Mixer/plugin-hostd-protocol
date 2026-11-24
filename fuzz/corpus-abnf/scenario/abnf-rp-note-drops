@@ -1,0 +1,10 @@
+note_drops 1 => resp 0 " " ^ Э! M!Ł
+note_drops 2 => resp 0 "" "" "" " "
+note_drops 8 => resp 0 G˛ ` "p\\" ""
+note_drops 605 => resp 0 "\"" "\\" "E!" r
+note_drops -34 => resp 0 "" ρȁ! "\\" "n\""
+note_drops 6 => resp 0 ̀ "\"u" !џ! ͚
+note_drops -419 => resp 0 O! "p\"" "˹" ""
+note_drops -5 => resp 0 "" "" "" '
+note_drops 284 => resp 0 "Ǳ" "\\" "" "\\"
+note_drops -4 => resp 0 !; "@λ" !!c I9!
