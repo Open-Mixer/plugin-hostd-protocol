@@ -570,8 +570,8 @@ check-protocol-tools: check-rendered test-rendered-sabotage check-schema test-gr
 # name, so a <contractdir>/<schema major>/plugin-hostd-protocol/ beside it would hide it (`lists the domain
 # plugin-hostd-protocol, which is not installed`); plugin-db's domains are installed the same way (ruling V16, 2026-11-23)
 install-contract:
-	@test -n "$(INSTALL_CONTRACT_DIR)" || { echo "install-contract: no install-contract-dir.sh: install omx-contract-devel, or set OMX_CONTRACT_DIR to a checkout" >&2; exit 1; }
-	for d in $(CONTRACT_DOMAINS); do sh $(INSTALL_CONTRACT_DIR) --domain contract.d/$$d $(DESTDIR)$(CONTRACTDIR) || exit 1; done
+	@test -n "$(INSTALL_CONTRACT_DIR)" || { echo "install-contract: no install-contract-dir.sh: install omx-contract-devel 3.22.0 or later (its --domain mode names the installing package), or set OMX_CONTRACT_DIR to a checkout" >&2; exit 1; }
+	for d in $(CONTRACT_DOMAINS); do sh $(INSTALL_CONTRACT_DIR) --domain contract.d/$$d $(DESTDIR)$(CONTRACTDIR) $(NAME) || exit 1; done
 	install -d $(DESTDIR)$(DATADIR)/$(NAME)/catalogs
 	install -m 644 catalogs/*.json $(DESTDIR)$(DATADIR)/$(NAME)/catalogs/
 
