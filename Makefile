@@ -755,8 +755,9 @@ test: test-conf-keys
 test-probe-words:
 	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/probe_words_test.py
 
-# the pin words of protocol.h (PHD_PIN_VERDICT_*, PHD_PIN_POOL_*, PHD_PIN_VERDICTS, PHD_PIN_POOLS) are generated from the
-# package's domain pin (contract.d/pin), meanings included, and held to the 10 golden rows (tests/pin_words_test.py)
+# the pin words of protocol.h (PHD_PIN_VERDICT_*, PHD_PIN_POOL_*, PHD_PIN_KEY_*, PHD_PIN_CHANGED_* and their lists) are
+# generated from the package's domain pin (contract.d/pin), meanings included, and held to the 20 golden rows
+# (tests/pin_words_test.py)
 .PHONY: test-pin-words
 test-pin-words:
 	OMX_CONTRACT='$(OMX_CONTRACT)' CC='$(CC)' python3 tests/pin_words_test.py

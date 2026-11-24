@@ -32,7 +32,10 @@ What plugin-hostd declares of the protocol is installed with the development pac
 - `<plugin-hostd/protocol.h>` (under `<includedir>/plugin-hostd-protocol/`, found with this package's Cflags): the
   verbs, the placement, the reply codes, the events, the host verb table and the settings, with the headers omx-contract
   renders from the domain `plugin-hostd-protocol` (`contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json`: `plugin_hostd_protocol_host_verbs.h`, `plugin_hostd_protocol_vocabulary.h`) and from
-  omx-clap's package of the contract directory (`omx_clap_host_verbs.h`, `omx_clap_vocabulary.h`), and from plugin-db's (`plugin_db_vocabulary.h`, the words of a pin);
+  omx-clap's package of the contract directory (`omx_clap_host_verbs.h`, `omx_clap_vocabulary.h`); the words of a pin line
+  (its verdict, pool and key words and what pin_changed names) are generated into it from this package's domain `pin`
+  (`contract.d/pin/pin.json`). plugin-db's package is still rendered beside it (`plugin_db_vocabulary.h`), and protocol.h
+  reads none of it;
 - the one verb table, `plugin-hostd-protocol.json`: every command, each once, with its origin (mod-host, plugin-hostd or
   omx-clap), its argument types, its reply and its refusals, and every feedback line
   (`pkg-config --variable=table plugin-hostd-protocol`);

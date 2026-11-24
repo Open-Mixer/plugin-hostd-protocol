@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/pin",
   "info": {
     "title": "The words of a pin line",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "x-owner": "plugin-hostd-protocol",
     "x-stability": "experimental"
   },
@@ -55,6 +55,48 @@
             "description": "Measured, and not faster or not safe with the pool: the worker keeps no option.",
             "x-code": 1,
             "x-text": "Measured, and not faster or not safe with the pool: the worker keeps no option."
+          }
+        ]
+      },
+      "PIN_KEYS": {
+        "description": "The keys of the optional words of a pin line, each this key, an equals sign and its value. Each appears at most once, in either order; a word with any other key is not a pin's.",
+        "x-since": "1.1.0",
+        "x-c-codes": true,
+        "oneOf": [
+          {
+            "const": "verdict",
+            "title": "verdict",
+            "description": "The qualification verdict of the pinned bytes, a word of PIN_VERDICTS.",
+            "x-code": 0,
+            "x-text": "The qualification verdict of the pinned bytes, a word of PIN_VERDICTS."
+          },
+          {
+            "const": "pool",
+            "title": "pool",
+            "description": "The thread pool word of the pinned bytes, a word of PIN_POOLS.",
+            "x-code": 1,
+            "x-text": "The thread pool word of the pinned bytes, a word of PIN_POOLS."
+          }
+        ]
+      },
+      "PIN_CHANGES": {
+        "description": "What counts as changed, the words of the pin_changed event: a pin holds the digests of the plugin's files and the fingerprint of its parameter layout, and only these two differ from it. Anything else about a plugin, its name or its version included, changes no pin.",
+        "x-since": "1.1.0",
+        "x-c-codes": true,
+        "oneOf": [
+          {
+            "const": "files",
+            "title": "files",
+            "description": "A pinned file is gone, or its bytes no longer have the digest the pin holds.",
+            "x-code": 0,
+            "x-text": "A pinned file is gone, or its bytes no longer have the digest the pin holds."
+          },
+          {
+            "const": "layout",
+            "title": "layout",
+            "description": "The plugin's parameter layout no longer has the fingerprint the pin holds.",
+            "x-code": 1,
+            "x-text": "The plugin's parameter layout no longer has the fingerprint the pin holds."
           }
         ]
       }

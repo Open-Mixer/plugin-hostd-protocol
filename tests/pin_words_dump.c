@@ -1,9 +1,9 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later */
 /* Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com> */
-/* pin_words_dump: every row of PHD_PIN_VERDICTS and PHD_PIN_POOLS of protocol.h, one line each,
- * "<list> <index> <id> <word> <meaning>", in the header's order, then the three verdict words and the two pool words by their
- * own names, "word <NAME> <value>" (tests/pin_words_test.py compares it with tests/golden/pin-words.txt, frozen from the
- * words plugin-db's pin file wrote before its domain took them). */
+/* pin_words_dump: every row of PHD_PIN_VERDICTS, PHD_PIN_POOLS, PHD_PIN_KEYS and PHD_PIN_CHANGES of protocol.h, one line
+ * each, "<list> <index> <id> <word> <meaning>", in the header's order, then the verdict, pool, key and change words and the
+ * two keys of a pin line by their own names, "word <NAME> <value>" (tests/pin_words_test.py compares it with
+ * tests/golden/pin-words.txt, frozen from the words plugin-db's pin file wrote before this package's domain took them). */
 #include <plugin-hostd/protocol.h>
 
 #include <stdio.h>
@@ -20,10 +20,24 @@ int main(void)
 #define X(id, word, meaning) printf("pools %d %s %s %s\n", i++, #id, word, meaning);
     PHD_PIN_POOLS(X)
 #undef X
+    i = 0;
+#define X(id, word, meaning) printf("keys %d %s %s %s\n", i++, #id, word, meaning);
+    PHD_PIN_KEYS(X)
+#undef X
+    i = 0;
+#define X(id, word, meaning) printf("changes %d %s %s %s\n", i++, #id, word, meaning);
+    PHD_PIN_CHANGES(X)
+#undef X
     printf("word PHD_PIN_VERDICT_IN_PROCESS %s\n", PHD_PIN_VERDICT_IN_PROCESS);
     printf("word PHD_PIN_VERDICT_ISOLATED %s\n", PHD_PIN_VERDICT_ISOLATED);
     printf("word PHD_PIN_VERDICT_REFUSED %s\n", PHD_PIN_VERDICT_REFUSED);
     printf("word PHD_PIN_POOL_CORES %s\n", PHD_PIN_POOL_CORES);
     printf("word PHD_PIN_POOL_OFF %s\n", PHD_PIN_POOL_OFF);
+    printf("word PHD_PIN_KEY_VERDICT %s\n", PHD_PIN_KEY_VERDICT);
+    printf("word PHD_PIN_KEY_POOL %s\n", PHD_PIN_KEY_POOL);
+    printf("word PHD_PIN_CHANGED_FILES %s\n", PHD_PIN_CHANGED_FILES);
+    printf("word PHD_PIN_CHANGED_LAYOUT %s\n", PHD_PIN_CHANGED_LAYOUT);
+    printf("word PHD_PIN_VERDICT_KEY %s\n", PHD_PIN_VERDICT_KEY);
+    printf("word PHD_PIN_POOL_KEY %s\n", PHD_PIN_POOL_KEY);
     return 0;
 }

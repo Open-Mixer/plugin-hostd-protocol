@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026 Pau Aliagas <linuxnow@gmail.com>
-"""tools/pin-words-gen.py: PHD_PIN_VERDICT_*, PHD_PIN_POOL_*, PHD_PIN_VERDICTS and PHD_PIN_POOLS of
-include/plugin-hostd/protocol.h written from this package's domain `pin` (contract.d/pin/pin.json): one string define per
+"""tools/pin-words-gen.py: PHD_PIN_VERDICT_*, PHD_PIN_POOL_*, PHD_PIN_KEY_*, PHD_PIN_CHANGED_* and the lists
+PHD_PIN_VERDICTS, PHD_PIN_POOLS, PHD_PIN_KEYS and PHD_PIN_CHANGES of include/plugin-hostd/protocol.h written from this
+package's domain `pin` (contract.d/pin/pin.json): one string define per
 word (the word is its `const`, the name its title in upper snake case) and one X(id, word, meaning) row per word, in the
 order of its codes; the meaning is its `description` with the first letter lowered and no final stop. Each item's defines
 and rows sit between BEGIN and END GENERATED markers.
@@ -15,7 +16,8 @@ import json, os, re, sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HEADER = os.path.join(ROOT, "include", "plugin-hostd", "protocol.h")
 DOMAIN = os.path.join(ROOT, "contract.d", "pin", "pin.json")
-LISTS = (("PHD_PIN_VERDICTS", "PHD_PIN_VERDICT_", "PIN_VERDICTS"), ("PHD_PIN_POOLS", "PHD_PIN_POOL_", "PIN_POOLS"))
+LISTS = (("PHD_PIN_VERDICTS", "PHD_PIN_VERDICT_", "PIN_VERDICTS"), ("PHD_PIN_POOLS", "PHD_PIN_POOL_", "PIN_POOLS"),
+         ("PHD_PIN_KEYS", "PHD_PIN_KEY_", "PIN_KEYS"), ("PHD_PIN_CHANGES", "PHD_PIN_CHANGED_", "PIN_CHANGES"))
 
 
 def snake(title):
