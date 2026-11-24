@@ -160,7 +160,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-clap-core-range test-no-clap-core-read test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
@@ -177,6 +177,11 @@ test-no-backcompat:
 # the release workflow reads the same-pass list as plugin-hostd does (.github/release-same-pass at the built commit)
 test-same-pass:
 	python3 tests/same_pass_test.py .
+
+# this tree's build reads nothing of omx-clap-core: the release chain publishes this protocol first (#67)
+.PHONY: test-no-clap-core-read
+test-no-clap-core-read:
+	python3 tests/no_clap_core_read.py .
 
 # every omx-clap-contract range admits the next omx-clap minor (the chain releases this protocol first)
 test-clap-core-range:
