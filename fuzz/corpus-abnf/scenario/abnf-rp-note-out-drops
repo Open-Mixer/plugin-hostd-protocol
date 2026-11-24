@@ -1,10 +1,10 @@
-note_out_drops 5 => resp 0 "ȅ" Ν "\""
-note_out_drops -3 => resp 0 "" P| ""
-note_out_drops -078 => resp 0 "" , "ѣ\\"
-note_out_drops -62 => resp 0 !WȜ !o΅ "!\""
-note_out_drops -11 => resp 0 ˪ C˥! ƨ!
-note_out_drops -20 => resp 0 "" p !Aς
 note_out_drops -131 => resp 0 "" "" Ƹ!
 note_out_drops 7 => resp 0 ̅\ ̂ !
 note_out_drops -066 => resp 0 " \\" "\\\\" m
 note_out_drops 569 => resp 0 " " "" ""
+note_out_drops 14 => resp 0 "\"" "" "\\j"
+note_out_drops -77 => resp 0 "" !d͸ Dȝϙ
+note_out_drops -571 => resp 0 "" !n "\\"
+note_out_drops 4 => resp 0 "" "C" ̰
+note_out_drops 215 => resp 0 "" "" "\\"
+note_out_drops -481 => resp 0 !!? "\" " "Ń"

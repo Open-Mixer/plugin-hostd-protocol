@@ -1,6 +1,6 @@
 hello 1 errors seq tags
-@0_ worker_env " \"" ! ˷ʑ
-@0_- worker_env ! "\"!" B͆
+quarantine_clear "\\\\"
+supervisor_reset !͆
 @g cpu_load
 @-_. cv_map 477 "" "\"" -inf -nan ""
 monitor_output -6 !7
@@ -8,6 +8,6 @@ param_get -06 !
 load !
 all_notes_off -7
 @Nd8 patch_set 769 "" "\\@"
-pin_clear ɛ!(
-@5_ cv_unmap 083 ""
-@-7 quit
+pin_changed ɛ!( =
+@. history_get "\"\\"
+transport_sync "]\""

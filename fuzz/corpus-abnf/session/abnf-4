@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-cv_map -65 !! "U" inf -.183e49 "!\""
-@5d. state_load ć5
+@__. curve_bind 81 -65 !!
+param_set_many -0 j!! 4.44
+bundle_remove « ǂ$0
+state_load ć5
 property_list -013
-worker_list
-@_ policy_set "" " "
-@t. licensee 7
+worker_env "\\\"" " " !q
+licensee 7
 @0x- set_bpm inf
-@- quarantine_clear B
-load "U"
-transport -114 +inf inf
-bundle_add BI
-@- bundle_remove ! "Ŏ\\"
+@- preset_list 405
+@1 property_info -752 1
+property_set -49 $TB " "
+@_ hmi_map -8 f!ê -85 -5 -30 -294 1 "\"" infinity inf -30

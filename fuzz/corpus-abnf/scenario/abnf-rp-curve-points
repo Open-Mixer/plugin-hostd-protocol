@@ -1,10 +1,10 @@
-curve_points -6 -3 960 => resp 0 "" H
-curve_points 2 6 1 => resp 0 A
-curve_points 2 -364 8 => resp 0 "\"\"" Ι% Z
+curve_points -1 -26 -9 => resp 0 ! "!"
+curve_points 2 17 -333 => resp 0 ""
+curve_points -930 19 871 => resp 0 "{\\" ϒ!
+curve_points -896 -712 -6 => resp 0 "\"" ! "8"
+curve_points 43 -3 -1 => resp 0 "3\"" ! "\\"
+curve_points -8 980 1 => resp 0 "" Ι% Z
 curve_points -277 -009 -302 => resp 0 !! "\"" " \\"
 curve_points -0 46 0 => resp 0 !a "\\"
 curve_points -891 -570 18 => resp 0 !
 curve_points -9 -189 4 => resp 0 ΅
-curve_points 36 64 -641 => resp 0 "\\" "\\"
-curve_points 03 -161 676 => resp 0 ! "\"\""
-curve_points 80 -870 -720 => resp 0 ""

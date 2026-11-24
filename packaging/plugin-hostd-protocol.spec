@@ -271,6 +271,13 @@ shows the English source sentence.
   Their macros are rendered into plugin_hostd_protocol_host_verbs.h and
   plugin_hostd_protocol_vocabulary.h; omx_clap_host_verbs.h and
   omx_clap_vocabulary.h are gone, and so is the omx-clap-contract dependency.
+- The descriptions store's ask words (#128): add's optional last word
+  ask | no-ask, the verb description_get <uri> answered
+  <sha256> <lv2|clap> <uri> <base|system|user>, the event description_changed
+  <uri>; -529 and -530 also answer description_get.
+- The setting ask_unknown (#157): auto (the default), 1 or 0, a word of
+  PHD_CONF_STRINGS with its words in PHD_ASK_UNKNOWN_MODES; the add word
+  ask | no-ask overrides it for that add.
 
 * Tue Nov 24 2026 Pau Aliagas <linuxnow@gmail.com> - 0.8.1-1
 - tests: the empty-contract arms of param_scales_test and grouping_reasons_test

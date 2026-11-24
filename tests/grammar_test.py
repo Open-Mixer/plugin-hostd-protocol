@@ -21,7 +21,7 @@ import re
 import sys
 
 try:
-    from abnf.parser import Rule as _Rule, ParseError
+    from abnf.parser import Rule as _Rule, ParseError, GrammarError
 except ImportError:
     sys.exit("grammar test: no python abnf module (pip install abnf); the grammar is not checked")
 
@@ -73,6 +73,10 @@ def parses(rule, line):
         Rule(rule).parse_all(line)
         return True
     except ParseError:
+        return False
+    except GrammarError as e:
+        # a rule the grammar does not define: named, never a crash that hides the failures after it
+        fail(f"{rule}: {e}")
         return False
 
 
@@ -304,6 +308,61 @@ with open(os.path.join(ROOT, "tests", "golden", "plugin-hostd-protocol.txt"), en
 for i, line in enumerate(golden[:-1]):
     if line.startswith("> curve_bind ") and golden[i + 1] == "< resp 0":
         must("curve-binding", line[2:].split(" ", 3)[3], "golden transcript, a curve_bind answered resp 0")
+
+# ---- the descriptions store's ask words (#128; omx-panel docs/descriptions-store.md section 7) ----
+# add's optional last word ask | no-ask, after any placement and client name; description_get <uri> and its typed
+# reply <sha256> <lv2|clap> <uri> <base|system|user>, refused -529 when no layer holds the plugin and -530 while its
+# ask runs; the event description_changed <uri>. Each in the table and in the grammar, named, and no looser.
+SHA = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+for line in ("add urn:a 3 ask", "add urn:a 3 no-ask", "add urn:a 3 own ask", "add urn:a 3 client_a no-ask",
+             "add urn:a 3 pool:fx client_a ask"):
+    must("cmd-add", line, "add with its ask word")
+    must("command", line, "add with its ask word")
+must("cmd-description-get", "description_get urn:a", "description_get <uri>")
+must("command", 'description_get "clap:/usr/lib/clap/a b.clap#org.a"', "description_get <uri>, quoted")
+must_not("cmd-description-get", "description_get", "description_get with no uri")
+must_not("cmd-description-get", "description_get urn:a urn:b", "description_get with two uris")
+for layer in ("base", "system", "user"):
+    for fmt in ("lv2", "clap"):
+        must("rp-description-get", f"resp 0 {SHA} {fmt} urn:a {layer}", f"description_get's reply, {fmt} {layer}")
+for line, why in ((f"resp 0 {SHA} lv2-clap urn:a user", "a worker row for the format"),
+                  (f"resp 0 {SHA} lv2 urn:a home", "a layer the store has not"),
+                  (f"resp 0 {SHA} lv2 urn:a", "no layer"),
+                  (f'resp 0 "{SHA} lv2 urn:a user"', "the four words quoted as one")):
+    must_not("rp-description-get", line, f"description_get's reply with {why}")
+# a named type is one word to the grammar: its own pattern, the table's, refuses what is not one (tests/reply_args.py)
+if not re.fullmatch(ARG_TYPES["sha256"]["pattern"], SHA) or re.fullmatch(ARG_TYPES["sha256"]["pattern"], SHA[:63]):
+    fail(f"the table's sha256 pattern {ARG_TYPES['sha256']['pattern']!r} does not tell a SHA-256 from a short one")
+must("feedback", "description_changed urn:a", "description_changed <uri>")
+must("event", "#4 description_changed urn:a", "a numbered description_changed")
+must_not("feedback", "description_changed", "description_changed with no uri")
+must_not("feedback", "description_changed urn:a files", "description_changed with pin_changed's words")
+
+rows = {c["verb"]: c for c in table["commands"]}
+desc = rows.get("description_get")
+if not desc:
+    fail("the table has no command description_get")
+else:
+    if [f["args"] for f in desc["forms"]] != [["word"]]:
+        fail(f"description_get's forms are {desc['forms']}, not <uri>")
+    shapes = [(f["args"], f["names"]) for f in desc.get("reply_forms") or []]
+    if shapes != [(["sha256", "lv2|clap", "word", "base|system|user"], ["sha256", "format", "uri", "layer"])]:
+        fail(f"description_get's reply is {shapes}, not <sha256> <lv2|clap> <uri> <base|system|user>")
+    if not {-529, -530} <= set(desc["codes"]):
+        fail(f"description_get answers {desc['codes']}, without -529 and -530")
+    if desc["levels"].get("console") != "required" or desc["sent_by"] != "controller":
+        fail(f"description_get is {desc['sent_by']} {desc['levels']}, not a controller's verb the console requires")
+ask_forms = [f for f in rows["add"]["forms"] if (f.get("names") or [None])[-1] == "ask"]
+if sorted(len(f["args"]) for f in ask_forms) != [3, 4, 4, 5] or any(f["args"][-1] != "ask|no-ask" for f in ask_forms):
+    fail(f"add's forms with the ask word are {[f['args'] for f in ask_forms]}, not each plain form and ask|no-ask")
+changed = [f_ for f_ in table["feedback"] if f_["line"] == "description_changed"]
+if [(f_["args"], f_.get("names"), f_["origin"]) for f_ in changed] != [(["word"], ["uri"], "plugin-hostd")]:
+    fail(f"the table's description_changed is {changed}, not plugin-hostd's <uri>")
+with open(os.path.join(ROOT, "protocol", "plugin-hostd.json"), encoding="utf-8") as f:
+    meanings = {c["code"]: c["meaning"] for c in json.load(f)["errors"]}
+for code in (-529, -530):
+    if "description_get" not in meanings.get(code, ""):
+        fail(f"{code} is {meanings.get(code)!r}, which does not say what description_get answers it for")
 
 # ---- refusals the grammar names ----
 for line in ("", "zzz 3", "add", "remove x", "set_bpm loud", "param_set 3 gain", "bypass 3", "Add urn:golden:amp 3",

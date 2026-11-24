@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/schema/plugin-hostd-protocol/reply_description_get.schema.json",
+  "title": "DescriptionGetReply",
+  "description": "The parsed form of a description_get reply (the key of a plugin's description in the descriptions store, omx-panel docs/descriptions-store.md): one property per word of the reply, a list an array, a record an object, a whole number or a decimal one a number.",
+  "type": "object",
+  "properties": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "The SHA-256 of the plugin's binary, 64 lowercase hexadecimal digits."
+    },
+    "format": {
+      "type": "string",
+      "enum": [
+        "lv2",
+        "clap"
+      ],
+      "description": "The plugin's format: a plugin's, never a worker's row."
+    },
+    "uri": {
+      "type": "string",
+      "description": "The plugin's uri, as the add named it."
+    },
+    "layer": {
+      "type": "string",
+      "enum": [
+        "base",
+        "system",
+        "user"
+      ],
+      "description": "The layer of the store that holds the entry: the user layer, the system layer or the base, the first that does in that order."
+    }
+  },
+  "required": [
+    "sha256",
+    "format",
+    "uri",
+    "layer"
+  ],
+  "additionalProperties": false
+}

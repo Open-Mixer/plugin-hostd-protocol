@@ -1,0 +1,10 @@
+description_get !| => resp 0 "z" lv2 !! system
+description_get "X" => resp 0 Ɔo* lv2 "\\" base
+description_get ϛ˘ => resp 0 "" clap "\"\"" user
+description_get !!ѽ => resp 0 "Y" lv2 "" base
+description_get "\"" => resp 0 "\\" clap "" system
+description_get "\\\"" => resp 0 !0 lv2 "^" base
+description_get "" => resp 0 !! clap "b" user
+description_get "ˬ\"" => resp 0 ˱˨ lv2 "\\" base
+description_get "Ћ̠" => resp 0 "\"" lv2 Эϱ! base
+description_get "6" => resp 0 "" clap "" base

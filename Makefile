@@ -158,7 +158,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-code-text test-client test-codec test-nul test-no-floors test-no-clap-core-read test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass \
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-ask-unknown test-code-text test-client test-codec test-nul test-no-floors test-no-clap-core-read test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass \
       test-fuzz-record-lines
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
@@ -512,6 +512,10 @@ test-verb-table:
 test-default-lv2-worker:
 	python3 tests/default_lv2_worker.py protocol/plugin-hostd.json
 
+# the descriptions store's ask is set by ask_unknown: auto (the default), 1 or 0, declared once in the JSON
+test-ask-unknown:
+	python3 tests/ask_unknown_setting.py protocol/plugin-hostd.json
+
 # mod-host.json follows its headers: a moved verb, code or message in a scratch copy moves the JSON
 test-mod-host-json:
 	python3 tests/mod_host_json.py include
@@ -735,7 +739,7 @@ fuzz-coverage: $(FUZZ_HARNESSES:%=$(FUZZ_COV_BUILD)/fuzz_%)
 clean:
 	rm -rf src/*.o $(LIB_SO) $(LIB_SONAME) $(LIB_FILE) $(TEST_PROGS) build
 
-.PHONY: test-no-fedora44 gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-property-rows test-mod-host-json test-generated-sabotage test-default-lv2-worker test-served-render-ci \
+.PHONY: test-no-fedora44 gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-property-rows test-mod-host-json test-generated-sabotage test-default-lv2-worker test-ask-unknown test-served-render-ci \
         check-protocol-tools install-contract check-contract-dir render-verbs check-rendered test-rendered-sabotage \
         check-schema test-grammar test-code-text test-code-text-sabotage test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client
 .PHONY: all install test test-protocol test-protocol-commands test-utils test-socket test-bind test-golden \

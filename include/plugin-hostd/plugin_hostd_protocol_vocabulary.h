@@ -270,14 +270,14 @@
 #define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_RESP (-528)
 /** The source sentence (English) of OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE. */
 #define OMX_REPLY_PLUGIN_HOSTD_DIR_NOT_WRITABLE_TEXT_EN "A folder the plugins need cannot be created or written to; check its location and permissions."
-#define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_ABSENT "reply.plugin-hostd.descriptor-absent" ///< no descriptor (panel) for the plugin's binary as it is now
+#define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_ABSENT "reply.plugin-hostd.descriptor-absent" ///< no descriptor (panel) for the plugin's binary as it is now; of description_get, no layer of the descriptions store holds the plugin
 #define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_ABSENT_RESP (-529)
 /** The source sentence (English) of OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_ABSENT. */
-#define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_ABSENT_TEXT_EN "There is no description of this plugin, so its panel cannot be shown; add the plugin again so it is scanned."
-#define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_PENDING "reply.plugin-hostd.descriptor-pending" ///< the scan its add started has not written the descriptor (panel) yet
+#define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_ABSENT_TEXT_EN "There is no description of this plugin yet, so its panel cannot be shown; add the plugin again so it is scanned and described."
+#define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_PENDING "reply.plugin-hostd.descriptor-pending" ///< the scan its add started has not written the descriptor (panel) yet; of description_get, the plugin's ask still runs
 #define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_PENDING_RESP (-530)
 /** The source sentence (English) of OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_PENDING. */
-#define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_PENDING_TEXT_EN "The plugin is still being scanned; try again in a moment."
+#define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_PENDING_TEXT_EN "The plugin is still being scanned or described; try again in a moment."
 #define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_SCAN_FAILED "reply.plugin-hostd.descriptor-scan-failed" ///< the plugin's last scan wrote no descriptor (panel)
 #define OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_SCAN_FAILED_RESP (-531)
 /** The source sentence (English) of OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_SCAN_FAILED. */

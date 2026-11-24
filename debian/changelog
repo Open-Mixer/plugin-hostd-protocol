@@ -18,6 +18,13 @@ plugin-hostd-protocol (0.9.0) unstable; urgency=medium
     plugin_hostd_protocol_vocabulary.h; omx_clap_host_verbs.h and
     omx_clap_vocabulary.h are gone, and so is the omx-clap-contract
     dependency.
+  * The descriptions store's ask words (#128): add's optional last word
+    ask | no-ask, the verb description_get <uri> answered
+    <sha256> <lv2|clap> <uri> <base|system|user>, the event
+    description_changed <uri>; -529 and -530 also answer description_get.
+  * The setting ask_unknown (#157): auto (the default), 1 or 0, a word of
+    PHD_CONF_STRINGS with its words in PHD_ASK_UNKNOWN_MODES; the add word
+    ask | no-ask overrides it for that add.
 
  -- Pau Aliagas <linuxnow@gmail.com>  Tue, 24 Nov 2026 12:00:00 +0100
 
