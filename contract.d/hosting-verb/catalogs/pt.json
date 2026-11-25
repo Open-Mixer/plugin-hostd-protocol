@@ -1,0 +1,11 @@
+{
+  "$schema": "../../../schema/omx-contract.schema.json#/$defs/catalog",
+  "kind": "catalog",
+  "lang": "pt",
+  "owner": "plugin-hostd-protocol",
+  "messages": {
+    "HOSTING_VERB_HOSTS.plugin-hostd": {"text": "O daemon que coloca os plugins em workers e responde aos verbos que ele próprio acrescenta.", "by": "machine", "model": "draft-prose", "source": "0493bc3f63941f477be62985435b85ef31880db59edb614d5106e14883fdec17"},
+    "HOSTING_VERB_HOSTS.omx-clap-host": {"text": "O worker do omx-clap-core: o anfitrião de um plugin CLAP, e o de um plugin LV2 através do seu adaptador.", "by": "machine", "model": "draft-prose", "source": "10a8f2fb1f743371634c55c144ef88342347ab981e7b157fbbfc20cbe9b8d474"},
+    "HOSTING_VERB_HOSTS.mod-host": {"text": "mod-host, o anfitrião LV2 cujo protocolo os outros falam.", "by": "machine", "model": "draft-prose", "source": "4e56109462279217eadda38642a18903cd5f4de2298004d386b5b7f8eb80489b"}
+  }
+}

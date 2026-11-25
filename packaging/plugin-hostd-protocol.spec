@@ -255,6 +255,9 @@ shows the English source sentence.
 
 %changelog
 * Tue Nov 24 2026 Pau Aliagas <linuxnow@gmail.com> - 0.9.0-1
+- The domain hosting-verb carries its translations (contract.d/hosting-verb/
+  catalogs, installed with it): the three HOSTING_VERB_HOSTS words moved from
+  omx-clap-core's catalogs word for word (ruling R5), held by check-catalogs.
 - V16 as ruled 2026-11-23: the protocol's words are the domain
   plugin-hostd-protocol, installed as
   contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, every item named

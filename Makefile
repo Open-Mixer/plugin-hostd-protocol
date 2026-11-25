@@ -611,12 +611,14 @@ check-contract-dir:
 # the catalogs through omx-contract's release gate (translate --check, 3.16.0): every listed language has its catalog,
 # no key is missing and no entry is stale. The contract is staged as check-contract-dir stages it (#15). The words are the domain plugin-hostd-protocol (V16), named
 # after the package that owns it, so the --package translate keeps the items of is the domain (ruling V16, 2026-11-23).
-# The domain host carries its own catalogs (contract.d/host/catalogs, installed with it), held the same way.
+# The domains host and hosting-verb carry their own catalogs (contract.d/<domain>/catalogs, installed with each), held the
+# same way; hosting-verb's came from omx-clap-core's catalogs/ with the item (ruling R5), word for word.
 check-catalogs:
 	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
 	$(MAKE) --no-print-directory install-contract DESTDIR=$$tmp >/dev/null; \
 	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) translate --check --installed --catalogs catalogs --package plugin-hostd-protocol; \
-	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) translate --check --installed --catalogs contract.d/host/catalogs --package host
+	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) translate --check --installed --catalogs contract.d/host/catalogs --package host; \
+	OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR)$(if $(OMX_CONTRACT_PATH),:$(OMX_CONTRACT_PATH)):$(CONTRACTDIR) $(OMX_CONTRACT) translate --check --installed --catalogs contract.d/hosting-verb/catalogs --package hosting-verb
 
 # a served contract package that changes the render turns main red when it is served: ci.yml's schedule (#27)
 test-served-render-ci:
