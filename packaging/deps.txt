@@ -8,7 +8,6 @@
 # from the spec and control (dnf builddep, apt-get build-dep) and name no version.
 #
 # <rpm name>                    <deb name>                    <floor>
-omx-contract-devel              libomx-contract-dev           3.22.0
 omx-contract                    omx-contract                  3.21.0
 omx-contract-data               omx-contract-data             3.21.0
 omx-clap-contract          omx-clap-contract        0.34.0
