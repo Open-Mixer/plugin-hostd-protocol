@@ -179,7 +179,7 @@ jobs:
           echo "omx-clap contract.d/omx-clap/omx-clap.json read at $sha ($CLAP_CORE_REF)" | tee -a /tmp/from-repo
           dir=$RUNNER_TEMP/clap-core-contract
           (cd "$src" && sh "$(pkg-config --variable=datadir omx-contract)/install-contract-dir.sh" omx-clap "$(cat VERSION)" 3 data "$dir" data)
-          for n in host omx-clap; do sh "$(pkg-config --variable=datadir omx-contract)/install-contract-dir.sh" --domain "$src/contract.d/$n" "$dir"; done
+          for n in host omx-clap; do sh "$(pkg-config --variable=datadir omx-contract)/install-contract-dir.sh" --domain "$src/contract.d/$n" "$dir" omx-clap; done
           # the shared verbs live in the domain omx-clap, and no data file holds them: a source without them is refused by name
           grep -q '"OMX_CLAP_HOST_VERBS"' "$dir/omx-clap/omx-clap.json" || { echo "omx-clap at $sha: the domain omx-clap declares no OMX_CLAP_HOST_VERBS item (the verbs the protocol table imports)"; exit 1; }
           echo "OMX_CONTRACT_PATH=$dir" >> "$GITHUB_ENV"
