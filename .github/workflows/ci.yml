@@ -244,6 +244,8 @@ jobs:
         run: make test-shapes-sabotage
       - name: The version of package.json
         run: make version-check
+      - name: No package below the highest version the channel ever served it at (#180)
+        run: make served-floor
 
   abi:
     # the baseline abi/ is written by fc45's libabigail (make abi-baseline there): an abidiff refuses a baseline of
