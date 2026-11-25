@@ -14,10 +14,14 @@ Package: libplugin-hostd-protocol0
 Architecture: any
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: plugin-hostd-protocol (= ${binary:Version})
 Description: plugin-hostd protocol library, a superset of mod-host's text protocol
  The socket server, line protocol and command dispatch that plugin-hostd and
  omx-clap-host answer their controllers with: mod-host's text protocol, so any
  mod-host client works unchanged.
+ .
+ It provides plugin-hostd-protocol, the name of the library's RPM, so a
+ package that depends on that name installs from either channel.
  .
  Its documentation is on openmixer.org.
 
