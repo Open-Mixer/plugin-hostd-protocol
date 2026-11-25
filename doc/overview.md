@@ -35,8 +35,8 @@ What plugin-hostd declares of the protocol is installed with the development pac
   `plugin_hostd_protocol_host_verbs.h`, `plugin_hostd_protocol_vocabulary.h`: the verbs plugin-hostd adds, the ones
   omx-clap-host shares with it and adds, the refusals every host answers and the hosts a verb names); the words of a pin
   line (its verdict, pool and key words and what pin_changed names) are generated into it from this package's domain
-  `pin` (`contract.d/pin/pin.json`). plugin-db's package is still rendered beside it (`plugin_db_vocabulary.h`), and
-  protocol.h reads none of it;
+  `pin` (`contract.d/pin/pin.json`). Nothing of plugin-db's package is rendered or read here (#163): plugin-db builds
+  on this protocol;
 - the one verb table, `plugin-hostd-protocol.json`: every command, each once, with its origin (mod-host, plugin-hostd or
   omx-clap), its argument types, its reply and its refusals, and every feedback line
   (`pkg-config --variable=table plugin-hostd-protocol`);

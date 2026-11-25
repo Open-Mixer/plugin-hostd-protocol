@@ -127,10 +127,12 @@ def main():
                           "(c) writing it changes the macro the call expands to (%s of %s)" % (what, item))
         else:
             check(False, "(c) no generator or no domain to sabotage")
-        # (d) protocol.h reads no plugin-db header
+        # (d) protocol.h reads no plugin-db header (since #163 the tree carries none; a copy planted back is dropped)
         scratch = os.path.join(tmp, "tree-vendored")
         shutil.copytree(ROOT, scratch, ignore=shutil.ignore_patterns(".git", "build", "node_modules"))
-        os.unlink(os.path.join(scratch, "include", "plugin-hostd", "plugin_db_vocabulary.h"))
+        vendored = os.path.join(scratch, "include", "plugin-hostd", "plugin_db_vocabulary.h")
+        if os.path.exists(vendored):
+            os.unlink(vendored)
         out, err = dump(scratch, tmp)
         check(out == gold, "(d) with plugin_db_vocabulary.h gone, protocol.h compiles and the expansion is as it was %s" % err.strip()[-200:])
     return 1 if failed else 0

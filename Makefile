@@ -50,12 +50,11 @@ HEADERS = include/host-backend.h include/host-dispatch.h include/host-errors.h i
           include/host-scenario.h include/protocol.h include/socket.h include/utils.h
 
 # the declared protocol (doc/protocol.md): plugin-hostd's protocol.h and the headers it includes, rendered by
-# omx-contract from this tree's domains plugin-hostd-protocol, host and hosting-verb and from the domain plugin-db in the
-# contract directory; installed under
+# omx-contract from this tree's domains plugin-hostd-protocol, host and hosting-verb, nothing of plugin-db's package
+# (#163: the pin words are this tree's domain pin); installed under
 # <includedir>/plugin-hostd-protocol/plugin-hostd/, so a consumer includes <plugin-hostd/protocol.h> with this package's
 # Cflags. src/protocol.c reads the protocol version, hello's line and the extensions hello grants from them.
-RENDERED = include/plugin-hostd/plugin_hostd_protocol_host_verbs.h include/plugin-hostd/plugin_hostd_protocol_vocabulary.h \
-           include/plugin-hostd/plugin_db_vocabulary.h
+RENDERED = include/plugin-hostd/plugin_hostd_protocol_host_verbs.h include/plugin-hostd/plugin_hostd_protocol_vocabulary.h
 # the probe domain's codes header (the render of the items of contract.d/probe marked x-c-codes), committed
 PROBE_CODES = include/plugin-hostd/probe_codes.h
 # the pin domain's codes header, the same way
@@ -158,7 +157,7 @@ test-doc-gates:
 
 test: test-protocol test-protocol-commands test-utils test-socket test-bind test-adopt test-golden test-golden-modhost \
       test-fixes test-fixes-sabotage test-forms test-forms-sabotage test-hello test-curve test-monitor test-runner test-runner-quiet test-hello-sabotage test-bind-sabotage test-install test-abi version-check \
-      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-ask-unknown test-code-text test-client test-codec test-nul test-no-floors test-requires-list test-probe-format test-no-clap-core-read test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass \
+      check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-ask-unknown test-code-text test-client test-codec test-nul test-no-floors test-requires-list test-probe-format test-no-clap-core-read test-no-plugin-db-read test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass \
       test-fuzz-record-lines \
       test-client-installed \
       test-curve-words
@@ -199,6 +198,11 @@ test-probe-format:
 .PHONY: test-no-clap-core-read
 test-no-clap-core-read:
 	python3 tests/no_clap_core_read.py .
+
+# this tree's build reads nothing of plugin-db: plugin-db builds on this protocol (#163, plugin-db#34)
+.PHONY: test-no-plugin-db-read
+test-no-plugin-db-read:
+	python3 tests/no_plugin_db_read.py .
 
 # the protocol, the dispatcher and the scenario corpus over a fake backend, as mod-host's test-protocol runs them
 test-protocol: tests/protocol_test
@@ -565,8 +569,8 @@ test-generated-sabotage:
 	sh tests/generated-sabotage.sh
 
 # The checks that need tools a package build does not: run by CI (.github/workflows/ci.yml, job protocol).
-#   check-rendered   the three rendered headers are what omx-contract renders from this tree's domains
-#                    plugin-hostd-protocol, host and hosting-verb (contract.d) and from plugin-db's installed domain;
+#   check-rendered   the two rendered headers are what omx-contract renders from this tree's domains
+#                    plugin-hostd-protocol, host and hosting-verb (contract.d), nothing of plugin-db's (#163);
 #                    test-rendered-sabotage holds it to failing. A contract directory named first on OMX_CONTRACT_PATH
 #                    outranks the installed one
 #   check-contract-dir  that staged package validates with the installed contract directory
@@ -633,14 +637,7 @@ render-verbs check-rendered:
 	@set -e; \
 	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
 	  $(OMX_CONTRACT) render --target c --package $(NAME) --installed $(foreach d,plugin-hostd-protocol host hosting-verb,--with-domain contract.d/$(d)) --out include/plugin-hostd $(if $(filter check-rendered,$@),--check)
-	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
-	wd=""; for d in $$(printf %s "$(OMX_CONTRACT_PATH)" | tr : ' ') $(CONTRACTDIR); do \
-	  if [ -f $$d/plugin-db/plugin-db.json ]; then wd="--with-domain $$d/plugin-db"; break; fi; done; \
-	test -n "$$wd" || { echo "$@: no domain plugin-db of plugin-db's contract in the contract directories" >&2; exit 1; }; \
-	OMX_CONTRACT_PATH=$(if $(OMX_CONTRACT_PATH),$(OMX_CONTRACT_PATH):)$(CONTRACTDIR) \
-	  $(OMX_CONTRACT) render --target c --package plugin-db --installed $$wd --out $$tmp; \
-	$(if $(filter check-rendered,$@),diff -u include/plugin-hostd/plugin_db_vocabulary.h $$tmp/plugin_db_vocabulary.h >&2 || { echo "include/plugin-hostd/plugin_db_vocabulary.h is not the render of plugin-db's package" >&2; exit 1; },cp $$tmp/plugin_db_vocabulary.h include/plugin-hostd/plugin_db_vocabulary.h); \
-	echo "the rendered headers are current"
+	@echo "the rendered headers are current"
 
 check-schema:
 	python3 tests/protocol_schema.py protocol/plugin-hostd.json protocol/plugin-hostd.schema.json
