@@ -658,7 +658,7 @@ class Protocol:
     def leaves_no_mark(self, code):
         """Whether a refusal leaves no mark on the plugin, by its number or its name: no verdict and no history is
         written for it, as the table declares it (a refused pin: the plugin is not marked, and the same request is
-        refused again until the pin changes, so it is not transient). ProtocolError for a code the table lacks."""
+        refused again until the pin changes, so it is not transient). ProtocolError for a code the table lacks."""  # noqa: D205, D209
         resp = self._code(code) if isinstance(code, str) else code
         if resp not in self.names:
             raise ProtocolError("the protocol declares no code %s" % code)
