@@ -591,7 +591,6 @@ test-generated-sabotage:
 #   test-grammar     the grammar against the scenario corpus, the golden transcript and the table (python abnf)
 OMX_CONTRACT ?= omx-contract
 PYTHON ?= python3
-CONTRACT_SCHEMA_MAJOR = 3
 # the domains this package's contract is (no data file, no owner manifest): the words of the protocol, the host words its
 # verbs answer with (host), the hosts a verb names (hosting-verb), the probe's, the pin's and the estimate's. host and
 # hosting-verb are this package's because the release chain publishes it before omx-clap-core, which reads them (#67)
@@ -610,8 +609,8 @@ test-verb-hosts:
 
 # this package's domains as omx-contract's script installs a domain, <contractdir>/<domain>/, and no owner manifest: the
 # domain plugin-hostd-protocol is named after this package, and omx-contract's reader reads a domain as the package of its
-# name, so a <contractdir>/<schema major>/plugin-hostd-protocol/ beside it would hide it (`lists the domain
-# plugin-hostd-protocol, which is not installed`); plugin-db's domains are installed the same way (ruling V16, 2026-11-23)
+# name; the contract directory has no schema-major level (omx-contract 0.23.0), every domain is <contractdir>/<domain>/;
+# plugin-db's domains are installed the same way (ruling V16, 2026-11-23)
 install-contract:
 	@test -n "$(INSTALL_CONTRACT_DIR)" || { echo "install-contract: no install-contract-dir.sh: install omx-contract-devel (its --domain mode names the installing package), or set OMX_CONTRACT_DIR to a checkout" >&2; exit 1; }
 	for d in $(CONTRACT_DOMAINS); do sh $(INSTALL_CONTRACT_DIR) --domain contract.d/$$d $(DESTDIR)$(CONTRACTDIR) $(NAME) || exit 1; done

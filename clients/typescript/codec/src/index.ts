@@ -279,7 +279,6 @@ function domainTexts(node: unknown, out: Map<string, string>): void {
 function domains(d: string): string[] {
   const out: string[] = [];
   for (const name of existsSync(d) ? readdirSync(d, { withFileTypes: true }).filter((e) => e.isDirectory()).map((e) => e.name).sort() : []) {
-    if (name === '3') continue;
     const top = join(d, name);
     if (existsSync(join(top, `${name}.json`))) out.push(join(top, `${name}.json`));
     for (const sub of readdirSync(top).sort()) if (existsSync(join(top, sub, `${sub}.json`))) out.push(join(top, sub, `${sub}.json`));

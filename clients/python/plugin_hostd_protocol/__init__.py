@@ -232,7 +232,7 @@ def _domains(d):
     out = []
     for name in sorted(os.listdir(d)) if os.path.isdir(d) else []:
         top = os.path.join(d, name)
-        if name == "3" or not os.path.isdir(top):
+        if not os.path.isdir(top):
             continue
         if os.path.isfile(os.path.join(top, name + ".json")):
             out.append(os.path.join(top, name + ".json"))
