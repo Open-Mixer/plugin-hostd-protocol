@@ -421,7 +421,6 @@ gen: $(GEN)
 	python3 tools/abnf-gen.py > grammar/plugin-hostd-protocol.abnf.new && \
 	    mv grammar/plugin-hostd-protocol.abnf.new grammar/plugin-hostd-protocol.abnf
 	python3 tools/reply-words.py > src/reply-words.h.new && mv src/reply-words.h.new src/reply-words.h
-	python3 tools/ts-client-gen.py
 	python3 tools/probe-words-gen.py
 	python3 tools/pin-words-gen.py
 	python3 tools/param-scales-gen.py
@@ -437,7 +436,6 @@ check-generated: $(GEN)
 	python3 tools/protocol-table.py --check; \
 	python3 tools/abnf-gen.py --check; \
 	python3 tools/reply-words.py --check; \
-	python3 tools/ts-client-gen.py --check; \
 	python3 tools/probe-words-gen.py --check; \
 	python3 tools/param-scales-gen.py --check; \
 	python3 tools/pin-words-gen.py --check; \
@@ -681,9 +679,12 @@ test-shapes-sabotage:
 test-ts-package:
 	sh tests/ts-package.sh
 
-# the TypeScript client (doc/ts-client.md): the transport, the generated vocabulary, curvePoints; node, no dependency
+# the TypeScript client (doc/ts-client.md): one TypeScript encoder, the codec (#106); the transport and curvePoints over the
+# codec, built with its locked toolchain, reading the table of this tree
 test-ts-client:
-	node --test tests/ts_client_test.mjs tests/ts_codec_vectors_test.mjs
+	node --test tests/one_ts_encoder_test.mjs
+	npm --prefix clients/typescript/codec ci --no-audit --no-fund && npm --prefix clients/typescript/codec run build
+	node --test tests/ts_client_test.mjs
 
 # the table-driven TypeScript codec (clients/typescript/codec, the package's `.` export, moved from plugin-hostd's clients/ts):
 # built with its locked toolchain, then run on clients/fixtures/codec.json, the file the Python codec runs on, reading the

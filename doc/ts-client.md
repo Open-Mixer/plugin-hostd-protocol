@@ -12,14 +12,16 @@ Three things and no more.
 | Piece | File | What |
 |---|---|---|
 | the transport | `clients/typescript/client.mjs` | `connect`, then `send(line)`: one command line out, its one reply line back, as the Python client does |
-| the generated vocabulary | `clients/typescript/vocabulary.mjs`, `vocabulary.d.mts` | every verb with its forms (argument types, names, tail), its refusal codes and its reply; the argument types; the reply codes and their words; the parse refusals. Written by `tools/ts-client-gen.py` from `protocol/plugin-hostd-protocol.json`, the table `make gen` writes from the headers; never typed by hand |
+| the codec | `clients/typescript/codec`, the package's `.` export | `Protocol`, over the table `protocol/plugin-hostd-protocol.json` (installed, or the one `connect({ protocol })` is given): every line the client writes and every reply it reads, and the wire's constants. The one TypeScript encoder of the protocol (#106) |
 | one call | `curvePoints(instance, display, n)` | sends `curve_points <instance> <display> <n>` and answers the points and the marks, `{ points: [{ x, y }], marks: [{ freq, depth, q, origin }] }`, which plugin-hostd drew with omx-dsp's `omx_curve_points_marked`, a mark each band a feedback corrector planted |
 
-The words of a line come from the vocabulary: `call(verb, ...args)` finds the verb's form by the number of arguments,
-refuses an argument that is not of its declared type, and writes the line; `curvePoints` is `call('curve_points', ...)`
-and a parse of the count and the points. The line is encoded and the reply parsed by `clients/typescript/lines.mjs`, which opens
-no socket, so a surface without TCP imports the vocabulary, the encoder and the parsers from the package alone
-(`@openmixer/plugin-hostd-protocol/lines`).
+The words of a line are the codec's: `call(verb, ...args)` is `Protocol.encode(verb, args)`, the verb's first form that
+takes the arguments, sent, and the reply read by `Protocol.parse`; `curvePoints` is `call('curve_points', ...)` and
+`Protocol.readReply('curve_points', ...)`, the table's reply form, its count held to the number of points. The command port
+without `port` is the table's constant `default_command_port`, and the cap on a reply its `message_max`
+(`SOCKET_MSG_MAX_SIZE`, written into the table by `tools/protocol-table.py`). A surface without TCP imports `Protocol` from
+the package's `.` export; the client keeps no encoder, no parser and no vocabulary of its own
+(`tests/one_ts_encoder_test.mjs`).
 
 ## Errors are typed
 
@@ -36,27 +38,28 @@ The transport's failures are `HostdError` kinds too, with `reply` null and the s
 - `connect`: the command or feedback port refused or unreachable;
 - `closed`: the peer closed or reset the connection, before or during a reply;
 - `timeout`: no reply in time; the connection is then closed, as a late reply would answer the next line;
-- `oversize`: a reply past 16 MiB (`SOCKET_MSG_MAX_SIZE`); the socket is closed and every later call answers the same error.
+- `oversize`: a reply past the table's `message_max`, 16 MiB (`SOCKET_MSG_MAX_SIZE`); the socket is closed and every later
+  call answers the same error.
 
-The one gap: a call the caller wrote wrongly (an unknown verb, an argument count or type the vocabulary does not declare, a
-control character in an argument) throws a `TypeError` before anything is sent. That is a fault of the caller's code, not
-of the connection or the host, and it is not a `HostdError`.
+A reply the codec does not read as one the protocol declares is `kind: 'malformed'`. The one gap: a call the caller wrote
+wrongly (an unknown verb, an argument count or type no form of the table takes, a control character in an argument)
+throws the codec's `ProtocolError` before anything is sent. That is a fault of the caller's code, not of the connection or
+the host, and it is not a `HostdError`.
 
 ## How a line is written
 
-`encode(verb, ...args)` takes the first form of the verb with that many arguments whose types every argument is, so
-`supervisor_reset all` and `supervisor_reset w3` are both written. A type is the table's, `float` (core.abnf's rule) or a
-literal word (`all`). `tools/ts-client-gen.py` refuses a form type declared in none of them, by its name. A control
-character in any argument is refused, whatever its type. A `word` is bare when it holds no space or double quote; otherwise
-it is quoted, a quote written `\"` and a backslash `\\`, which is how the daemon's tokenizer (`src/utils.c`) reads a quoted
-word. The types `quoted` and `quoted-escaped` are written as given: the caller supplies the quotes.
+By the codec, `Protocol.encode`: the first form of the verb whose arguments fit, an `int` a JavaScript integer, a `float` a
+finite number, any other type one word. A word is bare when it holds no whitespace or double quote; otherwise it is quoted,
+a quote written `\"` and a backslash `\\`, which is how the daemon's tokenizer (`src/utils.c`) reads a quoted word; so a
+`quoted-escaped` argument is the value, and the codec writes its quotes. A control character in any argument is refused by
+`call`, whatever its type.
 
 ## What it does not do
 
 - **No tags, no `hello`.** A client sends one line and waits for its reply, in order; it asks for no extension. A caller
   that wants tags writes the `hello` line with `call` and frames its own.
 - **No reconnect, no retry, no cache, no pool.** A connection that closed is a connection that closed.
-- **No second encoding of a verb.** A line the vocabulary does not declare is not written; `send(line)` is the one way
+- **No second encoding of a verb.** A line the table does not declare is not written; `send(line)` is the one way
   to send a line it does not know, and it is the caller's.
 - **No maths.** The curve is plugin-hostd's, drawn by omx-dsp's C; the client parses what it answers.
 - **No compatibility layer** with another spelling of a verb or an older reply.
@@ -69,18 +72,22 @@ are open; `connect({ feedbackPort: null })` opens none, for a host started with 
 ## Versioned with the protocol
 
 The client is files of this package and carries no version of its own: `package.json`'s version is `VERSION`
-(`make version-check`), the protocol's. A table change that adds, drops or retypes a verb changes the vocabulary in the
-same commit, and a package version is the vocabulary of that protocol version.
+(`make version-check`), the protocol's. The client reads the table it is given, so a table change that adds, drops or
+retypes a verb is spoken by the client with no change to it.
 
 ## Held, and how
 
-- `make test-ts-client` (Node 20 or later, no dependency): the transport against a scripted peer that answers the way the
-  daemon does, in the replies of `tests/golden/plugin-hostd-protocol.txt`; the vocabulary written again from a table with
-  one verb more shows it; `curvePoints` sends the words the table declares and parses the reply; each error is typed.
-- `make check-generated` holds `clients/typescript/vocabulary.mjs` and `vocabulary.d.mts` to what `tools/ts-client-gen.py` writes,
-  byte for byte; `make gen` writes them.
-- `tests/ts_codec_vectors_test.mjs` (also `make test-ts-client`) runs the encode and parse cases this client speaks on `clients/fixtures/codec.json`, the one file the Python codec is tested on too; it is shipped in the npm package as `@openmixer/plugin-hostd-protocol/codec-vectors`, for a client elsewhere to run the same cases.
-- `make test-ts-package` packs the package and imports the client from the tarball.
+- `make test-ts-client`: `tests/one_ts_encoder_test.mjs` holds one TypeScript encoder (no `./lines` or `./vocabulary`
+  export, no file of theirs, no generator, a client that imports the codec and writes no line itself), each rule red on
+  its fault planted back; then, the codec built, the transport against a scripted peer that answers the way the daemon
+  does, in the replies of `tests/golden/plugin-hostd-protocol.txt`; a verb added to the table the client is given is
+  sent, and one the table does not declare is refused before anything is sent; the port and the cap are the table's;
+  `curvePoints` sends the words the table declares and reads the reply; each error is typed.
+- `make test-ts-codec` runs the codec on `clients/fixtures/codec.json`, the one file the Python codec is tested on too; it
+  is shipped in the npm package as `@openmixer/plugin-hostd-protocol/codec-vectors`, for a client elsewhere to run the
+  same cases.
+- `make test-ts-package` packs the package, imports the client and the codec from the tarball, and finds no `./lines` and
+  no `./vocabulary`.
 
 ## The table-driven codec (the package's `.` export)
 
@@ -98,4 +105,4 @@ codecs are held to the same expected lines. `GroupingReason` and `RETRY_REASONS`
 hold them to the 16 golden reasons of `clients/fixtures/grouping-reasons.txt`. The library reads no environment variable and runs no
 program: it takes options (`table`, `contractDirs`, `datadir`) and its installed default (`INSTALLED`); the command line
 and the tests take theirs from `PLUGIN_HOSTD_PROTOCOL_TABLE`, `OMX_CONTRACT_PATH` and pkg-config (`src/environment.ts`).
-Until the `./client` transport is folded onto this codec (#106) the package has two TypeScript encoders.
+The `./client` transport writes and reads its lines through it: the package has one TypeScript encoder (#106).

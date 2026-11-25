@@ -263,6 +263,11 @@ shows the English source sentence.
 - plugin-db's package is no longer rendered here (#163): plugin_db_vocabulary.h,
   its render, its check and its install are gone, and the build requires no
   plugin-db package. The pin words are this package's domain pin (#164).
+- One TypeScript encoder (#106): the npm package's ./client writes and reads
+  its lines through the codec's Protocol, its command port and reply cap the
+  table's constants (message_max, from SOCKET_MSG_MAX_SIZE, is one now); the
+  ./lines and ./vocabulary exports, their files and tools/ts-client-gen.py are
+  gone.
 - V16 as ruled 2026-11-23: the protocol's words are the domain
   plugin-hostd-protocol, installed as
   contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, every item named

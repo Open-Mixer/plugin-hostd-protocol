@@ -206,6 +206,19 @@ describe('the installed files', () => {
   });
 });
 
+// #106: the thin client's port and reply cap are the table's constants, read through the codec, never a copy of its own
+describe("the wire's constants are the table's", () => {
+  const protocol = new Protocol(optionsFromEnvironment());
+  const table = JSON.parse(readFileSync(protocol.tablePath, 'utf8')) as { constants: { name: string; value: number }[] };
+
+  it('gives every constant the table declares, and refuses one it does not', () => {
+    assert.ok(table.constants.length >= 2);
+    for (const c of table.constants) assert.equal(protocol.constant(c.name), c.value);
+    assert.equal(protocol.constant('message_max'), 16 * 1024 * 1024);
+    assert.throws(() => protocol.constant('no_such_constant'), ProtocolError);
+  });
+});
+
 // plugin-hostd-protocol#24 and #23 (D22, D23): a client compares what it decoded against the owner's names, never a
 // literal it writes, and asks a refusal's transient of the code, never a list of names it keeps.
 describe('the verbs and the reply codes as constants, and a code transient by its declaration', () => {

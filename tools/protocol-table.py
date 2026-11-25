@@ -13,6 +13,7 @@
 #                                 extensions hello grants, as omx-contract declares them (check-rendered)
 #   include/plugin-hostd/plugin_hostd_protocol_vocabulary.h   the numbers of the domain host's HOST_REPLY_CODES, as
 #                                 omx-contract renders them
+#   include/socket.h              SOCKET_MSG_MAX_SIZE, the constant message_max
 #
 # A word of ours never shadows or changes a mod-host word. A verb of another origin that has a mod-host word either
 # extends mod-host's command (takes mod-host's arguments, in its types, as its own first arguments, and more only where
@@ -34,6 +35,7 @@ import protocol_words  # noqa: E402
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = "protocol/plugin-hostd-protocol.json"
 VOCAB_H = "include/plugin-hostd/plugin_hostd_protocol_vocabulary.h"
+SOCKET_H = "include/socket.h"
 # the items of the verbs omx-clap-host adds to mod-host's protocol: the ones plugin-hostd answers too, and its own
 SHARED_ITEMS = ["PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS", "PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS"]
 
@@ -57,6 +59,16 @@ def load(rel):
         return json.loads(read(rel))
     except ValueError as e:
         fail(f"{rel}: {e}")
+
+
+def message_max():
+    """the longest message a peer reads, SOCKET_MSG_MAX_SIZE of include/socket.h, as a constant of the table: a client
+    reads its cap here and keeps no copy"""
+    m = re.search(r"#define SOCKET_MSG_MAX_SIZE\s+\((\d+) \* (\d+) \* (\d+)\)", read(SOCKET_H))
+    if not m:
+        fail(f"{SOCKET_H}: no SOCKET_MSG_MAX_SIZE of the form (a * b * c)")
+    return {"name": "message_max", "value": int(m.group(1)) * int(m.group(2)) * int(m.group(3)), "unit": "bytes",
+            "meaning": "the longest message a peer reads, a command or a reply, its NUL included; the connection is closed past it"}
 
 
 def counts(form):
@@ -325,7 +337,7 @@ def table():
         "protocol": "plugin-hostd-protocol",
         "version": phd["version"],
         "superset_of": "mod-host",
-        "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json", "contract.d/host/host.json", VOCAB_H],
+        "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json", "contract.d/host/host.json", VOCAB_H, SOCKET_H],
         "commands": sorted(commands.values(), key=lambda e: (e["origin"] != "mod-host", e["origin"], e["verb"])),
         "refused": mod_ui,
         "feedback": sorted(feedback.values(), key=lambda e: (e["origin"] != "mod-host", e["line"])),
@@ -346,7 +358,7 @@ def table():
         "worker_states": phd["worker_states"],
         # the wire's constants (protocol_version, the version hello answers, among them), the words of a pin and the
         # LV2 workers lv2_worker_set names, as protocol.h declares them: a client reads them here and keeps no copy
-        "constants": phd["constants"],
+        "constants": phd["constants"] + [message_max()],
         "pin": phd["pin"],
         # the formats a worker holds: the <format> of worker_list, and of policy_set and lv2_worker_set
         "formats": phd["formats"],

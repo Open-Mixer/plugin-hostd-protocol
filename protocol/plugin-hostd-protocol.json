@@ -2,7 +2,7 @@
   "protocol": "plugin-hostd-protocol",
   "version": 1,
   "superset_of": "mod-host",
-  "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json", "contract.d/host/host.json", "include/plugin-hostd/plugin_hostd_protocol_vocabulary.h"],
+  "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json", "contract.d/host/host.json", "include/plugin-hostd/plugin_hostd_protocol_vocabulary.h", "include/socket.h"],
   "commands": [
     {"verb": "add", "origin": "mod-host", "declared": "include/mod-host.h EFFECT_ADD", "forms": [{"args": ["word", "int"], "tail": true, "origin": "mod-host"}, {"args": ["word", "int"], "names": ["uri", "instance"], "tail": false, "origin": "plugin-hostd"}, {"args": ["word", "int", "placement"], "names": ["uri", "instance", "placement"], "tail": false, "origin": "plugin-hostd"}, {"args": ["word", "int", "word"], "names": ["uri", "instance", "client"], "tail": false, "origin": "plugin-hostd"}, {"args": ["word", "int", "placement", "word"], "names": ["uri", "instance", "placement", "client"], "tail": false, "origin": "plugin-hostd"}, {"args": ["word", "int", "ask|no-ask"], "names": ["uri", "instance", "ask"], "tail": false, "origin": "plugin-hostd"}, {"args": ["word", "int", "placement", "ask|no-ask"], "names": ["uri", "instance", "placement", "ask"], "tail": false, "origin": "plugin-hostd"}, {"args": ["word", "int", "word", "ask|no-ask"], "names": ["uri", "instance", "client", "ask"], "tail": false, "origin": "plugin-hostd"}, {"args": ["word", "int", "placement", "word", "ask|no-ask"], "names": ["uri", "instance", "placement", "client", "ask"], "tail": false, "origin": "plugin-hostd"}], "reply": null, "codes": [], "sent_by": "controller", "extended_by": ["plugin-hostd"], "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
     {"verb": "bundle_add", "origin": "mod-host", "declared": "include/mod-host.h BUNDLE_ADD", "forms": [{"args": ["word"], "tail": false, "origin": "mod-host"}], "reply": null, "codes": [], "sent_by": "controller", "extended_by": [], "levels": {"lv2-worker": "required", "clap-worker": "required", "console": "required", "zynthian": "required"}},
@@ -229,7 +229,8 @@
     {"name": "connect_retry_ms", "value": 5000, "unit": "ms", "meaning": "how long the idle tick asks again for a connect a respawned worker could not make yet"},
     {"name": "line_max", "value": 4096, "unit": "bytes", "meaning": "the protocol socket's buffer: the longest pin_set line the daemon takes"},
     {"name": "line_words_max", "value": 64, "unit": "words", "meaning": "the words of one command line the daemon reads, the verb included; a word past them is not read"},
-    {"name": "chain_members_min", "value": 1, "unit": "instances", "meaning": "the fewest members of a chain: a chain of one is valid, so one isolated plugin is a chain like any other"}
+    {"name": "chain_members_min", "value": 1, "unit": "instances", "meaning": "the fewest members of a chain: a chain of one is valid, so one isolated plugin is a chain like any other"},
+    {"name": "message_max", "value": 16777216, "unit": "bytes", "meaning": "the longest message a peer reads, a command or a reply, its NUL included; the connection is closed past it"}
   ],
   "pin": {"file_separator": ",", "digest_separator": "=", "scheme_separator": ":", "path_excluded": ",= \t\r\n", "path_escape": "%"},
   "formats": ["lv2", "clap", "lv2-clap"],
