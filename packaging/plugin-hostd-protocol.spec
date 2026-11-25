@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.8.1
+Version: 0.21.0
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -252,6 +252,12 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Wed Nov 25 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.0-1
+- 0.21.0, above every version python3-plugin-hostd-protocol had when plugin-hostd
+  built it (0.20.6): this source released it at 0.8.1, below it (#180).
+- tools/served-floor.py: the release refuses a version below the highest the
+  channel ever served any of this source's packages at (#180).
+
 * Tue Nov 24 2026 Pau Aliagas <linuxnow@gmail.com> - 0.8.1-1
 - tests: the empty-contract arms of param_scales_test and grouping_reasons_test
   hold the installed omx-contract out by PKG_CONFIG_PATH as well as
