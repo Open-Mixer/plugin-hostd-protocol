@@ -160,11 +160,26 @@ test: test-protocol test-protocol-commands test-utils test-socket test-bind test
       check-generated test-probe-words test-pin-words test-param-scales test-grouping-reasons test-estimate-words test-protocol-domain test-domain-renders check-protocol-doc test-feedback-args test-transient-codes test-search-paths test-property-rows test-reply-args test-verb-table test-mod-host-json test-generated-sabotage test-default-lv2-worker test-ask-unknown test-code-text test-client test-codec test-nul test-no-floors test-requires-list test-probe-format test-no-clap-core-read test-no-plugin-db-read test-bounds test-number test-no-epoch test-no-backcompat test-no-fedora44 test-same-pass \
       test-fuzz-record-lines \
       test-client-installed \
-      test-curve-words
+      test-curve-words \
+      test-rpm-name-on-debian
 
 # no workflow names Fedora 44 (the owner's ruling, 2026-11-19): tests/no_fedora44_test.py
 test-no-fedora44:
 	python3 tests/no_fedora44_test.py .
+
+# a release is never below the highest version the channel ever served any of its packages at (#180): the tool over a
+# channel made in the test, and each part of the tool broken in turn; served-floor reads the real channel (network).
+# Both need git, which the package builds do not have: ci.yml runs them, not make test
+test-served-floor:
+	python3 tests/served_floor_test.py .
+	sh tests/served-floor-sabotage.sh
+
+served-floor:
+	python3 tools/served-floor.py
+
+# the main RPM's name is a Debian package or a versioned Provides, so plugin-hostd-full installs from either channel (#180)
+test-rpm-name-on-debian:
+	python3 tests/rpm_name_on_debian_test.py .
 
 # no package of this source carries an epoch (the owner's ruling, 2026-11-18): tests/epoch_test.py
 test-no-epoch:
@@ -776,7 +791,7 @@ fuzz-coverage: $(FUZZ_HARNESSES:%=$(FUZZ_COV_BUILD)/fuzz_%)
 clean:
 	rm -rf src/*.o $(LIB_SO) $(LIB_SONAME) $(LIB_FILE) $(TEST_PROGS) build
 
-.PHONY: test-no-fedora44 gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-property-rows test-mod-host-json test-generated-sabotage test-default-lv2-worker test-ask-unknown test-served-render-ci \
+.PHONY: test-no-fedora44 gen check-generated protocol-doc check-protocol-doc test-verb-table test-transient-codes test-search-paths test-property-rows test-mod-host-json test-generated-sabotage test-default-lv2-worker test-ask-unknown test-served-render-ci \ test-served-floor served-floor test-rpm-name-on-debian
         check-protocol-tools install-contract check-contract-dir render-verbs check-rendered test-rendered-sabotage \
         check-schema test-grammar test-code-text test-code-text-sabotage test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client
 .PHONY: all install test test-protocol test-protocol-commands test-utils test-socket test-bind test-golden \

@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.9.0
+Version: 0.21.0
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -252,7 +252,11 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
-* Tue Nov 24 2026 Pau Aliagas <linuxnow@gmail.com> - 0.9.0-1
+* Wed Nov 25 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.0-1
+- 0.21.0, above every version python3-plugin-hostd-protocol had when plugin-hostd
+  built it (0.20.6): this source released it at 0.8.1, below it (#180).
+- tools/served-floor.py, run on every pull request: the release refuses a version below the highest the
+  channel ever served any of this source's packages at (#180).
 - The domain hosting-verb carries its translations (contract.d/hosting-verb/
   catalogs, installed with it): the three HOSTING_VERB_HOSTS words moved from
   omx-clap-core's catalogs word for word (ruling R5), held by check-catalogs.
@@ -282,6 +286,7 @@ shows the English source sentence.
 - The setting ask_unknown (#157): auto (the default), 1 or 0, a word of
   PHD_CONF_STRINGS with its words in PHD_ASK_UNKNOWN_MODES; the add word
   ask | no-ask overrides it for that add.
+
 
 * Tue Nov 24 2026 Pau Aliagas <linuxnow@gmail.com> - 0.8.1-1
 - tests: the empty-contract arms of param_scales_test and grouping_reasons_test

@@ -1,5 +1,13 @@
-plugin-hostd-protocol (0.9.0) unstable; urgency=medium
+plugin-hostd-protocol (0.21.0) unstable; urgency=medium
 
+  * 0.21.0, above every version python3-plugin-hostd-protocol had when
+    plugin-hostd built it (0.20.6): this source released it at 0.8.1, which
+    apt takes only as a downgrade, so a plain upgrade kept 0.20.6 (#180).
+  * libplugin-hostd-protocol0 provides plugin-hostd-protocol, the name of the
+    library's RPM, which plugin-hostd-full depends on (#180).
+  * tools/served-floor.py: the release refuses a version below the highest
+    the channel ever served any of this source's packages at, read from the
+    history of the channel's ledgers; every pull request runs it (#180).
   * The domain hosting-verb carries its translations (contract.d/hosting-verb/
     catalogs, installed with it): the three HOSTING_VERB_HOSTS words moved
     from omx-clap-core's catalogs word for word (ruling R5), held by
@@ -34,7 +42,7 @@ plugin-hostd-protocol (0.9.0) unstable; urgency=medium
     PHD_CONF_STRINGS with its words in PHD_ASK_UNKNOWN_MODES; the add word
     ask | no-ask overrides it for that add.
 
- -- Pau Aliagas <linuxnow@gmail.com>  Tue, 24 Nov 2026 12:00:00 +0100
+ -- Pau Aliagas <linuxnow@gmail.com>  Wed, 25 Nov 2026 11:10:00 +0000
 
 plugin-hostd-protocol (0.8.1) unstable; urgency=medium
 
