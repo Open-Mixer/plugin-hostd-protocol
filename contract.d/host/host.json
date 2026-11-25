@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/host",
   "info": {
     "title": "The host words: the refusals, track kinds and feedback lines of the protocol's hosts",
-    "version": "0.21.0",
+    "version": "0.1.0",
     "x-owner": "plugin-hostd-protocol",
     "x-stability": "experimental"
   },
@@ -11,7 +11,7 @@
     "schemas": {
       "HOST_REPLY_CODES": {
         "description": "The refusals the verbs of this package answer, by the number of resp <n>: mod-host's own numbers (mod-host.h) and the ones a worker answers past them.",
-        "x-since": "0.21.0",
+        "x-since": "0.1.0",
         "oneOf": [
           {
             "const": "reply.host.instance-invalid",
@@ -271,7 +271,7 @@
       },
       "HOST_TRACK_KINDS": {
         "description": "The kind of strip, the last word of track_info; a line without it is an input channel.",
-        "x-since": "0.21.0",
+        "x-since": "0.1.0",
         "oneOf": [
           {
             "const": "bus",
@@ -294,7 +294,7 @@
       },
       "HOST_EVENTS": {
         "description": "The lines a host writes on its feedback port for these verbs, each followed by the instance number, but xruns, which is the worker's own and is followed by its count.",
-        "x-since": "0.21.0",
+        "x-since": "0.1.0",
         "oneOf": [
           {
             "const": "remote_pages_changed",
