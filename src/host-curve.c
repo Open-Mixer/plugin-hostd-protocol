@@ -23,6 +23,7 @@
 #include "host-dispatch.h"
 #include "host-errors.h"
 #include "mod-host.h"
+#include "plugin-hostd/protocol.h"
 #include "plugin-hostd/plugin_hostd_protocol_host_verbs.h"
 #include "plugin-hostd/plugin_hostd_protocol_vocabulary.h"
 
@@ -374,14 +375,16 @@ int host_curve_code(int omx_code)
     }
 }
 
-/* curve_points <instance> <display> <points>. A reply is the count and each point, `resp 0 <count> <x>,<y> ...`; a delay's
-   time_response has no point but taps, which follow as `stems <count> <t>,<dB>,<shade>,<leg> ...` (doc/protocol.md) */
+/* curve_points <instance> <display> <points>. A reply is the count, the marks and each point,
+   `resp 0 <count> <marks> <x>,<y> ...`; a delay's time_response has no point but taps, which follow as
+   `stems <count> <t>,<dB>,<shade>,<leg> ...` (doc/protocol.md) */
 static void curve_points_cb(proto_t *proto)
 {
     int instance, display, points;
     struct omx_curve_term rqt[CURVE_TERMS_MAX];
     struct omx_curve_request rq;
     struct omx_curve_stem stems[OMX_CURVE_TAPS_MAX];
+    struct omx_curve_mark marks[OMX_CURVE_BANDS_MAX];
     struct omx_curve_extra ex;
     double rate, x[OMX_CURVE_POINTS_MAX], y[OMX_CURVE_POINTS_MAX];
     char buffer[SOCKET_MSG_BUFFER_SIZE * 4], xs[32];
@@ -432,8 +435,20 @@ static void curve_points_cb(proto_t *proto)
         rqt[i].value = value;
         rqt[i].unit = t->unit;
         rqt[i].shape = OMX_CURVE_NO_SHAPE;
-        /* a host binds a plugin's controls, which carry no origin (spec §7.6: the strip's EQ is the console's) */
+        /* the backend names the band a corrector planted; a host that does not (a foreign plugin's) answers every
+           symbol user, and curve_points draws it no mark (spec §7.6: the strip's EQ is the console's) */
         rqt[i].origin = OMX_CURVE_ORIGINS_USER;
+        if (g_curve_backend->param_origin)
+        {
+            int origin = OMX_CURVE_ORIGINS_USER;
+
+            if ((code = g_curve_backend->param_origin(instance, t->symbol, &origin)) < 0)
+            {
+                protocol_response_int(code, proto);
+                return;
+            }
+            rqt[i].origin = (enum omx_curve_origins)origin;
+        }
         if (t->role == OMX_CURVE_ROLES_BAND_TYPE && t->nshapes)
         {
             /* the shape the choice value selects; a value past the list is a choice with no shape */
@@ -444,7 +459,8 @@ static void curve_points_cb(proto_t *proto)
             rqt[i].shape = t->shapes[0];
         if (t->nslopes)
         {
-            /* the slope the choice value selects, in dB per octave; a value past the enumeration is no slope */
+            /* the slope the choice value selects, in dB per octave; a value past the enumeration is no slope. The unit is
+             * omx-dsp's generated name for the id dB, OMX_CURVE_UNITS_DB (the PARAM_UNITS title, omx-contract#206) */
             const double c = nearbyint((double)value);
             if (c >= 0.0 && c < (double)t->nslopes)
                 rqt[i].value = t->slopes[(uint32_t)c], rqt[i].unit = OMX_CURVE_UNITS_DB;
@@ -462,13 +478,27 @@ static void curve_points_cb(proto_t *proto)
     memset(&ex, 0, sizeof(ex));
     ex.stems = stems;
     ex.stem_room = OMX_CURVE_TAPS_MAX;
+    ex.marks = marks;
+    ex.mark_room = OMX_CURVE_BANDS_MAX;
     n = omx_curve_points_marked(&rq, x, y, OMX_CURVE_POINTS_MAX, &ex, &code);
     if (code != OMX_CURVE_OK)
     {
         protocol_response_int(host_curve_code(code), proto);
         return;
     }
-    pos = (size_t)snprintf(buffer, sizeof(buffer), "resp 0 %u", n);
+    pos = (size_t)snprintf(buffer, sizeof(buffer), "resp 0 %u ", n);
+    /* the marks, one word after the count (protocol.h's list type marks): each band a corrector planted as
+       <freq>,<depth>,<q>,<origin> joined by ';', its origin the word omx-dsp spells, or PHD_WORD_NONE when none is */
+    if (ex.nmarks == 0 && pos < sizeof(buffer))
+        pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, "%s", PHD_WORD_NONE);
+    for (i = 0; i < ex.nmarks && pos < sizeof(buffer); i++)
+    {
+        const struct omx_curve_mark *m = &ex.marks[i];
+
+        format_x(xs, sizeof(xs), m->freq_hz);
+        pos += (size_t)snprintf(buffer + pos, sizeof(buffer) - pos, "%s%s,%.2f,%.2f,%s", i ? ";" : "", xs,
+                                fabs(m->depth_db) < 0.005 ? 0.0 : m->depth_db, m->q, OMX_CURVE_ORIGIN_WORDS[m->origin]);
+    }
     for (i = 0; i < n && pos < sizeof(buffer); i++)
     {
         format_x(xs, sizeof(xs), x[i]);

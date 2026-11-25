@@ -29,11 +29,11 @@ jobs:
     uses: Open-Mixer/.github/.github/workflows/public-sources-check.yml@openmixer-v1
     with:
       commit-identity: true
-  # the dependency floors: packaging/deps.txt is the one place a floor is written, and the spec, debian/control and the
-  # workflows state those floors and no ceiling. The engine is Open-Mixer/.github's deps-render, at the same openmixer-v1
-  # ref every shared action of this repository uses
+  # no ceiling anywhere: there is no packaging/deps.txt (no hand-kept floor, owner ruling 2026-11-24, held by make
+  # test-no-floors), so Open-Mixer/.github's deps-render renders nothing and refuses every ceiling in the spec,
+  # debian/control and the workflow install lines. Same openmixer-v1 ref as every shared action of this repository
   floors:
-    name: the floors are packaging/deps.txt's
+    name: no ceiling, no deps.txt
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -64,3 +64,13 @@ jobs:
       contents: read
       pull-requests: read
     uses: Open-Mixer/.github/.github/workflows/pr-fixes-issue.yml@openmixer-v1
+  # a release is never below the highest version the channel ever served any of its packages at, and the library's RPM
+  # name installs on Debian (#180): the tool over the real channel, its test and sabotage, and the name test. Without
+  # make, which reads omx-dsp at parse time
+  served-floor:
+    name: no package below the highest version the channel served it at
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tests/served_floor_test.py . && sh tests/served-floor-sabotage.sh && python3 tools/served-floor.py && python3 tests/rpm_name_on_debian_test.py .

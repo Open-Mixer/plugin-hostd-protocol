@@ -1,1 +1,1 @@
-param_monitor -2 "\"ƣ" " '" .19
+param_monitor -2 "\\\"" ! -inf

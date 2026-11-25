@@ -35,6 +35,8 @@ def typed(value, kind, types):
     """a decoded word, list or record as the document the schema describes"""
     t = types.get(kind)
     if t and "items" in t:
+        if isinstance(value, str):
+            return value  # a further none word, itself (#86)
         return [typed(v, t["items"]["type"], types) for v in value]
     if t and "fields" in t:
         return {n: typed(value[n], k, types) for n, k in zip(t["fields"]["names"], t["fields"]["args"])}
@@ -71,6 +73,15 @@ def record_names(schema, kind, types, where, failures):
 def walk(schema, kind, types, where, failures):
     t = types.get(kind)
     if t and "items" in t:
+        # a list whose none words are more than one: an array, or one of the further words (#86)
+        further = t["items"]["none"].split("|")[1:] if t["items"].get("none") else []
+        if further:
+            arms = schema.get("anyOf", [])
+            words = [a for a in arms if "enum" in a]
+            if len(arms) != 2 or len(words) != 1 or words[0]["enum"] != further:
+                failures.append("%s: the list %s is not an array or one of its further none words %s" % (where, kind, further))
+                return
+            schema = next(a for a in arms if "enum" not in a)
         if schema.get("type") != "array":
             failures.append("%s: the list %s is not an array" % (where, kind))
         else:
@@ -148,7 +159,9 @@ def main():
         if line.startswith("> "):
             cmd = line[2:].split(" ")[0]
         elif line.startswith("< resp 0") and cmd in validators:
-            real[cmd] = real.get(cmd, 0) + (validate(cmd, line[2:], "a reply of the golden transcript") is not None)
+            # the transcript writes a backslash as \\ and a byte outside printable ASCII as \xNN (tests/golden.c)
+            raw = re.sub(r"\\(\\|x[0-9a-f]{2})", lambda m: "\\" if m.group(1) == "\\" else chr(int(m.group(1)[1:], 16)), line[2:])
+            real[cmd] = real.get(cmd, 0) + (validate(cmd, raw, "a reply of the golden transcript") is not None)
     # replies as the host writes them, beyond the samples: preset_get's name is the rest of the line, raw, so it may hold
     # spaces and may be empty (a preset with no name answers "resp 0 <key> " with nothing after the key)
     for v, line, want in (("preset_get", "resp 0 urn:p:1 Bright Mix", "Bright Mix"), ("preset_get", "resp 0 urn:p:1 ", ""),
@@ -159,7 +172,17 @@ def main():
     for name in ("Bright Mix", ""):
         if "preset_get" in validators and not validators["preset_get"].is_valid({"load_key": "urn:p:1", "name": name}):
             failures.append("preset_get: the schema refuses the name %r" % name)
-    served = {"hello", "curve_points", "param_get_many"}
+    # history_get: "-" is no entry, "unavailable" the history blocked, and the parsed reply tells them apart (#86)
+    for line, want in (("resp 0 -", []), ("resp 0 unavailable", "unavailable")):
+        doc = validate("history_get", line, "a reply as the host writes it") if "history_get" in validators else None
+        if doc is not None and doc.get("history") != want:
+            failures.append("history_get: the history of %r is %r, not %r" % (line, doc.get("history"), want))
+    # remote_page_get's section ends in a backslash in the golden fixture: unquoted, it is the value the backend gave (#88)
+    page = document("remote_page_get", 'resp 0 0 "Main \\"A\\"\\\\" "Page" gain - gain - gain - gain -', table) \
+        if "remote_page_get" in validators else None
+    if page is not None and page["section"] != 'Main "A"\\':
+        failures.append("remote_page_get: the section reads %r, not %r" % (page["section"], 'Main "A"\\'))
+    served = {"hello", "curve_points", "param_get_many", "remote_page_get"}
     for v in sorted(served & set(verbs)):
         if real.get(v, 0) < 1:
             failures.append("%s: the golden transcript holds no reply of it to validate" % v)
@@ -186,6 +209,9 @@ def main():
     plant("worker_list", "a worker that is not w<k>", lambda d: d["workers"][0].update(worker="x1"))
     plant("curve_points", "a point that is a word", lambda d: d["points"].append({"x": "1", "y": 2.0}))
     plant("hello", "a version that is a word", lambda d: d.update(version="1"))
+    plant("history_get", "a none word the table does not have", lambda d: d.update(history="off"))
+    plant("note_drops", "a count that is a word", lambda d: d.update(notes="3"))
+    plant("remote_page_get", "a slot that is no word", lambda d: d["slots"].append(""))
     plant("estimate", "a ram key that is not a number or -", lambda d: d.update(ram_bytes="lots"))
     plant("estimate", "a verdict that is no word of the domain estimate", lambda d: d.update(verdict="fits"))
     plant("pin_layout", "a sha256 that is short", lambda d: d["layout"].update(sha256="ab"))

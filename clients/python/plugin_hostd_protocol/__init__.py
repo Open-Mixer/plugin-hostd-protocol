@@ -44,7 +44,7 @@ class ProtocolError(ValueError):
     """A line the table does not declare, an argument no form takes, a reply that is no reply."""
 
 
-# ---- the words of a line, as plugin-hostd-protocol's grammar (core.abnf: word, quoted, escaped-quote) writes them,
+# ---- the words of a line, as plugin-hostd-protocol's grammar (core.abnf: word, quoted, escaped-char) writes them,
 # and the percent-encoded path of a clap: uri, as its pin section does (PHD_PIN_PATH_EXCLUDED, PHD_PIN_PATH_ESCAPE)
 
 # the daemon's tokenizer splits at C's isspace(): these six, and no other character
@@ -66,8 +66,8 @@ def _no_nul(text):
 
 def words(line):
     """The words of a line as the daemon reads them: split at whitespace; a word that starts with a quotation mark
-    runs to the next one no backslash escapes, \\" in it is a quote, the marks are not part of it; a quoted word that
-    never closes runs to the end of the line. ProtocolError for a line that holds a NUL."""  # noqa: D205, D209, D301
+    runs to the next one no backslash escapes, \\" in it is a quote and \\\\ a backslash, the marks are not part of it;
+    a quoted word that never closes runs to the end of the line. ProtocolError for a line that holds a NUL."""  # noqa: D205, D209, D301
     _no_nul(line)
     out, i, n = [], 0, len(line)
     while i < n:
@@ -77,7 +77,7 @@ def words(line):
             i += 1
             word = []
             while i < n and line[i] != '"':
-                if line[i] == "\\" and i + 1 < n and line[i + 1] == '"':
+                if line[i] == "\\" and i + 1 < n and line[i + 1] in '"\\':
                     i += 1
                 word.append(line[i])
                 i += 1
@@ -93,8 +93,8 @@ def words(line):
 
 
 def quote(value):
-    """A value as one quoted word: in quotation marks, \\" for a quote (the grammar's only escape)."""  # noqa: D301
-    return '"' + _no_nul(value).replace('"', '\\"') + '"'
+    """A value as one quoted word: in quotation marks, \\\\ for a backslash and \\" for a quote (core.abnf's quoted)."""  # noqa: D301
+    return '"' + _no_nul(value).replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
 def _word(value):
@@ -215,18 +215,6 @@ def _read(path, what):
         raise ProtocolError("%s %s is not readable (%s)" % (what, path, e)) from e
 
 
-def _texts(node, out):
-    """Every reply code of a vocabulary file with its English sentence, wherever the file holds it."""
-    if isinstance(node, dict):
-        if isinstance(node.get("code"), str) and isinstance(node.get("text"), dict) and "en" in node["text"]:
-            out.setdefault(node["code"], node["text"]["en"])
-        for v in node.values():
-            _texts(v, out)
-    elif isinstance(node, list):
-        for v in node:
-            _texts(v, out)
-
-
 def _domain_texts(node, out):
     """Every word of a domain document with its English sentence: a word is its `const`, its sentence its `x-text`."""
     if isinstance(node, dict):
@@ -244,7 +232,7 @@ def _domains(d):
     out = []
     for name in sorted(os.listdir(d)) if os.path.isdir(d) else []:
         top = os.path.join(d, name)
-        if name == "3" or not os.path.isdir(top):
+        if not os.path.isdir(top):
             continue
         if os.path.isfile(os.path.join(top, name + ".json")):
             out.append(os.path.join(top, name + ".json"))
@@ -353,6 +341,9 @@ class Protocol:
         # the codes an identical request may pass later with no change by the caller (#23, D22, D23): the table's
         # declaration, never a list of names
         self._transient = frozenset(r["resp"] for r in t["reply_codes"] if r.get("transient") is True)
+        # the codes that leave no mark on the plugin, no verdict and no history (the pin-refused class, ruled
+        # 2026-11-15): the table's declaration too
+        self._leaves_no_mark = frozenset(r["resp"] for r in t["reply_codes"] if r.get("leaves_no_mark") is True)
         # the verbs and the reply codes as constants (#24); two codes of one last segment would be one name: refused
         self.verb = Names("verb", {w: w for w in list(self.commands) + list(self.feedback)})
         short = {}
@@ -369,30 +360,21 @@ class Protocol:
             _pkg_config("--variable=datadir", "plugin-hostd-protocol") or \
             os.path.dirname(os.path.dirname(os.path.abspath(table)))
         self.sentences, self.owners = {}, {}
+        # the domains of each directory, <contractdir>/<domain>/<domain>.json one or two segments deep (_domains), and
+        # nothing else: the words plugin-hostd-protocol, omx-clap and the others declare are domains, and a
+        # <contractdir>/3/<package>/verbs.json (the old home of the protocol's words, before 0.8.0) is never read, so a
+        # stale one cannot shadow the domain's sentence; a word's owner is its domain's info.x-owner, else the domain
         for d in contract_dirs:
-            root = os.path.join(d, "3")
-            for package in sorted(os.listdir(root)) if os.path.isdir(root) else []:
-                path = os.path.join(root, package, "verbs.json")
-                if not os.path.isfile(path):
-                    continue
-                found = {}
-                _texts(_read(path, "the vocabulary"), found)
-                for code, text in found.items():
-                    if code in self.codes and code not in self.sentences:
-                        self.sentences[code] = text
-                        self.owners[code] = package
-            # the words a package keeps as a domain (omx-clap's host words, the domain host): their sentence is the word's
-            # x-text and their owner the domain's info.x-owner, whose catalog translates them
             for path in _domains(d):
                 doc = _read(path, "the domain")
-                owner = (doc.get("info") or {}).get("x-owner") if isinstance(doc, dict) else None
+                info = (doc.get("info") or {}) if isinstance(doc, dict) else {}
+                owner = info.get("x-owner") or os.path.basename(os.path.dirname(path))
                 found = {}
                 _domain_texts(doc, found)
                 for code, text in found.items():
                     if code in self.codes and code not in self.sentences:
                         self.sentences[code] = text
-                        if owner:
-                            self.owners[code] = owner
+                        self.owners[code] = owner
         self._catalogs = {}
         self._reader = None
 
@@ -544,8 +526,8 @@ class Protocol:
         return word
 
     def read_word(self, kind, word):
-        """One word as its declared type: a leaf by its pattern, a list as a list (one of its none words an empty one),
-        a record as {field: value}, its fields found by the record's own pattern, so a field may hold the separator;
+        """One word as its declared type: a leaf by its pattern, a list as a list (its first none word an empty one, a
+        further none word itself: history's unavailable is not its "-", #86), a record as {field: value}, its fields found by the record's own pattern, so a field may hold the separator;
         literal words a|b as the word. ProtocolError when the word is not of the type."""  # noqa: D205, D209
         t = self.types.get(kind)
         if t is None:
@@ -556,8 +538,9 @@ class Protocol:
             raise ProtocolError("%s is not one of %s" % (word, kind))
         if "items" in t:
             items = t["items"]
-            if items.get("none") and word in items["none"].split("|"):
-                return []
+            nones = items["none"].split("|") if items.get("none") else []
+            if word in nones:
+                return [] if word == nones[0] else word
             return [self.read_word(items["type"], w) for w in word.split(items["separator"])]
         if "fields" in t:
             f = t["fields"]
@@ -671,6 +654,18 @@ class Protocol:
         if resp not in self.names:
             raise ProtocolError("the protocol declares no code %s" % code)
         return resp in self._transient
+
+    def leaves_no_mark(self, code):
+        """Whether a refusal leaves no mark on the plugin, by its number or its name.
+
+        No verdict and no history is written for it, as the table declares it (a refused pin: the plugin is not
+        marked, and the same request is refused again until the pin changes, so it is not transient). ProtocolError
+        for a code the table lacks.
+        """
+        resp = self._code(code) if isinstance(code, str) else code
+        if resp not in self.names:
+            raise ProtocolError("the protocol declares no code %s" % code)
+        return resp in self._leaves_no_mark
 
     def name(self, code):
         """The name of a reply code, or None for a number the table gives no name."""

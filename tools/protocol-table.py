@@ -8,9 +8,12 @@
 #
 #   protocol/mod-host.json        mod-host's commands and feedback, written from include/mod-host.h (check-generated)
 #   protocol/plugin-hostd.json    what include/plugin-hostd/protocol.h declares (check-generated)
-#   data/verbs.json               the verbs plugin-hostd adds, the protocol's own (hello) and the extensions hello
-#                                 grants, as omx-contract declares them (check-rendered)
-#   include/plugin-hostd/omx_clap_host_verbs.h   omx-clap's verbs, as omx-contract renders them
+#   contract.d/plugin-hostd-protocol       the domain plugin-hostd-protocol: the verbs plugin-hostd adds, the protocol's own (hello),
+#                                 the verbs omx-clap-host shares with plugin-hostd and the ones it adds, and the
+#                                 extensions hello grants, as omx-contract declares them (check-rendered)
+#   include/plugin-hostd/plugin_hostd_protocol_vocabulary.h   the numbers of the domain host's HOST_REPLY_CODES, as
+#                                 omx-contract renders them
+#   include/socket.h              SOCKET_MSG_MAX_SIZE, the constant message_max
 #
 # A word of ours never shadows or changes a mod-host word. A verb of another origin that has a mod-host word either
 # extends mod-host's command (takes mod-host's arguments, in its types, as its own first arguments, and more only where
@@ -26,9 +29,15 @@ import os
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import protocol_words  # noqa: E402
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = "protocol/plugin-hostd-protocol.json"
-SHARED_H = "include/plugin-hostd/omx_clap_host_verbs.h"
+VOCAB_H = "include/plugin-hostd/plugin_hostd_protocol_vocabulary.h"
+SOCKET_H = "include/socket.h"
+# the items of the verbs omx-clap-host adds to mod-host's protocol: the ones plugin-hostd answers too, and its own
+SHARED_ITEMS = ["PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS", "PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS"]
 
 TYPES = {"%i": "int", "%s": "word", "%f": "float"}
 
@@ -50,6 +59,16 @@ def load(rel):
         return json.loads(read(rel))
     except ValueError as e:
         fail(f"{rel}: {e}")
+
+
+def message_max():
+    """the longest message a peer reads, SOCKET_MSG_MAX_SIZE of include/socket.h, as a constant of the table: a client
+    reads its cap here and keeps no copy"""
+    m = re.search(r"#define SOCKET_MSG_MAX_SIZE\s+\((\d+) \* (\d+) \* (\d+)\)", read(SOCKET_H))
+    if not m:
+        fail(f"{SOCKET_H}: no SOCKET_MSG_MAX_SIZE of the form (a * b * c)")
+    return {"name": "message_max", "value": int(m.group(1)) * int(m.group(2)) * int(m.group(3)), "unit": "bytes",
+            "meaning": "the longest message a peer reads, a command or a reply, its NUL included; the connection is closed past it"}
 
 
 def counts(form):
@@ -78,69 +97,49 @@ def parse_format(fmt, where):
     return verb, [TYPES[a] for a in args], tail
 
 
-def shared_verbs():
-    """omx-clap's verbs as rendered: word -> {format, reply, codes, hosts, item}"""
-    text = read(SHARED_H)
-    hosts = re.search(r"#define OMX_HOST_VERB_HOSTS_INIT \{ (.*) \}", text)
-    if not hosts:
-        fail(f"{SHARED_H}: no OMX_HOST_VERB_HOSTS_INIT")
-    hosts = re.findall(r'"([^"]+)"', hosts.group(1))
-    macro = dict(re.findall(r'#define OMX_VERB_([A-Z0-9_]+) "((?:[^"\\]|\\.)*)"', text))
-    item, doc = {}, {}
-    for m in re.finditer(r"/\* (OMX_[A-Z_]+)\.(\w+) \(data/verbs\.json\): (.*?) \*/", text, re.S):
-        key = re.sub(r"([A-Z])", r"_\1", m.group(2)).upper()
-        item[key], doc[key] = m.group(1), " ".join(m.group(3).split())
-    out = {}
-    for m in re.finditer(r"\{ OMX_VERB_([A-Z0-9_]+), OMX_VERB_\1_FMT, OMX_VERB_\1_REPLY, \{ ([A-Z_, ]+) \} \}", text):
-        key = m.group(1)
-        levels = [l.strip().replace("OMX_HOST_VERB_", "").lower() for l in m.group(2).split(",")]
-        codes = re.search(rf"#define OMX_VERB_{key}_CODES_INIT \{{ ([-0-9, ]*) \}}", text)
-        out[macro[key]] = {
-            "format": macro.get(f"{key}_FMT", ""),
-            "reply": macro.get(f"{key}_REPLY", "").replace('\\"', '"'),
-            "codes": [int(c) for c in codes.group(1).split(",")] if codes else [],
-            "hosts": dict(zip(hosts, levels)),
-            "item": item.get(key, ""),
-            "doc": doc.get(key, ""),
-        }
-    if not out:
-        fail(f"{SHARED_H}: no verb table")
-    return out
-
-
 def table():
     mod = load("protocol/mod-host.json")
     phd = load("protocol/plugin-hostd.json")
-    verbs = load("data/verbs.json")
-    shared = shared_verbs()
+    verbs = protocol_words.items()
 
-    vocab = read("include/plugin-hostd/omx_clap_vocabulary.h")
+    vocab = read(VOCAB_H)
     host_codes, words = {}, {}
     for m in re.finditer(r'#define OMX_REPLY_HOST_([A-Z0-9_]+) "([^"]+)"(?: ///< .*)?\n#define OMX_REPLY_HOST_\1_RESP \((-?\d+)\)',
                          vocab):
         parts = m.group(1).lower().split("_")
         host_codes[parts[0] + "".join(x.capitalize() for x in parts[1:])] = int(m.group(3))
         words.setdefault(int(m.group(3)), set()).add(m.group(2))
-    phd_codes = {k: v["resp"] for k, v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].items()}
+    phd_codes = {k: v["resp"] for k, v in verbs["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"].items()}
     # a refusal the same request may be taken past later (#23, D22): the code's own property, never a list of names
-    transient = {v["code"] for v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].values() if v.get("transient") is True}
-    for v in verbs["PLUGIN_HOSTD_REPLY_CODES"]["codes"].values():
+    transient = {v["code"] for v in verbs["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"].values() if v.get("transient") is True}
+    # a refusal that leaves no mark on the plugin, no verdict and no history (ruled 2026-11-15, the pin-refused class):
+    # the code's own property too (the domain's leavesNoMark), read by a client as leaves_no_mark
+    leaves = {v["code"] for v in verbs["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"].values() if v.get("leavesNoMark") is True}
+    for v in verbs["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"].values():
         words.setdefault(v["resp"], set()).add(v["code"])
     # the word an error word answer carries after a refusal's number: one word a number, or the table is not written
     for resp, w in words.items():
         if len(w) > 1:
             fail(f"resp {resp} is declared as more than one code: {', '.join(sorted(w))}")
-    reply_codes = [{"resp": r, "code": next(iter(w)), **({"transient": True} if next(iter(w)) in transient else {})}
+    reply_codes = [{"resp": r, "code": next(iter(w)), **({"transient": True} if next(iter(w)) in transient else {}),
+                    **({"leaves_no_mark": True} if next(iter(w)) in leaves else {})}
                    for r, w in sorted(words.items(), reverse=True)]
 
     def resolve(ref):
         group, name = ref.split(".", 1)
-        known = {"PLUGIN_HOSTD_REPLY_CODES": phd_codes, "HOST_REPLY_CODES": host_codes}.get(group)
+        known = {"PLUGIN_HOSTD_PROTOCOL_REPLY_CODES": phd_codes, "HOST_REPLY_CODES": host_codes}.get(group)
         if known is None or name not in known:
-            fail(f"data/verbs.json: the code {ref} is declared nowhere")
+            fail(f"contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json: the code {ref} is declared nowhere")
         return known[name]
 
-    declared = {v["verb"]: (k, v) for k, v in verbs["PLUGIN_HOSTD_VERBS"]["verbs"].items()}
+    # the verbs omx-clap-host adds: word -> {format, reply, codes, item, doc}
+    shared = {}
+    for group in SHARED_ITEMS:
+        for key, v in verbs[group]["verbs"].items():
+            shared[v["verb"]] = {"format": v["format"], "reply": v["reply"],
+                                 "codes": [resolve(c["ref"]) for c in v.get("codes", [])],
+                                 "item": f"{group}.{key}", "doc": v.get("doc", "")}
+    declared = {v["verb"]: (k, v) for k, v in verbs["PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS"]["verbs"].items()}
     meaning = {v["name"]: v for v in phd["verbs"] + phd["instance_verbs"]}
     host_rows = {r["name"]: r for r in phd["host_verbs"]}
 
@@ -165,21 +164,21 @@ def table():
 
     entries = []
     for word, (key, v) in declared.items():
-        entries.append(ours(word, "plugin-hostd", f"data/verbs.json PLUGIN_HOSTD_VERBS.{key}", v["format"], v["reply"],
+        entries.append(ours(word, "plugin-hostd", f"contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.{key}", v["format"], v["reply"],
                             [resolve(c["ref"]) for c in v.get("codes", [])], v.get("doc", "")))
     # the verbs of the protocol itself (hello), which the library answers for the host that registers them
-    for key, v in verbs["PLUGIN_HOSTD_PROTOCOL_VERBS"]["verbs"].items():
+    for key, v in verbs["PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS"]["verbs"].items():
         if v["verb"] in declared:
-            fail(f"{v['verb']}: declared by both PLUGIN_HOSTD_VERBS and PLUGIN_HOSTD_PROTOCOL_VERBS")
-        entries.append(ours(v["verb"], "plugin-hostd-protocol", f"data/verbs.json PLUGIN_HOSTD_PROTOCOL_VERBS.{key}",
+            fail(f"{v['verb']}: declared by both PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS and PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS")
+        entries.append(ours(v["verb"], "plugin-hostd-protocol", f"contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS.{key}",
                             v["format"], v["reply"], [resolve(c["ref"]) for c in v.get("codes", [])], v.get("doc", "")))
     for word, v in shared.items():
-        entries.append(ours(word, "omx-clap", f"contract.d/omx-clap/omx-clap.json {v['item']}", v["format"],
+        entries.append(ours(word, "omx-clap", f"contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json {v['item']}", v["format"],
                             v["reply"], v["codes"], v["doc"]))
     # a verb protocol.h declares that neither declaration holds is mod-host's (add) or a fault
     for word in meaning:
         if word not in commands and word not in declared and word not in shared:
-            fail(f"protocol/plugin-hostd.json: {word} is declared by protocol.h alone; declare it in data/verbs.json")
+            fail(f"protocol/plugin-hostd.json: {word} is declared by protocol.h alone; declare it in contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json")
 
     for e in entries:
         word = e["verb"]
@@ -338,7 +337,7 @@ def table():
         "protocol": "plugin-hostd-protocol",
         "version": phd["version"],
         "superset_of": "mod-host",
-        "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "data/verbs.json", "contract.d/omx-clap/omx-clap.json", SHARED_H],
+        "sources": ["protocol/mod-host.json", "protocol/plugin-hostd.json", "contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json", "contract.d/host/host.json", VOCAB_H, SOCKET_H],
         "commands": sorted(commands.values(), key=lambda e: (e["origin"] != "mod-host", e["origin"], e["verb"])),
         "refused": mod_ui,
         "feedback": sorted(feedback.values(), key=lambda e: (e["origin"] != "mod-host", e["line"])),
@@ -359,7 +358,7 @@ def table():
         "worker_states": phd["worker_states"],
         # the wire's constants (protocol_version, the version hello answers, among them), the words of a pin and the
         # LV2 workers lv2_worker_set names, as protocol.h declares them: a client reads them here and keeps no copy
-        "constants": phd["constants"],
+        "constants": phd["constants"] + [message_max()],
         "pin": phd["pin"],
         # the formats a worker holds: the <format> of worker_list, and of policy_set and lv2_worker_set
         "formats": phd["formats"],

@@ -4,8 +4,8 @@
 #
 # doc/protocol.md, the wire protocol as a reader outside this tree reads it, written from the data the tree already
 # holds and checks: the verb table (protocol/plugin-hostd-protocol.json) and what it is merged from,
-# protocol/plugin-hostd.json and protocol/mod-host.json (generated, check-generated), data/verbs.json and the headers
-# omx-contract renders from it and from omx-clap's package (check-rendered); the grammar written from the table
+# protocol/plugin-hostd.json and protocol/mod-host.json (generated, check-generated), contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json and the headers
+# omx-contract renders from it and from this tree's domains host and hosting-verb (check-rendered); the grammar written from the table
 # (grammar/plugin-hostd-protocol.abnf), the JSON schema, the install rule of the Makefile, the overview's generated
 # host-verbs region, the Path A evidence of doc/mod-ui-verbs.tsv, and mod-host's own command reference
 # (doc/mod-host-commands.md, kept as mod-host wrote it). Nothing in the page is typed here but headings and sentences
@@ -18,6 +18,9 @@ import json
 import os
 import re
 import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import protocol_words  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = "doc/protocol.md"
@@ -45,14 +48,16 @@ def load(rel):
 
 PHD = load("protocol/plugin-hostd.json")
 MOD = load("protocol/mod-host.json")
-VERBS = load("data/verbs.json")
+VERBS = protocol_words.items()
 TABLE = load("protocol/plugin-hostd-protocol.json")
 FORMS = {c["verb"]: c["forms"] for c in TABLE["commands"]}
 GRAMMAR = "grammar/plugin-hostd-protocol.abnf"
 MOD_HOST_PAGE = "doc/mod-host-commands.md"
 SCHEMAS = ["protocol/plugin-hostd.schema.json"]
-VOCAB_H = "include/plugin-hostd/omx_clap_vocabulary.h"
-SHARED_H = "include/plugin-hostd/omx_clap_host_verbs.h"
+VOCAB_H = "include/plugin-hostd/plugin_hostd_protocol_vocabulary.h"
+SHARED_H = "include/plugin-hostd/plugin_hostd_protocol_host_verbs.h"
+# the items of the verbs omx-clap-host adds to mod-host's protocol: the ones plugin-hostd answers too, and its own
+SHARED_ITEMS = ["PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS", "PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS"]
 EVIDENCE = "doc/mod-ui-verbs.tsv"
 
 
@@ -74,7 +79,7 @@ def table(head, rows):
 # ---- reply codes: one name and meaning per number, from the declarations that own it ----
 
 def host_codes():
-    """omx-clap's HOST_REPLY_CODES as rendered: camel name -> (resp, code word, meaning)"""
+    """the domain host's HOST_REPLY_CODES as rendered: camel name -> (resp, code word, meaning)"""
     text = read(VOCAB_H)
     out = {}
     for m in re.finditer(r'#define OMX_REPLY_HOST_([A-Z0-9_]+) "([^"]+)"(?: ///< (.*))?\n#define OMX_REPLY_HOST_\1_RESP \((-?\d+)\)',
@@ -89,7 +94,7 @@ def host_codes():
 
 
 HOST_CODES = host_codes()
-PHD_CODES = VERBS["PLUGIN_HOSTD_REPLY_CODES"]["codes"]
+PHD_CODES = VERBS["PLUGIN_HOSTD_PROTOCOL_REPLY_CODES"]["codes"]
 PHD_ERRORS = {e["code"]: e for e in PHD["errors"]}
 
 
@@ -108,15 +113,15 @@ def code_name(resp):
 
 def resolve(ref):
     group, name = ref.split(".", 1)
-    if group == "PLUGIN_HOSTD_REPLY_CODES":
+    if group == "PLUGIN_HOSTD_PROTOCOL_REPLY_CODES":
         if name not in PHD_CODES:
-            fail(f"data/verbs.json: no {ref}")
+            fail(f"contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json: no {ref}")
         return PHD_CODES[name]["resp"]
     if group == "HOST_REPLY_CODES":
         if name not in HOST_CODES:
             fail(f"{VOCAB_H}: no {ref}")
         return HOST_CODES[name][0]
-    fail(f"data/verbs.json: a code ref of an unknown group, {ref}")
+    fail(f"contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json: a code ref of an unknown group, {ref}")
 
 
 def codes_cell(resps):
@@ -126,7 +131,7 @@ def codes_cell(resps):
 # ---- the verbs each declaration holds ----
 
 def shared_verbs():
-    """omx-clap's verbs as rendered: word -> {format, codes, levels by host}"""
+    """the verbs of SHARED_ITEMS as rendered: word -> {format, codes, levels by host}"""
     text = read(SHARED_H)
     hosts = re.search(r"#define OMX_HOST_VERB_HOSTS_INIT \{ (.*) \}", text)
     if not hosts:
@@ -135,9 +140,12 @@ def shared_verbs():
     macro = {}
     for m in re.finditer(r'#define OMX_VERB_([A-Z0-9_]+) "([^"]*)"', text):
         macro[m.group(1)] = m.group(2)
+    words = {v["verb"] for group in SHARED_ITEMS for v in VERBS[group]["verbs"].values()}
     out = {}
     for m in re.finditer(r"\{ OMX_VERB_([A-Z0-9_]+), OMX_VERB_\1_FMT, OMX_VERB_\1_REPLY, \{ ([A-Z_, ]+) \} \}", text):
         key = m.group(1)
+        if macro[key] not in words:
+            continue
         levels = [l.strip().replace("OMX_HOST_VERB_", "").lower() for l in m.group(2).split(",")]
         codes = re.search(rf"#define OMX_VERB_{key}_CODES_INIT \{{ ([-0-9, ]*) \}}", text)
         out[macro[key]] = {
@@ -151,8 +159,8 @@ def shared_verbs():
 
 
 SHARED = shared_verbs()
-DECLARED = {v["verb"]: v for v in VERBS["PLUGIN_HOSTD_VERBS"]["verbs"].values()}
-SINCE = VERBS["PLUGIN_HOSTD_VERBS"].get("since", "")
+DECLARED = {v["verb"]: v for v in VERBS["PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS"]["verbs"].values()}
+SINCE = VERBS["PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS"].get("since", "")
 DAEMON_VERBS = {v["name"]: v for v in PHD["verbs"]}
 INSTANCE_VERBS = {v["name"]: v for v in PHD["instance_verbs"]}
 HOST_VERBS = {v["name"]: v for v in PHD["host_verbs"]}
@@ -284,7 +292,7 @@ OURS_GROUPS = [
     ("Placement and supervision", r"^(worker_|instance_info$|supervisor_|quarantine_|policy_set$|pool_|lv2_worker_set$)"),
     ("Pins and qualification", r"^pin_"),
     ("Chains and plans", r"^((chain|plan)(_|$)|estimate$)"),
-    ("Descriptors, panels and the running history", r"^(descriptor_|panel_|history_)"),
+    ("Descriptors, panels, descriptions and the running history", r"^(descriptor_|panel_|description_|history_)"),
     ("Presets and notes, by instance", r"^(preset_|note_|all_notes_off$)"),
     ("The plugin's own window", r"^(show|hide)_external_ui$"),
     ("The node's name in the graph", r"^node_label$"),
@@ -533,7 +541,7 @@ def sessions(w):
 
 def bulk(w):
     """the protocol's own verbs other than hello, from the table and their declaration"""
-    own = VERBS["PLUGIN_HOSTD_PROTOCOL_VERBS"]["verbs"]
+    own = VERBS["PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS"]["verbs"]
     rows = [c for c in TABLE["commands"] if c["origin"] == "plugin-hostd-protocol" and c["verb"] != "hello"
             and c["verb"] not in CURVE_VERBS and c["verb"] not in MONITOR_VERBS]
     if not rows:
@@ -576,7 +584,7 @@ CURVE_VERBS = ("curve_bind", "curve_points")
 
 def curves(w):
     """the curve verbs, from the table and their declaration"""
-    own = VERBS["PLUGIN_HOSTD_PROTOCOL_VERBS"]["verbs"]
+    own = VERBS["PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS"]["verbs"]
     rows = [c for c in TABLE["commands"] if c["verb"] in CURVE_VERBS]
     if len(rows) != len(CURVE_VERBS):
         fail("the curve verbs are not both in the table")
@@ -590,8 +598,9 @@ def curves(w):
       "each choice value. A binding may take more than one line, as a line is at most 64 words and a 32-band EQ's "
       "binding is 160 terms: each line adds its terms, and a line of another kind or family starts the binding again. "
       "Then each `curve_points` reads every bound parameter from the instance as it is at that moment, with the rate "
-      "the instance runs at, and answers the points omx-dsp's `omx_curve_points` draws, the one curve function every "
-      "surface calls. The host keeps the binding with the instance, drops it with the instance's remove and never "
+      "the instance runs at, and answers the points omx-dsp's `omx_curve_points_marked` draws, the one curve function every "
+      "surface calls, with the marks of the bands a feedback corrector planted, as the host's backend names their "
+      "origin (`param_origin`). The host keeps the binding with the instance, drops it with the instance's remove and never "
       "saves it; it judges nothing of it. A host built on this library answers both verbs once it calls "
       "`host_dispatch_register_curve()` with the rate of its instances; one that does not answers -902, and mod-host "
       "answers `not found`: a surface then draws the display's frame alone.")
@@ -614,7 +623,7 @@ def curves(w):
     w("> curve_bind 3 0 eq_response eq band_freq.1=f_1:Hz band_gain.1=g_1:coef band_q.1=w_1:oct band_type.1=ft_1@off|bell|lowshelf|highshelf")
     w("< resp 0")
     w("> curve_points 3 0 128")
-    w("< resp 0 134 20.00,0.00 20.54,0.00 ...")
+    w("< resp 0 134 - 20.00,0.00 20.54,0.00 ...")
     w("> curve_bind 4 0 transfer_curve dynamics threshold=thr:dBFS ratio=ratio:ratio knee=knee:dB makeup=gain:dB")
     w("< resp 0")
     w("> curve_points 4 0 1")
@@ -624,11 +633,11 @@ def curves(w):
     w("> curve_bind 4 2 time_response reverb size=size:coef mix=mix:coef algorithm=algo:none predelay=pre:ms")
     w("< resp 0")
     w("> curve_points 4 2 64")
-    w("< resp 0 64 0,0.00 ...")
+    w("< resp 0 64 - 0,0.00 ...")
     w("> curve_bind 4 3 time_response delay time=time:ms feedback=fb:coef tone=tone:coef mix=mix:coef pingpong=pp:none sync=sync:none")
     w("< resp 0")
     w("> curve_points 4 3 64")
-    w("< resp 0 0 stems 4 0,-4.44,1.000,both 250.0,-7.96,1.000,left 500.0,-13.98,0.538,right 750.0,-20.00,0.290,left")
+    w("< resp 0 0 - stems 4 0,-4.44,1.000,both 250.0,-7.96,1.000,left 500.0,-13.98,0.538,right 750.0,-20.00,0.290,left")
     w("> curve_bind 4 4 transfer_curve reverb mix=mix:coef")
     w("< resp -536     (a reverb is drawn as a time_response)")
     w("```")
@@ -640,7 +649,7 @@ MONITOR_VERBS = ("monitor_output_off",)
 
 def monitors(w):
     """monitor_output_off, from the table and its declaration, and what ends a monitor"""
-    own = VERBS["PLUGIN_HOSTD_PROTOCOL_VERBS"]["verbs"]
+    own = VERBS["PLUGIN_HOSTD_PROTOCOL_LIBRARY_VERBS"]["verbs"]
     rows = [c for c in TABLE["commands"] if c["verb"] in MONITOR_VERBS]
     if len(rows) != len(MONITOR_VERBS):
         fail("monitor_output_off is not in the table")
@@ -675,7 +684,7 @@ def monitors(w):
 def page():
     o = []
     w = o.append
-    w("<!-- GENERATED by tools/protocol-doc.py from protocol/*.json, data/verbs.json, include/plugin-hostd/omx_clap_*.h,")
+    w("<!-- GENERATED by tools/protocol-doc.py from protocol/*.json, contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, include/plugin-hostd/plugin_hostd_protocol_*.h,")
     w("     grammar/plugin-hostd-protocol.abnf, the Makefile, doc/overview.md, doc/mod-ui-verbs.tsv and")
     w("     doc/mod-host-commands.md. Do not edit: `make protocol-doc` writes it, and `make check-protocol-doc` fails when")
     w("     it differs. -->")
@@ -688,8 +697,8 @@ def page():
     w(f"Protocol `{PHD['protocol']}`, version {PHD['version']} of its JSON declaration (`protocol/plugin-hostd.json`); "
       f"mod-host's protocol as the daemon models it is `protocol/{MOD['protocol']}.json`, version {MOD['version']}, written "
       f"from the mod-host headers {', '.join('`' + h + '`' for h in MOD['headers'])} the daemon is built against. "
-      f"The verbs the daemon adds are declared in `data/verbs.json` (since {SINCE}, requiring "
-      + ", ".join(f"{k} {v}" for k, v in VERBS["requires"].items()) + ").")
+      f"The verbs the daemon adds are declared in `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json` (since {SINCE}, requiring "
+      + ", ".join(protocol_words.requires()) + ").")
     w("")
 
     # 1. transport
@@ -778,7 +787,7 @@ def page():
       "types are mod-host's templates (`int` %i, `word` %s, `float` %f, `...` an optional tail); the declarations carry "
       "no unit per argument, and a range or a unit a verb has is in its meaning.")
     w("")
-    relayed = [PHD_ERRORS[resolve("PLUGIN_HOSTD_REPLY_CODES." + n)] for n in ("workerSpawn", "verbDropped")]
+    relayed = [PHD_ERRORS[resolve("PLUGIN_HOSTD_PROTOCOL_REPLY_CODES." + n)] for n in ("workerSpawn", "verbDropped")]
     w("mod-host's templates name no reply codes per verb: a relayed verb answers what its worker answers, or one of "
       + " or ".join(f"{e['code']} {e['name']} ({e['meaning']})" for e in relayed) + ".")
     w("")
@@ -826,8 +835,8 @@ def page():
     w("3. Verbs mod-host does not have")
     w("-------------------------------")
     w("")
-    w("Each is declared in `protocol/plugin-hostd.json`; the formats, codes and hosts come from `data/verbs.json`, or "
-      "from omx-clap's verb table for a verb the two hosts share. A verb whose meaning begins \"sent by the daemon "
+    w("Each is declared in `protocol/plugin-hostd.json`; the formats, codes and hosts come from `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json`, or "
+      "from its items of the verbs omx-clap-host adds for a verb the two hosts share. A verb whose meaning begins \"sent by the daemon "
       "to a worker\" is the daemon's to a worker, never a controller's.")
     w("")
     ours = [v for v in list(PHD["verbs"]) + list(PHD["instance_verbs"]) if v["name"] not in MOD_COMMANDS]
@@ -860,7 +869,7 @@ def page():
             w(f"< {reply}")
             w("```")
             w("")
-        if title == "Descriptors, panels and the running history":
+        if title == "Descriptors, panels, descriptions and the running history":
             pf = PHD["panel_file"]
             w(f"The panel file `panel_get` answers ({code(pf['name'])} of descriptor_dir) is one JSON object with these "
               "keys; a key that is not required is additive, absent from a file written before its version:")
@@ -914,18 +923,22 @@ def page():
     w("mod-host's reply codes (`host-errors.h`): " + "; ".join(
         f"{e['value']} {e['name']}" for e in MOD["host_errors"]) + ".")
     w("")
-    w("The codes omx-clap-host answers too (omx-clap's `reply.host.*`):")
+    w("The codes omx-clap-host answers too (`reply.host.*`, the domain host's `HOST_REPLY_CODES`):")
     w("")
     w("\n".join(table(["resp", "code", "meaning"],
                       [[str(r), code(word), cell(meaning)] for r, word, meaning in sorted(HOST_CODES.values(),
                                                                                          key=lambda x: -x[0])])))
     w("")
     w("The codes the daemon adds. A transient one says nothing about the plugin or the request: the same request may be "
-      "taken later, and a client asks the code's `transient` in the table's `reply_codes`, never a list of names (#23):")
+      "taken later, and a client asks the code's `transient` in the table's `reply_codes`, never a list of names (#23). "
+      "One that leaves no mark writes no verdict and no history for the plugin, and a client asks its `leaves_no_mark` "
+      "the same way (the pin-refused class); a refused pin leaves no mark and is not transient:")
     w("")
     transient = {r["resp"] for r in TABLE["reply_codes"] if r.get("transient") is True}
-    w("\n".join(table(["resp", "name", "transient", "meaning"],
-                      [[str(e["code"]), code(e["name"]), "yes" if e["code"] in transient else "", cell(e["meaning"])]
+    no_mark = {r["resp"] for r in TABLE["reply_codes"] if r.get("leaves_no_mark") is True}
+    w("\n".join(table(["resp", "name", "transient", "leaves no mark", "meaning"],
+                      [[str(e["code"]), code(e["name"]), "yes" if e["code"] in transient else "",
+                        "yes" if e["code"] in no_mark else "", cell(e["meaning"])]
                        for e in PHD["errors"]])))
     w("")
 

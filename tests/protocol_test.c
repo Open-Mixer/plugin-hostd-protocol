@@ -234,6 +234,7 @@ static const host_backend_t g_fake_backend = {
     fake_state_load,
     fake_connect,
     fake_disconnect,
+    NULL, /* param_origin: no origin, so curve_points draws no mark */
 };
 
 #define NAME_16  "aaaaaaaaaaaaaaaa"
@@ -295,7 +296,7 @@ static const char g_fake_calls[] =
 
 /* a backend with nothing behind it answers every verb with ERR_INVALID_OPERATION */
 static const host_backend_t g_empty_backend = {
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
 };
 
 static const exchange_t g_empty_exchanges[] = {

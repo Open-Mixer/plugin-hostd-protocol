@@ -200,7 +200,7 @@ The commands supported by mod-host are:
 
     param_info <instance_number> <param_symbol>
         * get what a control means: resp 0 <unit> <scale> <minimum> <maximum> <default> <step> <stable_symbol>
-        * unit is an LV2 unit name (db, hz, ms, ...) or none, scale is linear, log or stepped, step 0 is continuous
+        * unit is a standard unit id of omx-contract's PARAM_UNITS (dB, Hz, ms, percent, ...) or none, scale is linear, log or stepped, step 0 is continuous
         e.g.: param_info 0 "gain"
 
     help

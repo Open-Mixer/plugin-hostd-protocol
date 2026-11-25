@@ -1,0 +1,324 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openmixer.org/contract/host",
+  "x-omx-contract": "0.23",
+  "info": {
+    "title": "The host words: the refusals, track kinds and feedback lines of the protocol's hosts",
+    "version": "0.1.0",
+    "x-owner": "plugin-hostd-protocol",
+    "x-stability": "experimental"
+  },
+  "components": {
+    "schemas": {
+      "HOST_REPLY_CODES": {
+        "description": "The refusals the verbs of this package answer, by the number of resp <n>: mod-host's own numbers (mod-host.h) and the ones a worker answers past them.",
+        "x-since": "0.1.0",
+        "oneOf": [
+          {
+            "const": "reply.host.instance-invalid",
+            "title": "instanceInvalid",
+            "description": "mod-host's ERR_INSTANCE_INVALID: an instance number outside the host's table",
+            "x-code": 0,
+            "x-text": "That instance number is not one of the host’s. Use an instance the host actually has.",
+            "x-name": "instanceInvalid",
+            "x-resp": -1
+          },
+          {
+            "const": "reply.host.instance-already-exists",
+            "title": "instanceAlreadyExists",
+            "description": "mod-host's ERR_INSTANCE_ALREADY_EXISTS: add asked for an instance number the host already has",
+            "x-code": 1,
+            "x-text": "That instance number is already taken. Add the plugin under a number the host does not have yet.",
+            "x-name": "instanceAlreadyExists",
+            "x-resp": -2
+          },
+          {
+            "const": "reply.host.instance-non-exists",
+            "title": "instanceNonExists",
+            "description": "mod-host's ERR_INSTANCE_NON_EXISTS: an instance no add made",
+            "x-code": 2,
+            "x-text": "No add ever created that instance. Add it before using it.",
+            "x-name": "instanceNonExists",
+            "x-resp": -3
+          },
+          {
+            "const": "reply.host.uri-invalid",
+            "title": "uriInvalid",
+            "description": "mod-host's ERR_LV2_INVALID_URI: add named a plugin the host does not find",
+            "x-code": 3,
+            "x-text": "The host finds no plugin by that name. Check the plugin is installed and its name is spelt as the scan lists it.",
+            "x-name": "uriInvalid",
+            "x-resp": -101
+          },
+          {
+            "const": "reply.host.instantiation-failed",
+            "title": "instantiationFailed",
+            "description": "mod-host's ERR_LV2_INSTANTIATION: the plugin refused to start",
+            "x-code": 4,
+            "x-text": "The plugin was found but would not start. Try it again, or choose another plugin if it keeps refusing.",
+            "x-name": "instantiationFailed",
+            "x-resp": -102
+          },
+          {
+            "const": "reply.host.param-symbol-invalid",
+            "title": "paramSymbolInvalid",
+            "description": "mod-host's ERR_LV2_INVALID_PARAM_SYMBOL: a symbol that is not a parameter param_set takes, the plugin's own bypass included",
+            "x-code": 5,
+            "x-text": "That symbol is not one of this plugin’s parameters, not even its bypass. Ask the plugin for its parameter list and use one of those symbols.",
+            "x-name": "paramSymbolInvalid",
+            "x-resp": -103
+          },
+          {
+            "const": "reply.host.preset-uri-invalid",
+            "title": "presetUriInvalid",
+            "description": "mod-host's ERR_LV2_INVALID_PRESET_URI: a preset this plugin does not have, or a file it cannot take",
+            "x-code": 6,
+            "x-text": "That preset is not one this plugin can load. Choose a preset from the plugin’s own list.",
+            "x-name": "presetUriInvalid",
+            "x-resp": -104
+          },
+          {
+            "const": "reply.host.state-load-failed",
+            "title": "stateLoadFailed",
+            "description": "mod-host's ERR_LV2_CANT_LOAD_STATE: the plugin refused its saved state",
+            "x-code": 7,
+            "x-text": "The plugin would not take its saved state back. Load another preset, or set its values again.",
+            "x-name": "stateLoadFailed",
+            "x-resp": -105
+          },
+          {
+            "const": "reply.host.jack-client-creation",
+            "title": "jackClientCreation",
+            "description": "mod-host's ERR_JACK_CLIENT_CREATION: no audio client could be made for the plugin",
+            "x-code": 8,
+            "x-text": "The host could not connect the plugin to the audio server. Check the audio server is running, then add the plugin again.",
+            "x-name": "jackClientCreation",
+            "x-resp": -201
+          },
+          {
+            "const": "reply.host.jack-client-activation",
+            "title": "jackClientActivation",
+            "description": "mod-host's ERR_JACK_CLIENT_ACTIVATION: the plugin's audio client would not start",
+            "x-code": 9,
+            "x-text": "The plugin’s audio connection would not start. Check the audio server is running, then add the plugin again.",
+            "x-name": "jackClientActivation",
+            "x-resp": -202
+          },
+          {
+            "const": "reply.host.jack-client-deactivation",
+            "title": "jackClientDeactivation",
+            "description": "mod-host's ERR_JACK_CLIENT_DEACTIVATION: the plugin's audio client would not stop",
+            "x-code": 10,
+            "x-text": "The plugin’s audio connection would not stop. Remove the plugin, or restart the audio server if it stays.",
+            "x-name": "jackClientDeactivation",
+            "x-resp": -203
+          },
+          {
+            "const": "reply.host.jack-port-register",
+            "title": "jackPortRegister",
+            "description": "mod-host's ERR_JACK_PORT_REGISTER: a port of the plugin could not be made",
+            "x-code": 11,
+            "x-text": "The host could not make one of the plugin’s audio ports. Remove some plugins, then add this one again.",
+            "x-name": "jackPortRegister",
+            "x-resp": -204
+          },
+          {
+            "const": "reply.host.jack-port-connection",
+            "title": "jackPortConnection",
+            "description": "mod-host's ERR_JACK_PORT_CONNECTION: two ports could not be connected",
+            "x-code": 12,
+            "x-text": "Those two ports could not be connected. Check both ports exist and carry the same kind of signal.",
+            "x-name": "jackPortConnection",
+            "x-resp": -205
+          },
+          {
+            "const": "reply.host.jack-port-disconnection",
+            "title": "jackPortDisconnection",
+            "description": "mod-host's ERR_JACK_PORT_DISCONNECTION: two ports could not be disconnected",
+            "x-code": 13,
+            "x-text": "Those two ports could not be disconnected. Check they are connected to each other.",
+            "x-name": "jackPortDisconnection",
+            "x-resp": -206
+          },
+          {
+            "const": "reply.host.value-out-of-range",
+            "title": "valueOutOfRange",
+            "description": "mod-host's ERR_JACK_VALUE_OUT_OF_RANGE: a tempo or a beats-per-bar the transport does not take",
+            "x-code": 14,
+            "x-text": "That tempo or beats per bar is outside what the host accepts. Choose a value within the host’s range.",
+            "x-name": "valueOutOfRange",
+            "x-resp": -207
+          },
+          {
+            "const": "reply.host.external-ui-unavailable",
+            "title": "externalUiUnavailable",
+            "description": "mod-host's ERR_EXTERNAL_UI_UNAVAILABLE: the plugin has no window of its own to show",
+            "x-code": 15,
+            "x-text": "This plugin has no window of its own to show. Use the host’s controls for it instead.",
+            "x-name": "externalUiUnavailable",
+            "x-resp": -404
+          },
+          {
+            "const": "reply.host.memory-allocation",
+            "title": "memoryAllocation",
+            "description": "mod-host's ERR_MEMORY_ALLOCATION: the reply could not be built",
+            "x-code": 16,
+            "x-text": "The host ran out of memory while building the reply. Try again once memory is free.",
+            "x-name": "memoryAllocation",
+            "x-resp": -901
+          },
+          {
+            "const": "reply.host.invalid-operation",
+            "title": "invalidOperation",
+            "description": "mod-host's ERR_INVALID_OPERATION: a word outside the verb's grammar, or a verb the host refuses on purpose",
+            "x-code": 17,
+            "x-text": "That word is not part of this verb, or the host refuses it on purpose. Check the verb’s grammar and send a word it accepts.",
+            "x-name": "invalidOperation",
+            "x-resp": -902
+          },
+          {
+            "const": "reply.host.pin-absent",
+            "title": "pinAbsent",
+            "description": "a layout pin in a scheme this host does not know, refused as no pin at all",
+            "x-code": 18,
+            "x-text": "This host does not know that layout pin’s scheme, so it is refused as if no pin had been sent. Send a pin in a scheme this host knows.",
+            "x-name": "pinAbsent",
+            "x-resp": -508
+          },
+          {
+            "const": "reply.host.pin-layout-mismatch",
+            "title": "pinLayoutMismatch",
+            "description": "the add of an instance whose layout after init is not the one pin_expect named: the plugin is not activated",
+            "x-code": 19,
+            "x-text": "After it started, the plugin’s layout did not match the pin you expected, so it was not activated. Expect the layout the plugin actually has, or use a plugin built to that pin.",
+            "x-name": "pinLayoutMismatch",
+            "x-resp": -510
+          },
+          {
+            "const": "reply.host.no-param-contract",
+            "title": "noParamContract",
+            "description": "the host holds no checked unit and scale for this parameter: the controller falls back to the layout the scan gives",
+            "x-code": 20,
+            "x-text": "The host has no checked unit or scale for this parameter. Fall back to the layout the scan gave.",
+            "x-name": "noParamContract",
+            "x-resp": -511
+          },
+          {
+            "const": "reply.host.no-note-input",
+            "title": "noNoteInput",
+            "description": "the instance's plugin takes no notes",
+            "x-code": 21,
+            "x-text": "This plugin’s instance takes no notes. Don’t send it note events.",
+            "x-name": "noNoteInput",
+            "x-resp": -513
+          },
+          {
+            "const": "reply.host.notes-by-jack",
+            "title": "notesByJack",
+            "description": "the instance's worker takes no notes on its socket (mod-host): the plugin is played through its jack MIDI input",
+            "x-code": 22,
+            "x-text": "This instance’s worker takes no notes on its socket; play it through its jack MIDI input instead.",
+            "x-name": "notesByJack",
+            "x-resp": -514
+          },
+          {
+            "const": "reply.host.note-queue-full",
+            "title": "noteQueueFull",
+            "description": "the worker has no room for the line's notes before its next block: nothing of it is kept, and the line may be sent again",
+            "x-code": 23,
+            "x-text": "The worker had no room for these notes before its next block, so none of them were kept. Send the line again.",
+            "x-name": "noteQueueFull",
+            "x-resp": -517
+          },
+          {
+            "const": "reply.host.property-symbol-invalid",
+            "title": "propertySymbolInvalid",
+            "description": "a symbol that is not one of the instance's file or text properties (org.openmixer.properties/1), or an index past its last",
+            "x-code": 24,
+            "x-text": "That symbol is not one of this plugin’s file or text properties. Ask the plugin for its property list and use one of those symbols.",
+            "x-name": "propertySymbolInvalid",
+            "x-resp": -106
+          },
+          {
+            "const": "reply.host.property-access",
+            "title": "propertyAccess",
+            "description": "a set of a property that is not writable, or a get of one that is not readable",
+            "x-code": 25,
+            "x-text": "This property cannot be used that way: it is not writable, or not readable. Check the property's access before setting or reading it.",
+            "x-name": "propertyAccess",
+            "x-resp": -107
+          },
+          {
+            "const": "reply.host.property-value-invalid",
+            "title": "propertyValueInvalid",
+            "description": "a property value the host does not hand on: larger than OMX_CLAP_PROPERTY_VALUE_MAX with its NUL, not UTF-8, or a path that is not absolute",
+            "x-code": 26,
+            "x-text": "That value cannot be set: it is too long, not valid text, or a path that does not start with a slash. Send a shorter value, or an absolute path.",
+            "x-name": "propertyValueInvalid",
+            "x-resp": -108
+          },
+          {
+            "const": "reply.host.property-queue-full",
+            "title": "propertyQueueFull",
+            "description": "the instance's property ring has no room before its next block: nothing of the set is kept, and it may be sent again",
+            "x-code": 27,
+            "x-text": "The plugin had no room for this value before its next block, so it was not kept. Send it again.",
+            "x-name": "propertyQueueFull",
+            "x-resp": -109
+          }
+        ],
+        "x-kind": "codes",
+        "x-file": "verbs-host.json"
+      },
+      "HOST_TRACK_KINDS": {
+        "description": "The kind of strip, the last word of track_info; a line without it is an input channel.",
+        "x-since": "0.1.0",
+        "oneOf": [
+          {
+            "const": "bus",
+            "title": "bus",
+            "x-code": 0
+          },
+          {
+            "const": "return",
+            "title": "return",
+            "x-code": 1
+          },
+          {
+            "const": "master",
+            "title": "master",
+            "x-code": 2
+          }
+        ],
+        "x-kind": "words",
+        "x-file": "verbs-host.json"
+      },
+      "HOST_EVENTS": {
+        "description": "The lines a host writes on its feedback port for these verbs, each followed by the instance number, but xruns, which is the worker's own and is followed by its count.",
+        "x-since": "0.1.0",
+        "oneOf": [
+          {
+            "const": "remote_pages_changed",
+            "title": "remotePagesChanged",
+            "description": "the plugin changed its remote pages: a controller reads remote_pages and remote_page_get again",
+            "x-code": 0
+          },
+          {
+            "const": "xruns",
+            "title": "xruns",
+            "description": "the worker's JACK xrun count since its start, written when it changes and at most once a second; a worker that never writes it reports no xruns",
+            "x-code": 1
+          },
+          {
+            "const": "abi_clobber",
+            "title": "abiClobber",
+            "description": "the plugin returned from a call with a callee-saved register changed (0.26.2): the instance number, the registers as a hexadecimal mask with their names, the plugin function and the block, written once per instance. The worker put the registers back, so its own frame is whole; the other members' state in the same process is not covered, so the plugin is run only in a worker of its own",
+            "x-code": 2
+          }
+        ],
+        "x-kind": "words",
+        "x-file": "verbs-host.json"
+      }
+    }
+  }
+}

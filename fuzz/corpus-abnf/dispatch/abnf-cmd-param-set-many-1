@@ -1,1 +1,1 @@
-param_set_many -31 "\"!" +nan
+param_set_many -71 "\\\"" infinity "" !9*

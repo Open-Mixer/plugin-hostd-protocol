@@ -1,4 +1,6 @@
-usr/share/omx-contract/contract.d/3/plugin-hostd-protocol
+usr/share/omx-contract/contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json
+usr/share/omx-contract/contract.d/host
+usr/share/omx-contract/contract.d/hosting-verb
 usr/share/omx-contract/contract.d/probe
 usr/share/omx-contract/contract.d/pin
 usr/share/omx-contract/contract.d/estimate

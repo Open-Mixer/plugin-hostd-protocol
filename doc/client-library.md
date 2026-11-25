@@ -44,7 +44,8 @@ granted.
 2. Several framing loops wait for a buffer that ends in a NUL, so a second reply in the same read is lost; one loops
    on a closed peer. The shared test client keeps the tail, and opens no feedback port.
 3. Three quoting rules: the console's encoder refuses whitespace, plugin-qualify quotes, Zynthian quotes and doubles
-   backslashes, which the grammar does not undo, so `a\b` arrives as `a\\b`.
+   backslashes. The grammar's `quoted` now reads `\\` as one backslash (#88), as the tokenizer does, so Zynthian's
+   spelling is the grammar's; a writer that does not double a backslash writes a word that may never close.
 4. The 16 MiB cap is a C macro in `include/socket.h`; the JSON's `line_max` (4096) is the initial buffer.
 5. The tokenizer (`src/utils.c`) reads `""` inside a quoted word as a quote; the grammar has no such form.
 6. Fakes exist apart: plugin-hostd's `fake-host`, Zynthian's `tests/fake_plugin_hostd.py`, two in the console.
@@ -53,6 +54,5 @@ granted.
 
 - The npm package name, and whether it is published.
 - Where the 16 MiB cap is declared in the JSON.
-- A quoted value that ends in a backslash: the grammar reads it, the tokenizer does not.
 - What the fake answers for the 44 of 92 commands with no declared reply, and whether it keeps state or plays a
   script; and whether it ships here or in `plugin-hostd-tests`.

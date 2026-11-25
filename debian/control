@@ -1,9 +1,10 @@
-# The dependency floors in this file are GENERATED from packaging/deps.txt by Open-Mixer/.github deps-render (render.sh --write).
+# No version is typed on a dependency (owner ruling 2026-11-24): the relations between this source's own packages are
+# generated (= ${source:Version}).
 Source: plugin-hostd-protocol
 Section: libs
 Priority: optional
 Maintainer: Pau Aliagas <linuxnow@gmail.com>
-Build-Depends: debhelper-compat (= 13), libomx-contract-dev (>= 3.21.0~), omx-clap-contract (>= 0.34.0~), omx-contract-data (>= 3.21.0~), plugin-db-contract (>= 0.4.4~), libomxdsp-dev (>= 0.34.0~), pkgconf, python3
+Build-Depends: debhelper-compat (= 13), libomx-contract-dev, omx-contract-data, libomxdsp-dev, pkgconf, python3
 Standards-Version: 4.6.2
 Homepage: https://github.com/Open-Mixer/plugin-hostd-protocol
 Vcs-Git: https://github.com/Open-Mixer/plugin-hostd-protocol.git
@@ -14,10 +15,14 @@ Package: libplugin-hostd-protocol0
 Architecture: any
 Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Provides: plugin-hostd-protocol (= ${binary:Version})
 Description: plugin-hostd protocol library, a superset of mod-host's text protocol
  The socket server, line protocol and command dispatch that plugin-hostd and
  omx-clap-host answer their controllers with: mod-host's text protocol, so any
  mod-host client works unchanged.
+ .
+ It provides plugin-hostd-protocol, the name of the library's RPM, so a
+ package that depends on that name installs from either channel.
  .
  Its documentation is on openmixer.org.
 
@@ -58,7 +63,7 @@ Package: python3-plugin-hostd-protocol
 Architecture: all
 Multi-Arch: foreign
 Section: python
-Depends: python3, libplugin-hostd-protocol0 (>= 0.5.8~), plugin-hostd-protocol-contract (>= 0.5.8~), omx-clap-contract (>= 0.34.0~), omx-contract (>= 3.21.0~), omx-contract-data (>= 3.21.0~), ${misc:Depends}
+Depends: python3, libplugin-hostd-protocol0 (= ${source:Version}), plugin-hostd-protocol-contract (= ${source:Version}), omx-contract, omx-contract-data, ${misc:Depends}
 Description: plugin-hostd protocol, its Python codec
  plugin_hostd_protocol: one codec over the files plugin-hostd-protocol
  installs, which encodes and decodes every command the protocol declares,
@@ -72,12 +77,12 @@ Description: plugin-hostd protocol, its Python codec
 Package: plugin-hostd-protocol-contract
 Architecture: all
 Multi-Arch: foreign
-Depends: omx-contract (>= 3.21.0~), ${misc:Depends}
+Depends: omx-contract, ${misc:Depends}
 Description: plugin-hostd protocol, its verbs in omx-contract's contract directory
- data/verbs.json of plugin-hostd-protocol, the verbs and reply codes
- plugin-hostd adds to mod-host's protocol, as the package plugin-hostd-protocol
- of omx-contract's contract directory, under
- /usr/share/omx-contract/contract.d/3/plugin-hostd-protocol.
+ The domain plugin-hostd-protocol, the verbs and reply codes
+ plugin-hostd adds to mod-host's protocol, in omx-contract's contract directory,
+ under /usr/share/omx-contract/contract.d/plugin-hostd-protocol, beside its
+ domains probe, pin and estimate.
  .
  Its documentation is on openmixer.org.
 

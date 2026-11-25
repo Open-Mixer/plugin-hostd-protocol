@@ -1,13 +1,13 @@
-hello 1 errors seq tags
-@0 load !͝!
-@_ property_info -37 887
-@_1_ quarantine_clear "\"\""
-@31 hmi_map -39 ) -67 -26 -1 8 -4 "η" -083 inf -50
-show_external_ui -956
-@10 history_clear "\"\""
+hello 1 seq tags
 midi_learn -2 CȖѪ +nan -inf
-@-. plan_clear -2
-instance_info 1
-set_bpm .7e+982
-pin_clear "ŅЕ"
-@4H- cc_value_set 8 ˇ inf
+@-. plan -2 331
+@d_1 chain 99 9
+panel_get " "
+monitor_midi_program 9 -02
+@_8- property_info 82 0
+@s chain_expect 98 -73
+param_monitor 8 "#" "n\\" nan
+@.1 midi_map -25 "" 1 -7 -nan +88.82
+audio_ports 044
+@t-8 remove -925
+@__. midi_learn -090 $Κ inf +.43e+18

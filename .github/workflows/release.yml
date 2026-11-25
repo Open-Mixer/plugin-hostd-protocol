@@ -16,6 +16,8 @@ name: release
 on:
   push:
     tags: ['v*']
+    # a merge to devel builds the real package and publishes it to staging (Open-Mixer/.github#289)
+    branches: [devel]
   workflow_dispatch:
     inputs:
       source-ref:
@@ -79,8 +81,24 @@ jobs:
           echo "list=$list" >>"$GITHUB_OUTPUT"
           echo "same pass from $f: ${list:-none}"
 
+  # a release never goes below the highest version the channel ever served any of its packages at, whichever source
+  # built it (#180: python3-plugin-hostd-protocol went from 0.20.6 under plugin-hostd to 0.8.1 here). The tree read is
+  # the one released: the tag on a push, source-ref when one is named.
+  floor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env:
+          NAMED_SOURCE: ${{ github.event_name == 'workflow_dispatch' && inputs.source-ref || '' }}
+        run: |
+          if [ -n "$NAMED_SOURCE" ]; then
+            git fetch --quiet --depth=1 origin "$NAMED_SOURCE" || { echo "::error::cannot fetch source-ref $NAMED_SOURCE"; exit 1; }
+            git checkout --quiet FETCH_HEAD
+          fi
+          python3 tools/served-floor.py
+
   rpm:
-    needs: samepass
+    needs: [samepass, floor]
     uses: Open-Mixer/.github/.github/workflows/build-rpm.yml@openmixer-v1
     with:
       same-pass: ${{ inputs.same_pass || needs.samepass.outputs.list }}
@@ -99,7 +117,7 @@ jobs:
   # or skipped RPM job skips this one, so no DEB is published after a failed RPM.
   # beside the RPMs: the two publish jobs share one concurrency group, so their pushes never race
   deb:
-    needs: samepass
+    needs: [samepass, floor]
     uses: Open-Mixer/.github/.github/workflows/build-deb.yml@openmixer-v1
     with:
       same-pass: ${{ inputs.same_pass || needs.samepass.outputs.list }}

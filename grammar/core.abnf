@@ -43,15 +43,14 @@ word             = quoted / bare-word
 ; a bare word: no space, no control character and no double quote
 bare-word        = 1*bare-char
 bare-char        = %x21 / %x23-7E / %x80-10FFFF
-; a quoted word may hold spaces (a URI or a path); \" is a quote inside it, and the quotes are not part of the value
-quoted           = DQUOTE *(escaped-quote / quoted-char) DQUOTE
-escaped-quote    = %x5C DQUOTE
-quoted-char      = %x20-21 / %x23-7E / %x80-10FFFF
-; a quoted value that is text, not a word (a property's value): \" is a quote and \\ a backslash inside it, and a lone
-; backslash is no value; the quotes are not part of it, and every byte between them is (omx-clap-core#15)
-quoted-escaped   = DQUOTE *(escaped-char / plain-char) DQUOTE
+; a quoted word may hold spaces (a URI or a path): \" is a quote and \\ a backslash inside it, as the daemon's tokenizer
+; reads them (strarr_split), and a lone backslash is no value; the quotes are not part of it, and every byte between them
+; is (plugin-hostd-protocol#88)
+quoted           = DQUOTE *(escaped-char / plain-char) DQUOTE
 escaped-char     = %x5C (DQUOTE / %x5C)
 plain-char       = %x20-21 / %x23-5B / %x5D-7E / %x80-10FFFF
+; a quoted value that is text, not a word (a property's value): the one quoted spelling (omx-clap-core#15)
+quoted-escaped   = quoted
 
 ; the tail of a format line that ends in ...: any further words
 tail             = *(SP word)
@@ -82,13 +81,20 @@ curve-shape      = %s"off" / %s"bell" / %s"lowshelf" / %s"highshelf" / %s"highpa
 ; a head filter's slope, dB per octave of each choice value from 0: the role's declared enumeration
 curve-slopes     = curve-db *("|" curve-db)
 curve-db         = %x31-39 *2DIGIT
-; curve_points' reply: the count and each point, x to four significant digits and y to 0.01 dB; a reverb at mix 0 draws
-; none, and a delay's time_response has no point but taps, which follow as stems: the tap's time in ms (four significant
-; digits), its level in dB, its brightness 0..1 to three decimals, and the leg it lands on (omx-dsp's CURVE_LEGS)
-curve-points-reply = %s"resp" SP %s"0" SP 1*DIGIT *(SP curve-point) [SP %s"stems" SP 1*DIGIT 1*(SP curve-stem)]
+; curve_points' reply: the count, then the marks as one word, then each point, x to four significant digits and y to
+; 0.01 dB; a reverb at mix 0 draws none, and a delay's time_response has no point but taps, which follow as stems: the
+; tap's time in ms (four significant digits), its level in dB, its brightness 0..1 to three decimals, and the leg it lands
+; on (omx-dsp's CURVE_LEGS). The marks (protocol.h's list type marks) are each drawn band whose origin is not user
+; (CURVE_ORIGINS, omx_curve.h): its frequency and depth at the same precision as a point, its Q to 0.01, and its origin
+; word, joined by ";", or "-" when there is none: a host that gives every bound term the origin user, and a
+; transfer_curve or a time_response always
+curve-points-reply = %s"resp" SP %s"0" SP 1*DIGIT SP curve-marks *(SP curve-point) [SP %s"stems" SP 1*DIGIT 1*(SP curve-stem)]
 curve-stem       = curve-x "," curve-y "," curve-shade "," curve-leg
 curve-shade      = ("0." 3DIGIT) / "1.000"
 curve-leg        = %s"both" / %s"left" / %s"right"
 curve-point      = curve-x "," curve-y
 curve-x          = ["-"] 1*DIGIT ["." 1*DIGIT]
 curve-y          = ["-"] 1*DIGIT "." 2DIGIT
+curve-marks      = "-" / (curve-mark *(";" curve-mark))
+curve-mark       = curve-x "," curve-y "," curve-y "," curve-origin
+curve-origin     = %s"fbs-fixed" / %s"fbs-live" / %s"hrp" / %s"room-mode"

@@ -38,6 +38,9 @@ sabotage "hello grants what it was not asked for" src/protocol.c 'want\[i\] = 0;
 sabotage "a refused hello drops the grant" src/protocol.c \
     'protocol_response_int(ERR_INVALID_OPERATION, proto);' 'memset(g_granted, 0, sizeof(g_granted)); protocol_response_int(ERR_INVALID_OPERATION, proto);'
 sabotage "a tag takes an @" src/protocol.c "c == '.';" "c == '.' || c == '@';"
+sabotage "an empty line is answered" src/protocol.c 'const int blank = data\[strspn(' 'const int blank = 0 \&\& data[strspn('
+sabotage "a line whose first word is empty is not answered" src/protocol.c \
+    'if (proto.list_count == 0 || blank)' 'if (proto.list_count == 0 || blank || !*data)'
 sabotage "an error word without the grant" src/protocol.c \
     'if (granted(OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_ERRORS))' 'if (granted(OMX_PLUGIN_HOSTD_PROTOCOL_EXTENSIONS_ERRORS) || 1)'
 sabotage "an error word after a reply with values" src/protocol.c 'if (strcmp(bare, proto->response) != 0)' 'if (0)'
@@ -62,6 +65,8 @@ sabotage "a refused term keeps the line's other terms" src/host-curve.c '       
 sabotage "a band_type's value is not read" src/host-curve.c 't->shapes\[(uint32_t)c\]' 't->shapes[0]' curve_test
 sabotage "the instance's rate is not read" src/host-curve.c 'rq.sample_rate = rate;' 'rq.sample_rate = 48000.0;' curve_test
 sabotage "a slope's enumeration is not read" src/host-curve.c 'rqt\[i\].value = t->slopes\[(uint32_t)c\], rqt\[i\].unit = OMX_CURVE_UNITS_DB;' 'rqt[i].unit = OMX_CURVE_UNITS_DB;' curve_test
+sabotage "a unit read from a lower-case copy of the PARAM_UNITS ids" src/host-curve.c 'word_in(OMX_CURVE_UNIT_WORDS, OMX_CURVE_UNITS_COUNT, p, end)' \
+    'word_in((const char *const[]){"hz", "khz", "db", "dbfs", "dbu", "lufs", "coef", "oct", "none", "ratio", "percent", "ms", "s"}, OMX_CURVE_UNITS_COUNT, p, end)' curve_test
 sabotage "a value that is not finite answered -902" src/host-curve.c 'case OMX_CURVE_VALUE_NOT_FINITE: return OMX_REPLY_PLUGIN_HOSTD_CURVE_VALUE_NOT_FINITE_RESP;' '' curve_test
 sabotage "y written to 0.1 dB" src/host-curve.c ' %s,%.2f' ' %s,%.1f' curve_test
 sabotage "a host without the hook answers not found" src/host-dispatch.c ' OMX_VERB_CURVE_BIND_FMT, OMX_VERB_CURVE_POINTS_FMT,' '' curve_test

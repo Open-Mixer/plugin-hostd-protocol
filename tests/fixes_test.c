@@ -74,7 +74,7 @@ static int b_param_info(int instance, const char *symbol, host_param_info_t *inf
 {
     (void)instance;
     record("param_info");
-    info->unit = "hz";
+    info->unit = "Hz";
     info->scale = "log";
     info->min = 20;
     info->max = 20000;
@@ -127,10 +127,10 @@ int main(void)
     }
 
     /* #371: the three values format_number() has no exponent to split, written as ECMAScript writes them */
-    expect(&direct, "#371", "param_info 3 inf", "resp 0 hz log 20 Infinity 440 0 stable", "param_info");
-    expect(&direct, "#371", "param_info 3 -inf", "resp 0 hz log -Infinity 20000 440 0 stable", "param_info");
-    expect(&direct, "#371", "param_info 3 nan", "resp 0 hz log 20 20000 NaN 0 stable", "param_info");
-    expect(&direct, "#371", "param_info 3 gain", "resp 0 hz log 20 20000 440 0 stable", "param_info");
+    expect(&direct, "#371", "param_info 3 inf", "resp 0 Hz log 20 Infinity 440 0 stable", "param_info");
+    expect(&direct, "#371", "param_info 3 -inf", "resp 0 Hz log -Infinity 20000 440 0 stable", "param_info");
+    expect(&direct, "#371", "param_info 3 nan", "resp 0 Hz log 20 20000 NaN 0 stable", "param_info");
+    expect(&direct, "#371", "param_info 3 gain", "resp 0 Hz log 20 20000 440 0 stable", "param_info");
 
     /* #372: a message runs the callback of the verb it names, or none */
     expect(&direct, "#372", "zzz %s 5", "not found", "");

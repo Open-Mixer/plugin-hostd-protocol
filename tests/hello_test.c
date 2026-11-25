@@ -245,6 +245,10 @@ int main(void)
     expect(&c, "after an untagged blank line", "param_get 3 gain", "resp 0 0.2500");
     send(c.cmd, "\t ", 3, MSG_NOSIGNAL);
     expect(&c, "after an untagged tab and blank line", "param_get 3 gain", "resp 0 0.2500");
+    /* a line that is not all blanks is answered, though its first word is empty: a leading space, or "" */
+    expect(&c, "an untagged line with a leading space", " param_get 3 gain", "not found");
+    expect(&c, "an untagged \"\" line", "\"\"", "not found");
+    expect(&c, "an untagged line whose first word is \"\"", "\"\" param_get 3 gain", "not found");
     /* a tagged whitespace-only line keeps its answer, as a tagged empty line does */
     expect(&c, "a tagged blank line", "@e1 ", "@e1 not found");
     expect(&c, "a tagged tab and blank line", "@e2 \t ", "@e2 not found");

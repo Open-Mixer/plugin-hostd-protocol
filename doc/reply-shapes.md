@@ -1,10 +1,15 @@
 # The reply shapes: a JSON Schema per reply document, and its TypeScript type
 
 A reply is a line, `resp <code> <words>`, and a client turns the words into a document: a worker's record, an instance's
-cost, a curve's points. Each client wrote that document's type for itself. The table types 17 of the replies
+cost, a curve's points. Each client wrote that document's type for itself. The table types 21 of the replies
 (`reply_forms` of `protocol/plugin-hostd-protocol.json`: the name and the type of each word, see
 [protocol.md](protocol.md)), and each is now also a JSON Schema, the one source of the document's type in every language
 (the shapes facility of Open-Mixer/omx-contract, `docs/shapes.md`, and the typed-contracts spec, section 3).
+
+Three replies with words have no form yet (#85): `param_info`, whose bounds and default may be `NaN`, `Infinity` or
+`-Infinity`, which a JSON number cannot hold; `audio_ports`, a leading `dry` that may be absent and a port record with
+optional fields; and `idle_hold`, whose target and held are `off` or microseconds. Each needs a type the table does not
+have.
 
 ## What is where
 
@@ -24,7 +29,13 @@ One property per word of the reply, in the order of the longest reply form, and 
 (`estimate` has six words and, from a daemon with the memory budget, ten; `plan` and `plan_get` have their `cores` from a
 daemon with them). A list is an array and a record an object whose keys are the table's names; `uint` and `int` are
 integers, `number` a number; a word in double quotes is unquoted (`\"` and `\\` undone). Where a word can be `-`
-(`amount`, `core`, `worker-or-none`) it stays a string, since a number does not say none. A count that only counts the
+(`amount`, `core`, `worker-or-none`) it stays a string, since a number does not say none. A list's first none word is
+the empty array and a further one stays its word: `history_get` answers `[]` for `-` (no entry) and `"unavailable"` while
+the history file is blocked, so a client tells "no history yet" from "history off" (#86). **RULED (2026-11-23, #86):** for a
+list type, the first none word decodes to the empty array and any further one decodes to itself, so `history_get`'s
+document is `history: HistoryEntry[] | "unavailable"`; the wire and the table are unchanged. Held by the `read_reply`
+vectors of `clients/fixtures/codec.json` (both codecs), by `tests/reply_shapes.py` on `reply_history_get.schema.json`
+and its planted fault (a none word the table does not have), and by the rendered `ts/shapes/reply_history_get.d.ts`. A count that only counts the
 records (`worker_list`) is not a property: the array's length is it. `preset_get`'s `name` is the rest of the line, as the
 host wrote it (the table's `line` type): it may hold spaces and may be empty. `preset_list` answers only a count and has no
 document.

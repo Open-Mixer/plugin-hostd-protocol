@@ -1,7 +1,7 @@
 {
   "name": "@openmixer/plugin-hostd-protocol",
-  "version": "0.8.1",
-  "description": "The plugin-hostd protocol's reply shapes (a JSON Schema and a TypeScript type for each document a reply carries, rendered from the schemas by omx-contract's pinned generator) and its thin TypeScript client: the transport, the generated vocabulary and curvePoints",
+  "version": "0.21.0",
+  "description": "The plugin-hostd protocol's reply shapes (a JSON Schema and a TypeScript type for each document a reply carries, rendered from the schemas by omx-contract's pinned generator) its table-driven TypeScript codec, and the thin TypeScript client over that codec: the transport and curvePoints",
   "license": "GPL-3.0-or-later",
   "author": "Pau Aliagas <linuxnow@gmail.com>",
   "homepage": "https://www.openmixer.org/projects/plugin-hostd-protocol",
@@ -21,14 +21,6 @@
     "./client": {
       "types": "./clients/typescript/client.d.mts",
       "default": "./clients/typescript/client.mjs"
-    },
-    "./lines": {
-      "types": "./clients/typescript/lines.d.mts",
-      "default": "./clients/typescript/lines.mjs"
-    },
-    "./vocabulary": {
-      "types": "./clients/typescript/vocabulary.d.mts",
-      "default": "./clients/typescript/vocabulary.mjs"
     },
     "./codec-vectors": "./clients/fixtures/codec.json",
     "./package.json": "./package.json"
@@ -53,7 +45,7 @@
     "plugin-hostd-codec": "clients/typescript/codec/dist/cli.js"
   },
   "dependencies": {
-    "@openmixer/omx-contract": ">=3.18.0"
+    "@openmixer/omx-contract": "*"
   },
   "scripts": {
     "prepack": "npm --prefix clients/typescript/codec ci --no-audit --no-fund && npm --prefix clients/typescript/codec run build"

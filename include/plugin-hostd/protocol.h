@@ -23,7 +23,7 @@
  * (make gen; make check-generated fails on drift). A consumer includes this header and reads nothing else, or reads the
  * JSON when it is not C. The mod-host protocol itself, which the daemon speaks unchanged, is not declared here.
  *
- * The daemon's own verbs are declared in its contract directory (data/verbs.json, docs/contract-dir.md of omx-contract)
+ * The daemon's own verbs are declared in its contract directory (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json, docs/contract-dir.md of omx-contract)
  * and rendered into plugin_hostd_host_verbs.h beside this header: a verb is OMX_VERB_<VERB>, its line OMX_VERB_<VERB>_FMT,
  * its reply OMX_VERB_<VERB>_REPLY and its refusals OMX_VERB_<VERB>_CODES_INIT. The tables below take the words and the
  * replies from there and add the prose of the README. */
@@ -41,11 +41,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "omx_clap_host_verbs.h"
-#include "omx_clap_vocabulary.h"
 #include "plugin_hostd_protocol_host_verbs.h"
 #include "plugin_hostd_protocol_vocabulary.h"
-#include "plugin_db_vocabulary.h"
 
 /** @brief the version of the protocol this header declares
  *
@@ -241,9 +238,9 @@ static inline int phd_has_display(void)
 /** @brief the format name of the document plugin-hostd-probe writes */
 #define PHD_PROBE_FORMAT "plugin-hostd.probe-output"
 /** @brief the major version of the probe output format; a removed or changed code is a major release */
-#define PHD_PROBE_FORMAT_MAJOR 1
+#define PHD_PROBE_FORMAT_MAJOR 2
 /** @brief the minor version of the probe output format; a new code is a minor release */
-#define PHD_PROBE_FORMAT_MINOR 4
+#define PHD_PROBE_FORMAT_MINOR 0
 /** @brief the name of the probe protocol the document records */
 #define PHD_PROBE_PROTOCOL_NAME "plugin-hostd.probe-protocol"
 /** @brief the version of the probe protocol */
@@ -443,8 +440,9 @@ static inline int phd_pool_name_valid(const char *name)
  *
  * The codes are the -5xx hundred; a reply is "resp \<code\>". resp is the rendered number of the code. Each number has
  * one name in the contract, rendered as OMX_REPLY_\<GROUP\>_\<REASON\>_RESP: the ones omx-clap-host answers too are
- * omx-clap's reply.host.* codes (its HOST_REPLY_CODES, omx_clap_vocabulary.h), the others plugin-hostd's
- * reply.plugin-hostd.* (data/verbs.json PLUGIN_HOSTD_REPLY_CODES, plugin_hostd_vocabulary.h); the header defines none.
+ * the reply.host.* codes (contract.d/host/host.json HOST_REPLY_CODES), the others plugin-hostd's
+ * reply.plugin-hostd.* (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json PLUGIN_HOSTD_PROTOCOL_REPLY_CODES); both
+ * are rendered into plugin_hostd_protocol_vocabulary.h, and the header defines none.
  *
  * @param X the macro each row is passed to.
  */
@@ -513,9 +511,11 @@ static inline int phd_pool_name_valid(const char *name)
                         OMX_VERB_PANEL_GET " of that plugin answer this code") \
     X(DESCRIPTOR_ABSENT, OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_ABSENT_RESP, OMX_VERB_DESCRIPTOR_GET " (" OMX_VERB_PANEL_GET ") of a plugin that has no descriptor (panel) " \
                          "in descriptor_dir for its binary as it is now, and none being written: no add since it " \
-                         "changed, or a binary that cannot be found") \
+                         "changed, or a binary that cannot be found; " OMX_VERB_DESCRIPTION_GET " of a plugin no layer " \
+                         "of the descriptions store holds, and whose ask is not running") \
     X(DESCRIPTOR_PENDING, OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_PENDING_RESP, OMX_VERB_DESCRIPTOR_GET " (" OMX_VERB_PANEL_GET ") of a plugin whose scan, started by its " \
-                          "add, has not written its descriptor (panel) yet: ask again") \
+                          "add, has not written its descriptor (panel) yet, or " OMX_VERB_DESCRIPTION_GET " of a plugin " \
+                          "whose ask, started by its add, still runs: ask again") \
     X(DESCRIPTOR_SCAN_FAILED, OMX_REPLY_PLUGIN_HOSTD_DESCRIPTOR_SCAN_FAILED_RESP, OMX_VERB_DESCRIPTOR_GET " (" OMX_VERB_PANEL_GET ") of a plugin whose last scan wrote no " \
                               "descriptor (panel): the scanner refused the plugin, made no dump or no panel, or is not " \
                               "installed; the add it ran for stands, and stderr and the scan's log say why. The next add " \
@@ -558,10 +558,37 @@ static inline int phd_pool_name_valid(const char *name)
 
 /** @brief the word of mod-host's add verb, which the daemon extends with a placement
  *
- * Every verb of its own is OMX_VERB_\<VERB\> of plugin_hostd_host_verbs.h, and pin_expect is omx-clap's,
- * OMX_VERB_PIN_EXPECT.
+ * Every verb of its own is OMX_VERB_\<VERB\> of plugin_hostd_protocol_host_verbs.h, pin_expect too (a verb the daemon
+ * shares with omx-clap-host), OMX_VERB_PIN_EXPECT.
  */
 #define PHD_VERB_ADD              "add"
+
+/** @brief add's optional last word that asks, for that add, for an unknown plugin's qualification and description
+ *
+ * An unknown plugin is one no layer of the descriptions store holds (omx-panel docs/descriptions-store.md section 7):
+ * the daemon then runs, for that plugin only, the single-plugin qualification and the describe of the store. The word
+ * overrides the daemon's ask_unknown setting for that one add, either way. It is the last word of the line, after any
+ * placement and client name, and a last word that is PHD_ADD_ASK or PHD_ADD_NO_ASK is always this word, never a client
+ * name. An ask forced where the qualification is not installed runs nothing and the add answers as without it.
+ */
+#define PHD_ADD_ASK    "ask"
+/** @brief add's optional last word that asks for nothing for that add, whatever ask_unknown says (see PHD_ADD_ASK) */
+#define PHD_ADD_NO_ASK "no-ask"
+/** @brief add's ask word as a type of the table: one of the two words */
+#define PHD_ADD_ASK_TYPE PHD_ADD_ASK "|" PHD_ADD_NO_ASK
+
+/** @brief the descriptions store's base layer, the one shipped built (omx-panel docs/descriptions-store.md section 2) */
+#define PHD_DESCRIPTION_LAYER_BASE   "base"
+/** @brief the descriptions store's system layer, the one a writer run as root writes */
+#define PHD_DESCRIPTION_LAYER_SYSTEM "system"
+/** @brief the descriptions store's user layer, the one a writer run as that user writes */
+#define PHD_DESCRIPTION_LAYER_USER   "user"
+/** @brief the layer description_get names, as a type of the table: one of the three words */
+#define PHD_DESCRIPTION_LAYER_TYPE \
+    PHD_DESCRIPTION_LAYER_BASE "|" PHD_DESCRIPTION_LAYER_SYSTEM "|" PHD_DESCRIPTION_LAYER_USER
+/** @brief the format of a key of the descriptions store, as a type of the table: a plugin's format, never a worker's
+ * row (PHD_FORMAT_LV2_CLAP runs an LV2 plugin, whose key is PHD_FORMAT_LV2) */
+#define PHD_DESCRIPTION_FORMAT_TYPE PHD_FORMAT_LV2 "|" PHD_FORMAT_CLAP
 
 /** @brief the prefix of a CLAP plugin's uri: clap:\<path\>#\<id\> */
 #define PHD_CLAP_URI_PREFIX "clap:"
@@ -741,11 +768,25 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * A pin of the store, of a pins file or learned by the daemon may hold it, pin_set may not.
  */
 #define PHD_PIN_LAYOUT_UNKNOWN   "-"
+/* The keys of a pin line's optional words, each the key, an equals sign and its value, at most once and in either order.
+ * The words are the domain pin's (contract.d/pin). */
+/* BEGIN GENERATED PHD_PIN_KEYS: tools/pin-words-gen.py, from contract.d/pin/pin.json */
+#define PHD_PIN_KEY_VERDICT "verdict" ///< the qualification verdict of the pinned bytes, a word of PIN_VERDICTS
+#define PHD_PIN_KEY_POOL "pool" ///< the thread pool word of the pinned bytes, a word of PIN_POOLS
+/** @brief the rows of the list: X(id, word, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
+#define PHD_PIN_KEYS(X) \
+    X(VERDICT, PHD_PIN_KEY_VERDICT, "the qualification verdict of the pinned bytes, a word of PIN_VERDICTS") \
+    X(POOL, PHD_PIN_KEY_POOL, "the thread pool word of the pinned bytes, a word of PIN_POOLS")
+/* END GENERATED PHD_PIN_KEYS */
+
 /** @brief the optional last word of a pin line: the qualification verdict of the pinned bytes.
  *
- * The key is plugin-db's (its domain plugin-db, rendered beside this header); the verdict words are the domain pin's
+ * Its key and the verdict words are the domain pin's.
  */
-#define PHD_PIN_VERDICT_KEY      OMX_PLUGIN_DB_PIN_KEYS_VERDICT "="
+#define PHD_PIN_VERDICT_KEY      PHD_PIN_KEY_VERDICT "="
 
 /* The verdict words of a pin and what each means. Only in-process lets a plugin share a worker under pin_mode first-use.
  * The words are the domain pin's (contract.d/pin), the wire words of pin_set. */
@@ -768,7 +809,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * The word tells whether the plugin's qualification measured the CLAP thread pool (docs/thread-pool.md of
  * omx-clap) real-time safe and faster at the quantum; a plugin with no word runs serial.
  */
-#define PHD_PIN_POOL_KEY   OMX_PLUGIN_DB_PIN_KEYS_POOL "="
+#define PHD_PIN_POOL_KEY   PHD_PIN_KEY_POOL "="
 /* The pool words of a pin and what each means; cores: no other plugin shares the worker. The words are the domain pin's
  * (contract.d/pin). */
 /* BEGIN GENERATED PHD_PIN_POOLS: tools/pin-words-gen.py, from contract.d/pin/pin.json */
@@ -783,10 +824,19 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(OFF, PHD_PIN_POOL_OFF, "measured, and not faster or not safe with the pool: the worker keeps no option")
 /* END GENERATED PHD_PIN_POOLS */
 
-/** @brief what pin_changed names when the plugin's files changed */
-#define PHD_PIN_CHANGED_FILES  OMX_PLUGIN_DB_PIN_CHANGES_FILES
-/** @brief what pin_changed names when the plugin's layout changed */
-#define PHD_PIN_CHANGED_LAYOUT OMX_PLUGIN_DB_PIN_CHANGES_LAYOUT
+/* What the pin_changed event names as changed: only the plugin's files and its parameter layout change a pin. The words
+ * are the domain pin's (contract.d/pin). */
+/* BEGIN GENERATED PHD_PIN_CHANGES: tools/pin-words-gen.py, from contract.d/pin/pin.json */
+#define PHD_PIN_CHANGED_FILES "files" ///< a pinned file is gone, or its bytes no longer have the digest the pin holds
+#define PHD_PIN_CHANGED_LAYOUT "layout" ///< the plugin's parameter layout no longer has the fingerprint the pin holds
+/** @brief the rows of the list: X(id, word, meaning)
+ *
+ * @param X the macro each row is passed to.
+ */
+#define PHD_PIN_CHANGES(X) \
+    X(FILES, PHD_PIN_CHANGED_FILES, "a pinned file is gone, or its bytes no longer have the digest the pin holds") \
+    X(LAYOUT, PHD_PIN_CHANGED_LAYOUT, "the plugin's parameter layout no longer has the fingerprint the pin holds")
+/* END GENERATED PHD_PIN_CHANGES */
 
 /** @brief the pin_mode in which add admits only a plugin that has a pin */
 #define PHD_PIN_MODE_STRICT    "strict"
@@ -812,6 +862,27 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_GROUPING_MODES(X) \
     X(OFF, PHD_GROUPING_OFF, OMX_VERB_PLAN " answers the plan it would make and applies none") \
     X(ON, PHD_GROUPING_ON, OMX_VERB_PLAN " applies its plan")
+
+/** @brief the ask_unknown setting that asks when plugin-qualify-sync is on the path */
+#define PHD_ASK_UNKNOWN_AUTO "auto"
+/** @brief the ask_unknown setting that always asks */
+#define PHD_ASK_UNKNOWN_ON   "1"
+/** @brief the ask_unknown setting that never asks */
+#define PHD_ASK_UNKNOWN_OFF  "0"
+/** @brief the words of ask_unknown, the descriptions store's ask (omx-panel docs/descriptions-store.md section 7), as rows
+ * X(id, name, meaning)
+ *
+ * The ask is for a plugin no layer of the store holds, once per key while the daemon runs. An add's last word, ask or
+ * no-ask, overrides the setting for that add either way.
+ *
+ * @param X the macro each row is passed to.
+ */
+#define PHD_ASK_UNKNOWN_MODES(X) \
+    X(AUTO, PHD_ASK_UNKNOWN_AUTO, "ask when plugin-qualify-sync is on the path; when it is absent, ask nothing and " \
+      "report nothing") \
+    X(ON, PHD_ASK_UNKNOWN_ON, "always ask, as the add word " PHD_ADD_ASK " does: when plugin-qualify-sync is absent no " \
+      "child runs and the reason is logged once") \
+    X(OFF, PHD_ASK_UNKNOWN_OFF, "never ask, as the add word " PHD_ADD_NO_ASK " does")
 
 /** @brief the placement setting that pins each new worker to the audio core that has the least load */
 #define PHD_CORE_PLACEMENT_SPREAD "spread"
@@ -847,8 +918,11 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * @param X the macro each row is passed to.
  */
 #define PHD_VERBS(X) \
-    X(ADD, PHD_VERB_ADD, "<uri> <instance> [" PHD_PLACEMENT_SYNTAX "] [client_name]", "resp <instance>", \
-      "mod-host's add with a placement; a token after the instance that is not a placement is the jack client name") \
+    X(ADD, PHD_VERB_ADD, "<uri> <instance> [" PHD_PLACEMENT_SYNTAX "] [client_name] [" PHD_ADD_ASK " | " \
+      PHD_ADD_NO_ASK "]", "resp <instance>", \
+      "mod-host's add with a placement; a token after the instance that is not a placement is the jack client name; " \
+      "a last word " PHD_ADD_ASK " or " PHD_ADD_NO_ASK " asks, or does not ask, for that add, for the qualification and " \
+      "the description of a plugin no layer of the descriptions store holds, whatever ask_unknown says") \
     X(WORKER_LIST, OMX_VERB_WORKER_LIST, "", OMX_VERB_WORKER_LIST_REPLY, "the workers, one record each") \
     X(INSTANCE_INFO, OMX_VERB_INSTANCE_INFO, "<instance>", OMX_VERB_INSTANCE_INFO_REPLY, \
       "where an instance lives and what it has cost") \
@@ -962,6 +1036,13 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "panel is null and its meters empty. The codes are " OMX_VERB_DESCRIPTOR_GET "'s: -529 " \
       "when there is none, -530 while its scan runs, -531 when its last scan wrote nothing, -528 when the directory " \
       "could not be written") \
+    X(DESCRIPTION_GET, OMX_VERB_DESCRIPTION_GET, "<uri>", OMX_VERB_DESCRIPTION_GET_REPLY, \
+      "the key a client reads the plugin's description by in the descriptions store (omx-panel " \
+      "docs/descriptions-store.md): the SHA-256 of its binary, its format (" PHD_FORMAT_LV2 " or " PHD_FORMAT_CLAP \
+      "), its uri and the layer that holds it (" PHD_DESCRIPTION_LAYER_USER ", " PHD_DESCRIPTION_LAYER_SYSTEM " or " \
+      PHD_DESCRIPTION_LAYER_BASE ", the first that does in that order, a stale entry absent); -529 when no layer " \
+      "holds it, -530 while its ask runs. The daemon answers the key, never the description: the client reads it " \
+      "from the store") \
     X(HISTORY_GET, OMX_VERB_HISTORY_GET, "<uri>", OMX_VERB_HISTORY_GET_REPLY, \
       "what the daemon kept of the plugin on this host class, for the binary its pin holds now (the running history: " \
       "the windows it ran alone and in a group, its crashes, restarts and quarantines): one word of comma-joined " \
@@ -1046,8 +1127,8 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * worker of a format whose workers answer them from the plugin; for a format whose worker does not, it answers them
  * itself and never forwards them. A string word is quoted when it is not a plain word, and always in a reply, with \" inside it
  * for a quote: mod-host's own tokenizer reads them. */
-/* The words and the lines of these verbs, and of the note verbs below, are omx-clap's declarations (its HOST_VERBS,
- * omx_clap_host_verbs.h): OMX_VERB_<VERB> and OMX_VERB_<VERB>_FMT. preset_list and preset_get are the daemon's,
+/* The words and the lines of these verbs, and of the note verbs below, are the verbs omx-clap-host shares with
+ * plugin-hostd (PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS, plugin_hostd_protocol_host_verbs.h): OMX_VERB_<VERB> and OMX_VERB_<VERB>_FMT. preset_list and preset_get are the daemon's,
  * OMX_VERB_PRESET_LIST and OMX_VERB_PRESET_GET */
 
 /* Notes, played on an instance by a controller that is not a jack client: the worker delivers each one as a MIDI
@@ -1071,7 +1152,9 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
 #define PHD_PRESET_FORMAT_1   "org.openmixer.preset/1"
 /** @brief the format word of a user-preset file that adds the state body */
 #define PHD_PRESET_FORMAT_2   "org.openmixer.preset/2"
-#define PHD_PRESET_ALIAS_MAX  12
+/** @brief the protocol's ceiling on a user-preset file, in bytes: a reader refuses a longer one. A daemon may hold a stricter
+ * limit of its own and must assert at build time that it is at most this one (ruled 2026-11-23 on #70: omx-clap-core keeps
+ * 3 MiB with a static assert against this, Open-Mixer/omx-clap-core#182) */
 #define PHD_PRESET_FILE_MAX   (64 * 1024 * 1024)
 /** @brief the parameters on one remote page */
 #define PHD_REMOTE_PAGE_SLOTS 8
@@ -1139,7 +1222,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * back every symbol it was given, each the latest set of it, in the order they were first set). Replayed after the add. */
 /** @brief the word of the show_external_ui verb
  *
- * mod-host.h declares it as the format SHOW_EXTERNAL_UI, and omx-clap's verb table does not.
+ * mod-host.h declares it as the format SHOW_EXTERNAL_UI, and the verb table of the contract does not.
  */
 #define PHD_VERB_SHOW_EXTERNAL_UI "show_external_ui"
 /** @brief the ledger keeps nothing of the verb */
@@ -1529,6 +1612,7 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_PLAN_CLEAR, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
     X(OMX_VERB_DESCRIPTOR_GET, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
     X(OMX_VERB_PANEL_GET, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
+    X(OMX_VERB_DESCRIPTION_GET, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
     X(OMX_VERB_HISTORY_GET, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
     X(OMX_VERB_HISTORY_CLEAR, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
     X(OMX_VERB_ESTIMATE, DAEMON, REQUIRED, REQUIRED, REQUIRED, REQUIRED) \
@@ -1637,6 +1721,11 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_EVENT_PLAN_REASON             "plan_reason"
 /** @brief the name of the feedback event qualify_requested: a plugin with no verdict has a request in the spool */
 #define PHD_EVENT_QUALIFY_REQUESTED       "qualify_requested"
+/** @brief the name of the feedback event description_changed
+ *
+ * The ask of a plugin ended and the descriptions store's entry of it was read again, as pin_changed tells a pin.
+ */
+#define PHD_EVENT_DESCRIPTION_CHANGED     "description_changed"
 /* written by a worker, relayed as it wrote it */
 /** @brief the name of the feedback event remote_pages_changed
  *
@@ -1653,7 +1742,7 @@ static inline int phd_is_note_verb(const char *verb)
  * Relayed from a worker: the user took hold of a control of the plugin's own, or let it go.
  */
 #define PHD_EVENT_PARAM_GESTURE           "param_gesture"
-/* a worker's own count, not an instance's: omx-clap's HOST_EVENTS word xruns (tests/verbs_declared.py holds this to it) */
+/* a worker's own count, not an instance's: the HOST_EVENTS word xruns (tests/verbs_declared.py holds this to it) */
 /** @brief the name of the feedback event xruns
  *
  * Relayed from a worker and read by the daemon: the JACK xruns the worker has counted since it started.
@@ -1747,7 +1836,7 @@ static inline int phd_is_note_verb(const char *verb)
  *
  * Each form's arguments are name:type, as PHD_EVENTS' args, a form per number of them. add is mod-host's \<uri\>
  * \<instance\>, which the daemon extends with a placement and a client name, each optional (a placement told from a
- * name by its type); supervisor_reset re-arms one worker or every one (plugin-hostd-protocol#17).
+ * name by its type), and a last ask word, PHD_ADD_ASK or PHD_ADD_NO_ASK; supervisor_reset re-arms one worker or every one (plugin-hostd-protocol#17).
  *
  * @param X the macro each row is passed to.
  */
@@ -1756,6 +1845,10 @@ static inline int phd_is_note_verb(const char *verb)
     X(PHD_VERB_ADD, "uri:word instance:int placement:placement") \
     X(PHD_VERB_ADD, "uri:word instance:int client:word") \
     X(PHD_VERB_ADD, "uri:word instance:int placement:placement client:word") \
+    X(PHD_VERB_ADD, "uri:word instance:int ask:" PHD_ADD_ASK_TYPE) \
+    X(PHD_VERB_ADD, "uri:word instance:int placement:placement ask:" PHD_ADD_ASK_TYPE) \
+    X(PHD_VERB_ADD, "uri:word instance:int client:word ask:" PHD_ADD_ASK_TYPE) \
+    X(PHD_VERB_ADD, "uri:word instance:int placement:placement client:word ask:" PHD_ADD_ASK_TYPE) \
     X(OMX_VERB_SUPERVISOR_RESET, "") \
     X(OMX_VERB_SUPERVISOR_RESET, "worker:worker") \
     X(OMX_VERB_SUPERVISOR_RESET, "target:" PHD_WORD_ALL) \
@@ -1782,7 +1875,8 @@ static inline int phd_is_note_verb(const char *verb)
  * X(name, item, separator, none, spelling) and X(name, separator, fields, spelling) */
 /** @brief the list types of the table, as rows X(name, item, separator, none, spelling)
  *
- * A list is items of one type joined by a separator, or one of its none words.
+ * A list is items of one type joined by a separator, or one of its none words: the first is the empty list, a further
+ * one is itself, so a reader tells history's unavailable from its "-" (#86).
  *
  * @param X the macro each row is passed to.
  */
@@ -1793,6 +1887,7 @@ static inline int phd_is_note_verb(const char *verb)
     X("segments", "instance-list", ";", "", "a plan's segments, each its instances") \
     X("core-segments", "core-list", ";", "", "each segment's cores") \
     X("reason-list", "reason", ",", PHD_WORD_NONE, "each member's reason") \
+    X("marks", "mark", ";", PHD_WORD_NONE, "the marks of a curve, the bands a corrector planted, in band order") \
     X("member-codes", "member-code", ",", PHD_WORD_NONE, "each member with no figure: its position and its code") \
     X("history", "history-entry", ",", PHD_WORD_NONE "|" PHD_WORD_UNAVAILABLE, \
       "a plugin's history: digest, class, crashed, raises_xruns and the history keys; " PHD_WORD_UNAVAILABLE \
@@ -1811,6 +1906,8 @@ static inline int phd_is_note_verb(const char *verb)
     X("member-code", ":", "position:uint code:int", "a member's position in the line and its code") \
     X("layout", PHD_PIN_SCHEME_SEPARATOR, "scheme:word sha256:sha256", "a layout pin, <scheme>:<sha256>") \
     X("point", ",", "x:number y:number", "a point of a curve") \
+    X("mark", ",", "freq:number depth:number q:number origin:word", \
+      "a band a corrector planted: its frequency, depth, Q and omx-dsp's origin word") \
     X("history-entry", "=", "key:key value:value", "a key=value of a history")
 
 /** @brief the replies of this tree's verbs, typed and named (#19), as rows X(verb, resp, args)
@@ -1829,6 +1926,8 @@ static inline int phd_is_note_verb(const char *verb)
     X(OMX_VERB_CHAIN_GET, "0", "worker:worker-or-none members:instance-list running:instance-list") \
     X(OMX_VERB_DESCRIPTOR_GET, "0", "path:quoted") \
     X(OMX_VERB_PANEL_GET, "0", "path:quoted") \
+    X(OMX_VERB_DESCRIPTION_GET, "0", "sha256:sha256 format:" PHD_DESCRIPTION_FORMAT_TYPE " uri:word layer:" \
+      PHD_DESCRIPTION_LAYER_TYPE) \
     X(OMX_VERB_PRESET_LIST, "count", "") \
     X(OMX_VERB_PRESET_GET, "0", "load_key:word name:line") \
     X(OMX_VERB_PROPERTY_INFO, "0", "symbol:word kind:word access:word name:quoted-escaped") \
@@ -1842,7 +1941,13 @@ static inline int phd_is_note_verb(const char *verb)
       "verdict:estimate-verdict reason:estimate-reason") \
     X(OMX_VERB_HELLO, "0", "version:int extensions:word...") \
     X(OMX_VERB_PARAM_GET_MANY, "0", "values:word...") \
-    X(OMX_VERB_CURVE_POINTS, "0", "count:uint points:point...")
+    X(OMX_VERB_CURVE_POINTS, "0", "count:uint marks:marks points:point...") \
+    X(OMX_VERB_REMOTE_PAGES, "count", "") \
+    X(OMX_VERB_REMOTE_PAGE_GET, "0", "page_id:uint section:quoted-escaped page_name:quoted-escaped slots:word...") \
+    X(OMX_VERB_PROPERTY_LIST, "count", "") \
+    X(OMX_VERB_NOTE_INPUT, "0", "port:word") \
+    X(OMX_VERB_NOTE_DROPS, "0", "notes:uint releases:uint sysex:uint unmappable:uint") \
+    X(OMX_VERB_NOTE_OUT_DROPS, "0", "dropped:uint unmapped:uint midi_out_full:uint")
 
 /** @brief the printf format of the PHD_EVENT_WORKER_DIED line
  *
@@ -1946,6 +2051,8 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_EVENT_PLAN_REASON_FMT           PHD_EVENT_PLAN_REASON " %d %s"
 /** @brief the format of the feedback line of qualify_requested, its one word the plugin's uri */
 #define PHD_EVENT_QUALIFY_REQUESTED_FMT     PHD_EVENT_QUALIFY_REQUESTED " %s"
+/** @brief the format of the feedback line of description_changed, its one word the plugin's uri */
+#define PHD_EVENT_DESCRIPTION_CHANGED_FMT   PHD_EVENT_DESCRIPTION_CHANGED " %s"
 
 /** @brief the table of the docs: X(name, fields, meaning), one row per shape of a line
  *
@@ -1988,6 +2095,10 @@ static inline int phd_is_note_verb(const char *verb)
     X(PHD_EVENT_PIN_CHANGED, "<uri> " PHD_PIN_CHANGED_FILES " | " PHD_PIN_CHANGED_LAYOUT, \
       "an add or a replay of a plugin was refused because its files, or the layout the worker found, differ from its " \
       "pin; the pin is as it was until pin_accept or pin_set") \
+    X(PHD_EVENT_DESCRIPTION_CHANGED, "<uri>", \
+      "the ask of a plugin no layer of the descriptions store held has ended, and the daemon read the store's entry " \
+      "of it again: the next " OMX_VERB_REMOTE_PAGE_GET " and " OMX_VERB_PANEL_GET " answer from it, and " \
+      OMX_VERB_DESCRIPTION_GET " names its key; read them again") \
     X(PHD_EVENT_LV2_ADAPTER_REFUSED, "<uri> <reason> " PHD_LV2_WORKER_CLAP_HOST, \
       "the LV2 adapter of the " PHD_FORMAT_LV2_CLAP " worker refused a plugin: <reason> is the hosting.* code after -102 on the " \
       "worker's reply to that add (" PHD_WORD_NONE " when it named none); the last word is the lv2_worker in force, " \
@@ -2009,7 +2120,7 @@ static inline int phd_is_note_verb(const char *verb)
       "xrun_windows_solo or xrun_windows_grouped of every member of the worker when the count rose in it; a line that " \
       "is not the word and one whole number is not a count") \
     X(PHD_EVENT_ABI_CLOBBER, "<instance> <mask> <registers> <call> <block>", \
-      "relayed from a worker (omx-clap-host 0.26.2 or later), and read by the daemon: the plugin returned from a call " \
+      "relayed from an omx-clap-host worker, and read by the daemon: the plugin returned from a call " \
       "with a callee-saved register changed, said once per instance. The worker put the registers back, so its own " \
       "frame is whole; the other members' state in the same process is not covered, so the daemon quarantines the " \
       "instance (instance_quarantined, and the history keeps it alone from then on) and, when it shares its worker or " \
@@ -2044,6 +2155,7 @@ static inline int phd_is_note_verb(const char *verb)
     X(PHD_EVENT_QUALIFY_REQUESTED, "uri:word") \
     X(PHD_EVENT_SUPERVISOR_GAVE_UP, "worker:worker deaths:int window_ms:int") \
     X(PHD_EVENT_PIN_CHANGED, "uri:word changed:" PHD_PIN_CHANGED_FILES "|" PHD_PIN_CHANGED_LAYOUT) \
+    X(PHD_EVENT_DESCRIPTION_CHANGED, "uri:word") \
     X(PHD_EVENT_LV2_ADAPTER_REFUSED, "uri:word reason:word lv2_worker:" PHD_LV2_WORKER_CLAP_HOST) \
     X(PHD_EVENT_REMOTE_PAGES_CHANGED, "instance:int") \
     X(PHD_EVENT_REMOTE_PAGE_SUGGEST, "instance:int page_id:uint") \
@@ -2139,6 +2251,8 @@ static inline int phd_is_note_verb(const char *verb)
 #define PHD_DEFAULT_POOL_MAX          8
 /** @brief the default of the grouping setting */
 #define PHD_DEFAULT_GROUPING          PHD_GROUPING_OFF
+/** @brief the default of the ask_unknown setting: ask when plugin-qualify-sync is on the path */
+#define PHD_DEFAULT_ASK_UNKNOWN       PHD_ASK_UNKNOWN_AUTO
 /** @brief the default of the placement setting */
 #define PHD_DEFAULT_PLACEMENT         PHD_CORE_PLACEMENT_SPREAD
 /** @brief the default of the bind_address setting */
@@ -2316,7 +2430,12 @@ static inline int phd_is_note_verb(const char *verb)
       "host class; empty is $XDG_STATE_HOME/" PHD_HISTORY_NAME ", else $HOME/.local/state/" PHD_HISTORY_NAME "; local to " \
       "this machine, mode 0600, written by the daemon alone, and deleted by history_clear") \
     X(host_class, word, "", "", "the host class the history is kept under, as arch/cores/clock (x86_64/5-8/2.5-3.5GHz); " \
-      "empty is the class of this machine, as the probe writes it; no white space")
+      "empty is the class of this machine, as the probe writes it; no white space") \
+    X(ask_unknown, word, PHD_DEFAULT_ASK_UNKNOWN, "", "auto, 1 or 0: whether an add of a plugin no layer of the " \
+      "descriptions store holds asks for its qualification and description (plugin-qualify-sync, then omx-panel describe " \
+      "and the generators, as children at idle priority, once per key while the daemon runs); auto asks when " \
+      "plugin-qualify-sync is on the path and does nothing when it is absent, 1 always asks, 0 never does; the add's last " \
+      "word, " PHD_ADD_ASK " or " PHD_ADD_NO_ASK ", overrides it for that add")
 
 /** @brief the whole-number settings, as rows X(key, default, unit, meaning)
  *

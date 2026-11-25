@@ -1,1 +1,1 @@
-worker_env "\" " "\"ʓ" !
+worker_env !^ !! С

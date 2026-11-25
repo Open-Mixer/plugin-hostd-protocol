@@ -21,7 +21,7 @@ import re
 import sys
 
 try:
-    from abnf.parser import Rule as _Rule, ParseError
+    from abnf.parser import Rule as _Rule, ParseError, GrammarError
 except ImportError:
     sys.exit("grammar test: no python abnf module (pip install abnf); the grammar is not checked")
 
@@ -73,6 +73,10 @@ def parses(rule, line):
         Rule(rule).parse_all(line)
         return True
     except ParseError:
+        return False
+    except GrammarError as e:
+        # a rule the grammar does not define: named, never a crash that hides the failures after it
+        fail(f"{rule}: {e}")
         return False
 
 
@@ -264,40 +268,48 @@ if not units:
 for unit in units:
     if not parses("curve-unit", unit):
         fail(f"curve-unit refuses {unit!r}, an id of omx-dsp's OMX_CURVE_UNIT_WORDS")
-for line in ("clear", "transfer_curve dynamics threshold=thr:dbfs ratio=ratio:ratio knee=k:db makeup=g:db",
-             "eq_response eq band_freq.0=f_0:hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf",
-             "eq_response eq band_type.31=t-31@-|bell band_freq.31=f.31:khz@notch hpf_on=:bypass",
-             "eq_response eq band_type.0=t@bell|allpass1|allpass2 band_freq.0=f:hz hpf_slope=s@12|24 lpf_slope=l:db",
-             "transfer_curve gate threshold=t:db range=r:db knee_start=a:db knee_end=b:db ratio=q:coef",
-             "transfer_curve drive drive=d:db tone=t:coef mix=m:pc output=o:db model=k:none",
+for line in ("clear", "transfer_curve dynamics threshold=thr:dBFS ratio=ratio:ratio knee=k:dB makeup=g:dB",
+             "eq_response eq band_freq.0=f_0:Hz band_gain.0=g_0:coef band_q.0=w_0:oct band_type.0=ft_0@off|bell|lowshelf|highshelf",
+             "eq_response eq band_type.31=t-31@-|bell band_freq.31=f.31:kHz@notch hpf_on=:bypass",
+             "eq_response eq band_type.0=t@bell|allpass1|allpass2 band_freq.0=f:Hz hpf_slope=s@12|24 lpf_slope=l:dB",
+             "transfer_curve gate threshold=t:dB range=r:dB knee_start=a:dB knee_end=b:dB ratio=q:coef",
+             "transfer_curve drive drive=d:dB tone=t:coef mix=m:percent output=o:dB model=k:none",
              "time_response reverb size=s:coef mix=m:coef algorithm=a:none predelay=p:ms decay=d:s damping=g:coef width=w:coef",
              "time_response delay time=t:ms feedback=f:coef tone=o:coef mix=m:coef pingpong=p:none sync=s:none division=d:none",
-             "time_response reverb low_cut=l:hz high_cut=h:khz"):
+             "time_response reverb low_cut=l:Hz high_cut=h:kHz"):
     must("curve-binding", line, "a curve binding")
     must("cmd-curve-bind", "curve_bind 3 0 " + line, "a curve_bind line")
-for line in ("", "clear threshold=t:db", "bar_graph dynamics threshold=t:db", "transfer_curve dynamics",
-             "transfer_curve dynamics threshold", "transfer_curve dynamics attack=a:ms", "eq_response eq band_freq.x=f:hz",
-             "eq_response eq band_freq.=f:hz", "transfer_curve dynamics threshold=", "transfer_curve dynamics threshold=t:",
+for line in ("", "clear threshold=t:dB", "bar_graph dynamics threshold=t:dB", "transfer_curve dynamics",
+             "transfer_curve dynamics threshold", "transfer_curve dynamics attack=a:ms", "eq_response eq band_freq.x=f:Hz",
+             "eq_response eq band_freq.=f:Hz", "transfer_curve dynamics threshold=", "transfer_curve dynamics threshold=t:",
              "eq_response eq band_type.0=t@bell|wobble", "eq_response eq band_type.0=t@bell||notch",
-             "transfer_curve dynamics threshold=t/x:db", "transfer_curve Dynamics threshold=t:db",
+             "transfer_curve dynamics threshold=t/x:dB", "transfer_curve Dynamics threshold=t:dB",
              "time_response", "time_response reverb", "time_response reverb size", "Time_response reverb size=s:coef",
              "eq_response eq hpf_slope=s@0|24", "eq_response eq hpf_slope=s@12|", "eq_response eq hpf_slope=s@1234"):
     must_not("curve-binding", line, "not a curve binding")
 curve_replies = 0
 for a in answers:
-    if re.match(r"resp 0 \d+ \S+,", a):
+    if re.match(r"resp 0 \d+ \S+ \S+,", a):
         must("curve-points-reply", a, "golden transcript, curve_points' reply")
         curve_replies += 1
 if curve_replies == 0:
     fail("the golden transcript holds no curve_points reply")
-# a reverb at mix 0 draws no point (resp 0 0); a delay's reply carries its taps after the points: `stems <count> <t>,<dB>,<shade>,<leg> ...`
-for line in ("resp 0 0", "resp 0 3 20.00,1.00 40.0,2.00 80.0,0.00",
-             "resp 0 0 stems 2 0,-4.44,1.000,both 250.0,-8.00,0.870,left",
-             "resp 0 2 0,-80.00 500.0,-80.00 stems 1 0,0.00,1.000,right"):
+# the marks follow the count as one word, `-` when none, else each `<freq>,<depth>,<q>,<origin>` joined by `;`; a
+# reverb at mix 0 draws no point (resp 0 0 -); a delay's reply carries its taps after the points:
+# `stems <count> <t>,<dB>,<shade>,<leg> ...`
+for line in ("resp 0 0 -", "resp 0 3 - 20.00,1.00 40.0,2.00 80.0,0.00",
+             "resp 0 3 1000,-6.00,2.00,fbs-fixed 20.00,1.00 40.0,2.00 80.0,0.00",
+             "resp 0 2 1000,-6.00,2.00,fbs-live;250.0,-3.50,4.50,room-mode 20.00,1.00 80.0,0.00",
+             "resp 0 1 63.00,-12.00,8.00,hrp 20.00,1.00",
+             "resp 0 0 - stems 2 0,-4.44,1.000,both 250.0,-8.00,0.870,left",
+             "resp 0 2 - 0,-80.00 500.0,-80.00 stems 1 0,0.00,1.000,right"):
     must("curve-points-reply", line, "a curve_points reply")
-for line in ("resp 0 1 20,0.0", "resp 0 2 20.00,1", "resp 0 3 x,0.00", "resp 0 0 stems", "resp 0 0 stems 0",
-             "resp 0 0 stems 1 0,0.00,1.000", "resp 0 0 stems 1 0,0.00,1.000,middle", "resp 0 0 stems 1 0,0.00,1.0,both",
-             "resp 0 0 stems 1 0,0.00,1.000,both 5"):
+for line in ("resp 0 0", "resp 0 3 20.00,1.00 40.0,2.00 80.0,0.00", "resp 0 1 - 20,0.0", "resp 0 2 - 20.00,1",
+             "resp 0 3 - x,0.00", "resp 0 0 - stems", "resp 0 0 - stems 0",
+             "resp 0 0 - stems 1 0,0.00,1.000", "resp 0 0 - stems 1 0,0.00,1.000,middle",
+             "resp 0 0 - stems 1 0,0.00,1.0,both", "resp 0 0 - stems 1 0,0.00,1.000,both 5",
+             "resp 0 1 1000,-6.00,2.00,user 20.00,1.00", "resp 0 1 1000,-6.00,2.00 20.00,1.00",
+             "resp 0 1 1000,-6.00,2.00,hrp; 20.00,1.00", "resp 0 1 1000,-6.00,2.00,hrp;- 20.00,1.00", "resp 0 0 - -"):
     must_not("curve-points-reply", line, "not a curve_points reply")
 with open(os.path.join(ROOT, "tests", "golden", "plugin-hostd-protocol.txt"), encoding="utf-8") as f:
     golden = f.read().split("\n")
@@ -305,12 +317,73 @@ for i, line in enumerate(golden[:-1]):
     if line.startswith("> curve_bind ") and golden[i + 1] == "< resp 0":
         must("curve-binding", line[2:].split(" ", 3)[3], "golden transcript, a curve_bind answered resp 0")
 
+# ---- the descriptions store's ask words (#128; omx-panel docs/descriptions-store.md section 7) ----
+# add's optional last word ask | no-ask, after any placement and client name; description_get <uri> and its typed
+# reply <sha256> <lv2|clap> <uri> <base|system|user>, refused -529 when no layer holds the plugin and -530 while its
+# ask runs; the event description_changed <uri>. Each in the table and in the grammar, named, and no looser.
+SHA = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+for line in ("add urn:a 3 ask", "add urn:a 3 no-ask", "add urn:a 3 own ask", "add urn:a 3 client_a no-ask",
+             "add urn:a 3 pool:fx client_a ask"):
+    must("cmd-add", line, "add with its ask word")
+    must("command", line, "add with its ask word")
+must("cmd-description-get", "description_get urn:a", "description_get <uri>")
+must("command", 'description_get "clap:/usr/lib/clap/a b.clap#org.a"', "description_get <uri>, quoted")
+must_not("cmd-description-get", "description_get", "description_get with no uri")
+must_not("cmd-description-get", "description_get urn:a urn:b", "description_get with two uris")
+for layer in ("base", "system", "user"):
+    for fmt in ("lv2", "clap"):
+        must("rp-description-get", f"resp 0 {SHA} {fmt} urn:a {layer}", f"description_get's reply, {fmt} {layer}")
+for line, why in ((f"resp 0 {SHA} lv2-clap urn:a user", "a worker row for the format"),
+                  (f"resp 0 {SHA} lv2 urn:a home", "a layer the store has not"),
+                  (f"resp 0 {SHA} lv2 urn:a", "no layer"),
+                  (f'resp 0 "{SHA} lv2 urn:a user"', "the four words quoted as one")):
+    must_not("rp-description-get", line, f"description_get's reply with {why}")
+# a named type is one word to the grammar: its own pattern, the table's, refuses what is not one (tests/reply_args.py)
+if not re.fullmatch(ARG_TYPES["sha256"]["pattern"], SHA) or re.fullmatch(ARG_TYPES["sha256"]["pattern"], SHA[:63]):
+    fail(f"the table's sha256 pattern {ARG_TYPES['sha256']['pattern']!r} does not tell a SHA-256 from a short one")
+must("feedback", "description_changed urn:a", "description_changed <uri>")
+must("event", "#4 description_changed urn:a", "a numbered description_changed")
+must_not("feedback", "description_changed", "description_changed with no uri")
+must_not("feedback", "description_changed urn:a files", "description_changed with pin_changed's words")
+
+rows = {c["verb"]: c for c in table["commands"]}
+desc = rows.get("description_get")
+if not desc:
+    fail("the table has no command description_get")
+else:
+    if [f["args"] for f in desc["forms"]] != [["word"]]:
+        fail(f"description_get's forms are {desc['forms']}, not <uri>")
+    shapes = [(f["args"], f["names"]) for f in desc.get("reply_forms") or []]
+    if shapes != [(["sha256", "lv2|clap", "word", "base|system|user"], ["sha256", "format", "uri", "layer"])]:
+        fail(f"description_get's reply is {shapes}, not <sha256> <lv2|clap> <uri> <base|system|user>")
+    if not {-529, -530} <= set(desc["codes"]):
+        fail(f"description_get answers {desc['codes']}, without -529 and -530")
+    if desc["levels"].get("console") != "required" or desc["sent_by"] != "controller":
+        fail(f"description_get is {desc['sent_by']} {desc['levels']}, not a controller's verb the console requires")
+ask_forms = [f for f in rows["add"]["forms"] if (f.get("names") or [None])[-1] == "ask"]
+if sorted(len(f["args"]) for f in ask_forms) != [3, 4, 4, 5] or any(f["args"][-1] != "ask|no-ask" for f in ask_forms):
+    fail(f"add's forms with the ask word are {[f['args'] for f in ask_forms]}, not each plain form and ask|no-ask")
+changed = [f_ for f_ in table["feedback"] if f_["line"] == "description_changed"]
+if [(f_["args"], f_.get("names"), f_["origin"]) for f_ in changed] != [(["word"], ["uri"], "plugin-hostd")]:
+    fail(f"the table's description_changed is {changed}, not plugin-hostd's <uri>")
+with open(os.path.join(ROOT, "protocol", "plugin-hostd.json"), encoding="utf-8") as f:
+    meanings = {c["code"]: c["meaning"] for c in json.load(f)["errors"]}
+for code in (-529, -530):
+    if "description_get" not in meanings.get(code, ""):
+        fail(f"{code} is {meanings.get(code)!r}, which does not say what description_get answers it for")
+
 # ---- refusals the grammar names ----
 for line in ("", "zzz 3", "add", "remove x", "set_bpm loud", "param_set 3 gain", "bypass 3", "Add urn:golden:amp 3",
              "remove  3", "remove 3 "):
     must_not("command", line, "a wrong line")
 for line in ("resp", "resp x", "ok"):
     must_not("reply", line, "a wrong reply")
+
+# ---- a quoted word: \" a quote and \\ a backslash, a lone backslash no value (#88) ----
+for v in ('"a b\\\\"', '"\\\\"', '"a\\\\\\"b"', '"say \\"hi\\""', '""'):
+    must("word", v, "a quoted word")
+for v in ('"a b\\"', '"\\"', '"a\\b"'):
+    must_not("word", v, "a quoted word that never closes or holds a lone backslash")
 
 # ---- the float of #371 ----
 for v in ("NaN", "Infinity", "-Infinity", "nan", "inf", "-inf", "0.2500", "-1e-3", "440.125", ".5"):

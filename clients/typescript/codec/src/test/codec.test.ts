@@ -76,6 +76,46 @@ describe('the TypeScript client on the fixtures', () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+
+  // plugin-hostd-protocol#26: the words of the protocol are the domain plugin-hostd-protocol, and a contract directory that holds only it
+  // gives a reply code its sentence and this package as its owner
+  it('reads a sentence from the domain plugin-hostd-protocol of a contract directory that holds nothing else', () => {
+    const name = 'reply.plugin-hostd.no-cell';
+    const dir = mkdtempSync(join(tmpdir(), 'protocol-domain-'));
+    try {
+      mkdirSync(join(dir, 'plugin-hostd-protocol'), { recursive: true });
+      const source = new URL('../../../../../contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json', import.meta.url);
+      writeFileSync(join(dir, 'plugin-hostd-protocol', 'plugin-hostd-protocol.json'), readFileSync(source));
+      const doc = JSON.parse(readFileSync(source, 'utf8')) as { components: { schemas: Record<string, { oneOf: { const: string; 'x-text'?: string }[] }> } };
+      const want = doc.components.schemas['PLUGIN_HOSTD_PROTOCOL_REPLY_CODES']!.oneOf.find((w) => w.const === name)!['x-text'];
+      const p = new Protocol({ ...optionsFromEnvironment(), contractDirs: [dir] });
+      assert.equal(p.sentence(p.code(name), 'en'), want);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  // the codec reads the domains alone: a stale 3/plugin-hostd-protocol/verbs.json beside the domain, with a sentence of its
+  // own, is never read
+  it('never reads a stale verbs.json of the package beside the domain', () => {
+    const name = 'reply.plugin-hostd.no-cell';
+    const dir = mkdtempSync(join(tmpdir(), 'protocol-domain-'));
+    try {
+      mkdirSync(join(dir, 'plugin-hostd-protocol'), { recursive: true });
+      const source = new URL('../../../../../contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json', import.meta.url);
+      writeFileSync(join(dir, 'plugin-hostd-protocol', 'plugin-hostd-protocol.json'), readFileSync(source));
+      const doc = JSON.parse(readFileSync(source, 'utf8')) as { components: { schemas: Record<string, { oneOf: { const: string; 'x-text'?: string; 'x-resp'?: number }[] }> } };
+      const word = doc.components.schemas['PLUGIN_HOSTD_PROTOCOL_REPLY_CODES']!.oneOf.find((w) => w.const === name)!;
+      mkdirSync(join(dir, '3', 'plugin-hostd-protocol'), { recursive: true });
+      writeFileSync(join(dir, '3', 'plugin-hostd-protocol', 'verbs.json'), JSON.stringify({
+        PLUGIN_HOSTD_PROTOCOL_REPLY_CODES: { kind: 'codes', codes: { noCell: { code: name, resp: word['x-resp'], text: { en: 'A stale sentence of the old home.' } } } },
+      }));
+      const p = new Protocol({ ...optionsFromEnvironment(), contractDirs: [dir] });
+      assert.equal(p.sentence(p.code(name), 'en'), word['x-text']);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
 });
 
 describe('the replies with a shape of their own', () => {
@@ -166,6 +206,19 @@ describe('the installed files', () => {
   });
 });
 
+// #106: the thin client's port and reply cap are the table's constants, read through the codec, never a copy of its own
+describe("the wire's constants are the table's", () => {
+  const protocol = new Protocol(optionsFromEnvironment());
+  const table = JSON.parse(readFileSync(protocol.tablePath, 'utf8')) as { constants: { name: string; value: number }[] };
+
+  it('gives every constant the table declares, and refuses one it does not', () => {
+    assert.ok(table.constants.length >= 2);
+    for (const c of table.constants) assert.equal(protocol.constant(c.name), c.value);
+    assert.equal(protocol.constant('message_max'), 16 * 1024 * 1024);
+    assert.throws(() => protocol.constant('no_such_constant'), ProtocolError);
+  });
+});
+
 // plugin-hostd-protocol#24 and #23 (D22, D23): a client compares what it decoded against the owner's names, never a
 // literal it writes, and asks a refusal's transient of the code, never a list of names it keeps.
 describe('the verbs and the reply codes as constants, and a code transient by its declaration', () => {
@@ -173,7 +226,7 @@ describe('the verbs and the reply codes as constants, and a code transient by it
   const table = JSON.parse(readFileSync(protocol.tablePath, 'utf8')) as {
     commands: { verb: string }[];
     feedback: { line: string }[];
-    reply_codes: { resp: number; code: string; transient?: boolean }[];
+    reply_codes: { resp: number; code: string; transient?: boolean; leaves_no_mark?: boolean }[];
   };
   const short = (code: string): string => code.slice(code.lastIndexOf('.') + 1).replace(/-/g, '_');
 
@@ -205,5 +258,19 @@ describe('the verbs and the reply codes as constants, and a code transient by it
     assert.equal(protocol.transient(protocol.code['pin_refused']!), false);
     assert.equal(protocol.transient(protocol.code['descriptor_absent']!), false);
     assert.throws(() => protocol.transient(-99999), ProtocolError);
+  });
+
+  // the second class (plugin-hostd-protocol 0.5.11, ruled 2026-11-15): a refusal that leaves no mark on the plugin, read
+  // from the table's leaves_no_mark as the Python codec's leaves_no_mark() reads it; pin-refused is in it, still not transient
+  it('reads a code declared to leave no mark as leaving none, and pin-refused as one that is still not transient', () => {
+    assert.ok(table.reply_codes.some((r) => r.leaves_no_mark === true), 'the table declares a code that leaves no mark');
+    for (const r of table.reply_codes) {
+      assert.equal(protocol.leavesNoMark(r.resp), r.leaves_no_mark === true, r.code);
+      assert.equal(protocol.leavesNoMark(r.code), r.leaves_no_mark === true, r.code);
+    }
+    assert.equal(protocol.leavesNoMark(protocol.code['pin_refused']!), true);
+    assert.equal(protocol.transient(protocol.code['pin_refused']!), false);
+    assert.equal(protocol.leavesNoMark(protocol.code['descriptor_absent']!), false);
+    assert.throws(() => protocol.leavesNoMark(-99999), ProtocolError);
   });
 });

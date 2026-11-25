@@ -1,9 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://openmixer.org/contract/probe",
+  "x-omx-contract": "0.23",
   "info": {
     "title": "The words a probe run writes",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "x-owner": "plugin-hostd-protocol",
     "x-stability": "experimental"
   },
@@ -11,7 +12,7 @@
     "schemas": {
       "PROBE_REASONS": {
         "description": "Why a run was made, the document's run.reason.",
-        "x-since": "1.0.0",
+        "x-since": "0.1.0",
         "oneOf": [
           {
             "const": "add",
@@ -66,7 +67,7 @@
       },
       "PROBE_OUTCOMES": {
         "description": "How a step or a run ended, the outcome of each step and of the run.",
-        "x-since": "1.0.0",
+        "x-since": "0.1.0",
         "oneOf": [
           {
             "const": "probe.ok",
@@ -198,7 +199,7 @@
       },
       "PROBE_STEPS": {
         "description": "The steps of a run, in the document's steps.",
-        "x-since": "1.0.0",
+        "x-since": "0.1.0",
         "oneOf": [
           {
             "const": "hash",
@@ -267,7 +268,7 @@
       },
       "PROBE_SIGNALS": {
         "description": "The signal a child died of, as the step and the crash block name it.",
-        "x-since": "1.0.0",
+        "x-since": "0.1.0",
         "x-c-codes": true,
         "oneOf": [
           {

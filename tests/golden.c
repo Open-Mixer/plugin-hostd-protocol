@@ -158,7 +158,7 @@ static int b_param_info(int instance, const char *symbol, host_param_info_t *inf
     record("param_info(%d,%s)", instance, symbol);
     if (answer(instance) != SUCCESS)
         return answer(instance);
-    info->unit = "hz";
+    info->unit = "Hz";
     info->scale = "log";
     info->min = 20;
     info->max = 20000;
@@ -179,6 +179,7 @@ static int b_param_info(int instance, const char *symbol, host_param_info_t *inf
 static const host_backend_t g_backend = {
     b_add, b_remove, b_bypass, b_param_set, b_param_get, b_preset_load, b_state_save, b_state_load,
     b_connect, b_disconnect,
+    NULL, /* param_origin */
 };
 static const host_plugin_info_t g_info = { b_track_info, b_remote_pages, b_remote_page_get, b_param_info };
 #ifdef HOST_DISPATCH_HAS_CURVE

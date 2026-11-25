@@ -7,10 +7,6 @@ on:
   schedule:
     - cron: '17 4 * * *'
   workflow_dispatch:
-    inputs:
-      clap-core-ref:
-        description: the omx-clap branch, tag or commit whose data/ (verbs.json) the declared-protocol job reads
-        default: main
 permissions:
   contents: read
 concurrency:
@@ -90,7 +86,7 @@ jobs:
       # omx-contract's C headers, which the declared protocol's generator is built against, are the OpenMixer channel's
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
-      # and the codec's tests read the sentences of omx-clap's package and omx-contract's catalog reader (issue 46)
+      # and the codec's tests read omx-contract's catalog reader (issue 46)
       - name: omx-contract's headers, and omx-dsp's curve function
         run: |
           set -euo pipefail
@@ -121,12 +117,11 @@ jobs:
           make test-ts-codec
 
   # The declared protocol with the tools a package build does not carry: the rendered headers are what the installed
-  # omx-contract renders from data/verbs.json and from omx-clap's package (and a header changed by hand is red), the
-  # staged contract package validates, protocol/plugin-hostd.json satisfies its schema, and the grammar holds the
-  # scenario corpus, the golden transcript and the table, read by python's abnf parser (and a broken rule is red).
-  # omx-clap's contract (contract.d/omx-clap/omx-clap.json, the shared verbs protocol/plugin-hostd-protocol.json imports) is read from
-  # its source at CLAP_CORE_REF, not from the channel: a protocol release comes before the omx-clap release that
-  # needs it, so the package of the verbs it declares is not served yet when this job runs.
+  # omx-contract renders from this tree's domains plugin-hostd-protocol, host and hosting-verb (contract.d), nothing of
+  # plugin-db's (#163; a header changed by hand is red), the staged contract package validates,
+  # protocol/plugin-hostd.json satisfies its schema, and the grammar holds the scenario corpus, the golden transcript
+  # and the table, read by python's abnf parser (and a broken rule is red). Nothing of omx-clap-core is read: the
+  # chain publishes this protocol first, and omx-clap-core reads its domains host and hosting-verb from here (#67).
   protocol:
     name: declared protocol (render, contract directory, schema, grammar) (${{ matrix.cell.image }})
     needs: checks
@@ -139,8 +134,6 @@ jobs:
         cell: ${{ fromJSON(needs.checks.outputs.rpm) }}
     container:
       image: ${{ matrix.cell.image }}
-    env:
-      CLAP_CORE_REF: ${{ inputs.clap-core-ref || 'main' }}
     steps:
       - name: Toolchain
         run: dnf -y install gcc make git pkgconf-pkg-config diffutils python3 python3-jsonschema python3-pyyaml
@@ -149,40 +142,26 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
-      - name: omx-contract and plugin-db's package of the contract directory
+      - name: omx-contract
         run: |
           set -euo pipefail
-          dnf -y install omx-contract plugin-db-contract
+          dnf -y install omx-contract
           dnf builddep -y --setopt=install_weak_deps=False packaging/plugin-hostd-protocol.spec
       # an ordinary run renders and builds against what consumers get, the channel: name where each omx package came
       # from, and refuse one from the staging channel (#27: a stale staged contract package outranked the channel)
+      # a pull request into devel builds against the staging channel (devel -> staging -> prod, Open-Mixer/.github
+      # add-openmixer): there a package from staging is expected; anywhere else one is refused as before
       - name: Every contract package comes from the channel
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.base_ref }}
         run: |
           set -euo pipefail
-          dnf repoquery --installed --qf '%{name} %{version} %{from_repo}\n' 'omx-*' 'plugin-db-contract' | tee /tmp/from-repo
-          if grep staging /tmp/from-repo; then echo "a package above came from the staging channel: an ordinary run builds against the channel"; exit 1; fi
-      # one fetch of omx-clap at CLAP_CORE_REF, resolved to its commit and named; its data/ and its domains host and omx-clap are staged as the package
-      # omx-clap of a contract directory of its own, ahead of the installed one on OMX_CONTRACT_PATH, which every
-      # make target that renders, validates or translates reads
-      - name: omx-clap's domains host and omx-clap (contract.d) from its source
-        run: |
-          set -euo pipefail
-          url=https://github.com/Open-Mixer/omx-clap-core
-          sha=$(git ls-remote "$url" "$CLAP_CORE_REF" "refs/tags/$CLAP_CORE_REF^{}" | awk 'END { print $1 }')
-          if [ -z "$sha" ] && printf '%s' "$CLAP_CORE_REF" | grep -qxE '[0-9a-f]{40}'; then sha=$CLAP_CORE_REF; fi
-          [ -n "$sha" ] || { echo "omx-clap has no ref $CLAP_CORE_REF"; exit 1; }
-          src=$RUNNER_TEMP/omx-clap
-          git init -q "$src"
-          git -C "$src" fetch -q --depth 1 "$url" "$sha"
-          git -C "$src" checkout -q FETCH_HEAD -- data VERSION contract.d
-          test "$(git -C "$src" rev-parse FETCH_HEAD)" = "$sha"
-          echo "omx-clap contract.d/omx-clap/omx-clap.json read at $sha ($CLAP_CORE_REF)" | tee -a /tmp/from-repo
-          dir=$RUNNER_TEMP/clap-core-contract
-          (cd "$src" && sh "$(pkg-config --variable=datadir omx-contract)/install-contract-dir.sh" omx-clap "$(cat VERSION)" 3 data "$dir" data)
-          for n in host omx-clap; do sh "$(pkg-config --variable=datadir omx-contract)/install-contract-dir.sh" --domain "$src/contract.d/$n" "$dir"; done
-          # the shared verbs live in the domain omx-clap, and no data file holds them: a source without them is refused by name
-          grep -q '"OMX_CLAP_HOST_VERBS"' "$dir/omx-clap/omx-clap.json" || { echo "omx-clap at $sha: the domain omx-clap declares no OMX_CLAP_HOST_VERBS item (the verbs the protocol table imports)"; exit 1; }
-          echo "OMX_CONTRACT_PATH=$dir" >> "$GITHUB_ENV"
+          dnf repoquery --installed --qf '%{name} %{version} %{from_repo}\n' 'omx-*' | tee /tmp/from-repo
+          case $EVENT:$BASE in
+            pull_request*:devel) echo "a pull request into devel: a package from the staging channel is expected here" ;;
+            *) if grep staging /tmp/from-repo; then echo "a package above came from the staging channel: an ordinary run builds against the channel"; exit 1; fi ;;
+          esac
       - name: The python ABNF parser
         run: |
           python3 -m venv /opt/abnf
@@ -207,29 +186,37 @@ jobs:
           gate: make check-catalogs
 
   # The reply shapes (doc/reply-shapes.md): shapes/ held to the table and to the replies, ts/shapes/ the render omx-contract
-  # writes with its pinned json-schema-to-typescript, and the npm package as a consumer imports it. Each guard is broken
-  # in a scratch copy and must go red (test-shapes-sabotage). omx-contract is read from its source at the commit that
-  # merged the shapes facility (omx-contract#69), not from the channel: the generator is a dev dependency there (npm ci)
-  # and no served package carries it. Move OMX_CONTRACT_REF with the render when a newer generator is wanted.
+  # writes with its json-schema-to-typescript, and the npm package as a consumer imports it. Each guard is broken in a
+  # scratch copy and must go red (test-shapes-sabotage). omx-contract is read from its source, not from the channel: the
+  # generator is a dev dependency there (npm ci) and no served package carries it. Its branch is the one this run's
+  # packages come from, never a hand-kept commit: a pull request's base (devel -> staging, main -> the channel), a push
+  # or dispatch on main main, anything else devel. The commit read is printed.
   shapes:
     name: reply shapes (schemas, TypeScript render, npm package)
     if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    env:
-      OMX_CONTRACT_REF: 608ce65cb73aa9d7fe0ed4a39363c237200305f1
     steps:
       - uses: actions/checkout@v4
       - name: Toolchain
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends python3-jsonschema
-      - name: omx-contract at its pinned commit, with its generator
+      - name: omx-contract from its source on this run's branch, with its generator
+        env:
+          BASE: ${{ github.base_ref }}
+          REF: ${{ github.ref_name }}
         run: |
           set -euo pipefail
+          case "$BASE" in
+            main|devel) branch=$BASE ;;
+            '') if [ "$REF" = main ]; then branch=main; else branch=devel; fi ;;
+            *) echo "a pull request into $BASE: omx-contract has no branch for it (main or devel)" >&2; exit 1 ;;
+          esac
           src=$RUNNER_TEMP/omx-contract
           git init -q "$src"
-          git -C "$src" fetch -q --depth 1 https://github.com/Open-Mixer/omx-contract "$OMX_CONTRACT_REF"
-          git -C "$src" checkout -q FETCH_HEAD
-          test "$(git -C "$src" rev-parse HEAD)" = "$OMX_CONTRACT_REF"
+          git -C "$src" fetch -q --depth 1 https://github.com/Open-Mixer/omx-contract "refs/heads/$branch"
+          sha=$(git -C "$src" rev-parse -q --verify 'FETCH_HEAD^{commit}') || { echo "omx-contract's $branch did not resolve" >&2; exit 1; }
+          git -C "$src" checkout -q "$sha"
+          echo "omx-contract $branch at $sha"
           (cd "$src" && npm ci --no-audit --no-fund)
           echo "OMX_CONTRACT_DIR=$src" >> "$GITHUB_ENV"
       - name: The schemas against the table and the replies
@@ -238,12 +225,14 @@ jobs:
         run: make check-shapes-render
       - name: The package, as a consumer imports it
         run: make test-ts-package
-      - name: The TypeScript client, its generated vocabulary and curvePoints
+      - name: One TypeScript encoder, the codec; the client and curvePoints over it
         run: make test-ts-client
       - name: Each guard goes red on its fault
         run: make test-shapes-sabotage
       - name: The version of package.json
         run: make version-check
+      - name: No package below the highest version the channel ever served it at (#180)
+        run: make test-served-floor served-floor
 
   abi:
     # the baseline abi/ is written by fc45's libabigail (make abi-baseline there): an abidiff refuses a baseline of

@@ -3,8 +3,18 @@ verdicts 1 ISOLATED isolated qualified to run, in a worker of its own
 verdicts 2 REFUSED refused failed qualification: the pin records the bytes, a host should not load them
 pools 0 CORES cores its worker starts with the thread pool on, one helper per core of its cpu set but one, and no other plugin shares the worker
 pools 1 OFF off measured, and not faster or not safe with the pool: the worker keeps no option
+keys 0 VERDICT verdict the qualification verdict of the pinned bytes, a word of PIN_VERDICTS
+keys 1 POOL pool the thread pool word of the pinned bytes, a word of PIN_POOLS
+changes 0 FILES files a pinned file is gone, or its bytes no longer have the digest the pin holds
+changes 1 LAYOUT layout the plugin's parameter layout no longer has the fingerprint the pin holds
 word PHD_PIN_VERDICT_IN_PROCESS in-process
 word PHD_PIN_VERDICT_ISOLATED isolated
 word PHD_PIN_VERDICT_REFUSED refused
 word PHD_PIN_POOL_CORES cores
 word PHD_PIN_POOL_OFF off
+word PHD_PIN_KEY_VERDICT verdict
+word PHD_PIN_KEY_POOL pool
+word PHD_PIN_CHANGED_FILES files
+word PHD_PIN_CHANGED_LAYOUT layout
+word PHD_PIN_VERDICT_KEY verdict=
+word PHD_PIN_POOL_KEY pool=

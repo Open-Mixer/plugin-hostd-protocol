@@ -1,13 +1,13 @@
 hello 1 errors seq tags
-hello 02 ĸ!И ς!Ǖ
-supervisor_reset ""
-all_notes_off -443
-property_get 03 С
-@5- estimate -66 9 ϒ 0>!
-disconnect "2" g`
-note_off -8 -717 -44 -75
-chain_get -1
-set_bpb inf
-@.. node_label 75 "*ѓ"
-hmi_map 761 !! -90 -63 10 -55 065 !͛ .7 inf -2
-preset_get -087 -44
+@-- property_set 758 !! "ώ\\"
+plan 75 -9 t
+panel_get ""
+property_set -652 "!" "ɟ"
+track_info -06 üQ !͛ "\\"
+preset_get -954 281
+pool_config "\\\\" -13
+bundle_add !%!
+@_ history_clear " \\"
+@-7 hello 715 ! !ąİ
+@31 hmi_map -39 ) -67 -26 -1 8 -4 "Ⱦ" 108.97 +nan 71
+lv2_worker_set !N ""

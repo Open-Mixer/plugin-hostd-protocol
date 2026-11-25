@@ -60,7 +60,8 @@ def audit(text):
             bad.append("samepass reads a named source-ref")
     for name in ("rpm", "deb"):
         body = job(text, name)
-        if "needs: samepass" not in body:
+        # needs: samepass, or a list that names it (needs: [samepass, floor] since the served floor, #180)
+        if not re.search(r"^\s+needs: (samepass|\[([^\]]*, *)?samepass( *,[^\]]*)?\])\s*$", body, re.M):
             bad.append(name + " waits for samepass")
         if PASSED not in body:
             bad.append(name + " passes the list to the shared gate")
@@ -85,6 +86,7 @@ planted = [
     ("the samepass job's checkout", "sparse-checkout-cone-mode: false", "sparse-checkout-cone-mode: false\n          ref: v0.0.1", None),
     ("the file the job reads", "f=.github/release-same-pass\n", "f=.github/release-same-pass-x\n", None),
     ("the deb job's list", PASSED, "same-pass: ''", "deb"),
+    ("the rpm job's wait", "needs: [samepass, floor]", "needs: [floor]", None),
 ]
 for what, old, new, which in planted:
     if which is None:
