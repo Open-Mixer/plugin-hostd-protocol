@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/hosting-verb",
   "info": {
     "title": "The hosts a verb names",
-    "version": "1.0.0",
+    "version": "0.21.0",
     "x-owner": "plugin-hostd-protocol",
     "x-stability": "experimental"
   },
@@ -11,7 +11,7 @@
     "schemas": {
       "HOSTING_VERB_HOSTS": {
         "description": "The hosts a verb's implementedBy names (docs/contract-dir.md): the programs a controller sends mod-host's protocol to. A verb states what each one owes it; a host the verb leaves out owes it nothing.",
-        "x-since": "1.0.0",
+        "x-since": "0.21.0",
         "x-why": "A host's verbs were typed twice, in plugin-hostd's protocol.h and in omx-clap-core's command table; a verbs item declares them once, and the hosts it names are a closed list, so a misspelt host is refused rather than read as a host that owes nothing.",
         "oneOf": [
           {

@@ -3,7 +3,7 @@
   "$id": "https://openmixer.org/contract/plugin-hostd-protocol",
   "info": {
     "title": "The words of the plugin-hostd protocol",
-    "version": "1.0.0",
+    "version": "0.21.0",
     "x-owner": "plugin-hostd-protocol",
     "x-stability": "experimental",
     "x-requires": [
@@ -1319,7 +1319,7 @@
       },
       "PLUGIN_HOSTD_PROTOCOL_SHARED_VERBS": {
         "description": "The verbs omx-clap-host and plugin-hostd both answer by instance, and the layout pin and the chain plugin-hostd send its worker before an add: declared once, rendered for both hosts.",
-        "x-since": "0.22.0",
+        "x-since": "0.21.0",
         "oneOf": [
           {
             "const": "track_info",
@@ -1344,7 +1344,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "remote_pages",
@@ -1369,7 +1369,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "remote_page_get",
@@ -1394,7 +1394,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "param_info",
@@ -1425,7 +1425,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "pin_expect",
@@ -1448,7 +1448,7 @@
             "x-implemented-by": {
               "omx-clap-host": "required"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "chain_expect",
@@ -1468,7 +1468,7 @@
             "x-implemented-by": {
               "omx-clap-host": "required"
             },
-            "x-since": "0.26.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "note_input",
@@ -1496,7 +1496,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "note_on",
@@ -1530,7 +1530,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "note_off",
@@ -1564,7 +1564,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "all_notes_off",
@@ -1598,7 +1598,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "property_list",
@@ -1620,7 +1620,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.32.5"
+            "x-since": "0.21.0"
           },
           {
             "const": "property_info",
@@ -1645,7 +1645,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.32.5"
+            "x-since": "0.21.0"
           },
           {
             "const": "property_get",
@@ -1673,7 +1673,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.32.5"
+            "x-since": "0.21.0"
           },
           {
             "const": "property_set",
@@ -1707,7 +1707,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.32.5"
+            "x-since": "0.21.0"
           }
         ],
         "x-kind": "verbs",
@@ -1715,7 +1715,7 @@
       },
       "PLUGIN_HOSTD_PROTOCOL_CLAP_HOST_VERBS": {
         "description": "The verbs omx-clap-host adds to mod-host's protocol for itself: what a controller reads of an instance's ports, window, note counters and the CPU idle hold.",
-        "x-since": "0.22.0",
+        "x-since": "0.21.0",
         "oneOf": [
           {
             "const": "audio_ports",
@@ -1735,7 +1735,7 @@
             "x-implemented-by": {
               "omx-clap-host": "required"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "hide_external_ui",
@@ -1757,7 +1757,7 @@
               "omx-clap-host": "required",
               "mod-host": "unsupported"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "idle_hold",
@@ -1774,7 +1774,7 @@
             "x-implemented-by": {
               "omx-clap-host": "required"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "note_drops",
@@ -1791,7 +1791,7 @@
             "x-implemented-by": {
               "omx-clap-host": "required"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           },
           {
             "const": "note_out_drops",
@@ -1808,7 +1808,7 @@
             "x-implemented-by": {
               "omx-clap-host": "required"
             },
-            "x-since": "0.22.0"
+            "x-since": "0.21.0"
           }
         ],
         "x-kind": "verbs",
