@@ -7,7 +7,7 @@ plugin-hostd-protocol (0.21.0) unstable; urgency=medium
     library's RPM, which plugin-hostd-full depends on (#180).
   * tools/served-floor.py: the release refuses a version below the highest
     the channel ever served any of this source's packages at, read from the
-    history of the channel's ledgers; ci.yml runs it on every push (#180).
+    history of the channel's ledgers; every pull request runs it (#180).
 
  -- Pau Aliagas <linuxnow@gmail.com>  Wed, 25 Nov 2026 11:10:00 +0000
 

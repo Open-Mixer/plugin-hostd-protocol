@@ -255,7 +255,7 @@ shows the English source sentence.
 * Wed Nov 25 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.0-1
 - 0.21.0, above every version python3-plugin-hostd-protocol had when plugin-hostd
   built it (0.20.6): this source released it at 0.8.1, below it (#180).
-- tools/served-floor.py: the release refuses a version below the highest the
+- tools/served-floor.py, run on every pull request: the release refuses a version below the highest the
   channel ever served any of this source's packages at (#180).
 
 * Tue Nov 24 2026 Pau Aliagas <linuxnow@gmail.com> - 0.8.1-1
