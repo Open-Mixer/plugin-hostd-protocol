@@ -233,7 +233,7 @@ if error_answers == 0:
 
 # ---- the curve verbs' words (core.abnf, curve-binding) ----
 # the role and shape words are omx-dsp's: the grammar's alternatives, the words omx_curve.h holds, one for one; a
-# unit is a word, and every id of omx-dsp's OMX_CURVE_UNIT_WORDS (omx_curve.h, the PARAM_UNITS ids by value) is one
+# unit is a word, and every id of omx-dsp's CURVE_UNITS (OMX_CURVE_UNIT_WORDS, omx_curve.h: the PARAM_UNITS ids) is one
 def header_words(table_name, header="omx_curve.h"):
     import subprocess
     try:
