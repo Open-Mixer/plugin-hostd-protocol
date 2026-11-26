@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.21.0
+Version: 0.21.1
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -252,6 +252,13 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Thu Nov 26 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.1-1
+- The RPMs are built for Fedora aarch64 as well as x86_64: the release
+  matrix is Open-Mixer/.github's shared releases and architectures, with no
+  list of this repository's own.
+- Published by the devel release of the full matrix, with every change
+  merged to devel since 0.21.0.
+
 * Wed Nov 25 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.0-1
 - 0.21.0, above every version python3-plugin-hostd-protocol had when plugin-hostd
   built it (0.20.6): this source released it at 0.8.1, below it (#180).
