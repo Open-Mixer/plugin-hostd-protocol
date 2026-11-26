@@ -1,3 +1,11 @@
+plugin-hostd-protocol (0.21.2) unstable; urgency=medium
+
+  * The debs are built with the generated floors in the built package only
+    (the tree's debian/control keeps bare names, as tests/no_floors.py
+    requires); 0.21.1 reached staging as RPMs only.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Fri, 27 Nov 2026 00:23:46 +0100
+
 plugin-hostd-protocol (0.21.1) unstable; urgency=medium
 
   * The RPMs are built for Fedora aarch64 as well as x86_64: the release
