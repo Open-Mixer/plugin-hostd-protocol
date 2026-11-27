@@ -1,3 +1,11 @@
+plugin-hostd-protocol (0.21.3) unstable; urgency=medium
+
+  * The debs are built with their generated floors, and the .changes and
+    .buildinfo describe the debs as built; 0.21.1 and 0.21.2 reached staging
+    as RPMs only.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Fri, 27 Nov 2026 00:56:24 +0100
+
 plugin-hostd-protocol (0.21.2) unstable; urgency=medium
 
   * The debs are built with the generated floors in the built package only
