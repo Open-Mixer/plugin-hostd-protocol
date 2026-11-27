@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.21.3
+Version: 0.21.4
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -252,6 +252,11 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.4-1
+- release-same-pass no longer names plugin-hostd-full: plugin-hostd builds
+  no such package and no channel serves it, so the release gate refused the
+  name and the 0.21.3 tag release could not pass (#198).
+
 * Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.3-1
 - The debs are built with their generated floors, and the .changes and
   .buildinfo describe the debs as built; 0.21.1 and 0.21.2 reached staging

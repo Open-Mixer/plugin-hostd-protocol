@@ -1,3 +1,11 @@
+plugin-hostd-protocol (0.21.4) unstable; urgency=medium
+
+  * release-same-pass no longer names plugin-hostd-full: plugin-hostd builds
+    no such package and no channel serves it, so the release gate refused
+    the name and the 0.21.3 tag release could not pass (#198).
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Fri, 27 Nov 2026 13:50:02 +0100
+
 plugin-hostd-protocol (0.21.3) unstable; urgency=medium
 
   * The debs are built with their generated floors, and the .changes and
