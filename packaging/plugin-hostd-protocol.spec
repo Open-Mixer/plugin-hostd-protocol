@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.21.5
+Version: 0.21.6
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -296,6 +296,10 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Sat Nov 28 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.6-1
+- nodejs-plugin-hostd-protocol: every installed file that starts with #! is
+  executable (lintian script-not-executable failed the 0.21.5 deb build).
+
 * Sat Nov 28 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.5-1
 - nodejs-plugin-hostd-protocol, a new noarch package: the npm package
   @openmixer/plugin-hostd-protocol as npm pack packs it, under
