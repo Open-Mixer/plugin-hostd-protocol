@@ -2416,7 +2416,9 @@ static inline int phd_is_note_verb(const char *verb)
       "affinity (\"1-3\"); empty is that affinity less its lowest cpu; the reserved cores are the rest of it") \
     X(pin_store, path, "", "", "the file first-use pins are kept in; empty is $XDG_STATE_HOME/plugin-hostd/pins, " \
       "else $HOME/.local/state/plugin-hostd/pins") \
-    X(pin_file, path, "", "", "a file of pin lines loaded at start, as plugin-qualify --all --pins writes it; empty is none") \
+    X(pin_file, path, "", "", "a file of pin lines loaded at start, as plugin-qualify --all --pins writes it; settings that " \
+      "name no pin_file read /var/lib/omx/qualified.pins, the file plugin-qualify-sync writes, and while it is absent " \
+      "there are no pins from it yet; a pin_file line with an empty value is none") \
     X(pins_dir, path, PHD_DEFAULT_PINS_DIR, "", "the read-only pins of packages: every file in it whose name ends in .pins, read at start " \
       "in name order, under the store, the pin_file and pin_set, except that a pin of verdict=refused there holds over them " \
       "until the user's pin_accept; " \

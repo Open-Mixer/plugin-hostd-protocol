@@ -299,6 +299,8 @@ shows the English source sentence.
 * Sat Nov 28 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.6-1
 - nodejs-plugin-hostd-protocol: every installed file that starts with #! is
   executable (lintian script-not-executable failed the 0.21.5 deb build).
+- The pin_file setting says what plugin-hostd does: settings that name no
+  pin_file read /var/lib/omx/qualified.pins, and an empty value is none.
 
 * Sat Nov 28 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.5-1
 - nodejs-plugin-hostd-protocol, a new noarch package: the npm package
