@@ -847,7 +847,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
  * @param X the macro each row is passed to.
  */
 #define PHD_PIN_MODES(X) \
-    X(STRICT, PHD_PIN_MODE_STRICT, "add admits only a plugin that has a pin; a pin comes from pin_set, pin_file or pins_dir") \
+    X(STRICT, PHD_PIN_MODE_STRICT, "add admits only a plugin that has a pin; a pin comes from the qualification store, pin_set or pins_dir") \
     X(FIRST_USE, PHD_PIN_MODE_FIRST_USE, "add of a plugin with no pin records its pin, keeps it in the pin store and places " \
                               "the instance " PHD_PLACE_OWN "; a later change is refused until pin_accept")
 
@@ -944,18 +944,17 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
       "directory of a single-file format's file), its layout fingerprint and, when they are known, the verdict of its qualification and whether its worker gets the " \
       "CLAP thread pool; " \
       "it replaces an earlier pin of the uri; -516 for a plugin whose pins_dir pin carries " PHD_PIN_VERDICT_KEY \
-      PHD_PIN_VERDICT_REFUSED ", which only the user's " OMX_VERB_PIN_ACCEPT " overrides. The pin store, a pin_file and a pins_dir file hold the same " \
+      PHD_PIN_VERDICT_REFUSED ", which only the user's " OMX_VERB_PIN_ACCEPT " overrides. The pin store and a pins_dir file hold the same " \
       "line, with or without the verb") \
     X(PIN_CLEAR, OMX_VERB_PIN_CLEAR, "<uri> | " PHD_WORD_ALL, OMX_VERB_PIN_CLEAR_REPLY, "forget the pin of one plugin, or of every one; a pins_dir " \
       "pin is read-only and holds again") \
     X(PIN_RELOAD, OMX_VERB_PIN_RELOAD, "", OMX_VERB_PIN_RELOAD_REPLY, \
-      "read the pin_file and the pins_dir files again and put the pins in at once, without a restart; the daemon also does " \
-      "this by itself when one of those files changes. Running instances keep running: one the new pins refuse is logged " \
+      "read the qualification store and the pins_dir files again and put the pins in at once, without a restart; the daemon " \
+      "also does this by itself when one of them changes. Running instances keep running: one the new pins refuse is logged " \
       "and its id in " OMX_VERB_WORKER_LIST " is followed by " PHD_WORKER_PIN_REFUSED ". The pin_set pins of the controller " \
-      "are kept. -902 under pin_mode off or when the pin_file is gone or has a line outside the grammar, and the earlier " \
-      "pins hold") \
+      "are kept. -902 under pin_mode off") \
     X(PIN_CHANGED, OMX_VERB_PIN_CHANGED, "[<uri>] [files | layout]", OMX_VERB_PIN_CHANGED_REPLY, \
-      "the notice the package sync sends to every daemon it knows after it rewrote the pin file: the same as " \
+      "a notice that the pins changed: the same as " \
       OMX_VERB_PIN_RELOAD ", with or without the " PHD_EVENT_PIN_CHANGED " event's words after it; more words than those are -902") \
     X(LV2_WORKER_SET, OMX_VERB_LV2_WORKER_SET, "<uri> <" PHD_LV2_WORKER_MOD_HOST " | " PHD_LV2_WORKER_CLAP_HOST " | " \
       PHD_WORD_NONE ">", OMX_VERB_LV2_WORKER_SET_REPLY, \
@@ -964,7 +963,7 @@ static inline int phd_pin_path_decode(const char *word, char *out, size_t size)
     X(PIN_ACCEPT, OMX_VERB_PIN_ACCEPT, "<uri>", OMX_VERB_PIN_ACCEPT_REPLY, \
       "pin_mode " PHD_PIN_MODE_FIRST_USE " only: take the plugin's files as they are now as its pin, after a " \
       PHD_EVENT_PIN_CHANGED " event; the layout is learned again by the next add and the verdict is dropped. Of a plugin " \
-      "whose pin carries " PHD_PIN_VERDICT_KEY PHD_PIN_VERDICT_REFUSED " (pins_dir or pin_file) it is the user's choice to " \
+      "whose pin carries " PHD_PIN_VERDICT_KEY PHD_PIN_VERDICT_REFUSED " (pins_dir or the qualification store) it is the user's choice to " \
       "load it anyway: kept beside the pin store, it runs alone in a worker of its own, " OMX_VERB_PIN_CLEAR " takes the " \
       "choice back; -508 when the plugin has no pin, -509 when its files cannot be collected, -902 under pin_mode strict") \
     X(PIN_LAYOUT, OMX_VERB_PIN_LAYOUT, "<instance>", OMX_VERB_PIN_LAYOUT_REPLY, \
@@ -2400,7 +2399,7 @@ static inline int phd_is_note_verb(const char *verb)
       "omx-panel); an add names its file, so the daemon loads none by search; $CLAP_PATH is searched before it") \
     X(state_root, path, PHD_DEFAULT_STATE_ROOT, "XDG_RUNTIME_DIR", "the daemon's checkpoints and worker logs") \
     X(pin_mode, word, PHD_DEFAULT_PIN_MODE, "", "strict or first-use, while require_pins is 1: first-use records the pin " \
-      "of a plugin on its first add, strict admits only a plugin a controller, a pin_file or pins_dir pinned") \
+      "of a plugin on its first add, strict admits only a plugin the qualification store, a controller or pins_dir pinned") \
     X(grouping, word, PHD_DEFAULT_GROUPING, "", "off or on: whether plan applies its plan (a run of consecutive members " \
       "that may share a worker is declared as a chain), or only answers it; the default stays off until the benchmark " \
       "has published a win") \
@@ -2416,11 +2415,8 @@ static inline int phd_is_note_verb(const char *verb)
       "affinity (\"1-3\"); empty is that affinity less its lowest cpu; the reserved cores are the rest of it") \
     X(pin_store, path, "", "", "the file first-use pins are kept in; empty is $XDG_STATE_HOME/plugin-hostd/pins, " \
       "else $HOME/.local/state/plugin-hostd/pins") \
-    X(pin_file, path, "", "", "a file of pin lines loaded at start, as plugin-qualify --all --pins writes it; settings that " \
-      "name no pin_file read /var/lib/omx/qualified.pins, the file plugin-qualify-sync writes, and while it is absent " \
-      "there are no pins from it yet; a pin_file line with an empty value is none") \
     X(pins_dir, path, PHD_DEFAULT_PINS_DIR, "", "the read-only pins of packages: every file in it whose name ends in .pins, read at start " \
-      "in name order, under the store, the pin_file and pin_set, except that a pin of verdict=refused there holds over them " \
+      "in name order, under the qualification store and pin_set, except that a pin of verdict=refused there holds over them " \
       "until the user's pin_accept; " \
       "empty is none") \
     X(descriptor_dir, path, "", "OMX_DESCRIPTOR_DIR", "the scanned descriptors, one file per plugin binary (" \

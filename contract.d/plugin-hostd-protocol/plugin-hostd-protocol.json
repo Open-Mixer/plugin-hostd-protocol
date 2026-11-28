@@ -620,7 +620,7 @@
           {
             "const": "pin_reload",
             "title": "pinReload",
-            "description": "Read the pin_file and the pins_dir files again and put the pins in at once; running instances keep running.",
+            "description": "Read the qualification store and the pins_dir files again and put the pins in at once; running instances keep running.",
             "x-code": 9,
             "x-format": "pin_reload",
             "x-reply": "resp 0",
