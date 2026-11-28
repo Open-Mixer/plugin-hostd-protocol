@@ -34,7 +34,7 @@ endif
 # lower level this tree builds against (no version is typed, owner ruling 2026-11-24)
 OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags omxdsp 2>/dev/null)
 # the shapes' targets read JSON and a generator, and the documentation targets read the headers as text: no header
-ifeq ($(filter clean version-check test-served-floor served-floor build-node install-node test-node-installed test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-no-backcompat test-no-fedora44 docs-site check-protocol-doc check-doxygen,$(MAKECMDGOALS)),)
+ifeq ($(filter clean version-check test-served-floor served-floor build-node install-node test-node-installed test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-packaging-modes test-no-backcompat test-no-fedora44 docs-site check-protocol-doc check-doxygen,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
 $(error no omx-dsp for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
@@ -184,6 +184,10 @@ test-rpm-name-on-debian:
 # no package of this source carries an epoch (the owner's ruling, 2026-11-18): tests/epoch_test.py
 test-no-epoch:
 	python3 tests/epoch_test.py .
+
+# install-node sets the #! files' mode and the packaging restates it: the spec's %install and debian/rules (tests/packaging-modes.sh)
+test-packaging-modes:
+	sh tests/packaging-modes.sh .
 
 # no backward-compatibility path is left in the tree (#109): tests/no-backcompat.sh
 test-no-backcompat:
@@ -722,7 +726,7 @@ install-node:
 	d=$(DESTDIR)$(NODEDIR)/$(NODE_PKG); rm -rf $$d; install -d $$d; \
 	tar -xzf $$tmp/openmixer-plugin-hostd-protocol-*.tgz --no-same-owner --strip-components=1 -C $$d; \
 	chmod -R u+rwX,go+rX,go-w $$d; \
-	find $$d -path $$d/node_modules -prune -o -type f -exec sh -c 'for f; do [ "$$(head -c2 "$$f")" = "#!" ] && chmod 0755 "$$f"; done; :' sh {} +; \
+	find $$d -path $$d/node_modules -prune -o -type f -exec sh -c 'for f; do [ "$$(head -c2 "$$f")" = "#!" ] && chmod 0755 "$$f"; done; :' sh {} +; : INSTALL-MODE-MARK; \
 	install -d $$d/node_modules/@openmixer; ln -sfn $(OMX_CONTRACT_LIB) $$d/node_modules/@openmixer/omx-contract
 
 test-node-installed:

@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.21.6
+Version: 0.21.7
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -152,6 +152,8 @@ make build-node
 %make_build install-python DESTDIR=%{buildroot} PREFIX=%{_prefix} DATADIR=%{_datadir} PYTHON3_SITELIB=%{python3_sitelib}
 # the npm package's packed tree, nodejs-plugin-hostd-protocol
 make install-node DESTDIR=%{buildroot} PREFIX=%{_prefix} NODEDIR=%{_prefix}/lib/node_modules
+# a file's mode is the packaging's: every file of the packed tree that starts with #! (the npm bin cli.js) is 0755 # PACKAGING-MODE-MARK
+find %{buildroot}%{_prefix}/lib/node_modules/@openmixer/plugin-hostd-protocol -path '*/plugin-hostd-protocol/node_modules' -prune -o -type f -exec sh -c 'for f; do [ "$(head -c2 "$f")" = "#!" ] && chmod 0755 "$f"; done; :' sh {} +
 
 %check
 make test
@@ -296,6 +298,9 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Sat Nov 28 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.7-1
+- The deb's npm package keeps its #! files executable after dh_fixperms.
+
 * Sat Nov 28 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.6-1
 - nodejs-plugin-hostd-protocol: every installed file that starts with #! is
   executable (lintian script-not-executable failed the 0.21.5 deb build).

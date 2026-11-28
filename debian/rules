@@ -23,6 +23,13 @@ override_dh_auto_install:
 	# the npm package's packed tree, nodejs-plugin-hostd-protocol
 	$(MAKE) install-node DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr NODEDIR=/usr/lib/node_modules
 
+# dh_fixperms resets every mode under usr/lib to 0644, so the npm package's own bin (#! cli.js) loses the mode install-node gave it and
+# lintian fails the build on script-not-executable: every installed file of the packed tree that starts with #! is made 0755 again after it
+override_dh_fixperms:
+	dh_fixperms
+	# PACKAGING-MODE-MARK
+	find debian/nodejs-plugin-hostd-protocol/usr/lib/node_modules -path '*/node_modules/@openmixer/plugin-hostd-protocol/node_modules' -prune -o -type f -exec sh -c 'for f; do [ "$$(head -c2 "$$f")" = "#!" ] && chmod 0755 "$$f"; done; :' sh {} +
+
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	$(MAKE) test
