@@ -1,3 +1,10 @@
+plugin-hostd-protocol (0.21.7) unstable; urgency=medium
+
+  * nodejs-plugin-hostd-protocol: the #! files of the packed tree stay
+    executable after dh_fixperms (lintian script-not-executable).
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Sat, 28 Nov 2026 11:29:34 +0100
+
 plugin-hostd-protocol (0.21.6) unstable; urgency=medium
 
   * nodejs-plugin-hostd-protocol: every installed file that starts with #! is
