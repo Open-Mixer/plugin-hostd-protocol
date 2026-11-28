@@ -1,3 +1,20 @@
+plugin-hostd-protocol (0.21.5) unstable; urgency=medium
+
+  * nodejs-plugin-hostd-protocol, a new package: the npm package
+    @openmixer/plugin-hostd-protocol as npm pack packs it, under
+    /usr/lib/node_modules/@openmixer/plugin-hostd-protocol, its
+    @openmixer/omx-contract a link to the omx-contract package's tree, so a
+    Node consumer builds against the published package, never the
+    registry's.
+  * The npm package no longer packs the codec's build tree
+    (clients/typescript/codec/node_modules: typescript, ajv and the
+    registry's @openmixer/omx-contract, which the codec read before its
+    consumer's) nor its compiled tests.
+  * python3-plugin-hostd-protocol's description names the TypeScript package
+    as it is, @openmixer/plugin-hostd-protocol.
+
+ -- Pau Aliagas <linuxnow@gmail.com>  Sat, 28 Nov 2026 10:00:00 +0100
+
 plugin-hostd-protocol (0.21.4) unstable; urgency=medium
 
   * release-same-pass no longer names plugin-hostd-full: plugin-hostd builds

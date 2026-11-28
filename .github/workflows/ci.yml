@@ -45,7 +45,7 @@ jobs:
           wave: ${{ vars.OMX_RELEASE_MATRIX }}
           rpm-releases: '["45"]'
           rpm-arches: '["x86_64"]'
-          deb-releases: '["bookworm", "trixie"]'
+          deb-releases: '["trixie"]'
           deb-arches: '["arm64"]'
           x86-runner: ${{ vars.OMX_RUNNER || 'ubuntu-latest' }}
 
@@ -60,11 +60,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # ruling D25: while the org's OMX_RELEASE_MATRIX is quick, CI covers the quick cells only; bookworm is a full
-        # cell, served its floors only at the wave-end full release, so it joins the matrix when the variable is full
+        # ruling D25: while the org's OMX_RELEASE_MATRIX is quick, CI covers the quick cells only; the deb cells are
+        # trixie alone (bookworm is dropped from the matrix, owner 2026-11-27)
         cell: ${{ fromJSON(needs.checks.outputs.cells) }}
-    # privileged only to lower the runner kernel's mmap_rnd_bits: with the hosted image's 32 bits, bookworm's gcc 12
-    # AddressSanitizer dies in DEADLYSIGNAL loops or hangs until the timeout (newer libasan copes)
+    # privileged only to lower the runner kernel's mmap_rnd_bits: with the hosted image's 32 bits, an older gcc's
+    # AddressSanitizer dies in DEADLYSIGNAL loops or hangs until the timeout
     container:
       image: ${{ matrix.cell.image }}
       options: --privileged
@@ -115,6 +115,8 @@ jobs:
           command -v node >/dev/null || dnf -y install nodejs
           command -v npm >/dev/null || dnf -y install npm
           make test-ts-codec
+          # nodejs-plugin-hostd-protocol's tree as a Node consumer imports it: the bare name and ./client, every vector
+          make test-node-installed PREFIX=/usr
 
   # The declared protocol with the tools a package build does not carry: the rendered headers are what the installed
   # omx-contract renders from this tree's domains plugin-hostd-protocol, host and hosting-verb (contract.d), nothing of

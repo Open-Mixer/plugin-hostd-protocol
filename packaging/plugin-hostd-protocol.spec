@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.21.4
+Version: 0.21.5
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -27,6 +27,14 @@ BuildRequires: omx-contract-devel
 BuildRequires: omx-contract-data
 # omx_curve.h, the curve function the curve verbs draw with (header only)
 BuildRequires: omx-dsp-devel
+# nodejs-plugin-hostd-protocol: the TypeScript codec is built with its locked toolchain (npm ci) and the npm package
+# packed (npm pack); %%check imports the packed tree with node, its @openmixer/omx-contract the omx-contract package's
+BuildRequires: nodejs
+BuildRequires: npm
+BuildRequires: omx-contract
+
+# The JavaScript is run by node, never a compiled module: no requirement is generated from the Node tree
+%global __requires_exclude_from ^%{_prefix}/lib/node_modules/.*$
 
 %description
 libplugin-hostd-protocol is the socket server, line protocol and command
@@ -89,6 +97,31 @@ protocol through it and restates nothing; the npm package
 is plugin_hostd_client.
 Its documentation is on openmixer.org.
 
+%package -n nodejs-plugin-hostd-protocol
+Summary: The TypeScript codec and client of the plugin-hostd protocol, for Node
+BuildArch: noarch
+Requires: nodejs
+# the codec reads the table plugin-hostd-protocol installs and the domains of plugin-hostd-protocol-contract, built by
+# this spec at this version
+Requires: plugin-hostd-protocol = %{version}-%{release}
+Requires: plugin-hostd-protocol-contract = %{version}-%{release}
+# its @openmixer/omx-contract: node_modules/@openmixer/omx-contract is a link to the omx-contract package's tree
+# (/usr/lib/omx-contract, the catalog reader), and the sentences read omx-contract's own domains (omx-contract-data)
+Requires: omx-contract
+Requires: omx-contract-data
+
+%description -n nodejs-plugin-hostd-protocol
+The npm package @openmixer/plugin-hostd-protocol as `npm pack` packs it,
+installed under /usr/lib/node_modules/@openmixer/plugin-hostd-protocol, where
+a Node program links its installed @openmixer packages from: the table-driven
+TypeScript codec (the package's own export, Protocol), the thin client over it
+(./client: the transport and curvePoints), the codec vectors
+(./codec-vectors), the reply shapes as JSON Schema (./schemas/*) and as
+TypeScript types (./shapes/*). The codec reads the files
+plugin-hostd-protocol and plugin-hostd-protocol-contract install; its
+@openmixer/omx-contract is the omx-contract package's tree, never a copy.
+Its documentation is on openmixer.org.
+
 %package contract
 Summary: The plugin-hostd protocol's verbs in omx-contract's contract directory
 BuildArch: noarch
@@ -108,6 +141,8 @@ Its documentation is on openmixer.org.
 %build
 %set_build_flags
 %make_build
+# the TypeScript codec's dist/, which the npm package's own export is
+make build-node
 
 %install
 %make_install PREFIX=%{_prefix} LIBDIR=%{_libdir} INCLUDEDIR=%{_includedir} DATADIR=%{_datadir}
@@ -115,9 +150,13 @@ Its documentation is on openmixer.org.
 %make_build install-contract DESTDIR=%{buildroot} PREFIX=%{_prefix}
 # the Python packages, python3-plugin-hostd-client and python3-plugin-hostd-protocol
 %make_build install-python DESTDIR=%{buildroot} PREFIX=%{_prefix} DATADIR=%{_datadir} PYTHON3_SITELIB=%{python3_sitelib}
+# the npm package's packed tree, nodejs-plugin-hostd-protocol
+make install-node DESTDIR=%{buildroot} PREFIX=%{_prefix} NODEDIR=%{_prefix}/lib/node_modules
 
 %check
 make test
+# the packed tree as a Node consumer imports it: the bare name and ./client resolve, every codec vector is met
+make test-node-installed PREFIX=%{_prefix}
 
 %files
 %license COPYING
@@ -152,6 +191,11 @@ make test
 %files -n python3-plugin-hostd-protocol
 %license COPYING
 %{python3_sitelib}/plugin_hostd_protocol/
+
+%files -n nodejs-plugin-hostd-protocol
+%license COPYING
+%dir %{_prefix}/lib/node_modules/@openmixer/
+%{_prefix}/lib/node_modules/@openmixer/plugin-hostd-protocol/
 
 %files contract
 %license COPYING
@@ -252,6 +296,19 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Sat Nov 28 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.5-1
+- nodejs-plugin-hostd-protocol, a new noarch package: the npm package
+  @openmixer/plugin-hostd-protocol as npm pack packs it, under
+  /usr/lib/node_modules/@openmixer/plugin-hostd-protocol, its
+  @openmixer/omx-contract a link to the omx-contract package's tree, so a
+  Node consumer builds against the published package, never the registry's.
+- The npm package no longer packs the codec's build tree
+  (clients/typescript/codec/node_modules: typescript, ajv and the registry's
+  @openmixer/omx-contract, which the codec read before its consumer's) nor
+  its compiled tests.
+- python3-plugin-hostd-protocol's description names the TypeScript package
+  as it is, @openmixer/plugin-hostd-protocol, not @openmixer/plugin-hostd-client.
+
 * Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.4-1
 - release-same-pass no longer names plugin-hostd-full: plugin-hostd builds
   no such package and no channel serves it, so the release gate refused the

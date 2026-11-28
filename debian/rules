@@ -11,6 +11,8 @@ MAKE_VARS = PREFIX=/usr LIBDIR=/usr/lib/$(DEB_HOST_MULTIARCH)
 
 override_dh_auto_build:
 	dh_auto_build -- $(MAKE_VARS)
+	# the TypeScript codec's dist/, which the npm package's own export is
+	$(MAKE) build-node
 
 override_dh_auto_install:
 	dh_auto_install -- $(MAKE_VARS)
@@ -18,8 +20,12 @@ override_dh_auto_install:
 	$(MAKE) install-contract DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr
 	# the Python packages, python3-plugin-hostd-client and python3-plugin-hostd-protocol
 	$(MAKE) install-python DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr PYTHON3_SITELIB=/usr/lib/python3/dist-packages
+	# the npm package's packed tree, nodejs-plugin-hostd-protocol
+	$(MAKE) install-node DESTDIR=$(CURDIR)/debian/tmp PREFIX=/usr NODEDIR=/usr/lib/node_modules
 
 override_dh_auto_test:
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	$(MAKE) test
+	# the packed tree as a Node consumer imports it: the bare name and ./client resolve, every codec vector is met
+	$(MAKE) test-node-installed PREFIX=/usr
 endif

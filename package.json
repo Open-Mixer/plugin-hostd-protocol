@@ -1,6 +1,6 @@
 {
   "name": "@openmixer/plugin-hostd-protocol",
-  "version": "0.21.4",
+  "version": "0.21.5",
   "description": "The plugin-hostd protocol's reply shapes (a JSON Schema and a TypeScript type for each document a reply carries, rendered from the schemas by omx-contract's pinned generator) its table-driven TypeScript codec, and the thin TypeScript client over that codec: the transport and curvePoints",
   "license": "GPL-3.0-or-later",
   "author": "Pau Aliagas <linuxnow@gmail.com>",
@@ -35,7 +35,9 @@
     "clients/typescript/codec/dist/index.js",
     "clients/typescript/codec/dist/index.d.ts",
     "clients/typescript/codec/dist/cli.js",
-    "clients/typescript/codec/dist/cli.d.ts"
+    "clients/typescript/codec/dist/cli.d.ts",
+    "!clients/typescript/codec/node_modules/",
+    "!clients/typescript/codec/dist/test/"
   ],
   "publishConfig": {
     "access": "public",
