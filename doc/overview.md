@@ -45,6 +45,10 @@ What plugin-hostd declares of the protocol is installed with the development pac
   `--variable=protocolschema`), and `mod-host.json`, mod-host's commands and codes (`--variable=modhostjson`);
 - the reply shapes, a JSON Schema per typed reply (`--variable=shapesdir`), and the TypeScript types of them as the npm
   package `@openmixer/plugin-hostd-protocol` ([reply-shapes.md](reply-shapes.md));
+- that npm package as an rpm and a deb, `nodejs-plugin-hostd-protocol`, installed under
+  `/usr/lib/node_modules/@openmixer/plugin-hostd-protocol`: the table-driven TypeScript codec, the thin client over it
+  (`./client`), the codec vectors (`./codec-vectors`) and the reply shapes (`./schemas/*`, `./shapes/*`); its
+  `@openmixer/omx-contract` is the omx-contract package's tree;
 - the source of the generator of `plugin-hostd.json` (`--variable=protocolgen`), for a consumer that checks its own
   pages against a changed copy of the headers;
 - `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json`, the domain plugin-hostd-protocol of omx-contract's contract directory

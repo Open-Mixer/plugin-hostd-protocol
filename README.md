@@ -31,6 +31,17 @@ sudo apt install libplugin-hostd-protocol-dev
 pkg-config --cflags --libs plugin-hostd-protocol
 ```
 
+For Node, `nodejs-plugin-hostd-protocol` (rpm and deb) installs the npm package `@openmixer/plugin-hostd-protocol`
+as `npm pack` packs it, under `/usr/lib/node_modules/@openmixer/plugin-hostd-protocol`: the table-driven TypeScript
+codec (`Protocol`), the thin client over it (`@openmixer/plugin-hostd-protocol/client`: the transport and
+`curvePoints`), the codec vectors, and the reply shapes as JSON Schema and TypeScript types. The codec reads the table
+and the domains the other packages install, never a copy:
+
+```
+sudo dnf install nodejs-plugin-hostd-protocol     # Fedora
+sudo apt install nodejs-plugin-hostd-protocol     # Debian
+```
+
 The headers keep the names and the API of `libmod-host-protocol` (`protocol.h`, `socket.h`, `host-dispatch.h`, ...),
 so a program built against `mod-host-protocol` changes only the package name it asks pkg-config for.
 
