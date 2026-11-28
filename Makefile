@@ -34,7 +34,7 @@ endif
 # lower level this tree builds against (no version is typed, owner ruling 2026-11-24)
 OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags omxdsp 2>/dev/null)
 # the shapes' targets read JSON and a generator, and the documentation targets read the headers as text: no header
-ifeq ($(filter clean version-check build-node install-node test-node-installed test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-no-backcompat test-no-fedora44 docs-site check-protocol-doc check-doxygen,$(MAKECMDGOALS)),)
+ifeq ($(filter clean version-check test-served-floor served-floor build-node install-node test-node-installed test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-no-backcompat test-no-fedora44 docs-site check-protocol-doc check-doxygen,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
 $(error no omx-dsp for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
