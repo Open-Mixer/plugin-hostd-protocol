@@ -35,7 +35,9 @@
     "clients/typescript/codec/dist/index.js",
     "clients/typescript/codec/dist/index.d.ts",
     "clients/typescript/codec/dist/cli.js",
-    "clients/typescript/codec/dist/cli.d.ts"
+    "clients/typescript/codec/dist/cli.d.ts",
+    "!clients/typescript/codec/node_modules/",
+    "!clients/typescript/codec/dist/test/"
   ],
   "publishConfig": {
     "access": "public",
