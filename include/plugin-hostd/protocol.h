@@ -1520,7 +1520,7 @@ static inline int phd_is_note_verb(const char *verb)
  *
  * A row is X(name, source, lv2-worker, clap-worker, console, zynthian).
  *
- * The mod-ui rows are the decision of 2026-10-21 (FreeMixer/plugin-hostd#131), read from Zynthian's verbs.tsv, with the
+ * The mod-ui rows are the decision of 2026-10-21, read from Zynthian's verbs.tsv, with the
  * decisions of 2026-10-22: presets and bundles are required of the CLAP worker and of Zynthian; MIDI learn and CV
  * addressing are policy of the surfaces, so the host answers them only as the mechanism and they stay optional for
  * every profile (presets in the host, docs/presets.md). The others are this tree's. The daemon relays a worker's verb

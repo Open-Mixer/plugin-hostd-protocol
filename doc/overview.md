@@ -45,6 +45,10 @@ What plugin-hostd declares of the protocol is installed with the development pac
   `--variable=protocolschema`), and `mod-host.json`, mod-host's commands and codes (`--variable=modhostjson`);
 - the reply shapes, a JSON Schema per typed reply (`--variable=shapesdir`), and the TypeScript types of them as the npm
   package `@openmixer/plugin-hostd-protocol` ([reply-shapes.md](reply-shapes.md));
+- that npm package as an rpm and a deb, `nodejs-plugin-hostd-protocol`, installed under
+  `/usr/lib/node_modules/@openmixer/plugin-hostd-protocol`: the table-driven TypeScript codec, the thin client over it
+  (`./client`), the codec vectors (`./codec-vectors`) and the reply shapes (`./schemas/*`, `./shapes/*`); its
+  `@openmixer/omx-contract` is the omx-contract package's tree;
 - the source of the generator of `plugin-hostd.json` (`--variable=protocolgen`), for a consumer that checks its own
   pages against a changed copy of the headers;
 - `contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json`, the domain plugin-hostd-protocol of omx-contract's contract directory
@@ -222,7 +226,7 @@ The library's code (`src/`, the headers at the top of `include/`) is mod-host's
 ([mod-audio/mod-host](https://github.com/mod-audio/mod-host)), by Filipe Coelho, MOD Audio UG and the mod-host
 contributors, taken from OpenMixer's fork ([Open-Mixer/mod-host](https://github.com/Open-Mixer/mod-host), branch
 `freemixer`, 013ac7d): upstream 12335c2 with the pull requests that made it a library (#81, #82, #98, #100, #101, #104
-to #109, #112, #113, #116 and the bind address of FreeMixer/mod-host#12). The files that come from it keep mod-host's
+to #109, #112, #113, #116 and the fork's bind address). The files that come from it keep mod-host's
 copyright and licence lines. The declared protocol (`include/plugin-hostd/`, `data/`, `protocol/`, `grammar/`,
 `tools/`) came from plugin-hostd.
 
