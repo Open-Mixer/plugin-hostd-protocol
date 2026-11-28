@@ -86,6 +86,10 @@ jobs:
       # omx-contract's C headers, which the declared protocol's generator is built against, are the OpenMixer channel's
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
+        with:
+          # a pull request into devel, or a dispatch off main, in a wave reads that wave's devel channel and its base above staging
+          devel-channel: ${{ ((startsWith(github.event_name, 'pull_request') && github.base_ref == 'devel') || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main')) && vars.OMX_DEVEL_CHANNEL || '' }}
+          devel-base: ${{ ((startsWith(github.event_name, 'pull_request') && github.base_ref == 'devel') || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main')) && vars.OMX_DEVEL_BASE || '' }}
       # and the codec's tests read omx-contract's catalog reader (issue 46)
       - name: omx-contract's headers, and omx-dsp's curve function
         run: |
@@ -144,6 +148,10 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
+        with:
+          # a pull request into devel, or a dispatch off main, in a wave reads that wave's devel channel and its base above staging
+          devel-channel: ${{ ((startsWith(github.event_name, 'pull_request') && github.base_ref == 'devel') || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main')) && vars.OMX_DEVEL_CHANNEL || '' }}
+          devel-base: ${{ ((startsWith(github.event_name, 'pull_request') && github.base_ref == 'devel') || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main')) && vars.OMX_DEVEL_BASE || '' }}
       - name: omx-contract
         run: |
           set -euo pipefail
@@ -254,6 +262,10 @@ jobs:
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Add the OpenMixer channel
         uses: Open-Mixer/.github/.github/actions/add-openmixer@openmixer-v1
+        with:
+          # a pull request into devel, or a dispatch off main, in a wave reads that wave's devel channel and its base above staging
+          devel-channel: ${{ ((startsWith(github.event_name, 'pull_request') && github.base_ref == 'devel') || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main')) && vars.OMX_DEVEL_CHANNEL || '' }}
+          devel-base: ${{ ((startsWith(github.event_name, 'pull_request') && github.base_ref == 'devel') || (github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main')) && vars.OMX_DEVEL_BASE || '' }}
       - name: omx-dsp's curve function
         run: dnf builddep -y --setopt=install_weak_deps=False packaging/plugin-hostd-protocol.spec
       - name: Exported symbols
