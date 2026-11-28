@@ -152,6 +152,8 @@ make build-node
 %make_build install-python DESTDIR=%{buildroot} PREFIX=%{_prefix} DATADIR=%{_datadir} PYTHON3_SITELIB=%{python3_sitelib}
 # the npm package's packed tree, nodejs-plugin-hostd-protocol
 make install-node DESTDIR=%{buildroot} PREFIX=%{_prefix} NODEDIR=%{_prefix}/lib/node_modules
+# a file's mode is the packaging's: every file of the packed tree that starts with #! (the npm bin cli.js) is 0755 # PACKAGING-MODE-MARK
+find %{buildroot}%{_prefix}/lib/node_modules/@openmixer/plugin-hostd-protocol -path '*/plugin-hostd-protocol/node_modules' -prune -o -type f -exec sh -c 'for f; do [ "$(head -c2 "$f")" = "#!" ] && chmod 0755 "$f"; done; :' sh {} +
 
 %check
 make test

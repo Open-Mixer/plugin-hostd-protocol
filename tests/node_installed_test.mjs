@@ -18,7 +18,7 @@
 // domains plugin-hostd-protocol-contract and omx-contract-data install; the options name a staged tree's instead.
 // Exit 0 every check passed, 1 one failed (named), 2 usage.
 import { spawnSync } from 'node:child_process';
-import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -65,21 +65,7 @@ if (nested.length || JSON.stringify(own) !== JSON.stringify(['@openmixer', '@ope
   process.exit(1);
 }
 
-// a file that starts with #! is executable (lintian script-not-executable fails the deb build on it; the bin cli.js runs)
-const scripts = [];
-const scan = (dir, rel) => {
-  for (const e of readdirSync(dir, { withFileTypes: true })) {
-    const r = rel ? `${rel}/${e.name}` : e.name;
-    if (e.isDirectory() && e.name !== 'node_modules') scan(join(dir, e.name), r);
-    else if (e.isFile() && readFileSync(join(dir, e.name)).subarray(0, 2).toString() === '#!' && (statSync(join(dir, e.name)).mode & 0o111) !== 0o111) scripts.push(r);
-  }
-};
-scan(installed, '');
-if (scripts.length) {
-  console.error(`node-installed: FAIL a script is not executable: ${scripts.slice(0, 6).join(', ')}`);
-  process.exit(1);
-}
-console.log('ok   every installed file that starts with #! is executable');
+// a file's mode is the packaging's (the spec's %install, debian/rules: tests/packaging-modes.sh), not this tree's
 
 const APP = String.raw`
 import assert from 'node:assert/strict';
