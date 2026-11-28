@@ -222,7 +222,7 @@ The library's code (`src/`, the headers at the top of `include/`) is mod-host's
 ([mod-audio/mod-host](https://github.com/mod-audio/mod-host)), by Filipe Coelho, MOD Audio UG and the mod-host
 contributors, taken from OpenMixer's fork ([Open-Mixer/mod-host](https://github.com/Open-Mixer/mod-host), branch
 `freemixer`, 013ac7d): upstream 12335c2 with the pull requests that made it a library (#81, #82, #98, #100, #101, #104
-to #109, #112, #113, #116 and the bind address of FreeMixer/mod-host#12). The files that come from it keep mod-host's
+to #109, #112, #113, #116 and the fork's bind address). The files that come from it keep mod-host's
 copyright and licence lines. The declared protocol (`include/plugin-hostd/`, `data/`, `protocol/`, `grammar/`,
 `tools/`) came from plugin-hostd.
 
