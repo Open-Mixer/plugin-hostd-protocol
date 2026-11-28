@@ -102,7 +102,7 @@ struct omx_host_verb {
 #define OMX_VERB_PIN_CLEAR_CODES_COUNT 4u
 #define OMX_VERB_PIN_CLEAR_CODES_INIT { -901, -902, -540, -541 } /* reply.host.memory-allocation, reply.host.invalid-operation, reply.plugin-hostd.durable-write-failed, reply.plugin-hostd.writer-queue-full */
 
-/* PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.pinReload (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json): Read the pin_file and the pins_dir files again and put the pins in at once; running instances keep running. */
+/* PLUGIN_HOSTD_PROTOCOL_DAEMON_VERBS.pinReload (contract.d/plugin-hostd-protocol/plugin-hostd-protocol.json): Read the qualification store and the pins_dir files again and put the pins in at once; running instances keep running. */
 #define OMX_VERB_PIN_RELOAD "pin_reload"
 #define OMX_VERB_PIN_RELOAD_FMT "pin_reload"
 #define OMX_VERB_PIN_RELOAD_REPLY "resp 0"
