@@ -61,7 +61,7 @@ jobs:
       fail-fast: false
       matrix:
         # ruling D25: while the org's OMX_RELEASE_MATRIX is quick, CI covers the quick cells only; the deb cells are
-        # trixie alone (bookworm is dropped from the matrix, owner 2026-11-27)
+        # trixie alone (Debian is trixie only, owner ruling 2026-11-28)
         cell: ${{ fromJSON(needs.checks.outputs.cells) }}
     # privileged only to lower the runner kernel's mmap_rnd_bits: with the hosted image's 32 bits, an older gcc's
     # AddressSanitizer dies in DEADLYSIGNAL loops or hangs until the timeout
