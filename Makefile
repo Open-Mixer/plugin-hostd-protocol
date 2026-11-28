@@ -722,6 +722,7 @@ install-node:
 	d=$(DESTDIR)$(NODEDIR)/$(NODE_PKG); rm -rf $$d; install -d $$d; \
 	tar -xzf $$tmp/openmixer-plugin-hostd-protocol-*.tgz --no-same-owner --strip-components=1 -C $$d; \
 	chmod -R u+rwX,go+rX,go-w $$d; \
+	find $$d -path $$d/node_modules -prune -o -type f -exec sh -c 'for f; do [ "$$(head -c2 "$$f")" = "#!" ] && chmod 0755 "$$f"; done; :' sh {} +; \
 	install -d $$d/node_modules/@openmixer; ln -sfn $(OMX_CONTRACT_LIB) $$d/node_modules/@openmixer/omx-contract
 
 test-node-installed:
