@@ -1,5 +1,5 @@
 Name: plugin-hostd-protocol
-Version: 0.21.4
+Version: 0.21.5
 Release: 1%{?dist}
 License: GPL-3.0-or-later
 Summary: The plugin-hostd protocol library, a superset of mod-host's text protocol
@@ -296,6 +296,19 @@ shows the English source sentence.
 # END langpacks
 
 %changelog
+* Sat Nov 28 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.5-1
+- nodejs-plugin-hostd-protocol, a new noarch package: the npm package
+  @openmixer/plugin-hostd-protocol as npm pack packs it, under
+  /usr/lib/node_modules/@openmixer/plugin-hostd-protocol, its
+  @openmixer/omx-contract a link to the omx-contract package's tree, so a
+  Node consumer builds against the published package, never the registry's.
+- The npm package no longer packs the codec's build tree
+  (clients/typescript/codec/node_modules: typescript, ajv and the registry's
+  @openmixer/omx-contract, which the codec read before its consumer's) nor
+  its compiled tests.
+- python3-plugin-hostd-protocol's description names the TypeScript package
+  as it is, @openmixer/plugin-hostd-protocol, not @openmixer/plugin-hostd-client.
+
 * Fri Nov 27 2026 Pau Aliagas <linuxnow@gmail.com> - 0.21.4-1
 - release-same-pass no longer names plugin-hostd-full: plugin-hostd builds
   no such package and no channel serves it, so the release gate refused the
