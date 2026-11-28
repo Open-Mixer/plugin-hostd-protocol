@@ -115,6 +115,8 @@ jobs:
           command -v node >/dev/null || dnf -y install nodejs
           command -v npm >/dev/null || dnf -y install npm
           make test-ts-codec
+          # nodejs-plugin-hostd-protocol's tree as a Node consumer imports it: the bare name and ./client, every vector
+          make test-node-installed PREFIX=/usr
 
   # The declared protocol with the tools a package build does not carry: the rendered headers are what the installed
   # omx-contract renders from this tree's domains plugin-hostd-protocol, host and hosting-verb (contract.d), nothing of

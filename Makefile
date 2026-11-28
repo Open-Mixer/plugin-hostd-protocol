@@ -34,7 +34,7 @@ endif
 # lower level this tree builds against (no version is typed, owner ruling 2026-11-24)
 OMXDSP_CFLAGS := $(shell $(PKG_CONFIG) --cflags omxdsp 2>/dev/null)
 # the shapes' targets read JSON and a generator, and the documentation targets read the headers as text: no header
-ifeq ($(filter clean version-check test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-no-backcompat test-no-fedora44 docs-site check-protocol-doc check-doxygen,$(MAKECMDGOALS)),)
+ifeq ($(filter clean version-check build-node install-node test-node-installed test-reply-shapes render-shapes check-shapes-render test-shapes-sabotage test-ts-package test-ts-client test-no-epoch test-no-backcompat test-no-fedora44 docs-site check-protocol-doc check-doxygen,$(MAKECMDGOALS)),)
 ifeq ($(OMXDSP_CFLAGS),)
 $(error no omx-dsp for pkg-config (omx-dsp-devel / libomx-dsp-dev): the curve verbs draw with its omx_curve.h)
 endif
@@ -696,6 +696,39 @@ test-ts-codec:
 	npm --prefix clients/typescript/codec ci --no-audit --no-fund; npm --prefix clients/typescript/codec run build; \
 	PLUGIN_HOSTD_PROTOCOL_TABLE=$(abspath protocol/plugin-hostd-protocol.json) PLUGIN_HOSTD_PROTOCOL_DATADIR=$$tmp$(DATADIR) \
 	  OMX_CONTRACT_PATH=$$tmp$(CONTRACTDIR):$(CONTRACTDIR) npm --prefix clients/typescript/codec test
+
+# The npm package as a Node consumer meets it installed (nodejs-plugin-hostd-protocol, the RPM and the deb): the tree
+# `npm pack` packs, unpacked under $(NODEDIR)/@openmixer/plugin-hostd-protocol, where the console's package build links
+# its installed @openmixer packages from (/usr/lib/node_modules/@openmixer/<name>, as plugin-qualify's), with the codec
+# built first (build-node: its locked toolchain, `npm ci`). Its @openmixer/omx-contract is the omx-contract package's
+# tree, $(OMX_CONTRACT_LIB) (/usr/lib/omx-contract), linked as node_modules/@openmixer/omx-contract, never a copy of the registry's.
+#   build-node            the codec's dist/, with its locked toolchain
+#   install-node          the packed tree into $(DESTDIR)$(NODEDIR); refused by name when the codec is not built
+#   test-node-installed   install-node staged alone, then tests/node_installed_test.mjs over it: the bare name and
+#                         ./client resolve and every codec vector is met, reading this tree's table and contract
+NODEDIR ?= $(PREFIX)/lib/node_modules
+# omx-contract's own tree, as its pkg-config file names it (clidir), else where its package puts it
+OMX_CONTRACT_LIB ?= $(or $(shell $(PKG_CONFIG) --variable=clidir omx-contract 2>/dev/null),$(PREFIX)/lib/omx-contract)
+NODE_PKG = @openmixer/plugin-hostd-protocol
+.PHONY: build-node install-node test-node-installed
+build-node:
+	npm --prefix clients/typescript/codec ci --no-audit --no-fund
+	npm --prefix clients/typescript/codec run build
+
+install-node:
+	@for f in index.js index.d.ts cli.js; do test -f clients/typescript/codec/dist/$$f || { echo "install-node: no clients/typescript/codec/dist/$$f: run make build-node first" >&2; exit 1; }; done
+	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
+	npm pack --silent --ignore-scripts --pack-destination $$tmp . >/dev/null; \
+	d=$(DESTDIR)$(NODEDIR)/$(NODE_PKG); rm -rf $$d; install -d $$d; \
+	tar -xzf $$tmp/openmixer-plugin-hostd-protocol-*.tgz --no-same-owner --strip-components=1 -C $$d; \
+	chmod -R u+rwX,go+rX,go-w $$d; \
+	install -d $$d/node_modules/@openmixer; ln -sfn $(OMX_CONTRACT_LIB) $$d/node_modules/@openmixer/omx-contract
+
+test-node-installed:
+	@set -e; tmp=$$(mktemp -d); trap 'rm -rf $$tmp' EXIT; \
+	$(MAKE) --no-print-directory install-node install-contract DESTDIR=$$tmp >/dev/null; \
+	node tests/node_installed_test.mjs $$tmp$(NODEDIR) --table $(CURDIR)/protocol/plugin-hostd-protocol.json \
+	  --contract-dirs $$tmp$(CONTRACTDIR):$(CONTRACTDIR) --datadir $$tmp$(DATADIR)
 
 test-grammar:
 	$(PYTHON) tests/grammar_test.py
